@@ -1,0 +1,6 @@
+tasks:
+  - channel: dummy_alert
+    message: ${channelPoint.userName} sagt ${channelPoint.input}
+    speak: true
+  - channel: channel_point
+    method: accept
