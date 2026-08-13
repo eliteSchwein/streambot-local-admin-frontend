@@ -65,6 +65,7 @@ export const useAppStore = defineStore('app', {
     reloadUpdate: {
       finished: true,
     },
+    updateManager: {},
   }),
   getters: {
     getConfig: (state) => state.config,
@@ -112,6 +113,7 @@ export const useAppStore = defineStore('app', {
     getIntegrations: (state) => state.integrations,
     getSettings: (state) => state.settings,
     getReloadUpdate: (state) => state.reloadUpdate,
+    getUpdateManager: (state) => state.updateManager,
 
     hasObsEnabled: (state) => {
       const integrations: any = state.integrations ?? {}
@@ -391,6 +393,11 @@ export const useAppStore = defineStore('app', {
     setSettings(settings: any) {
       this.settings = settings
       this.$patch(state => state.settings = settings)
+    },
+
+    setUpdateManager(updateManager: any) {
+      this.updateManager = updateManager ?? {}
+      this.$patch(state => state.updateManager = this.updateManager)
     },
 
     setReloadUpdate(reloadUpdate: any) {

@@ -24,8 +24,14 @@ export default {
       'getObsAudioData',
       'hasObsEnabled',
       'hasYoloboxEnabled',
-      'getReloadUpdate'
+      'getReloadUpdate',
+      'getUpdateManager'
     ]),
+    hasAvailableUpdates() {
+      return Object.values(this.getUpdateManager ?? {})
+        .some((manager) => manager?.update_available === true)
+    },
+
     currentRouteTitle() {
       const path = this.$route.path || '/';
       const firstPathPart = path.split('?')[0].split('#')[0].split('/').filter(Boolean)[0] || 'dashboard';
@@ -47,6 +53,7 @@ export default {
         recovery: 'recovery',
         gameScene: 'gameScene',
         obs: 'obs',
+        system: 'system',
         settings: 'settings'
       };
 
@@ -133,6 +140,24 @@ export default {
       />
       <p class="text-primary ml-2 ubuntu-mono">
         {{ $t('navigation.status.savingPleaseWait') }}
+      </p>
+    </v-btn>
+
+    <v-btn
+      v-if="hasAvailableUpdates"
+      class="mr-1"
+      color="grey-darken-4"
+      variant="flat"
+      :to="{ path: '/system' }"
+      :active="false"
+      :title="$t('navigation.status.updatesAvailable')"
+    >
+      <v-icon
+        icon="mdi-update"
+        color="warning"
+      />
+      <p class="text-warning ml-2 ubuntu-mono">
+        {{ $t('navigation.status.updatesAvailable') }}
       </p>
     </v-btn>
 
@@ -338,6 +363,11 @@ export default {
         to="/yolobox"></v-list-item>
       <v-divider></v-divider>
       <v-list-subheader>{{ $t('navigation.sections.systemTools') }}</v-list-subheader>
+      <v-list-item
+        prepend-icon="mdi-server"
+        :title="$t('navigation.tabs.system')"
+        color=""
+        to="/system"></v-list-item>
       <v-list-item
         prepend-icon="mdi-cog"
         :title="$t('navigation.tabs.settings')"

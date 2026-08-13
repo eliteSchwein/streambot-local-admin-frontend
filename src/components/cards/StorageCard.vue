@@ -13,6 +13,8 @@
       <div class="storage-card__progress mb-2">
         <v-progress-linear
           :model-value="storageUsedPercent"
+          color="grey-darken-1"
+          bg-color="grey-darken-4"
           height="7"
           rounded
         />
@@ -38,7 +40,10 @@
         />
       </div>
 
-      <div class="storage-card__info">
+      <div
+        v-if="!showLegendTable"
+        class="storage-card__info"
+      >
         <div>
           <span class="text-caption text-grey-lighten-1">{{ $t('system.storageUsed') }}</span>
           <span>{{ formatFileSize(storageInfo.used) }}</span>
@@ -99,6 +104,30 @@
           <span>{{ formatFileSize(rotatingSceneUsed) }}</span>
         </div>
       </div>
+
+      <v-table
+        v-else
+        density="compact"
+        class="storage-card__legend"
+      >
+
+        <tbody>
+        <tr
+          v-for="row in legendRows"
+          :key="row.key"
+        >
+          <td class="storage-card__legend-color">
+              <span
+                v-if="row.colorClass"
+                class="storage-card__legend-indicator"
+                :class="row.colorClass"
+              />
+          </td>
+          <td>{{ row.label }}</td>
+          <td class="text-right">{{ formatFileSize(row.value) }}</td>
+        </tr>
+        </tbody>
+      </v-table>
     </v-card-text>
   </v-card>
 </template>
@@ -109,6 +138,10 @@ import { useAppStore } from '@/stores/app'
 export default {
   props: {
     showSegmentedBar: {
+      type: Boolean,
+      default: false,
+    },
+    showLegendTable: {
       type: Boolean,
       default: false,
     },
@@ -190,6 +223,82 @@ export default {
       return Math.min(100, Math.max(0, (this.visibleStorageUsage / total) * 100))
     },
 
+    legendRows(): Array<{
+      key: string
+      label: string
+      value: number
+      colorClass?: string
+    }> {
+      const rows: Array<{
+        key: string
+        label: string
+        value: number
+        colorClass?: string
+      }> = []
+
+      const summaryRows = [
+        {
+          key: 'storage-used',
+          label: String(this.$t('system.storageUsed')),
+          value: Number(this.storageInfo?.used ?? 0),
+        },
+        {
+          key: 'storage-free',
+          label: String(this.$t('system.storageFree')),
+          value: Number(this.storageInfo?.free ?? 0),
+        },
+        {
+          key: 'storage-total',
+          label: String(this.$t('system.storageTotal')),
+          value: Number(this.storageInfo?.total ?? 0),
+        },
+      ]
+
+      rows.push(...summaryRows.filter(row => Number.isFinite(row.value) && row.value > 0))
+
+      for (const segment of this.storageCategoryRows) {
+        rows.push({
+          key: segment.key,
+          label: segment.label,
+          value: segment.value,
+          colorClass: segment.colorClass,
+        })
+      }
+
+      return rows
+    },
+
+    storageCategoryRows(): Array<{
+      key: string
+      label: string
+      value: number
+      colorClass: string
+    }> {
+      const candidates = [
+        { key: 'media', label: this.$t('system.mediaUsed'), value: this.mediaUsed, colorClass: 'bg-blue' },
+        { key: 'asset-config', label: this.$t('system.assetConfigUsed'), value: this.assetConfigUsed, colorClass: 'bg-purple' },
+        { key: 'overlay', label: this.$t('system.overlayUsed'), value: this.overlayUsed, colorClass: 'bg-cyan' },
+        { key: 'music', label: this.$t('system.musicUsed'), value: this.musicUsed, colorClass: 'bg-green' },
+        { key: 'macro', label: this.$t('system.macroUsed'), value: this.macroUsed, colorClass: 'bg-amber' },
+        { key: 'auto-macro', label: this.$t('system.autoMacroUsed'), value: this.autoMacroUsed, colorClass: 'bg-deep-orange' },
+        { key: 'channel-point', label: this.$t('system.channelPointUsed'), value: this.channelPointUsed, colorClass: 'bg-pink' },
+        { key: 'command', label: this.$t('system.commandUsed'), value: this.commandUsed, colorClass: 'bg-teal' },
+        { key: 'rotating-scene', label: this.$t('system.rotatingSceneUsed'), value: this.rotatingSceneUsed, colorClass: 'bg-lime' },
+      ]
+
+      return candidates.flatMap((candidate) => {
+        const value = Number(candidate.value)
+        if (!Number.isFinite(value) || value <= 0) return []
+
+        return [{
+          key: candidate.key,
+          label: String(candidate.label),
+          value,
+          colorClass: candidate.colorClass,
+        }]
+      })
+    },
+
     visibleStorageSegments(): Array<{
       key: string
       label: string
@@ -201,17 +310,7 @@ export default {
       const total = Number(this.storageInfo?.total ?? 0)
       if (!Number.isFinite(total) || total <= 0) return []
 
-      const candidates = [
-        { key: 'media', label: this.$t('system.mediaUsed'), value: this.mediaUsed, colorClass: 'bg-primary' },
-        { key: 'asset-config', label: this.$t('system.assetConfigUsed'), value: this.assetConfigUsed, colorClass: 'bg-secondary' },
-        { key: 'overlay', label: this.$t('system.overlayUsed'), value: this.overlayUsed, colorClass: 'bg-info' },
-        { key: 'music', label: this.$t('system.musicUsed'), value: this.musicUsed, colorClass: 'bg-success' },
-        { key: 'macro', label: this.$t('system.macroUsed'), value: this.macroUsed, colorClass: 'bg-warning' },
-        { key: 'auto-macro', label: this.$t('system.autoMacroUsed'), value: this.autoMacroUsed, colorClass: 'bg-deep-purple' },
-        { key: 'channel-point', label: this.$t('system.channelPointUsed'), value: this.channelPointUsed, colorClass: 'bg-pink' },
-        { key: 'command', label: this.$t('system.commandUsed'), value: this.commandUsed, colorClass: 'bg-cyan' },
-        { key: 'rotating-scene', label: this.$t('system.rotatingSceneUsed'), value: this.rotatingSceneUsed, colorClass: 'bg-orange' },
-      ]
+      const candidates = this.storageCategoryRows
 
       let leftPercent = 0
 
@@ -436,6 +535,29 @@ export default {
 
 .storage-card__info span:last-child {
   white-space: nowrap;
+}
+
+.storage-card__legend {
+  background: transparent;
+}
+
+.storage-card__legend th,
+.storage-card__legend td {
+  height: 32px !important;
+  padding: 0 8px !important;
+}
+
+.storage-card__legend-color {
+  width: 30px;
+  padding-right: 0 !important;
+}
+
+.storage-card__legend-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  vertical-align: middle;
 }
 
 @media (max-width: 960px) {

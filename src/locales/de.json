@@ -3,7 +3,8 @@
     "status": {
       "throttled": "Gedrosselt",
       "shield": "Schutz",
-      "savingPleaseWait": "Speichern, bitte warten..."
+      "savingPleaseWait": "Speichern, bitte warten...",
+      "updatesAvailable": "Updates verfügbar"
     },
     "actions": {
       "reloadPage": "Seite neu laden",
@@ -41,7 +42,8 @@
       "integrations": "Integrationen",
       "automacros": "Auto-Makros",
       "rotatingscene": "Szenenrotation",
-      "settings": "Einstellungen"
+      "settings": "Einstellungen",
+      "system": "System"
     },
     "routes": {
       "dashboard": "Dashboard",
@@ -54,7 +56,8 @@
       "connections": "Verbindungen",
       "recovery": "Wiederherstellung",
       "gameScene": "Spielszene",
-      "media": "Medien"
+      "media": "Medien",
+      "system": "System"
     }
   },
   "music": {
@@ -1296,7 +1299,20 @@
     "commandUsed": "Belegt durch Befehle",
     "rotatingSceneUsed": "Belegt durch Szenenrotation",
     "autoMacroUsed": "Belegt durch Auto-Makros",
-    "assetConfigUsed": "Von Asset-Konfigurationen verwendet"
+    "assetConfigUsed": "Von Asset-Konfigurationen verwendet",
+    "updates": {
+      "title": "Updates",
+      "refresh": "Updates neu prüfen",
+      "update": "Aktualisieren",
+      "available": "Update verfügbar",
+      "upToDate": "Aktuell",
+      "packageCount": "{count} Pakete",
+      "noState": "Noch kein Update-Status verfügbar"
+    },
+    "storageLegend": {
+      "category": "Kategorie",
+      "usage": "Speicher"
+    }
   },
   "common": {
     "cancel": "Abbrechen",

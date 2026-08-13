@@ -3,7 +3,8 @@
     "status": {
       "throttled": "Throttled",
       "shield": "Shield",
-      "savingPleaseWait": "Saving, please wait..."
+      "savingPleaseWait": "Saving, please wait...",
+      "updatesAvailable": "Updates available"
     },
     "actions": {
       "reloadPage": "Reload page",
@@ -41,7 +42,8 @@
       "integrations": "Integrations",
       "automacros": "Auto Macros",
       "rotatingscene": "Scene Rotation",
-      "settings": "Settings"
+      "settings": "Settings",
+      "system": "System"
     },
     "routes": {
       "dashboard": "Dashboard",
@@ -54,7 +56,8 @@
       "connections": "Connections",
       "recovery": "Recovery",
       "gameScene": "Game scene",
-      "media": "Media"
+      "media": "Media",
+      "system": "System"
     }
   },
   "music": {
@@ -1296,7 +1299,20 @@
     "commandUsed": "Used by Commands",
     "rotatingSceneUsed": "Used by Scene rotation",
     "autoMacroUsed": "Used by Auto Macros",
-    "assetConfigUsed": "Used by asset configs"
+    "assetConfigUsed": "Used by asset configs",
+    "updates": {
+      "title": "Updates",
+      "refresh": "Refresh update check",
+      "update": "Update",
+      "available": "Update available",
+      "upToDate": "Up to date",
+      "packageCount": "{count} packages",
+      "noState": "No update state available yet"
+    },
+    "storageLegend": {
+      "category": "Category",
+      "usage": "Usage"
+    }
   },
   "common": {
     "cancel": "Cancel",

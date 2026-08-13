@@ -203,6 +203,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     StorageCard: typeof import('./components/cards/StorageCard.vue')['default']
+    UpdateCard: typeof import('./components/cards/UpdateCard.vue')['default']
     UploadCard: typeof import('./components/cards/UploadCard.vue')['default']
     WledIntegrationDialog: typeof import('./components/dialogs/WledIntegrationDialog.vue')['default']
     YamlImportExportButtons: typeof import('./components/YamlImportExportButtons.vue')['default']
