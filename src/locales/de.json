@@ -1592,7 +1592,20 @@
         "description": "Ollama stellt das lokale KI-Modell bereit, das Streambot für Chatbot-Funktionen verwendet. Die Modelle laufen direkt auf diesem System.",
         "modelWarning": "Wähle ein ausreichend kleines Modell. Große Modelle können viel Arbeitsspeicher und CPU-/GPU-Leistung belegen und dadurch den restlichen Betrieb des Systems beeinträchtigen.",
         "modelHint": "Beliebigen Ollama-Modellnamen eingeben oder eine der getesteten Empfehlungen wählen.",
-        "installingShort": "Wird installiert"
+        "installingShort": "Wird installiert",
+        "external": {
+          "title": "Externer Ollama-Server",
+          "active": "External",
+          "description": "Use an Ollama-compatible server instead of starting Ollama locally. Streambot sends requests directly to this server.",
+          "useExternal": "Externen Ollama-Server verwenden",
+          "url": "Server-URL",
+          "urlPlaceholder": "https://ollama.example.com",
+          "urlRequired": "A server URL is required for external Ollama.",
+          "apiKey": "API-Schlüssel",
+          "apiKeyConfigured": "API key already configured",
+          "apiKeySaved": "API key saved",
+          "clearApiKey": "API-Schlüssel löschen"
+        }
       }
     }
   },
