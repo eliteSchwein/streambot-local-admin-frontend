@@ -32,6 +32,7 @@ import NotifyReloadUpdateMessage from "@/plugins/websocketEvents/websocketMessag
 import NotifyCommandsUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyCommandsUpdateMessage.ts";
 import NotifyUpdateManagerMessage from "@/plugins/websocketEvents/websocketMessage/NotifyUpdateManagerMessage.ts";
 import NotifyServiceReloadMessage from "@/plugins/websocketEvents/websocketMessage/NotifyServiceReloadMessage.ts";
+import NotifyOllamaUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyOllamaUpdateMessage.ts";
 
 export default class MessageEvent extends BaseEvent {
   name = 'message'
@@ -77,5 +78,6 @@ export default class MessageEvent extends BaseEvent {
     await new NotifyCommandsUpdateMessage(this.webSocketClient).handleMessage(data)
     await new NotifyUpdateManagerMessage(this.webSocketClient).handleMessage(data)
     await new NotifyServiceReloadMessage(this.webSocketClient).handleMessage(data)
+    await new NotifyOllamaUpdateMessage(this.webSocketClient).handleMessage(data)
   }
 }

@@ -162,6 +162,7 @@ import {
   MacroObsUnmuteInputTaskAccordion
 } from '@/components/accordions/macro/obs'
 import MacroFunctionParallelTaskAccordion from '@/components/accordions/macro/functions/MacroFunctionParallelTaskAccordion.vue'
+import MacroFunctionStripEmojisTaskAccordion from '@/components/accordions/macro/functions/MacroFunctionStripEmojisTaskAccordion.vue'
 import MacroSwitchTaskAccordion from '@/components/accordions/macro/MacroSwitchTaskAccordion.vue'
 import MacroSwitchBreakTaskAccordion from '@/components/accordions/macro/MacroSwitchBreakTaskAccordion.vue'
 import MacroTimerTaskAccordion from "@/components/accordions/macro/MacroTimerTaskAccordion.vue";
@@ -222,6 +223,8 @@ import MacroYoloboxAudioAfvTaskAccordion from '@/components/accordions/macro/yol
 import MacroSystemRebootTaskAccordion from "@/components/accordions/macro/system/MacroSystemRebootTaskAccordion.vue";
 import MacroSystemShutdownTaskAccordion
   from "@/components/accordions/macro/system/MacroSystemShutdownTaskAccordion.vue";
+import MacroOllamaChatTaskAccordion
+  from "@/components/accordions/macro/MacroOllamaChatTaskAccordion.vue";
 
 export default {
   name: 'MacroTaskList',
@@ -236,6 +239,8 @@ export default {
     MacroSwitchTaskAccordion,
     MacroSwitchBreakTaskAccordion,
     MacroFunctionParallelTaskAccordion,
+    MacroFunctionStripEmojisTaskAccordion,
+    MacroOllamaChatTaskAccordion,
     MacroYoloboxVideoSourceTaskAccordion,
     MacroYoloboxOverlayTaskAccordion,
     MacroYoloboxLiveStatusTaskAccordion,
@@ -545,6 +550,18 @@ export default {
                 },
               }),
             },
+            {
+              titleKey: 'macro.presets.message.stripEmojis',
+              icon: 'mdi-emoticon-remove-outline',
+              factory: () => this.createTask({
+                channel: 'function',
+                method: 'strip_emojis',
+                data: {
+                  content: '',
+                  key: 'stripped_text',
+                },
+              }),
+            },
           ]
         },
         {
@@ -582,6 +599,24 @@ export default {
           titleKey: 'macro.presets.parallel',
           icon: 'mdi-call-split',
           factory: () => this.createTask({ channel: 'function', method: 'parallel', data: { tasks: [] } }),
+        },
+        {
+          titleKey: 'macro.core.ollamaChat.title',
+          icon: 'mdi-robot-outline',
+          factory: () => this.createTask({
+            channel: 'ollama',
+            method: 'chat',
+            data: {
+              messages: [
+                {
+                  role: 'user',
+                  content: '',
+                },
+              ],
+              result_variable: 'ollama_response',
+              timeout: 0,
+            },
+          }),
         },
         {
           titleKey: 'macro.presets.fileReadAssetFolder',
@@ -1161,6 +1196,14 @@ export default {
 
       if (item?.task?.channel === 'function' && item?.task?.method === 'parallel') {
         return 'MacroFunctionParallelTaskAccordion'
+      }
+
+      if (item?.task?.channel === 'function' && item?.task?.method === 'strip_emojis') {
+        return 'MacroFunctionStripEmojisTaskAccordion'
+      }
+
+      if (item?.task?.channel === 'ollama' && item?.task?.method === 'chat') {
+        return 'MacroOllamaChatTaskAccordion'
       }
 
       if (item?.task?.channel === 'timer') {

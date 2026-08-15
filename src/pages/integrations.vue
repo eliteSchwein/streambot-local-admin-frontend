@@ -236,7 +236,6 @@
           </v-card>
         </v-col>
 
-
         <v-col cols="12" lg="6">
           <v-card class="integration-card" color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center justify-space-between">
@@ -499,6 +498,191 @@
 
 
 
+
+
+        <v-col cols="12" lg="6">
+          <v-card class="integration-card" color="grey-darken-4" elevation="0">
+            <v-card-title class="d-flex align-center justify-space-between">
+              <div class="d-flex align-center ga-2">
+                <v-icon icon="mdi-robot-outline" />
+                <span>Ollama</span>
+              </div>
+
+              <v-switch
+                :model-value="ollamaStatus.enabled"
+                color="primary"
+                density="compact"
+                hide-details
+                :loading="loading.ollamaToggle || ollamaStatus.installing"
+                :disabled="reloadInProgress || ollamaStatus.installing || ollamaStatus.changing_model"
+                @update:model-value="toggleOllama"
+              />
+            </v-card-title>
+
+            <v-card-text class="pt-2">
+              <div class="d-flex ga-2 flex-wrap mb-4">
+                <v-chip
+                  size="x-small"
+                  :color="ollamaStatus.enabled ? 'success' : 'grey'"
+                  variant="tonal"
+                >
+                  {{ ollamaStatus.enabled ? $t('common.enabled') : $t('integrations.ui.status.disabled') }}
+                </v-chip>
+
+                <v-chip
+                  size="x-small"
+                  :color="(loading.ollamaToggle || ollamaStatus.installing) ? 'info' : (ollamaStatus.installed ? 'success' : 'grey')"
+                  variant="tonal"
+                >
+                  <v-progress-circular
+                    v-if="loading.ollamaToggle || ollamaStatus.installing"
+                    indeterminate
+                    size="12"
+                    width="2"
+                    class="mr-1"
+                  />
+                  {{
+                    (loading.ollamaToggle || ollamaStatus.installing)
+                      ? $t('integrations.ui.ollama.installingShort')
+                      : (ollamaStatus.installed
+                        ? $t('integrations.ui.ollama.installed')
+                        : $t('integrations.ui.ollama.notInstalled'))
+                  }}
+                </v-chip>
+
+                <v-chip
+                  size="x-small"
+                  :color="ollamaStatus.running ? 'success' : 'grey'"
+                  variant="tonal"
+                >
+                  {{ ollamaStatus.running ? $t('integrations.ui.ollama.running') : $t('integrations.ui.status.offline') }}
+                </v-chip>
+              </div>
+
+              <v-alert
+                type="info"
+                variant="tonal"
+                density="compact"
+                icon="mdi-robot-happy-outline"
+                class="mb-4"
+              >
+                <div class="font-weight-medium mb-1">
+                  {{ $t('integrations.ui.ollama.descriptionTitle') }}
+                </div>
+                <div>
+                  {{ $t('integrations.ui.ollama.description') }}
+                </div>
+                <div class="mt-2 text-medium-emphasis">
+                  {{ $t('integrations.ui.ollama.modelWarning') }}
+                </div>
+              </v-alert>
+
+              <v-alert
+                v-if="ollamaStatus.installing"
+                type="info"
+                variant="tonal"
+                density="compact"
+                class="mb-4"
+              >
+                {{ $t('integrations.ui.ollama.installing') }}
+              </v-alert>
+
+              <v-alert
+                v-if="ollamaStatus.changing_model"
+                type="info"
+                variant="tonal"
+                density="compact"
+                class="mb-4"
+              >
+                {{ $t('integrations.ui.ollama.changingModel') }}
+              </v-alert>
+
+              <v-alert
+                v-if="ollamaStatus.error"
+                type="error"
+                variant="tonal"
+                density="compact"
+                class="mb-4"
+              >
+                {{ ollamaStatus.error }}
+              </v-alert>
+
+              <v-row density="comfortable" class="integration-form">
+                <v-col cols="12" md="8">
+                  <v-combobox
+                    :model-value="ollamaSelectedModel"
+                    :items="ollamaStatus.models"
+                    :label="$t('integrations.ui.ollama.model')"
+                    :hint="$t('integrations.ui.ollama.modelHint')"
+                    persistent-hint
+                    density="compact"
+                    variant="outlined"
+                    clearable
+                    :disabled="
+                      reloadInProgress
+                      || !ollamaStatus.enabled
+                      || ollamaStatus.installing
+                      || ollamaStatus.changing_model
+                    "
+                    @update:model-value="setOllamaSelectedModel"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="4">
+                  <v-btn
+                    block
+                    class="integration-action-btn"
+                    color="primary"
+                    variant="flat"
+                    prepend-icon="mdi-download"
+                    :loading="loading.ollamaModel || ollamaStatus.changing_model"
+                    :disabled="
+                      reloadInProgress
+                      || !ollamaStatus.enabled
+                      || ollamaStatus.installing
+                      || ollamaStatus.changing_model
+                      || !ollamaSelectedModel
+                      || ollamaSelectedModel === ollamaStatus.model
+                    "
+                    @click="changeOllamaModel"
+                  >
+                    {{ $t('integrations.ui.ollama.changeModel') }}
+                  </v-btn>
+                </v-col>
+              </v-row>
+
+              <v-divider class="my-4" />
+
+              <div class="d-flex align-center justify-space-between ga-3 flex-wrap">
+                <div>
+                  <div class="text-body-2">
+                    {{ $t('integrations.ui.ollama.currentModel') }}
+                  </div>
+                  <div class="text-medium-emphasis text-caption">
+                    {{ ollamaStatus.model || $t('integrations.ui.status.none') }}
+                  </div>
+                </div>
+
+                <v-btn
+                  color="secondary"
+                  variant="tonal"
+                  prepend-icon="mdi-restart"
+                  :loading="loading.ollamaRestart"
+                  :disabled="
+                    reloadInProgress
+                    || !ollamaStatus.enabled
+                    || !ollamaStatus.installed
+                    || ollamaStatus.installing
+                    || ollamaStatus.changing_model
+                  "
+                  @click="restartOllama"
+                >
+                  {{ $t('integrations.ui.ollama.restart') }}
+                </v-btn>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
       </v-row>
     </v-card-text>
   </v-card>
@@ -550,12 +734,17 @@ export default {
         heartbeat_index: 1 as number | null,
       },
 
+      ollamaModel: '',
+
       loading: {
         wledAdd: false,
         wledRemove: '',
         obsAdd: false,
         obsRemove: '',
         yoloboxToggle: false,
+        ollamaToggle: false,
+        ollamaModel: false,
+        ollamaRestart: false,
         neopixelSave: false,
         neopixelRemove: '',
       },
@@ -623,6 +812,34 @@ export default {
         enabled: Boolean(this.integrations?.yolobox?.enabled),
         connected: Boolean(this.integrations?.yolobox?.connected),
       }
+    },
+
+    ollamaStatus(): {
+      enabled: boolean
+      installed: boolean
+      running: boolean
+      installing: boolean
+      changing_model: boolean
+      model: string
+      models: string[]
+      error: string
+    } {
+      const ollama = this.integrations?.ollama ?? {}
+
+      return {
+        enabled: Boolean(ollama.enabled),
+        installed: Boolean(ollama.installed),
+        running: Boolean(ollama.running),
+        installing: Boolean(ollama.installing),
+        changing_model: Boolean(ollama.changing_model),
+        model: String(ollama.model ?? ''),
+        models: Array.isArray(ollama.models) ? ollama.models.map(String) : [],
+        error: String(ollama.error ?? ''),
+      }
+    },
+
+    ollamaSelectedModel(): string {
+      return this.ollamaModel || this.ollamaStatus.model
     },
 
     canAddWled(): boolean {
@@ -775,6 +992,52 @@ export default {
 
       if (!sent) return
 
+    },
+
+    setOllamaSelectedModel(model: string | null) {
+      this.ollamaModel = String(model ?? '')
+    },
+
+    async toggleOllama(enabled: boolean | null) {
+      this.loading.ollamaToggle = true
+
+      try {
+        await this.sendWebsocket('ollama_toggle', {
+          enabled: Boolean(enabled),
+        })
+      } finally {
+        this.loading.ollamaToggle = false
+      }
+    },
+
+    async changeOllamaModel() {
+      const model = this.ollamaSelectedModel.trim()
+
+      if (!model || model === this.ollamaStatus.model) return
+
+      this.loading.ollamaModel = true
+
+      try {
+        const sent = await this.sendWebsocket('ollama_change_model', {
+          model,
+        })
+
+        if (sent) {
+          this.ollamaModel = ''
+        }
+      } finally {
+        this.loading.ollamaModel = false
+      }
+    },
+
+    async restartOllama() {
+      this.loading.ollamaRestart = true
+
+      try {
+        await this.sendWebsocket('ollama_restart')
+      } finally {
+        this.loading.ollamaRestart = false
+      }
     },
 
     async saveNeopixel() {

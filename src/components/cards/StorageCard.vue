@@ -103,6 +103,11 @@
           <span class="text-caption text-grey-lighten-1">{{ $t('system.rotatingSceneUsed') }}</span>
           <span>{{ formatFileSize(rotatingSceneUsed) }}</span>
         </div>
+
+        <div v-if="!hideOllamaUsed && ollamaUsed !== null">
+          <span class="text-caption text-grey-lighten-1">{{ $t('system.ollamaUsed') }}</span>
+          <span>{{ formatFileSize(ollamaUsed) }}</span>
+        </div>
       </div>
 
       <v-table
@@ -181,6 +186,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    hideOllamaUsed: {
+      type: Boolean,
+      default: true,
+    },
   },
 
   computed: {
@@ -208,6 +217,7 @@ export default {
         !this.hideChannelPointUsed ? this.channelPointUsed : null,
         !this.hideCommandUsed ? this.commandUsed : null,
         !this.hideRotatingSceneUsed ? this.rotatingSceneUsed : null,
+        !this.hideOllamaUsed ? this.ollamaUsed : null,
       ]
 
       return values.reduce((total, value) => {
@@ -284,6 +294,7 @@ export default {
         { key: 'channel-point', label: this.$t('system.channelPointUsed'), value: this.channelPointUsed, colorClass: 'bg-pink' },
         { key: 'command', label: this.$t('system.commandUsed'), value: this.commandUsed, colorClass: 'bg-teal' },
         { key: 'rotating-scene', label: this.$t('system.rotatingSceneUsed'), value: this.rotatingSceneUsed, colorClass: 'bg-lime' },
+        { key: 'ollama', label: this.$t('system.ollamaUsed'), value: this.ollamaUsed, colorClass: 'bg-indigo' },
       ]
 
       return candidates.flatMap((candidate) => {
@@ -417,6 +428,13 @@ export default {
         this.storageInfo?.folders?.rotating_scene,
         this.storageInfo?.rotatingSceneUsed,
         this.storageInfo?.rotatingScenesUsed,
+      ])
+    },
+
+    ollamaUsed(): number | null {
+      return this.firstNumber([
+        this.storageInfo?.folders?.ollama,
+        this.storageInfo?.ollamaUsed,
       ])
     },
   },

@@ -225,6 +225,12 @@
       "parallel": {
         "title": "Parallel tasks",
         "info": "All nested tasks start at the same time. The macro continues after every nested task has finished."
+      },
+      "stripEmojis": {
+        "title": "Strip emojis",
+        "info": "Removes emoji characters from text and stores the cleaned result in a macro variable.",
+        "contentHint": "Supports macro variables, for example ${ollama_response}.",
+        "variableHint": "The cleaned text is stored in this variable."
       }
     },
     "music": {
@@ -646,7 +652,8 @@
         "title": "Message",
         "sendDm": "Send DM",
         "chatMessage": "Chat message",
-        "announce": "Announce"
+        "announce": "Announce",
+        "stripEmojis": "Strip emojis"
       },
       "time": {
         "title": "Time",
@@ -998,6 +1005,30 @@
         "caseTasks": "Case tasks",
         "addCaseInput": "Add case input",
         "removeCaseInput": "Remove case input"
+      },
+      "ollamaChat": {
+        "title": "Ollama chat prompt",
+        "description": "Sends a one-time prompt to the configured Ollama model. The conversation is not retained after the task finishes.",
+        "messages": "Messages",
+        "addMessage": "Add message",
+        "role": "Role",
+        "content": "Content",
+        "resultVariable": "Result variable",
+        "resultVariableHint": "The assistant response text is stored in this macro variable.",
+        "timeout": "Timeout (ms)",
+        "timeoutHint": "0 disables the request timeout.",
+        "roles": {
+          "system": "System",
+          "user": "User",
+          "assistant": "Assistant",
+          "tool": "Tool"
+        },
+        "roleDescriptions": {
+          "system": "Defines the chatbot's behavior, personality, rules, and general instructions.",
+          "user": "A message or question sent to the chatbot.",
+          "assistant": "A previous assistant response. Useful for examples or additional conversation context.",
+          "tool": "A tool result supplied to the model as additional context."
+        }
       }
     },
     "final": {
@@ -1312,7 +1343,8 @@
     "storageLegend": {
       "category": "Category",
       "usage": "Usage"
-    }
+    },
+    "ollamaUsed": "Used by Ollama"
   },
   "common": {
     "cancel": "Cancel",
@@ -1545,6 +1577,22 @@
         "nameIpPortRequired": "Name, IP and port are required",
         "nameGpioAmountRequired": "Name, GPIO and amount are required",
         "heartbeatOutOfRange": "Heartbeat index must be inside the LED amount"
+      },
+      "ollama": {
+        "installed": "Installed",
+        "notInstalled": "Not installed",
+        "running": "Running",
+        "installing": "Installing Ollama...",
+        "changingModel": "Changing model. Existing models are being removed and the new model is being downloaded...",
+        "model": "Model",
+        "changeModel": "Change model",
+        "currentModel": "Current model",
+        "restart": "Restart Ollama",
+        "descriptionTitle": "Local chatbot",
+        "description": "Ollama provides the local AI model used by Streambot for chatbot features. Models run directly on this system.",
+        "modelWarning": "Choose a reasonably small model. Large models can use a lot of memory and CPU/GPU resources and may make the rest of the system less responsive.",
+        "modelHint": "Type any Ollama model name or choose one of the tested suggestions.",
+        "installingShort": "Installing"
       }
     }
   },

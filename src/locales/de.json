@@ -225,6 +225,12 @@
       "parallel": {
         "title": "Parallele Tasks",
         "info": "Alle verschachtelten Tasks starten gleichzeitig. Das Makro wird fortgesetzt, sobald alle Tasks abgeschlossen sind."
+      },
+      "stripEmojis": {
+        "title": "Emojis entfernen",
+        "info": "Entfernt Emoji-Zeichen aus einem Text und speichert das bereinigte Ergebnis in einer Makro-Variable.",
+        "contentHint": "Unterstützt Makro-Variablen, zum Beispiel ${ollama_response}.",
+        "variableHint": "Der bereinigte Text wird in dieser Variable gespeichert."
       }
     },
     "music": {
@@ -646,7 +652,8 @@
         "title": "Nachricht",
         "sendDm": "DM senden",
         "chatMessage": "Chatnachricht",
-        "announce": "Ankündigen"
+        "announce": "Ankündigen",
+        "stripEmojis": "Emojis entfernen"
       },
       "time": {
         "title": "Zeit",
@@ -998,6 +1005,30 @@
         "caseTasks": "Case-Tasks",
         "addCaseInput": "Case-Eingabe hinzufügen",
         "removeCaseInput": "Case-Eingabe entfernen"
+      },
+      "ollamaChat": {
+        "title": "Ollama-Chat-Prompt",
+        "description": "Sendet einen einmaligen Prompt an das konfigurierte Ollama-Modell. Die Unterhaltung wird nach Abschluss der Aufgabe nicht beibehalten.",
+        "messages": "Nachrichten",
+        "addMessage": "Nachricht hinzufügen",
+        "role": "Rolle",
+        "content": "Inhalt",
+        "resultVariable": "Ergebnisvariable",
+        "resultVariableHint": "Der Antworttext des Assistenten wird in dieser Makro-Variable gespeichert.",
+        "timeout": "Zeitüberschreitung (ms)",
+        "timeoutHint": "0 deaktiviert die Zeitüberschreitung der Anfrage.",
+        "roles": {
+          "system": "System",
+          "user": "Benutzer",
+          "assistant": "Assistent",
+          "tool": "Werkzeug"
+        },
+        "roleDescriptions": {
+          "system": "Legt Verhalten, Persönlichkeit, Regeln und allgemeine Anweisungen für den Chatbot fest.",
+          "user": "Eine Nachricht oder Frage, die an den Chatbot gesendet wird.",
+          "assistant": "Eine vorherige Antwort des Assistenten. Nützlich für Beispiele oder zusätzlichen Gesprächskontext.",
+          "tool": "Ein Tool-Ergebnis, das dem Modell als zusätzlicher Kontext bereitgestellt wird."
+        }
       }
     },
     "final": {
@@ -1312,7 +1343,8 @@
     "storageLegend": {
       "category": "Kategorie",
       "usage": "Speicher"
-    }
+    },
+    "ollamaUsed": "Belegt durch Ollama"
   },
   "common": {
     "cancel": "Abbrechen",
@@ -1545,6 +1577,22 @@
         "nameIpPortRequired": "Name, IP und Port sind erforderlich",
         "nameGpioAmountRequired": "Name, GPIO und Anzahl sind erforderlich",
         "heartbeatOutOfRange": "Der Heartbeat-Index muss innerhalb der LED-Anzahl liegen"
+      },
+      "ollama": {
+        "installed": "Installiert",
+        "notInstalled": "Nicht installiert",
+        "running": "Läuft",
+        "installing": "Ollama wird installiert...",
+        "changingModel": "Modell wird gewechselt. Vorhandene Modelle werden entfernt und das neue Modell wird heruntergeladen...",
+        "model": "Modell",
+        "changeModel": "Modell wechseln",
+        "currentModel": "Aktuelles Modell",
+        "restart": "Ollama neu starten",
+        "descriptionTitle": "Lokaler Chatbot",
+        "description": "Ollama stellt das lokale KI-Modell bereit, das Streambot für Chatbot-Funktionen verwendet. Die Modelle laufen direkt auf diesem System.",
+        "modelWarning": "Wähle ein ausreichend kleines Modell. Große Modelle können viel Arbeitsspeicher und CPU-/GPU-Leistung belegen und dadurch den restlichen Betrieb des Systems beeinträchtigen.",
+        "modelHint": "Beliebigen Ollama-Modellnamen eingeben oder eine der getesteten Empfehlungen wählen.",
+        "installingShort": "Wird installiert"
       }
     }
   },
