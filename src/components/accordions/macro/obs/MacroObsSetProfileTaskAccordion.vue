@@ -11,7 +11,7 @@
     @move-down="$emit('move-down')"
   >
     <v-row density="comfortable">
-      <v-col cols="12" md="6">
+      <v-col cols="12">
         <v-text-field
           v-model="data.profileName"
           :label="$t('macro.obs.fields.profileName')"

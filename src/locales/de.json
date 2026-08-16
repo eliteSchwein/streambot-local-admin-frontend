@@ -325,7 +325,8 @@
         "positionY": "Y",
         "scaleX": "Skalierung X",
         "scaleY": "Skalierung Y",
-        "rotation": "Rotation"
+        "rotation": "Rotation",
+        "connectionHint": "Wähle die OBS-Instanz für diesen Task. Standard verwendet die primäre OBS-Verbindung."
       },
       "disableSourceFilter": {
         "title": "Quellfilter deaktivieren",
@@ -440,6 +441,21 @@
         "settings": "Filtereinstellungen",
         "noSettings": "Der ausgewählte Filter enthält in den aktuellen OBS-Daten keine Einstellungen.",
         "inputHint": "Damit eine Filtereingabe hier erscheint, ändere sie einmal in OBS."
+      },
+      "screenshot": {
+        "format": "Bildformat",
+        "width": "Breite (optional)",
+        "height": "Höhe (optional)",
+        "quality": "JPEG-Qualität (-1 bis 100)",
+        "resultVariable": "Ergebnisvariable",
+        "resultVariableHint": "Der temporäre Bildpfad auf dem Streambot-System wird in dieser Makro-Variable gespeichert."
+      },
+      "sourceScreenshot": {
+        "title": "Quellen-Screenshot"
+      },
+      "outputScreenshot": {
+        "title": "Output-Screenshot",
+        "info": "Erfasst die aktuelle Program-Szene und speichert den temporären Bildpfad in der Ergebnisvariable. Im OBS-Studio-Modus kann dies vom bereits übertragenen Program-Framebuffer abweichen, wenn Program und Vorschau dieselbe Szene verwenden."
       }
     },
     "twitch": {
@@ -678,7 +694,8 @@
       "variables": {
         "title": "Variablen",
         "setVariable": "Variable setzen",
-        "getVariable": "Variable abrufen"
+        "getVariable": "Variable abrufen",
+        "setLocalVariable": "Lokale Variable setzen"
       },
       "audio": {
         "title": "Audio",
@@ -821,7 +838,9 @@
           "reloadBrowserSources": "Browserquellen neu laden",
           "triggerHotkey": "Hotkey auslösen",
           "setProfile": "Profil setzen",
-          "setSceneCollection": "Szenensammlung setzen"
+          "setSceneCollection": "Szenensammlung setzen",
+          "sourceScreenshot": "Quellen-Screenshot",
+          "outputScreenshot": "Output-Screenshot"
         }
       },
       "lights": {
@@ -1007,7 +1026,7 @@
         "removeCaseInput": "Case-Eingabe entfernen"
       },
       "ollamaChat": {
-        "title": "Ollama-Chat-Prompt",
+        "title": "Chat-Prompt",
         "description": "Sendet einen einmaligen Prompt an das konfigurierte Ollama-Modell. Die Unterhaltung wird nach Abschluss der Aufgabe nicht beibehalten.",
         "messages": "Nachrichten",
         "addMessage": "Nachricht hinzufügen",
@@ -1029,6 +1048,14 @@
           "assistant": "Eine vorherige Antwort des Assistenten. Nützlich für Beispiele oder zusätzlichen Gesprächskontext.",
           "tool": "Ein Tool-Ergebnis, das dem Modell als zusätzlicher Kontext bereitgestellt wird."
         }
+      },
+      "variableLocalSet": {
+        "title": "Lokale Variable setzen",
+        "key": "Variable",
+        "keyPlaceholder": "count",
+        "expression": "Wert / Ausdruck",
+        "expressionPlaceholder": "${count} + 1",
+        "expressionHint": "Ändert nur dieses laufende Makro. Unterstützt Variablen, Rechenoperationen, Potenzen, Vergleiche, boolesches UND/ODER/NOT, Klammern, Boolesche Werte, null und Strings in Anführungszeichen."
       }
     },
     "final": {

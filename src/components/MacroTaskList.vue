@@ -129,6 +129,7 @@ import {
   MacroKeyboardTaskAccordion,
 } from '@/components/accordions/macro'
 import MacroClearMediaTaskAccordion from '@/components/accordions/macro/MacroClearMediaTaskAccordion.vue'
+import MacroVariableLocalSetTaskAccordion from '@/components/accordions/macro/MacroVariableLocalSetTaskAccordion.vue'
 import {
   MacroObsDisableSourceFilterTaskAccordion,
   MacroObsEnableSourceFilterTaskAccordion,
@@ -161,6 +162,7 @@ import {
   MacroObsUnlockSceneItemTaskAccordion,
   MacroObsUnmuteInputTaskAccordion
 } from '@/components/accordions/macro/obs'
+import MacroObsScreenshotTaskAccordion from '@/components/accordions/macro/obs/MacroObsScreenshotTaskAccordion.vue'
 import MacroFunctionParallelTaskAccordion from '@/components/accordions/macro/functions/MacroFunctionParallelTaskAccordion.vue'
 import MacroFunctionStripEmojisTaskAccordion from '@/components/accordions/macro/functions/MacroFunctionStripEmojisTaskAccordion.vue'
 import MacroSwitchTaskAccordion from '@/components/accordions/macro/MacroSwitchTaskAccordion.vue'
@@ -268,6 +270,7 @@ export default {
     MacroEndMacroTaskAccordion,
     MacroVariableGetTaskAccordion,
     MacroVariableSetTaskAccordion,
+    MacroVariableLocalSetTaskAccordion,
     MacroChannelPointAcceptTaskAccordion,
     MacroChannelPointCancelTaskAccordion,
     MacroChannelPointPauseTaskAccordion,
@@ -327,6 +330,7 @@ export default {
     MacroObsLockSceneItemTaskAccordion,
     MacroObsMuteInputTaskAccordion,
     MacroObsPauseRecordTaskAccordion,
+    MacroObsScreenshotTaskAccordion,
     MacroObsReloadBrowserSourcesTaskAccordion,
     MacroObsResumeRecordTaskAccordion,
     MacroObsSaveReplayBufferTaskAccordion,
@@ -680,6 +684,11 @@ export default {
               factory: () => this.createTask({ channel: 'variable', method: 'set', data: { value: null, key: '', to_file: false } }),
             },
             {
+              titleKey: 'macro.presets.variables.setLocalVariable',
+              icon: 'mdi-variable-box',
+              factory: () => this.createTask({ channel: 'variable', method: 'local_set', data: { key: '', expression: '' } }),
+            },
+            {
               titleKey: 'macro.presets.variables.getVariable',
               icon: 'mdi-database-import-outline',
               factory: () => this.createTask({ channel: 'variable', method: 'get', data: { key: '' } }),
@@ -995,6 +1004,8 @@ export default {
                 { titleKey: 'macro.presets.obs.recording.toggleRecording', icon: 'mdi-record-circle-outline', factory: () => this.createTask({ channel: 'obs', method: 'ToggleRecord', data: {} }) },
                 { titleKey: 'macro.presets.obs.recording.pauseRecording', icon: 'mdi-pause-circle', factory: () => this.createTask({ channel: 'obs', method: 'PauseRecord', data: {} }) },
                 { titleKey: 'macro.presets.obs.recording.resumeRecording', icon: 'mdi-play-circle', factory: () => this.createTask({ channel: 'obs', method: 'ResumeRecord', data: {} }) },
+                { titleKey: 'macro.presets.obs.tools.sourceScreenshot', icon: 'mdi-camera', factory: () => this.createTask({ channel: 'obs', method: 'GetSourceScreenshot', data: { sourceName: '', imageFormat: 'png', resultVariable: 'screenshot' } }) },
+                { titleKey: 'macro.presets.obs.tools.outputScreenshot', icon: 'mdi-monitor-screenshot', factory: () => this.createTask({ channel: 'obs', method: 'get_output_screenshot', data: { imageFormat: 'png', resultVariable: 'screenshot' } }) },
               ],
             },
             {
@@ -1218,6 +1229,10 @@ export default {
         return 'MacroVariableSetTaskAccordion'
       }
 
+      if (item?.task?.channel === 'variable' && item?.task?.method === 'local_set') {
+        return 'MacroVariableLocalSetTaskAccordion'
+      }
+
       if (item?.task?.channel === 'channel_point' && item?.task?.method === 'accept') {
         return 'MacroChannelPointAcceptTaskAccordion'
       }
@@ -1358,6 +1373,8 @@ export default {
         if (item?.task?.method === 'StartReplayBuffer') return 'MacroObsStartReplayBufferTaskAccordion'
         if (item?.task?.method === 'StopReplayBuffer') return 'MacroObsStopReplayBufferTaskAccordion'
         if (item?.task?.method === 'SaveReplayBuffer') return 'MacroObsSaveReplayBufferTaskAccordion'
+        if (item?.task?.method === 'GetSourceScreenshot') return 'MacroObsScreenshotTaskAccordion'
+        if (item?.task?.method === 'get_output_screenshot') return 'MacroObsScreenshotTaskAccordion'
         if (item?.task?.method === 'reload_browser_sources') return 'MacroObsReloadBrowserSourcesTaskAccordion'
         if (item?.task?.method === 'TriggerHotkeyByName') return 'MacroObsTriggerHotkeyTaskAccordion'
         if (item?.task?.method === 'SetCurrentProfile') return 'MacroObsSetProfileTaskAccordion'

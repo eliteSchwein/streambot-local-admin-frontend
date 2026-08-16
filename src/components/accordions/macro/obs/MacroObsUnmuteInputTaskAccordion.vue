@@ -11,7 +11,7 @@
     @move-down="$emit('move-down')"
   >
     <v-row density="comfortable">
-      <v-col cols="12" md="6">
+      <v-col cols="12">
         <v-autocomplete
           v-model="task.data.inputName"
           :items="inputOptions"

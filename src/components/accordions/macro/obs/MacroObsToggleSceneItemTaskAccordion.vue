@@ -42,7 +42,7 @@
         />
       </v-col>
 
-      <v-col cols="12" md="6">
+      <v-col cols="12">
         <v-select
           v-model="data.sceneItemEnabled"
           :items="enabledOptions"

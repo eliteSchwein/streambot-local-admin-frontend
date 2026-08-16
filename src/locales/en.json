@@ -325,7 +325,8 @@
         "positionY": "Y",
         "scaleX": "Scale X",
         "scaleY": "Scale Y",
-        "rotation": "Rotation"
+        "rotation": "Rotation",
+        "connectionHint": "Select the OBS instance for this task. Default uses the primary OBS connection."
       },
       "disableSourceFilter": {
         "title": "Disable source filter",
@@ -440,6 +441,21 @@
         "settings": "Filter settings",
         "noSettings": "The selected filter has no settings in the current OBS data.",
         "inputHint": "To make a filter input appear here, change that input once in OBS."
+      },
+      "screenshot": {
+        "format": "Image format",
+        "width": "Width (optional)",
+        "height": "Height (optional)",
+        "quality": "JPEG quality (-1 to 100)",
+        "resultVariable": "Result variable",
+        "resultVariableHint": "The temporary image path on the Streambot system is stored in this macro variable."
+      },
+      "sourceScreenshot": {
+        "title": "Source screenshot"
+      },
+      "outputScreenshot": {
+        "title": "Output screenshot",
+        "info": "Captures the current Program scene and stores the temporary image path in the result variable. In OBS Studio Mode this may not exactly match the already-transitioned Program framebuffer when Program and Preview use the same scene."
       }
     },
     "twitch": {
@@ -678,7 +694,8 @@
       "variables": {
         "title": "Variables",
         "setVariable": "Set Variable",
-        "getVariable": "Get Variable"
+        "getVariable": "Get Variable",
+        "setLocalVariable": "Set local variable"
       },
       "audio": {
         "title": "Audio",
@@ -821,7 +838,9 @@
           "reloadBrowserSources": "Reload browser sources",
           "triggerHotkey": "Trigger hotkey",
           "setProfile": "Set profile",
-          "setSceneCollection": "Set scene collection"
+          "setSceneCollection": "Set scene collection",
+          "sourceScreenshot": "Source screenshot",
+          "outputScreenshot": "Output screenshot"
         }
       },
       "lights": {
@@ -1007,7 +1026,7 @@
         "removeCaseInput": "Remove case input"
       },
       "ollamaChat": {
-        "title": "Ollama chat prompt",
+        "title": "Chat prompt",
         "description": "Sends a one-time prompt to the configured Ollama model. The conversation is not retained after the task finishes.",
         "messages": "Messages",
         "addMessage": "Add message",
@@ -1029,6 +1048,14 @@
           "assistant": "A previous assistant response. Useful for examples or additional conversation context.",
           "tool": "A tool result supplied to the model as additional context."
         }
+      },
+      "variableLocalSet": {
+        "title": "Set local variable",
+        "key": "Variable",
+        "keyPlaceholder": "count",
+        "expression": "Value / expression",
+        "expressionPlaceholder": "${count} + 1",
+        "expressionHint": "Only changes this running macro. Supports variables, arithmetic, exponentiation, comparisons, boolean AND/OR/NOT, parentheses, booleans, null and quoted strings."
       }
     },
     "final": {
