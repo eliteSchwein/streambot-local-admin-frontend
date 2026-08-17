@@ -251,7 +251,7 @@ export default {
           <v-divider></v-divider>
           <v-list-item
             :title="$t('navigation.actions.updateBot')"
-            @click="updateBot"
+            to="/system"
             prepend-icon="mdi-download"
           ></v-list-item>
           <v-list-item
