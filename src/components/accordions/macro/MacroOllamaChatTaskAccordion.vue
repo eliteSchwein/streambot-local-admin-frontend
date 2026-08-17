@@ -113,6 +113,18 @@
           variant="outlined"
         />
       </v-col>
+
+      <v-col cols="12">
+        <v-switch
+          v-model="task.data.strip_emojis"
+          :label="$t('macro.core.ollamaChat.stripEmojis')"
+          :hint="$t('macro.core.ollamaChat.stripEmojisHint')"
+          persistent-hint
+          color="primary"
+          density="comfortable"
+          hide-details="auto"
+        />
+      </v-col>
     </v-row>
   </MacroTaskAccordionTemplate>
 </template>
@@ -181,6 +193,7 @@ export default {
 
     this.task.data.result_variable ??= 'ollama_response'
     this.task.data.timeout ??= 0
+    this.task.data.strip_emojis ??= false
   },
 
   methods: {

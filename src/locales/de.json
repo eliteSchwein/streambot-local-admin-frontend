@@ -1047,7 +1047,9 @@
           "user": "Eine Nachricht oder Frage, die an den Chatbot gesendet wird.",
           "assistant": "Eine vorherige Antwort des Assistenten. Nützlich für Beispiele oder zusätzlichen Gesprächskontext.",
           "tool": "Ein Tool-Ergebnis, das dem Modell als zusätzlicher Kontext bereitgestellt wird."
-        }
+        },
+        "stripEmojis": "Emojis aus Ausgabe entfernen",
+        "stripEmojisHint": "Entfernt automatisch Emojis aus der Assistenten-Antwort, bevor sie gespeichert oder zurückgegeben wird."
       },
       "variableLocalSet": {
         "title": "Lokale Variable setzen",

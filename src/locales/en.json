@@ -1047,7 +1047,9 @@
           "user": "A message or question sent to the chatbot.",
           "assistant": "A previous assistant response. Useful for examples or additional conversation context.",
           "tool": "A tool result supplied to the model as additional context."
-        }
+        },
+        "stripEmojis": "Strip emojis from output",
+        "stripEmojisHint": "Automatically removes emojis from the assistant response before it is stored or returned."
       },
       "variableLocalSet": {
         "title": "Set local variable",
