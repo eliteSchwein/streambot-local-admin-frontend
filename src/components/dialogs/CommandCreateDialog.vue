@@ -427,17 +427,28 @@ export default {
       this.errorMessage = error?.message
     },
 
-    save() {
+    async save() {
       if (!this.canSave) return
 
-      const payload = this.buildExportPayload()
+      this.errorMessage = ''
 
-      this.$emit('save', {
-        ...payload.command,
-        path: payload.path,
-        assetPayload: payload.assetPayload,
-        macroContent: payload.macroContent,
-      })
+      try {
+        const payload = this.buildExportPayload()
+
+        // Assets are stored independently from command config files.
+        // Save the current asset first so an asset-only command can trigger
+        // immediately after the command itself is reloaded.
+        await (this.$refs.assetAccordion as any)?.save?.(this.generatedAssetName)
+
+        this.$emit('save', {
+          ...payload.command,
+          path: payload.path,
+          assetPayload: payload.assetPayload,
+          macroContent: payload.macroContent,
+        })
+      } catch (error: any) {
+        this.errorMessage = error?.message ?? 'failed to save command asset'
+      }
     },
   },
 }

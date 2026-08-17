@@ -70,14 +70,14 @@ export default defineComponent({
       return accordion.getAssetPayload()
     },
 
-    async save() {
+    async save(name = this.name) {
       const accordion = this.getAccordion()
 
       if (!accordion?.save) {
-        return
+        throw new Error('asset accordion does not support saving')
       }
 
-      return await accordion.save()
+      return await accordion.save(name)
     },
 
     reset() {

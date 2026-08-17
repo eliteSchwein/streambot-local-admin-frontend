@@ -549,6 +549,42 @@ export default {
       }
     },
 
+    async save(name = this.name) {
+      const assetName = String(name ?? '').trim()
+      if (!assetName) {
+        throw new Error('asset name is required')
+      }
+
+      this.loadingInternal = true
+      this.errorMessage = ''
+
+      try {
+        const content = this.getAssetPayload()
+        const data = await this.requestEndpoint(
+          'assets_edit',
+          'assets/edit',
+          {
+            name: assetName,
+            path: `${assetName}.yaml`,
+            file: `${assetName}.yaml`,
+            asset: content,
+          },
+          15_000,
+        )
+
+        if (data?.error) {
+          throw new Error(data.error)
+        }
+
+        return data
+      } catch (error: any) {
+        this.errorMessage = error?.message ?? 'failed to save asset'
+        throw error
+      } finally {
+        this.loadingInternal = false
+      }
+    },
+
     async ensureBaseData() {
       await Promise.all([
         this.fetchMediaEntries(),
