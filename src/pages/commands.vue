@@ -404,11 +404,14 @@ export default {
 
     async writeCommand(payload: any) {
       const name = this.normalizeName(payload.name)
-      const macroName = `command_${name}`
+      const assetName = payload.asset || `command_${name}`
+      const macroName = payload.macro || `command_${name}`
+
       const commandContent = this.yamlDump({
         name,
         aliases: payload.aliases ?? [],
         params: payload.params ?? [],
+        asset: assetName,
         macro: macroName,
         userCooldown: payload.userCooldown || undefined,
         globalCooldown: payload.globalCooldown || undefined,
