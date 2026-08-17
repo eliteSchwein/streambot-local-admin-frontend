@@ -39,7 +39,7 @@
         <v-expansion-panels
           v-model="openMessages"
           multiple
-          variant="accordion"
+          variant="tonal"
         >
           <v-expansion-panel
             v-for="(_, messageIndex) in task.data.messages"
@@ -57,7 +57,7 @@
                 </v-chip>
 
                 <div class="text-body-2 text-truncate flex-grow-1">
-                  {{ messagePreview(task.data.messages[messageIndex].content) }}
+                  {{ messageTitle(task.data.messages[messageIndex]) }}
                 </div>
 
                 <v-btn
@@ -161,7 +161,7 @@ export default {
 
   data() {
     return {
-      openMessages: [0] as number[],
+      openMessages: [] as number[],
     }
   },
 
@@ -220,9 +220,14 @@ export default {
       return this.roleItems.find(item => item.value === role)?.title ?? role
     },
 
-    messagePreview(content: string) {
-      const normalized = String(content ?? '').replace(/\s+/g, ' ').trim()
-      return normalized || this.$t('macro.core.ollamaChat.content')
+    messageTitle(message: any) {
+      const role = this.roleTitle(message?.role)
+      const normalized = String(message?.content ?? '').replace(/\s+/g, ' ').trim()
+      const preview = normalized.length > 40
+        ? `${normalized.slice(0, 40).trim()}…`
+        : normalized
+
+      return preview ? `${role}: ${preview}` : role
     },
 
     roleDescription(role: string) {
