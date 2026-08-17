@@ -36,58 +36,71 @@
           </v-btn>
         </div>
 
-        <v-card
-          v-for="(_, messageIndex) in task.data.messages"
-          :key="messageIndex"
-          variant="tonal"
-          class="mb-4"
+        <v-expansion-panels
+          v-model="openMessages"
+          multiple
+          variant="accordion"
         >
-          <v-card-title class="d-flex align-center ga-3">
-            <v-select
-              v-model="task.data.messages[messageIndex].role"
-              :items="roleItems"
-              item-title="title"
-              item-value="value"
-              :label="$t('macro.core.ollamaChat.role')"
-              density="compact"
-              variant="outlined"
-              hide-details
-              style="max-width: 220px"
-              @click.stop
-              @mousedown.stop
-            />
+          <v-expansion-panel
+            v-for="(_, messageIndex) in task.data.messages"
+            :key="messageIndex"
+            :value="messageIndex"
+            class="mb-2"
+          >
+            <v-expansion-panel-title>
+              <div class="d-flex align-center ga-3 w-100">
+                <v-chip
+                  size="small"
+                  variant="tonal"
+                >
+                  {{ roleTitle(task.data.messages[messageIndex].role) }}
+                </v-chip>
 
-            <v-spacer />
+                <div class="text-body-2 text-truncate flex-grow-1">
+                  {{ messagePreview(task.data.messages[messageIndex].content) }}
+                </div>
 
-            <v-btn
-              icon="mdi-delete-outline"
-              variant="text"
-              color="error"
-              size="small"
-              :disabled="task.data.messages.length <= 1"
-              @click.stop="removeMessage(messageIndex)"
-            />
-          </v-card-title>
+                <v-btn
+                  icon="mdi-delete-outline"
+                  variant="text"
+                  color="error"
+                  size="small"
+                  :disabled="task.data.messages.length <= 1"
+                  @click.stop="removeMessage(messageIndex)"
+                />
+              </div>
+            </v-expansion-panel-title>
 
-          <v-card-text>
-            <div class="text-caption text-medium-emphasis mb-3">
-              {{ roleDescription(task.data.messages[messageIndex].role) }}
-            </div>
+            <v-expansion-panel-text>
+              <v-select
+                v-model="task.data.messages[messageIndex].role"
+                :items="roleItems"
+                item-title="title"
+                item-value="value"
+                :label="$t('macro.core.ollamaChat.role')"
+                density="comfortable"
+                variant="outlined"
+                class="mb-3"
+                hide-details
+              />
 
-            <v-textarea
-              v-model="task.data.messages[messageIndex].content"
-              :label="$t('macro.core.ollamaChat.content')"
-              density="comfortable"
-              variant="outlined"
-              rows="5"
-              auto-grow
-              hide-details
-              @click.stop
-              @mousedown.stop
-              @keydown.stop
-            />
-          </v-card-text>
-        </v-card>
+              <div class="text-caption text-medium-emphasis mb-3">
+                {{ roleDescription(task.data.messages[messageIndex].role) }}
+              </div>
+
+              <v-textarea
+                v-model="task.data.messages[messageIndex].content"
+                :label="$t('macro.core.ollamaChat.content')"
+                density="comfortable"
+                variant="outlined"
+                rows="5"
+                auto-grow
+                hide-details
+                @keydown.stop
+              />
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </v-col>
 
       <v-col cols="12" md="6">
@@ -146,6 +159,12 @@ export default {
 
   emits: ['remove', 'move-up', 'move-down'],
 
+  data() {
+    return {
+      openMessages: [0] as number[],
+    }
+  },
+
   computed: {
     task(): any {
       return (this.item as any).task
@@ -197,6 +216,15 @@ export default {
   },
 
   methods: {
+    roleTitle(role: string) {
+      return this.roleItems.find(item => item.value === role)?.title ?? role
+    },
+
+    messagePreview(content: string) {
+      const normalized = String(content ?? '').replace(/\s+/g, ' ').trim()
+      return normalized || this.$t('macro.core.ollamaChat.content')
+    },
+
     roleDescription(role: string) {
       switch (role) {
         case 'system':
@@ -217,6 +245,11 @@ export default {
         role: 'user',
         content: '',
       })
+
+      this.openMessages = [
+        ...this.openMessages,
+        this.task.data.messages.length - 1,
+      ]
     },
 
     removeMessage(index: number) {
