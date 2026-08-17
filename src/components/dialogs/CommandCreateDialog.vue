@@ -263,7 +263,7 @@ export default {
         .replace(/^!+/, '')
         .replace(/^command_/, '')
         .replace(/\s+/g, '_')
-        .replace(/[^a-zA-Z0-9_.-]+/g, '_')
+        .replace(/[^\p{L}\p{N}_.-]+/gu, '_')
         .replace(/^_+|_+$/g, '')
     },
 
