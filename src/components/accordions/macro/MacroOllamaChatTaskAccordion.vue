@@ -39,15 +39,14 @@
         <v-expansion-panels
           v-model="openMessages"
           multiple
-          variant="tonal"
+          variant="accordion"
         >
           <v-expansion-panel
             v-for="(_, messageIndex) in task.data.messages"
             :key="messageIndex"
             :value="messageIndex"
-            class="mb-2"
           >
-            <v-expansion-panel-title>
+            <v-expansion-panel-title color="surface-light">
               <div class="d-flex align-center ga-3 w-100">
                 <v-chip
                   size="small"
@@ -59,15 +58,6 @@
                 <div class="text-body-2 text-truncate flex-grow-1">
                   {{ messageTitle(task.data.messages[messageIndex]) }}
                 </div>
-
-                <v-btn
-                  icon="mdi-delete-outline"
-                  variant="text"
-                  color="error"
-                  size="small"
-                  :disabled="task.data.messages.length <= 1"
-                  @click.stop="removeMessage(messageIndex)"
-                />
               </div>
             </v-expansion-panel-title>
 
@@ -98,6 +88,18 @@
                 hide-details
                 @keydown.stop
               />
+
+              <div class="d-flex justify-end mt-4">
+                <v-btn
+                  prepend-icon="mdi-delete-outline"
+                  variant="tonal"
+                  color="error"
+                  :disabled="task.data.messages.length <= 1"
+                  @click="removeMessage(messageIndex)"
+                >
+                  {{ $t('macro.core.ollamaChat.deleteMessage') }}
+                </v-btn>
+              </div>
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>

@@ -1049,7 +1049,8 @@
           "tool": "Ein Tool-Ergebnis, das dem Modell als zusätzlicher Kontext bereitgestellt wird."
         },
         "stripEmojis": "Emojis aus Ausgabe entfernen",
-        "stripEmojisHint": "Entfernt automatisch Emojis aus der Assistenten-Antwort, bevor sie gespeichert oder zurückgegeben wird."
+        "stripEmojisHint": "Entfernt automatisch Emojis aus der Assistenten-Antwort, bevor sie gespeichert oder zurückgegeben wird.",
+        "deleteMessage": "Nachricht löschen"
       },
       "variableLocalSet": {
         "title": "Lokale Variable setzen",
