@@ -107,7 +107,13 @@
                 >
                   <v-expansion-panel-title>
                     <div class="d-flex align-center justify-space-between w-100 pr-3 ga-3">
-                      <span class="text-truncate">{{ obsItem.name }}</span>
+                      <div class="d-flex align-center ga-2 min-width-0">
+                        <v-icon
+                          :icon="getSourceIcon(obsItem)"
+                          size="small"
+                        />
+                        <span class="text-truncate">{{ obsItem.name }}</span>
+                      </div>
 
                       <v-chip
                         size="x-small"
@@ -147,6 +153,132 @@
                         {{ isSourceEnabled(obsItem) ? $t('obs.settings.disable') : $t('obs.settings.enable') }}
                       </v-btn>
                     </div>
+
+                    <v-expansion-panels
+                      v-if="getFlattenedChildItems(obsItem).length > 0"
+                      v-model="expandedChildSources"
+                      multiple
+                      class="px-3 pb-3"
+                    >
+                      <v-expansion-panel
+                        v-for="childEntry in getFlattenedChildItems(obsItem)"
+                        :key="getChildSourceKey(childEntry.item, obsItem)"
+                        :value="getChildSourceKey(childEntry.item, obsItem)"
+                        color="grey-darken-3"
+                        :style="{ marginLeft: `${childEntry.depth * 16}px` }"
+                      >
+                        <v-expansion-panel-title>
+                          <div class="d-flex align-center justify-space-between w-100 pr-3 ga-3">
+                            <div class="d-flex align-center ga-2 min-width-0">
+                              <v-icon
+                                :icon="getSourceIcon(childEntry.item)"
+                                size="small"
+                              />
+                              <span class="text-truncate">
+                                {{ childEntry.item.name }}
+                              </span>
+                            </div>
+
+                            <v-chip
+                              size="x-small"
+                              :color="isSourceEnabled(childEntry.item) ? 'primary' : undefined"
+                              :variant="isSourceEnabled(childEntry.item) ? 'flat' : 'tonal'"
+                            >
+                              {{ isSourceEnabled(childEntry.item) ? $t('obs.settings.enabled') : $t('obs.settings.disabled') }}
+                            </v-chip>
+                          </div>
+                        </v-expansion-panel-title>
+
+                        <v-expansion-panel-text class="pa-0">
+                          <div class="d-flex align-center justify-space-between flex-wrap ga-2 pa-3">
+                            <v-btn
+                              v-if="hasApiWebsite"
+                              prepend-icon="mdi-plus"
+                              :loading="isAdding(childEntry.item, obsScene, selectedCanvas)"
+                              color="primary"
+                              @click.stop="addSource(
+                                childEntry.item,
+                                obsScene,
+                                selectedCanvas,
+                              )"
+                            >
+                              {{ $t('obs.settings.addSource') }}
+                            </v-btn>
+
+                            <div v-else />
+
+                            <v-btn
+                              :prepend-icon="isSourceEnabled(childEntry.item) ? 'mdi-eye-off' : 'mdi-eye'"
+                              variant="text"
+                              :color="isSourceEnabled(childEntry.item) ? 'error' : 'primary'"
+                              @click.stop="setSourceEnabled(
+                                childEntry.item,
+                                obsScene,
+                                selectedCanvas,
+                                !isSourceEnabled(childEntry.item),
+                              )"
+                            >
+                              {{ isSourceEnabled(childEntry.item) ? $t('obs.settings.disable') : $t('obs.settings.enable') }}
+                            </v-btn>
+                          </div>
+
+                          <v-expansion-panels
+                            v-if="getFilters(childEntry.item).length > 0"
+                            v-model="expandedFilters"
+                            multiple
+                            class="px-3 pb-3"
+                          >
+                            <v-expansion-panel
+                              :value="getChildFiltersPanelKey(childEntry.item, obsItem)"
+                              color="grey-darken-2"
+                            >
+                              <v-expansion-panel-title>
+                                <div class="d-flex align-center justify-space-between w-100 pr-3 ga-3">
+                                  <span>{{ $t('obs.settings.filters') }}</span>
+
+                                  <v-chip size="x-small" variant="tonal">
+                                    {{ getFilters(childEntry.item).length }}
+                                  </v-chip>
+                                </div>
+                              </v-expansion-panel-title>
+
+                              <v-expansion-panel-text class="pa-0">
+                                <v-list bg-color="transparent" lines="one">
+                                  <v-list-item
+                                    v-for="filter in getFilters(childEntry.item)"
+                                    :key="getFilterKey(filter, childEntry.item)"
+                                    :title="getFilterName(filter)"
+                                  >
+                                    <template #prepend>
+                                      <v-icon
+                                        icon="mdi-filter-outline"
+                                        size="small"
+                                      />
+                                    </template>
+
+                                    <template #append>
+                                      <v-btn
+                                        size="small"
+                                        :prepend-icon="isFilterEnabled(filter) ? 'mdi-filter-off-outline' : 'mdi-filter-outline'"
+                                        variant="text"
+                                        :color="isFilterEnabled(filter) ? 'error' : 'primary'"
+                                        @click.stop="setFilterEnabled(
+                                          childEntry.item,
+                                          filter,
+                                          !isFilterEnabled(filter),
+                                        )"
+                                      >
+                                        {{ isFilterEnabled(filter) ? $t('obs.settings.disable') : $t('obs.settings.enable') }}
+                                      </v-btn>
+                                    </template>
+                                  </v-list-item>
+                                </v-list>
+                              </v-expansion-panel-text>
+                            </v-expansion-panel>
+                          </v-expansion-panels>
+                        </v-expansion-panel-text>
+                      </v-expansion-panel>
+                    </v-expansion-panels>
 
                     <v-expansion-panels
                       v-if="getFilters(obsItem).length > 0"
@@ -238,6 +370,7 @@ export default {
       addingSources: {} as Record<string, boolean>,
       expandedScenes: [] as string[],
       expandedSources: [] as string[],
+      expandedChildSources: [] as string[],
       expandedFilters: [] as string[],
       defaultExpandedSceneKey: null as string | null,
       selectedCanvasKey: '' as string,
@@ -318,6 +451,7 @@ export default {
     selectedCanvasKey() {
       this.defaultExpandedSceneKey = null
       this.expandedSources = []
+      this.expandedChildSources = []
       this.expandedFilters = []
       this.expandActiveSceneByDefault()
     },
@@ -358,6 +492,33 @@ export default {
       return Array.isArray(scene?.items) ? scene.items : []
     },
 
+    getChildItems(source: any): any[] {
+      return Array.isArray(source?.children) ? source.children : []
+    },
+
+    getFlattenedChildItems(source: any): Array<{ item: any, depth: number }> {
+      const result: Array<{ item: any, depth: number }> = []
+
+      const walk = (items: any[], depth: number) => {
+        for(const item of items) {
+          result.push({ item, depth })
+
+          const children = this.getChildItems(item)
+          if(children.length > 0) {
+            walk(children, depth + 1)
+          }
+        }
+      }
+
+      walk(this.getChildItems(source), 0)
+
+      return result
+    },
+
+    getChildSourceKey(source: any, parent: any): string {
+      return `${String(parent?.uuid ?? parent?.name ?? '')}:${String(source?.uuid ?? source?.id ?? source?.name ?? '')}:${String(source?.parentSceneName ?? '')}`
+    },
+
     getFilters(source: any): any[] {
       if(Array.isArray(source?.filters)) return source.filters
       if(Array.isArray(source?.sourceFilters)) return source.sourceFilters
@@ -374,6 +535,38 @@ export default {
 
     getFiltersPanelKey(source: any, scene: any, canvas: any): string {
       return `${this.getSourceKey(source, scene, canvas)}:filters`
+    },
+
+    getChildFiltersPanelKey(source: any, parent: any): string {
+      return `${this.getChildSourceKey(source, parent)}:filters`
+    },
+
+    getSourceIcon(source: any): string {
+      if(source?.isGroup) return 'mdi-folder-outline'
+
+      const kind = String(
+        source?.inputKind
+        ?? source?.sourceType
+        ?? source?.kind
+        ?? '',
+      ).toLowerCase()
+
+      if(kind.includes('browser')) return 'mdi-web'
+      if(kind.includes('image')) return 'mdi-image-outline'
+      if(kind.includes('media')) return 'mdi-movie-open-outline'
+      if(kind.includes('ffmpeg')) return 'mdi-movie-open-outline'
+      if(kind.includes('vlc')) return 'mdi-playlist-play'
+      if(kind.includes('text')) return 'mdi-format-text'
+      if(kind.includes('audio')) return 'mdi-volume-high'
+      if(kind.includes('wasapi')) return 'mdi-volume-high'
+      if(kind.includes('pulse')) return 'mdi-volume-high'
+      if(kind.includes('alsa')) return 'mdi-volume-high'
+      if(kind.includes('capture')) return 'mdi-video-outline'
+      if(kind.includes('camera')) return 'mdi-camera-outline'
+      if(kind.includes('scene')) return 'mdi-view-dashboard-outline'
+      if(kind.includes('color')) return 'mdi-palette-outline'
+
+      return 'mdi-source-branch'
     },
 
     getFilterName(filter: any): string {
@@ -470,9 +663,11 @@ export default {
     },
 
     setSourceEnabled(source: any, scene: any, canvas: any, enabled: boolean) {
-      const sceneUuid = String(scene?.uuid ?? scene?.sceneUuid ?? '')
-      const sceneName = String(scene?.name ?? scene?.sceneName ?? '')
-      const canvasUuid = this.getCanvasUuid(canvas)
+      const fallbackSceneUuid = String(scene?.uuid ?? scene?.sceneUuid ?? '')
+      const fallbackSceneName = String(scene?.name ?? scene?.sceneName ?? '')
+      const parentSceneUuid = String(source?.parentSceneUuid ?? '')
+      const parentSceneName = String(source?.parentSceneName ?? '')
+      const canvasUuid = String(source?.canvasUuid ?? this.getCanvasUuid(canvas) ?? '')
       const sceneItemId = Number(source?.id ?? source?.sceneItemId)
 
       if(!Number.isFinite(sceneItemId)) return
@@ -482,8 +677,15 @@ export default {
         sceneItemEnabled: enabled,
       }
 
-      if(sceneUuid) data.sceneUuid = sceneUuid
-      else if(sceneName) data.sceneName = sceneName
+      if(parentSceneUuid) {
+        data.sceneUuid = parentSceneUuid
+      } else if(parentSceneName) {
+        data.sceneName = parentSceneName
+      } else if(fallbackSceneUuid) {
+        data.sceneUuid = fallbackSceneUuid
+      } else if(fallbackSceneName) {
+        data.sceneName = fallbackSceneName
+      }
 
       if(canvasUuid && canvasUuid !== 'default') {
         data.canvasUuid = canvasUuid
@@ -541,6 +743,10 @@ export default {
 </script>
 
 <style scoped>
+.min-width-0 {
+  min-width: 0;
+}
+
 .obs-active-scene :deep(.v-expansion-panel-title) {
   color: rgb(var(--v-theme-on-primary));
 }
