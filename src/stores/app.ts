@@ -228,6 +228,10 @@ export const useAppStore = defineStore('app', {
         websocketPort: config?.websocket?.port ?? 8100,
         webserverPort: config?.webserver?.port ?? 8105,
       })
+
+      if(typeof config?.language === 'string') {
+        setI18nLanguage(config.language)
+      }
     },
     async fetchGames() {
       const request = await fetch(`${this.getRestApi}/api/games/all`, { cache: "no-store" })
