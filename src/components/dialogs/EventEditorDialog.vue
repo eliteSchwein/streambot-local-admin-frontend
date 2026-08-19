@@ -36,10 +36,9 @@
               </div>
             </v-expansion-panel-title>
 
-            <v-expansion-panel-text>
+            <v-expansion-panel-text eager>
               <EventAssetAccordion
                 ref="assetAccordion"
-                :key="`asset_${configName}`"
                 :name="configName"
                 :disabled="loading || savingInternal"
               />
@@ -54,10 +53,9 @@
               </div>
             </v-expansion-panel-title>
 
-            <v-expansion-panel-text>
+            <v-expansion-panel-text eager>
               <EventMacroAccordion
                 ref="macroAccordion"
-                :key="`macro_${configName}`"
                 :name="configName"
                 :initial-content="macroContent"
               />

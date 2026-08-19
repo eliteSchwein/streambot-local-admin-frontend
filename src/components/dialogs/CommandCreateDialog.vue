@@ -24,7 +24,7 @@
 
         <v-row density="comfortable" class="px-3">
           <v-col cols="12" md="6">
-            <v-text-field v-model="form.name" :label="$t('dialogs.commandCreateDialog.command')" prefix="!" variant="outlined" density="comfortable" hide-details @update:model-value="syncMacro" />
+            <v-text-field v-model="form.name" :label="$t('dialogs.commandCreateDialog.command')" prefix="!" variant="outlined" density="comfortable" hide-details />
           </v-col>
 
           <v-col cols="12" md="6">
@@ -101,7 +101,6 @@
             <v-expansion-panel-text eager>
               <CommandAssetAccordion
                 ref="assetAccordion"
-                :key="`asset_${generatedAssetName}`"
                 :name="generatedAssetName"
                 :auto-load="false"
                 :disabled="loading"
@@ -122,7 +121,6 @@
             <v-expansion-panel-text eager>
               <CommandMacroAccordion
                 ref="macroAccordion"
-                :key="`macro_${generatedMacroName}`"
                 :name="generatedMacroName"
                 :initial-content="macroContent"
                 disable-macro-read
@@ -272,7 +270,26 @@ export default {
     },
 
     syncMacro() {
-      this.setMacroContent(this.defaultMacroContent(this.generatedMacroName), this.generatedMacroName)
+      const currentContent =
+        (this.$refs.macroAccordion as any)?.getContent?.() ||
+        this.macroContent ||
+        this.defaultMacroContent(this.generatedMacroName)
+
+      this.setMacroContent(
+        this.withMacroName(currentContent, this.generatedMacroName),
+        this.generatedMacroName,
+      )
+    },
+
+    withMacroName(content: string, name: string) {
+      const value = String(content ?? '')
+      const nameLine = `name: ${name}`
+
+      if (/^name\s*:/m.test(value)) {
+        return value.replace(/^name\s*:.*$/m, nameLine)
+      }
+
+      return `${nameLine}\n${value}`
     },
 
     addParam() {
@@ -333,11 +350,12 @@ export default {
     },
 
     getMacroContent() {
-      return (
+      const content =
         (this.$refs.macroAccordion as any)?.getContent?.() ||
         this.macroContent ||
         this.defaultMacroContent(this.generatedMacroName)
-      )
+
+      return this.withMacroName(content, this.generatedMacroName)
     },
 
     buildCommandPayload() {

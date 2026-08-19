@@ -104,7 +104,6 @@
             <v-expansion-panel-text eager>
               <ChannelPointAssetAccordion
                 ref="assetAccordion"
-                :key="`asset_${generatedConfigName}`"
                 :name="generatedConfigName"
                 :auto-load="false"
                 :disabled="loading || initializingInternal || savingInternal"
@@ -123,7 +122,6 @@
             <v-expansion-panel-text eager>
               <ChannelPointMacroAccordion
                 ref="macroAccordion"
-                :key="`macro_${generatedConfigName}`"
                 :name="generatedConfigName"
                 :initial-content="macroContent"
                 :auto-load="false"
