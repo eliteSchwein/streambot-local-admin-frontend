@@ -160,6 +160,10 @@ export const useAppStore = defineStore('app', {
       return twitch.control === true || twitch.message === true
     },
 
+    hasOllamaEnabled: (state) => {
+      return Boolean((state.integrations as any)?.ollama?.enabled)
+    },
+
     hasWledEnabled: (state) => {
       const wled: any = (state.integrations as any)?.wled
 

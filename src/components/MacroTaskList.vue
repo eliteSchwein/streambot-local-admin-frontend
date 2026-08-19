@@ -390,6 +390,7 @@ export default {
       'hasObsEnabled',
       'hasYoloboxEnabled',
       'hasTwitchEnabled',
+      'hasOllamaEnabled',
       'hasWledEnabled',
     ]),
 
@@ -607,6 +608,7 @@ export default {
         {
           titleKey: 'macro.core.ollamaChat.title',
           icon: 'mdi-robot-outline',
+          requires: 'ollama',
           factory: () => this.createTask({
             channel: 'ollama',
             method: 'chat',
@@ -1170,6 +1172,8 @@ export default {
           return this.hasYoloboxEnabled
         case 'twitch':
           return this.hasTwitchEnabled
+        case 'ollama':
+          return this.hasOllamaEnabled
         case 'wled':
           return this.hasWledEnabled
         default:
