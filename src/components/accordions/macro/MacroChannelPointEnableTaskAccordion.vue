@@ -3,26 +3,14 @@
     class="macro-channel-point-task-accordion"
     :item="item"
     :index="index"
-    icon="mdi-toggle-switch-outline"
-    :title="$t('macro.core.channelPointToggle.setEnabledState')"
-    export-prefix="macro_channel_point_toggle"
+    icon="mdi-toggle-switch"
+    :title="$t('macro.core.channelPointToggle.enableReward')"
+    export-prefix="macro_channel_point_enable"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
     @move-down="$emit('move-down')"
   >
-    <MacroChannelPointSelect
-      v-model="task.data.name"
-      class="mb-3"
-    />
-
-    <v-select
-      v-model="task.data.state"
-      :items="stateOptions"
-      :label="$t('macro.core.channelPointToggle.enabledState')"
-      variant="outlined"
-      density="comfortable"
-      hide-details
-    />
+    <MacroChannelPointSelect v-model="task.data.name" />
   </MacroTaskAccordionTemplate>
 </template>
 
@@ -31,7 +19,7 @@ import MacroTaskAccordionTemplate from './MacroTaskAccordionTemplate.vue'
 import MacroChannelPointSelect from './MacroChannelPointSelect.vue'
 
 export default {
-  name: 'MacroChannelPointToggleTaskAccordion',
+  name: 'MacroChannelPointEnableTaskAccordion',
 
   components: {
     MacroTaskAccordionTemplate,
@@ -49,25 +37,11 @@ export default {
     task(): any {
       const task = (this.item as any).task
       task.channel = 'channel_point'
-      task.method = 'toggle'
+      task.method = 'enable'
       task.data = task.data && typeof task.data === 'object' ? task.data : {}
       task.data.name ??= ''
-      task.data.state ??= 'enable'
 
       return task
-    },
-
-    stateOptions() {
-      return [
-        {
-          title: this.$t('macro.core.channelPointToggle.enabled'),
-          value: 'enable',
-        },
-        {
-          title: this.$t('macro.core.channelPointToggle.disabled'),
-          value: 'disable',
-        },
-      ]
     },
   },
 

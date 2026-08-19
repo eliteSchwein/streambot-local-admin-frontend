@@ -883,7 +883,9 @@
         "title": "Befehle",
         "enable": "Befehl aktivieren",
         "disable": "Befehl deaktivieren",
-        "toggle": "Befehl umschalten"
+        "toggle": "Befehl umschalten",
+        "configure": "Befehl konfigurieren",
+        "resetAll": "Temporäre Einstellungen zurücksetzen"
       }
     },
     "core": {
@@ -1225,7 +1227,39 @@
         "info": "Entfernt die manuelle Theme-Farbe und verwendet wieder die aktuelle Spiel- oder Standardfarbe. Die LED-Farbe wird nicht geändert."
       }
     },
-    "run": "Ausführen"
+    "run": "Ausführen",
+    "command": {
+      "fields": {
+        "command": "Befehl",
+        "setting": "Einstellung",
+        "value": "Wert",
+        "paramsJson": "Parameter (JSON)"
+      },
+      "enable": {
+        "title": "Befehl aktivieren"
+      },
+      "disable": {
+        "title": "Befehl deaktivieren"
+      },
+      "toggle": {
+        "title": "Befehl umschalten"
+      },
+      "set": {
+        "title": "Befehlseinstellung setzen",
+        "settingsTitle": "Einstellungen",
+        "addSetting": "Einstellung hinzufügen",
+        "removeSetting": "Einstellung entfernen",
+        "noSettings": "Keine temporären Einstellungen konfiguriert.",
+        "emptyUsers": "Keine Benutzer",
+        "noValue": "Kein Wert"
+      },
+      "reset": {
+        "title": "Befehlseinstellung zurücksetzen"
+      },
+      "resetAll": {
+        "title": "Alle temporären Befehlseinstellungen zurücksetzen"
+      }
+    }
   },
   "giveaway": {
     "title": "Giveaway",
@@ -1433,7 +1467,8 @@
     "enabled": "Aktiviert",
     "yes": "Ja",
     "no": "Nein",
-    "copyUrl": "URL kopieren"
+    "copyUrl": "URL kopieren",
+    "disabled": "Deaktiviert"
   },
   "file": {
     "name": "Dateiname",

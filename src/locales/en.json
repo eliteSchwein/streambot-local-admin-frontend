@@ -883,7 +883,9 @@
         "title": "Commands",
         "enable": "Enable command",
         "disable": "Disable command",
-        "toggle": "Toggle command"
+        "toggle": "Toggle command",
+        "configure": "Configure command",
+        "resetAll": "Reset temporary settings"
       }
     },
     "core": {
@@ -1225,7 +1227,39 @@
         "info": "Removes the manual theme color and uses the current game or default color again. The LED color is not changed."
       }
     },
-    "run": "Run"
+    "run": "Run",
+    "command": {
+      "fields": {
+        "command": "Command",
+        "setting": "Setting",
+        "value": "Value",
+        "paramsJson": "Parameters (JSON)"
+      },
+      "enable": {
+        "title": "Enable command"
+      },
+      "disable": {
+        "title": "Disable command"
+      },
+      "toggle": {
+        "title": "Toggle command"
+      },
+      "set": {
+        "title": "Set command setting",
+        "settingsTitle": "Settings",
+        "addSetting": "Add setting",
+        "removeSetting": "Remove setting",
+        "noSettings": "No temporary settings configured.",
+        "emptyUsers": "No users",
+        "noValue": "No value"
+      },
+      "reset": {
+        "title": "Reset command setting"
+      },
+      "resetAll": {
+        "title": "Reset all temporary command settings"
+      }
+    }
   },
   "giveaway": {
     "title": "Giveaway",
@@ -1433,7 +1467,8 @@
     "enabled": "Enabled",
     "yes": "Yes",
     "no": "No",
-    "copyUrl": "Copy URL"
+    "copyUrl": "Copy URL",
+    "disabled": "Disabled"
   },
   "file": {
     "name": "Filename",

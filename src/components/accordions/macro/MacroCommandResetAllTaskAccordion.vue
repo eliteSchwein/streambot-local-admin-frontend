@@ -2,9 +2,9 @@
   <MacroTaskAccordionTemplate
     :item="item"
     :index="index"
-    icon="mdi-toggle-switch-outline"
-    :title="$t('macro.command.toggle.title')"
-    export-prefix="macro_command_toggle"
+    icon="mdi-restore"
+    :title="$t('macro.command.resetAll.title')"
+    export-prefix="macro_command_reset_all"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
     @move-down="$emit('move-down')"
@@ -18,7 +18,7 @@ import MacroTaskAccordionTemplate from './MacroTaskAccordionTemplate.vue'
 import MacroCommandSelect from './MacroCommandSelect.vue'
 
 export default {
-  name: 'MacroCommandToggleTaskAccordion',
+  name: 'MacroCommandResetAllTaskAccordion',
 
   components: {
     MacroTaskAccordionTemplate,
@@ -36,7 +36,7 @@ export default {
     task(): any {
       const task = (this.item as any).task
       task.channel = 'command'
-      task.method = 'toggle'
+      task.method = 'reset_all'
       task.data ??= {}
       task.data.name ??= ''
 

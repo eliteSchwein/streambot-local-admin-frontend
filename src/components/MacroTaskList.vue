@@ -125,11 +125,19 @@ import {
   MacroWebsocketTaskAccordion,
   MacroVariableSetTaskAccordion, MacroVariableGetTaskAccordion,
   MacroChannelPointAcceptTaskAccordion, MacroChannelPointCancelTaskAccordion,
-  MacroChannelPointPauseTaskAccordion, MacroChannelPointToggleTaskAccordion,
+  MacroChannelPointPauseTaskAccordion,
   MacroKeyboardTaskAccordion,
 } from '@/components/accordions/macro'
 import MacroClearMediaTaskAccordion from '@/components/accordions/macro/MacroClearMediaTaskAccordion.vue'
+import MacroChannelPointEnableTaskAccordion from '@/components/accordions/macro/MacroChannelPointEnableTaskAccordion.vue'
+import MacroChannelPointDisableTaskAccordion from '@/components/accordions/macro/MacroChannelPointDisableTaskAccordion.vue'
+import MacroChannelPointToggleTaskAccordion from '@/components/accordions/macro/MacroChannelPointToggleTaskAccordion.vue'
+import MacroCommandEnableTaskAccordion from '@/components/accordions/macro/MacroCommandEnableTaskAccordion.vue'
+import MacroCommandDisableTaskAccordion from '@/components/accordions/macro/MacroCommandDisableTaskAccordion.vue'
 import MacroCommandToggleTaskAccordion from '@/components/accordions/macro/MacroCommandToggleTaskAccordion.vue'
+import MacroCommandSetTaskAccordion from '@/components/accordions/macro/MacroCommandSetTaskAccordion.vue'
+import MacroCommandResetTaskAccordion from '@/components/accordions/macro/MacroCommandResetTaskAccordion.vue'
+import MacroCommandResetAllTaskAccordion from '@/components/accordions/macro/MacroCommandResetAllTaskAccordion.vue'
 import MacroVariableLocalSetTaskAccordion from '@/components/accordions/macro/MacroVariableLocalSetTaskAccordion.vue'
 import {
   MacroObsDisableSourceFilterTaskAccordion,
@@ -275,8 +283,15 @@ export default {
     MacroChannelPointAcceptTaskAccordion,
     MacroChannelPointCancelTaskAccordion,
     MacroChannelPointPauseTaskAccordion,
+    MacroChannelPointEnableTaskAccordion,
+    MacroChannelPointDisableTaskAccordion,
     MacroChannelPointToggleTaskAccordion,
+    MacroCommandEnableTaskAccordion,
+    MacroCommandDisableTaskAccordion,
     MacroCommandToggleTaskAccordion,
+    MacroCommandSetTaskAccordion,
+    MacroCommandResetTaskAccordion,
+    MacroCommandResetAllTaskAccordion,
     MacroKeyboardTaskAccordion,
     MacroTimerTaskAccordion,
     MacroWledCustomTaskAccordion,
@@ -670,11 +685,6 @@ export default {
               icon: 'mdi-toggle-switch-off-outline',
               factory: () => this.createTask({ channel: 'channel_point', method: 'disable', data: { name: '' } }),
             },
-            {
-              titleKey: 'macro.presets.channelPoint.setEnabledState',
-              icon: 'mdi-toggle-switch-outline',
-              factory: () => this.createTask({ channel: 'channel_point', method: 'toggle', data: { name: '', state: 'enable' } }),
-            },
           ],
         },
         {
@@ -692,9 +702,22 @@ export default {
               factory: () => this.createTask({ channel: 'command', method: 'disable', data: { name: '' } }),
             },
             {
-              titleKey: 'macro.presets.command.toggle',
-              icon: 'mdi-toggle-switch-outline',
-              factory: () => this.createTask({ channel: 'command', method: 'toggle', data: { name: '' } }),
+              titleKey: 'macro.presets.command.configure',
+              icon: 'mdi-tune-variant',
+              factory: () => this.createTask({
+                channel: 'command',
+                method: 'set',
+                data: { name: '', setting: 'single_use', value: 'none' },
+              }),
+            },
+            {
+              titleKey: 'macro.presets.command.resetAll',
+              icon: 'mdi-restore',
+              factory: () => this.createTask({
+                channel: 'command',
+                method: 'reset_all',
+                data: { name: '' },
+              }),
             },
           ],
         },
@@ -1272,12 +1295,32 @@ export default {
         return 'MacroChannelPointPauseTaskAccordion'
       }
 
-      if (item?.task?.channel === 'channel_point' && ['enable', 'disable', 'toggle'].includes(item?.task?.method)) {
-        return 'MacroChannelPointToggleTaskAccordion'
+      if (item?.task?.channel === 'channel_point') {
+        switch (item?.task?.method) {
+          case 'enable':
+            return 'MacroChannelPointEnableTaskAccordion'
+          case 'disable':
+            return 'MacroChannelPointDisableTaskAccordion'
+          case 'toggle':
+            return 'MacroChannelPointToggleTaskAccordion'
+        }
       }
 
-      if (item?.task?.channel === 'command' && ['enable', 'disable', 'toggle'].includes(item?.task?.method)) {
-        return 'MacroCommandToggleTaskAccordion'
+      if (item?.task?.channel === 'command') {
+        switch (item?.task?.method) {
+          case 'enable':
+            return 'MacroCommandEnableTaskAccordion'
+          case 'disable':
+            return 'MacroCommandDisableTaskAccordion'
+          case 'toggle':
+            return 'MacroCommandToggleTaskAccordion'
+          case 'set':
+            return 'MacroCommandSetTaskAccordion'
+          case 'reset':
+            return 'MacroCommandResetTaskAccordion'
+          case 'reset_all':
+            return 'MacroCommandResetAllTaskAccordion'
+        }
       }
 
       if (item?.task?.channel === 'api_request') {
