@@ -81,19 +81,27 @@ async function reconnectLoop() {
         status &&
         typeof status === 'object'
       )
-      const backendReady = hasStatus && status.ready === true
+
+      // Keep the last successful startup state during transient status
+      // request failures. A single timeout must not briefly erase the
+      // current boot stage and make the connect dialog flicker.
+      if(!hasStatus) {
+        await sleep(500)
+        continue
+      }
+
+      const backendReady = status.ready === true
 
       ready.value = backendReady
-      stage.value = hasStatus && typeof status.bootup_stage === 'string'
-        ? status.bootup_stage
-        : undefined
+
+      if(typeof status.bootup_stage === 'string' && status.bootup_stage.length > 0) {
+        stage.value = status.bootup_stage
+      }
 
       // As soon as the backend answers /api/status at least once,
       // config.json should also be retried. This lets the admin panel
       // pick up language and connection settings during backend startup.
-      if(hasStatus) {
-        await tryFetchConfig()
-      }
+      await tryFetchConfig()
 
       if(!backendReady) {
         await sleep(500)

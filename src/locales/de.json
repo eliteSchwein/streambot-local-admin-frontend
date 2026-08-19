@@ -161,7 +161,10 @@
       "interfacePlaceholder": "Schnittstelle auswählen oder eingeben",
       "volume": "Lautstärke",
       "volumeAdjustment": "Lautstärkeanpassung",
-      "negativeVolumeHint": "Negativer Wert verringert die Lautstärke"
+      "negativeVolumeHint": "Negativer Wert verringert die Lautstärke",
+      "loadPresetTitle": "Audio-Preset laden",
+      "preset": "Audio-Preset",
+      "presetPlaceholder": "Preset auswählen"
     },
     "function": {
       "defaultTitle": "Funktion",
@@ -723,7 +726,8 @@
           "title": "Songwunsch-Steuerung",
           "addSongRequest": "Songwunsch hinzufügen",
           "toggleSongRequests": "Songwünsche umschalten"
-        }
+        },
+        "loadPreset": "Audio-Preset laden"
       },
       "twitch": {
         "title": "Twitch",
@@ -1401,7 +1405,27 @@
     "unknownOutput": "Unbekannte Ausgabe",
     "output": "Ausgabe",
     "defaultSink": "Standard-Sink",
-    "active": "Aktiv"
+    "active": "Aktiv",
+    "presets": {
+      "title": "Presets",
+      "savePreset": "Preset speichern",
+      "name": "Preset-Name",
+      "includeVolumes": "Lautstärken der Schnittstellen speichern",
+      "includeOutputs": "Ausgabeverknüpfungen speichern",
+      "emptyWarning": "Wähle mindestens eine Einstellung zum Speichern aus.",
+      "volumes": "Lautstärken",
+      "outputLinks": "Ausgabeverknüpfungen",
+      "saveAllVolumes": "Alle Lautstärken speichern",
+      "selectVolumeTracks": "Tracks auswählen, deren Lautstärke gespeichert werden soll",
+      "saveAllMappings": "Alle Ausgabezuordnungen speichern",
+      "selectMappingTracks": "Tracks auswählen, deren Ausgabezuordnung gespeichert werden soll",
+      "volumeTracks": "{count} Lautstärke-Tracks",
+      "mappingTracks": "{count} zugeordnete Tracks",
+      "selectPreset": "Preset auswählen",
+      "createPreset": "Preset erstellen",
+      "deleteConfirmTitle": "Preset löschen",
+      "deleteConfirmText": "Möchtest du dieses Preset wirklich löschen?"
+    }
   },
   "gameScene": {
     "saveScene": "Szene speichern",

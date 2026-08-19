@@ -1,24 +1,15 @@
 <template>
   <div class="macro-task-list" :class="{ 'macro-task-list--nested': nested }">
-    <v-expansion-panels
-      v-if="items.length"
-      v-model="expandedPanels"
-      variant="accordion"
-      multiple
-    >
+    <v-expansion-panels v-if="items.length" variant="accordion" multiple>
       <component
         :is="componentFor(item)"
         v-for="(item, index) in items"
         :key="item.id"
         :item="item"
         :index="index"
-        :panel-value="item.id"
-        :can-move-up="index > 0"
-        :can-move-down="index < items.length - 1"
         :depth="depth"
         :task-list-component="currentTaskListComponent"
         :inside-loop="isItemInsideLoop(item)"
-        :inside-switch="isItemInsideSwitch(item)"
         @remove="removeItem(index)"
         @move-up="moveItem(index, -1)"
         @move-down="moveItem(index, 1)"
@@ -125,20 +116,9 @@ import {
   MacroWebsocketTaskAccordion,
   MacroVariableSetTaskAccordion, MacroVariableGetTaskAccordion,
   MacroChannelPointAcceptTaskAccordion, MacroChannelPointCancelTaskAccordion,
-  MacroChannelPointPauseTaskAccordion,
+  MacroChannelPointPauseTaskAccordion, MacroChannelPointToggleTaskAccordion,
   MacroKeyboardTaskAccordion,
 } from '@/components/accordions/macro'
-import MacroClearMediaTaskAccordion from '@/components/accordions/macro/MacroClearMediaTaskAccordion.vue'
-import MacroChannelPointEnableTaskAccordion from '@/components/accordions/macro/MacroChannelPointEnableTaskAccordion.vue'
-import MacroChannelPointDisableTaskAccordion from '@/components/accordions/macro/MacroChannelPointDisableTaskAccordion.vue'
-import MacroChannelPointToggleTaskAccordion from '@/components/accordions/macro/MacroChannelPointToggleTaskAccordion.vue'
-import MacroCommandEnableTaskAccordion from '@/components/accordions/macro/MacroCommandEnableTaskAccordion.vue'
-import MacroCommandDisableTaskAccordion from '@/components/accordions/macro/MacroCommandDisableTaskAccordion.vue'
-import MacroCommandToggleTaskAccordion from '@/components/accordions/macro/MacroCommandToggleTaskAccordion.vue'
-import MacroCommandSetTaskAccordion from '@/components/accordions/macro/MacroCommandSetTaskAccordion.vue'
-import MacroCommandResetTaskAccordion from '@/components/accordions/macro/MacroCommandResetTaskAccordion.vue'
-import MacroCommandResetAllTaskAccordion from '@/components/accordions/macro/MacroCommandResetAllTaskAccordion.vue'
-import MacroVariableLocalSetTaskAccordion from '@/components/accordions/macro/MacroVariableLocalSetTaskAccordion.vue'
 import {
   MacroObsDisableSourceFilterTaskAccordion,
   MacroObsEnableSourceFilterTaskAccordion,
@@ -171,11 +151,6 @@ import {
   MacroObsUnlockSceneItemTaskAccordion,
   MacroObsUnmuteInputTaskAccordion
 } from '@/components/accordions/macro/obs'
-import MacroObsScreenshotTaskAccordion from '@/components/accordions/macro/obs/MacroObsScreenshotTaskAccordion.vue'
-import MacroFunctionParallelTaskAccordion from '@/components/accordions/macro/functions/MacroFunctionParallelTaskAccordion.vue'
-import MacroFunctionStripEmojisTaskAccordion from '@/components/accordions/macro/functions/MacroFunctionStripEmojisTaskAccordion.vue'
-import MacroSwitchTaskAccordion from '@/components/accordions/macro/MacroSwitchTaskAccordion.vue'
-import MacroSwitchBreakTaskAccordion from '@/components/accordions/macro/MacroSwitchBreakTaskAccordion.vue'
 import MacroTimerTaskAccordion from "@/components/accordions/macro/MacroTimerTaskAccordion.vue";
 import MacroWledCustomTaskAccordion from '@/components/accordions/macro/MacroWledCustomTaskAccordion.vue'
 import MacroWledOffTaskAccordion from '@/components/accordions/macro/MacroWledOffTaskAccordion.vue'
@@ -183,8 +158,6 @@ import MacroAutoMacroStartTaskAccordion from '@/components/accordions/macro/Macr
 import MacroAutoMacroStopTaskAccordion from '@/components/accordions/macro/MacroAutoMacroStopTaskAccordion.vue'
 import MacroRotateSceneStartTaskAccordion from '@/components/accordions/macro/MacroRotateSceneStartTaskAccordion.vue'
 import MacroRotateSceneStopTaskAccordion from '@/components/accordions/macro/MacroRotateSceneStopTaskAccordion.vue'
-import MacroThemeSetColorTaskAccordion from '@/components/accordions/macro/theme/MacroThemeSetColorTaskAccordion.vue'
-import MacroThemeRestoreColorTaskAccordion from '@/components/accordions/macro/theme/MacroThemeRestoreColorTaskAccordion.vue'
 import MacroTwitchClipTaskAccordion from '@/components/accordions/macro/twitch/MacroTwitchClipTaskAccordion.vue'
 import MacroTwitchShoutoutTaskAccordion from '@/components/accordions/macro/twitch/MacroTwitchShoutoutTaskAccordion.vue'
 import MacroTwitchCategoryTaskAccordion from '@/components/accordions/macro/twitch/MacroTwitchCategoryTaskAccordion.vue'
@@ -201,8 +174,6 @@ import MacroTwitchVipRemoveTaskAccordion from '@/components/accordions/macro/twi
 import MacroTwitchAdTaskAccordion from '@/components/accordions/macro/twitch/MacroTwitchAdTaskAccordion.vue'
 import MacroTwitchBanTaskAccordion from '@/components/accordions/macro/twitch/MacroTwitchBanTaskAccordion.vue'
 import MacroTwitchTimeoutTaskAccordion from '@/components/accordions/macro/twitch/MacroTwitchTimeoutTaskAccordion.vue'
-import MacroTwitchEnableRandomClipTaskAccordion from '@/components/accordions/macro/twitch/MacroTwitchEnableRandomClipTaskAccordion.vue'
-import MacroTwitchDisableRandomClipTaskAccordion from '@/components/accordions/macro/twitch/MacroTwitchDisableRandomClipTaskAccordion.vue'
 import MacroMusicPlayTaskAccordion from '@/components/accordions/macro/music/MacroMusicPlayTaskAccordion.vue'
 import MacroMusicPauseTaskAccordion from '@/components/accordions/macro/music/MacroMusicPauseTaskAccordion.vue'
 import MacroMusicTogglePauseTaskAccordion from '@/components/accordions/macro/music/MacroMusicTogglePauseTaskAccordion.vue'
@@ -218,6 +189,7 @@ import MacroMusicSongRequestTaskAccordion from '@/components/accordions/macro/mu
 import MacroMusicToggleSongRequestsTaskAccordion from '@/components/accordions/macro/music/MacroMusicToggleSongRequestsTaskAccordion.vue'
 import MacroAudioSetVolumeTaskAccordion from '@/components/accordions/macro/audio/MacroAudioSetVolumeTaskAccordion.vue'
 import MacroAudioAdjustVolumeTaskAccordion from '@/components/accordions/macro/audio/MacroAudioAdjustVolumeTaskAccordion.vue'
+import MacroAudioLoadPresetTaskAccordion from '@/components/accordions/macro/audio/MacroAudioLoadPresetTaskAccordion.vue'
 import MacroApiGetTaskAccordion from '@/components/accordions/macro/api/MacroApiGetTaskAccordion.vue'
 import MacroApiPostTaskAccordion from '@/components/accordions/macro/api/MacroApiPostTaskAccordion.vue'
 import MacroApiPutTaskAccordion from '@/components/accordions/macro/api/MacroApiPutTaskAccordion.vue'
@@ -234,8 +206,6 @@ import MacroYoloboxAudioAfvTaskAccordion from '@/components/accordions/macro/yol
 import MacroSystemRebootTaskAccordion from "@/components/accordions/macro/system/MacroSystemRebootTaskAccordion.vue";
 import MacroSystemShutdownTaskAccordion
   from "@/components/accordions/macro/system/MacroSystemShutdownTaskAccordion.vue";
-import MacroOllamaChatTaskAccordion
-  from "@/components/accordions/macro/MacroOllamaChatTaskAccordion.vue";
 
 export default {
   name: 'MacroTaskList',
@@ -247,11 +217,6 @@ export default {
   },
 
   components: {
-    MacroSwitchTaskAccordion,
-    MacroSwitchBreakTaskAccordion,
-    MacroFunctionParallelTaskAccordion,
-    MacroFunctionStripEmojisTaskAccordion,
-    MacroOllamaChatTaskAccordion,
     MacroYoloboxVideoSourceTaskAccordion,
     MacroYoloboxOverlayTaskAccordion,
     MacroYoloboxLiveStatusTaskAccordion,
@@ -271,7 +236,6 @@ export default {
     MacroLoopControlTaskAccordion,
     MacroLoopTaskAccordion,
     MacroMediaTaskAccordion,
-    MacroClearMediaTaskAccordion,
     MacroWebhookTaskAccordion,
     MacroNeopixelTaskAccordion,
     MacroEffectTaskAccordion,
@@ -279,19 +243,10 @@ export default {
     MacroEndMacroTaskAccordion,
     MacroVariableGetTaskAccordion,
     MacroVariableSetTaskAccordion,
-    MacroVariableLocalSetTaskAccordion,
     MacroChannelPointAcceptTaskAccordion,
     MacroChannelPointCancelTaskAccordion,
     MacroChannelPointPauseTaskAccordion,
-    MacroChannelPointEnableTaskAccordion,
-    MacroChannelPointDisableTaskAccordion,
     MacroChannelPointToggleTaskAccordion,
-    MacroCommandEnableTaskAccordion,
-    MacroCommandDisableTaskAccordion,
-    MacroCommandToggleTaskAccordion,
-    MacroCommandSetTaskAccordion,
-    MacroCommandResetTaskAccordion,
-    MacroCommandResetAllTaskAccordion,
     MacroKeyboardTaskAccordion,
     MacroTimerTaskAccordion,
     MacroWledCustomTaskAccordion,
@@ -300,8 +255,6 @@ export default {
     MacroAutoMacroStopTaskAccordion,
     MacroRotateSceneStartTaskAccordion,
     MacroRotateSceneStopTaskAccordion,
-    MacroThemeSetColorTaskAccordion,
-    MacroThemeRestoreColorTaskAccordion,
     MacroTwitchClipTaskAccordion,
     MacroTwitchShoutoutTaskAccordion,
     MacroTwitchCategoryTaskAccordion,
@@ -318,8 +271,6 @@ export default {
     MacroTwitchAdTaskAccordion,
     MacroTwitchBanTaskAccordion,
     MacroTwitchTimeoutTaskAccordion,
-    MacroTwitchEnableRandomClipTaskAccordion,
-    MacroTwitchDisableRandomClipTaskAccordion,
     MacroMusicPlayTaskAccordion,
     MacroMusicPauseTaskAccordion,
     MacroMusicTogglePauseTaskAccordion,
@@ -335,6 +286,7 @@ export default {
     MacroMusicToggleSongRequestsTaskAccordion,
     MacroAudioSetVolumeTaskAccordion,
     MacroAudioAdjustVolumeTaskAccordion,
+    MacroAudioLoadPresetTaskAccordion,
     MacroApiGetTaskAccordion,
     MacroApiPostTaskAccordion,
     MacroApiPutTaskAccordion,
@@ -347,7 +299,6 @@ export default {
     MacroObsLockSceneItemTaskAccordion,
     MacroObsMuteInputTaskAccordion,
     MacroObsPauseRecordTaskAccordion,
-    MacroObsScreenshotTaskAccordion,
     MacroObsReloadBrowserSourcesTaskAccordion,
     MacroObsResumeRecordTaskAccordion,
     MacroObsSaveReplayBufferTaskAccordion,
@@ -396,34 +347,35 @@ export default {
       type: Boolean,
       default: false,
     },
-    insideSwitch: {
-      type: Boolean,
-      default: false,
-    },
   },
 
   computed: {
-    ...mapState(useAppStore, [
-      'hasObsEnabled',
-      'hasYoloboxEnabled',
-      'hasTwitchEnabled',
-      'hasOllamaEnabled',
-      'hasWledEnabled',
-    ]),
+    ...mapState(useAppStore, ['getIntegrations']),
 
     currentTaskListComponent(): any {
       return this.taskListComponent || this.$options
     },
 
+    hasYoloboxEnabled(): boolean {
+      const integrations = this.getIntegrations || {}
+
+      return Boolean(integrations.yolobox?.enabled)
+    },
+
     availablePresets(): any[] {
-      return this.filterPresets(this.presets)
+      const presets = this.filterPresets(this.presets)
+
+      if (this.hasYoloboxEnabled) {
+        return presets
+      }
+
+      return presets.filter((preset: any) => preset.title !== 'YoloBox')
     },
   },
 
   data() {
     return {
       addTaskMenuOpen: false,
-      expandedPanels: [] as string[],
       presets: [
         {
           titleKey: 'macro.presets.conditions.title',
@@ -450,17 +402,6 @@ export default {
               icon: 'mdi-skip-next-outline',
               loopOnly: true,
               factory: () => this.createTask({ channel: 'loop', method: 'continue' }),
-            },
-            {
-              titleKey: 'macro.presets.conditions.switchCase',
-              icon: 'mdi-call-split',
-              factory: () => this.createSwitchTask(),
-            },
-            {
-              titleKey: 'macro.presets.conditions.switchBreak',
-              icon: 'mdi-stop-circle-outline',
-              switchOnly: true,
-              factory: () => this.createTask({ channel: 'switch', method: 'break' }),
             },
           ],
         },
@@ -511,39 +452,22 @@ export default {
           factory: () => this.createTask({ channel: 'animation', method: 'play' }),
         },
         {
-          titleKey: 'macro.presets.mediaGroup.title',
+          titleKey: 'macro.presets.media',
           icon: 'mdi-multimedia',
-          children: [
-            {
-              titleKey: 'macro.presets.mediaGroup.show',
-              icon: 'mdi-play-box-outline',
-              factory: () => this.createTask({
-                channel: 'media',
-                method: 'show_media',
-                data: {
-                  target: 'default',
-                  path: '',
-                  type: null,
-                  clearOnEmpty: true,
-                  autoplay: true,
-                  loop: false,
-                  muted: false,
-                  controls: false,
-                },
-              }),
+          factory: () => this.createTask({
+            channel: 'media',
+            method: 'show_media',
+            data: {
+              target: 'default',
+              path: '',
+              type: null,
+              clearOnEmpty: true,
+              autoplay: true,
+              loop: false,
+              muted: false,
+              controls: false,
             },
-            {
-              titleKey: 'macro.presets.mediaGroup.clear',
-              icon: 'mdi-image-off-outline',
-              factory: () => this.createTask({
-                channel: 'media',
-                method: 'clear_media',
-                data: {
-                  target: 'default',
-                },
-              }),
-            },
-          ],
+          }),
         },
 
         {
@@ -569,18 +493,6 @@ export default {
                 data: {
                   content: '',
                   color: 'primary',
-                },
-              }),
-            },
-            {
-              titleKey: 'macro.presets.message.stripEmojis',
-              icon: 'mdi-emoticon-remove-outline',
-              factory: () => this.createTask({
-                channel: 'function',
-                method: 'strip_emojis',
-                data: {
-                  content: '',
-                  key: 'stripped_text',
                 },
               }),
             },
@@ -616,30 +528,6 @@ export default {
           titleKey: 'macro.presets.random',
           icon: 'mdi-dice-multiple-outline',
           factory: () => this.createTask({ channel: 'function', method: 'random', data: { key: '', min: 0, max: 100 } }),
-        },
-        {
-          titleKey: 'macro.presets.parallel',
-          icon: 'mdi-call-split',
-          factory: () => this.createTask({ channel: 'function', method: 'parallel', data: { tasks: [] } }),
-        },
-        {
-          titleKey: 'macro.core.ollamaChat.title',
-          icon: 'mdi-robot-outline',
-          requires: 'ollama',
-          factory: () => this.createTask({
-            channel: 'ollama',
-            method: 'chat',
-            data: {
-              messages: [
-                {
-                  role: 'user',
-                  content: '',
-                },
-              ],
-              result_variable: 'ollama_response',
-              timeout: 0,
-            },
-          }),
         },
         {
           titleKey: 'macro.presets.fileReadAssetFolder',
@@ -685,39 +573,10 @@ export default {
               icon: 'mdi-toggle-switch-off-outline',
               factory: () => this.createTask({ channel: 'channel_point', method: 'disable', data: { name: '' } }),
             },
-          ],
-        },
-        {
-          titleKey: 'macro.presets.command.title',
-          icon: 'mdi-console-line',
-          children: [
             {
-              titleKey: 'macro.presets.command.enable',
-              icon: 'mdi-toggle-switch',
-              factory: () => this.createTask({ channel: 'command', method: 'enable', data: { name: '' } }),
-            },
-            {
-              titleKey: 'macro.presets.command.disable',
-              icon: 'mdi-toggle-switch-off-outline',
-              factory: () => this.createTask({ channel: 'command', method: 'disable', data: { name: '' } }),
-            },
-            {
-              titleKey: 'macro.presets.command.configure',
-              icon: 'mdi-tune-variant',
-              factory: () => this.createTask({
-                channel: 'command',
-                method: 'set',
-                data: { name: '', setting: 'single_use', value: 'none' },
-              }),
-            },
-            {
-              titleKey: 'macro.presets.command.resetAll',
-              icon: 'mdi-restore',
-              factory: () => this.createTask({
-                channel: 'command',
-                method: 'reset_all',
-                data: { name: '' },
-              }),
+              titleKey: 'macro.presets.channelPoint.setEnabledState',
+              icon: 'mdi-toggle-switch-outline',
+              factory: () => this.createTask({ channel: 'channel_point', method: 'toggle', data: { name: '', state: 'enable' } }),
             },
           ],
         },
@@ -730,11 +589,6 @@ export default {
               titleKey: 'macro.presets.variables.setVariable',
               icon: 'mdi-database-export-outline',
               factory: () => this.createTask({ channel: 'variable', method: 'set', data: { value: null, key: '', to_file: false } }),
-            },
-            {
-              titleKey: 'macro.presets.variables.setLocalVariable',
-              icon: 'mdi-variable-box',
-              factory: () => this.createTask({ channel: 'variable', method: 'local_set', data: { key: '', expression: '' } }),
             },
             {
               titleKey: 'macro.presets.variables.getVariable',
@@ -774,6 +628,15 @@ export default {
                     data: { interface: '', volume: 10 },
                   }),
                 },
+                {
+                  titleKey: 'macro.presets.audio.loadPreset',
+                  icon: 'mdi-tune-variant',
+                  factory: () => this.createTask({
+                    channel: 'audio',
+                    method: 'load_preset',
+                    data: { name: '' },
+                  }),
+                },
               ],
             },
             {
@@ -806,17 +669,8 @@ export default {
         {
           titleKey: 'macro.presets.twitch.title',
           icon: 'mdi-twitch',
-          requires: 'twitch',
           children: [
             { titleKey: 'macro.presets.twitch.createClip', icon: 'mdi-content-cut', factory: () => this.createTask({ channel: 'twitch', method: 'clip', data: { create_after_delay: false, wait_seconds: 35, variable: 'clip' } }) },
-            {
-              titleKey: 'macro.presets.twitch.randomClips.title',
-              icon: 'mdi-movie-open',
-              children: [
-                { titleKey: 'macro.presets.twitch.randomClips.enable', icon: 'mdi-movie-open-play', factory: () => this.createTask({ channel: 'twitch', method: 'enable_random_clip', data: { channel: '', mode: 'random', recent_clips: 0, max_length: 60, filter_long_videos: false, info: false, show_timer: false, volume: 50, variable: 'random_clip' } }) },
-                { titleKey: 'macro.presets.twitch.randomClips.disable', icon: 'mdi-movie-open-off', factory: () => this.createTask({ channel: 'twitch', method: 'disable_random_clip', data: {} }) },
-              ],
-            },
             { titleKey: 'macro.presets.twitch.shoutout', icon: 'mdi-account-voice', factory: () => this.createTask({ channel: 'twitch', method: 'shoutout', data: { user: '', variable: 'shoutout' } }) },
             { titleKey: 'macro.presets.twitch.changeCategory', icon: 'mdi-gamepad-variant-outline', factory: () => this.createTask({ channel: 'twitch', method: 'set_category', data: { category: '', variable: 'category' } }) },
             {
@@ -861,7 +715,6 @@ export default {
         {
           titleKey: 'macro.presets.yolobox.title',
           icon: 'mdi-video-wireless-outline',
-          requires: 'yolobox',
           children: [
             {
               titleKey: 'macro.presets.yolobox.switchVideoSource',
@@ -994,7 +847,6 @@ export default {
         {
           titleKey: 'macro.presets.obs.title',
           icon: 'mdi-broadcast',
-          requires: 'obs',
           children: [
             {
               titleKey: 'macro.presets.obs.scenes.title',
@@ -1052,8 +904,6 @@ export default {
                 { titleKey: 'macro.presets.obs.recording.toggleRecording', icon: 'mdi-record-circle-outline', factory: () => this.createTask({ channel: 'obs', method: 'ToggleRecord', data: {} }) },
                 { titleKey: 'macro.presets.obs.recording.pauseRecording', icon: 'mdi-pause-circle', factory: () => this.createTask({ channel: 'obs', method: 'PauseRecord', data: {} }) },
                 { titleKey: 'macro.presets.obs.recording.resumeRecording', icon: 'mdi-play-circle', factory: () => this.createTask({ channel: 'obs', method: 'ResumeRecord', data: {} }) },
-                { titleKey: 'macro.presets.obs.tools.sourceScreenshot', icon: 'mdi-camera', factory: () => this.createTask({ channel: 'obs', method: 'GetSourceScreenshot', data: { sourceName: '', imageFormat: 'png', resultVariable: 'screenshot' } }) },
-                { titleKey: 'macro.presets.obs.tools.outputScreenshot', icon: 'mdi-monitor-screenshot', factory: () => this.createTask({ channel: 'obs', method: 'get_output_screenshot', data: { imageFormat: 'png', resultVariable: 'screenshot' } }) },
               ],
             },
             {
@@ -1081,7 +931,6 @@ export default {
         {
           titleKey: 'macro.presets.lights.title',
           icon: 'mdi-led-on',
-          requires: 'wled',
           children: [
             {
               titleKey: 'macro.presets.lights.wled',
@@ -1115,30 +964,6 @@ export default {
           titleKey: 'macro.presets.expert.title',
           icon: 'mdi-function',
           children: [
-            {
-              titleKey: 'macro.presets.theme.title',
-              icon: 'mdi-palette',
-              children: [
-                {
-                  titleKey: 'macro.presets.theme.setColor',
-                  icon: 'mdi-palette',
-                  factory: () => this.createTask({
-                    channel: 'theme',
-                    method: 'set_color',
-                    data: { color: 'ff9800' },
-                  }),
-                },
-                {
-                  titleKey: 'macro.presets.theme.restoreColor',
-                  icon: 'mdi-palette-outline',
-                  factory: () => this.createTask({
-                    channel: 'theme',
-                    method: 'restore_color',
-                    data: {},
-                  }),
-                },
-              ],
-            },
             {
               titleKey: 'macro.presets.expert.webhook',
               icon: 'mdi-webhook',
@@ -1210,29 +1035,10 @@ export default {
       return preset?.title ?? ''
     },
 
-    isPresetAvailable(preset: any): boolean {
-      switch (preset?.requires) {
-        case 'obs':
-          return this.hasObsEnabled
-        case 'yolobox':
-          return this.hasYoloboxEnabled
-        case 'twitch':
-          return this.hasTwitchEnabled
-        case 'ollama':
-          return this.hasOllamaEnabled
-        case 'wled':
-          return this.hasWledEnabled
-        default:
-          return true
-      }
-    },
-
     filterPresets(presets: any[]): any[] {
       return presets
         .map((preset: any) => {
-          if (!this.isPresetAvailable(preset)) return null
           if (preset.loopOnly === true && !this.insideLoop) return null
-          if (preset.switchOnly === true && !this.insideSwitch) return null
 
           if (!preset.children?.length) return preset
 
@@ -1249,23 +1055,9 @@ export default {
 
     componentFor(item: any) {
       if (item?.type === 'condition') return 'MacroConditionTaskAccordion'
-      if (item?.type === 'switch' || (item?.task?.channel === 'switch' && item?.task?.method === 'switch')) return 'MacroSwitchTaskAccordion'
-      if (item?.task?.channel === 'switch' && item?.task?.method === 'break') return 'MacroSwitchBreakTaskAccordion'
       if (item?.type === 'loop' || (item?.task?.channel === 'loop' && item?.task?.method === 'for')) return 'MacroLoopTaskAccordion'
       if (item?.task?.channel === 'loop' && ['break', 'continue', 'end_for'].includes(item?.task?.method)) return 'MacroLoopControlTaskAccordion'
       if (item?.task?.channel === 'condition' && item?.task?.method === 'end_macro') return 'MacroEndMacroTaskAccordion'
-
-      if (item?.task?.channel === 'function' && item?.task?.method === 'parallel') {
-        return 'MacroFunctionParallelTaskAccordion'
-      }
-
-      if (item?.task?.channel === 'function' && item?.task?.method === 'strip_emojis') {
-        return 'MacroFunctionStripEmojisTaskAccordion'
-      }
-
-      if (item?.task?.channel === 'ollama' && item?.task?.method === 'chat') {
-        return 'MacroOllamaChatTaskAccordion'
-      }
 
       if (item?.task?.channel === 'timer') {
         return 'MacroTimerTaskAccordion'
@@ -1277,10 +1069,6 @@ export default {
 
       if (item?.task?.channel === 'variable' && item?.task?.method === 'set') {
         return 'MacroVariableSetTaskAccordion'
-      }
-
-      if (item?.task?.channel === 'variable' && item?.task?.method === 'local_set') {
-        return 'MacroVariableLocalSetTaskAccordion'
       }
 
       if (item?.task?.channel === 'channel_point' && item?.task?.method === 'accept') {
@@ -1295,32 +1083,8 @@ export default {
         return 'MacroChannelPointPauseTaskAccordion'
       }
 
-      if (item?.task?.channel === 'channel_point') {
-        switch (item?.task?.method) {
-          case 'enable':
-            return 'MacroChannelPointEnableTaskAccordion'
-          case 'disable':
-            return 'MacroChannelPointDisableTaskAccordion'
-          case 'toggle':
-            return 'MacroChannelPointToggleTaskAccordion'
-        }
-      }
-
-      if (item?.task?.channel === 'command') {
-        switch (item?.task?.method) {
-          case 'enable':
-            return 'MacroCommandEnableTaskAccordion'
-          case 'disable':
-            return 'MacroCommandDisableTaskAccordion'
-          case 'toggle':
-            return 'MacroCommandToggleTaskAccordion'
-          case 'set':
-            return 'MacroCommandSetTaskAccordion'
-          case 'reset':
-            return 'MacroCommandResetTaskAccordion'
-          case 'reset_all':
-            return 'MacroCommandResetAllTaskAccordion'
-        }
+      if (item?.task?.channel === 'channel_point' && ['enable', 'disable', 'toggle'].includes(item?.task?.method)) {
+        return 'MacroChannelPointToggleTaskAccordion'
       }
 
       if (item?.task?.channel === 'api_request') {
@@ -1344,14 +1108,6 @@ export default {
         }
       }
 
-      if (item?.task?.channel === 'theme') {
-        if (item?.task?.method === 'restore_color') {
-          return 'MacroThemeRestoreColorTaskAccordion'
-        }
-
-        return 'MacroThemeSetColorTaskAccordion'
-      }
-
       if (item?.task?.channel === 'wled' && item?.task?.method === 'custom') {
         return 'MacroWledCustomTaskAccordion'
       }
@@ -1371,8 +1127,6 @@ export default {
       }
 
       if (item?.task?.channel === 'twitch') {
-        if (item?.task?.method === 'enable_random_clip') return 'MacroTwitchEnableRandomClipTaskAccordion'
-        if (item?.task?.method === 'disable_random_clip') return 'MacroTwitchDisableRandomClipTaskAccordion'
         if (item?.task?.method === 'clip') return 'MacroTwitchClipTaskAccordion'
         if (item?.task?.method === 'shoutout') return 'MacroTwitchShoutoutTaskAccordion'
         if (item?.task?.method === 'set_category') return 'MacroTwitchCategoryTaskAccordion'
@@ -1447,8 +1201,6 @@ export default {
         if (item?.task?.method === 'StartReplayBuffer') return 'MacroObsStartReplayBufferTaskAccordion'
         if (item?.task?.method === 'StopReplayBuffer') return 'MacroObsStopReplayBufferTaskAccordion'
         if (item?.task?.method === 'SaveReplayBuffer') return 'MacroObsSaveReplayBufferTaskAccordion'
-        if (item?.task?.method === 'GetSourceScreenshot') return 'MacroObsScreenshotTaskAccordion'
-        if (item?.task?.method === 'get_output_screenshot') return 'MacroObsScreenshotTaskAccordion'
         if (item?.task?.method === 'reload_browser_sources') return 'MacroObsReloadBrowserSourcesTaskAccordion'
         if (item?.task?.method === 'TriggerHotkeyByName') return 'MacroObsTriggerHotkeyTaskAccordion'
         if (item?.task?.method === 'SetCurrentProfile') return 'MacroObsSetProfileTaskAccordion'
@@ -1460,6 +1212,7 @@ export default {
           set_volume: 'MacroAudioSetVolumeTaskAccordion',
           adjust_volume: 'MacroAudioAdjustVolumeTaskAccordion',
           relative_volume: 'MacroAudioAdjustVolumeTaskAccordion',
+          load_preset: 'MacroAudioLoadPresetTaskAccordion',
         }
 
         return audioComponentsByMethod[item?.task?.method] ?? 'MacroTaskAccordion'
@@ -1474,8 +1227,7 @@ export default {
           previous: 'MacroMusicPreviousTaskAccordion',
           prev: 'MacroMusicPreviousTaskAccordion',
           next: 'MacroMusicNextTaskAccordion',
-          stop: 'MacroMusicStopTaskAccordion',
-          shuffle: 'MacroMusicShuffleTaskAccordion',
+          stop: 'MacroMusicStopTaskAccordion',          shuffle: 'MacroMusicShuffleTaskAccordion',
           loop: 'MacroMusicLoopTaskAccordion',
           loop_playlist: 'MacroMusicLoopTaskAccordion',
           loop_file: 'MacroMusicLoopFileTaskAccordion',
@@ -1488,10 +1240,6 @@ export default {
         }
 
         return musicComponentsByMethod[item?.task?.method] ?? 'MacroTaskAccordion'
-      }
-
-      if (item?.task?.channel === 'media' && item?.task?.method === 'clear_media') {
-        return 'MacroClearMediaTaskAccordion'
       }
 
       const componentsByChannel: Record<string, string> = {
@@ -1570,7 +1318,6 @@ export default {
           method: 'for',
           data: {
             key: 'item',
-            mode: 'numbers',
             from: 1,
             to: 10,
           },
@@ -1579,47 +1326,12 @@ export default {
       }
     },
 
-    createSwitchTask() {
-      return {
-        id: this.uid(),
-        type: 'switch',
-        task: {
-          channel: 'switch',
-          method: 'switch',
-          data: { input: '' },
-        },
-        cases: [
-          {
-            id: this.uid(),
-            task: { channel: 'switch', method: 'case', data: { input: '' } },
-            inputs: [''],
-            children: [],
-          },
-        ],
-        defaultBranch: undefined,
-      }
-    },
-
     isItemInsideLoop(item: any) {
       return this.insideLoop || item?.type === 'loop' || (item?.task?.channel === 'loop' && item?.task?.method === 'for')
     },
 
-    isItemInsideSwitch(item: any) {
-      return this.insideSwitch || item?.type === 'switch' || (item?.task?.channel === 'switch' && item?.task?.method === 'switch')
-    },
-
     addTask(item: any) {
-      const items = this.items as any[]
-
-      if (!item.id) {
-        item.id = this.uid()
-      }
-
-      items.push(item)
-
-      if (!this.expandedPanels.includes(item.id)) {
-        this.expandedPanels.push(item.id)
-      }
+      ;(this.items as any[]).push(item)
     },
 
     addTaskAndClose(item: any) {
@@ -1628,13 +1340,7 @@ export default {
     },
 
     removeItem(index: number) {
-      const items = this.items as any[]
-      const item = items[index]
-
-      if (!item) return
-
-      this.expandedPanels = this.expandedPanels.filter((id: string) => id !== item.id)
-      items.splice(index, 1)
+      ;(this.items as any[]).splice(index, 1)
     },
 
     moveItem(index: number, direction: number) {

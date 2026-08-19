@@ -161,7 +161,10 @@
       "interfacePlaceholder": "Select or enter an interface",
       "volume": "Volume",
       "volumeAdjustment": "Volume adjustment",
-      "negativeVolumeHint": "Use a negative value to lower the volume"
+      "negativeVolumeHint": "Use a negative value to lower the volume",
+      "loadPresetTitle": "Load audio preset",
+      "preset": "Audio preset",
+      "presetPlaceholder": "Select preset"
     },
     "function": {
       "defaultTitle": "Function",
@@ -723,7 +726,8 @@
           "title": "Song Request control",
           "addSongRequest": "Add song request",
           "toggleSongRequests": "Toggle song requests"
-        }
+        },
+        "loadPreset": "Load audio preset"
       },
       "twitch": {
         "title": "Twitch",
@@ -1401,7 +1405,27 @@
     "unknownOutput": "Unknown Output",
     "output": "Output",
     "defaultSink": "Default Sink",
-    "active": "Active"
+    "active": "Active",
+    "presets": {
+      "title": "Presets",
+      "savePreset": "Save preset",
+      "name": "Preset name",
+      "includeVolumes": "Include interface volumes",
+      "includeOutputs": "Include output links",
+      "emptyWarning": "Select at least one thing to save.",
+      "volumes": "Volumes",
+      "outputLinks": "Output links",
+      "saveAllVolumes": "Save all volumes",
+      "selectVolumeTracks": "Select tracks whose volume should be saved",
+      "saveAllMappings": "Save all output mappings",
+      "selectMappingTracks": "Select tracks whose output mapping should be saved",
+      "volumeTracks": "{count} volume tracks",
+      "mappingTracks": "{count} mapped tracks",
+      "selectPreset": "Select preset",
+      "createPreset": "Create preset",
+      "deleteConfirmTitle": "Delete preset",
+      "deleteConfirmText": "Do you really want to delete this preset?"
+    }
   },
   "gameScene": {
     "saveScene": "Save Scene",

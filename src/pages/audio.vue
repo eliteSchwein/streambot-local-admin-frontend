@@ -2,8 +2,43 @@
   <v-row class="audio-page-layout ma-0 pa-0" density="comfortable" no-gutters>
     <v-col cols="12" :lg="yoloboxAudioEnabled ? 8 : 12" class="bot-audio-panel">
       <v-card color="transparent" elevation="0" rounded="0">
-        <v-card-title class="d-flex align-center justify-space-between">
+        <v-card-title class="d-flex align-center justify-space-between ga-3 flex-wrap">
           <span>{{ $t('audio.title') }}</span>
+
+          <div class="d-flex align-center ga-2 flex-grow-1 justify-end preset-toolbar">
+            <v-autocomplete
+              v-model="selectedPreset"
+              :items="audioPresetList"
+              item-title="name"
+              item-value="name"
+              :label="$t('audio.presets.selectPreset')"
+              prepend-inner-icon="mdi-tune-variant"
+              variant="outlined"
+              density="compact"
+              hide-details
+              clearable
+              class="preset-select"
+              @update:model-value="handlePresetSelection"
+            />
+
+            <v-btn
+              prepend-icon="mdi-plus"
+              variant="tonal"
+              size="small"
+              @click="openPresetDialog"
+            >
+              {{ $t('audio.presets.createPreset') }}
+            </v-btn>
+
+            <v-btn
+              icon="mdi-delete"
+              color="warning"
+              variant="tonal"
+              size="small"
+              :disabled="!selectedPreset"
+              @click="openPresetDeleteDialog"
+            />
+          </div>
         </v-card-title>
 
         <v-card-text>
@@ -226,6 +261,24 @@
       <YoloboxAudio />
     </v-col>
   </v-row>
+  <AudioPresetSaveDialog
+    v-model="presetDialogOpen"
+    v-model:name="presetName"
+    v-model:save-all-volumes="presetSaveAllVolumes"
+    v-model:volume-tracks="presetVolumeTracks"
+    v-model:save-all-mappings="presetSaveAllMappings"
+    v-model:mappings="presetMappings"
+    :audio-data="getAudioData"
+    :audio-outputs="audioOutputList"
+    @confirm="savePreset"
+  />
+
+  <AudioPresetDeleteConfirmDialog
+    v-model="presetDeleteDialogOpen"
+    :preset-name="selectedPreset"
+    :loading="presetDeleting"
+    @confirm="confirmDeletePreset"
+  />
 </template>
 
 
@@ -233,6 +286,8 @@
 <script lang="ts">
 import { mapState } from 'pinia'
 import { useAppStore } from '@/stores/app'
+import AudioPresetSaveDialog from '@/components/dialogs/AudioPresetSaveDialog.vue'
+import AudioPresetDeleteConfirmDialog from '@/components/dialogs/AudioPresetDeleteConfirmDialog.vue'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import YoloboxAudio from "@/components/yolobox/YoloboxAudio.vue";
 
@@ -240,6 +295,8 @@ type AudioOutput = Record<string, any>
 
 export default {
   components: {
+    AudioPresetSaveDialog,
+    AudioPresetDeleteConfirmDialog,
     YoloboxAudio,
   },
 
@@ -249,6 +306,15 @@ export default {
       volumeDrafts: {} as Record<string, number>,
       outputVolumeDebounceTimers: {} as Record<string, ReturnType<typeof setTimeout>>,
       outputVolumeDrafts: {} as Record<string, number>,
+      presetDialogOpen: false,
+      presetDeleteDialogOpen: false,
+      presetDeleting: false,
+      selectedPreset: '',
+      presetName: '',
+      presetSaveAllVolumes: true,
+      presetVolumeTracks: [] as string[],
+      presetSaveAllMappings: false,
+      presetMappings: {} as Record<string, string[]>,
     }
   },
 
@@ -257,6 +323,7 @@ export default {
       'getAudioData',
       'getAudioOutput',
       'getAudioOutputs',
+      'getAudioPresets',
       'getParsedBackendConfig',
       'getYoloboxData',
     ]),
@@ -285,12 +352,120 @@ export default {
         .filter((output: any) => this.outputIdentifier(output) !== '')
     },
 
+    audioPresetList(): any[] {
+      return Object.values(this.getAudioPresets ?? {})
+        .filter((preset: any) => preset?.name)
+        .sort((a: any, b: any) => String(a.name).localeCompare(String(b.name)))
+    },
+
+    audioInterfaceOptions(): string[] {
+      return Object.keys(this.getAudioData ?? {}).sort((a, b) => a.localeCompare(b))
+    },
+
+    pipewireInterfaceOptions(): string[] {
+      return Object.entries(this.getAudioData ?? {})
+        .filter(([, data]: [string, any]) => data?.pipewire_sink === true || data?.pipewire_sink === 'true')
+        .map(([name]) => name)
+        .sort((a, b) => a.localeCompare(b))
+    },
+
+    hasPresetSelection(): boolean {
+      const hasVolumes = this.presetSaveAllVolumes || this.presetVolumeTracks.length > 0
+      const hasMappings = this.presetSaveAllMappings ||
+        Object.values(this.presetMappings ?? {}).some(
+          (outputs: any) => Array.isArray(outputs) && outputs.length > 0,
+        )
+
+      return hasVolumes || hasMappings
+    },
+
     yoloboxAudioEnabled(): boolean {
       return Boolean(this.getParsedBackendConfig?.yolobox?.enable && this.getYoloboxData?.MixerList)
     },
   },
 
   methods: {
+    openPresetDialog() {
+      this.presetName = ''
+      this.presetSaveAllVolumes = true
+      this.presetVolumeTracks = []
+      this.presetSaveAllMappings = false
+      this.presetMappings = {}
+      this.presetDialogOpen = true
+    },
+
+    savePreset() {
+      const name = this.presetName.trim()
+
+      if (!name || !this.hasPresetSelection) return
+
+      const includeVolumes = this.presetSaveAllVolumes || this.presetVolumeTracks.length > 0
+      const selectedMappingInterfaces = Object.keys(this.presetMappings ?? {})
+        .filter((key) => Array.isArray(this.presetMappings[key]) && this.presetMappings[key].length > 0)
+
+      const includeOutputs = this.presetSaveAllMappings || selectedMappingInterfaces.length > 0
+
+      this.sendWebsocket('audio_preset_save', {
+        name,
+        include_volumes: includeVolumes,
+        include_outputs: includeOutputs,
+        volume_interfaces: this.presetSaveAllVolumes ? [] : this.presetVolumeTracks,
+        output_interfaces: this.presetSaveAllMappings ? [] : selectedMappingInterfaces,
+        output_mappings: this.presetSaveAllMappings ? null : this.presetMappings,
+      })
+
+      this.presetDialogOpen = false
+    },
+
+    applyPreset(name: string) {
+      this.sendWebsocket('audio_preset_apply', { name })
+    },
+
+    handlePresetSelection(name: string | null) {
+      if (!name) return
+      this.applyPreset(String(name))
+    },
+
+    openPresetDeleteDialog() {
+      if (!this.selectedPreset) return
+      this.presetDeleteDialogOpen = true
+    },
+
+    confirmDeletePreset() {
+      if (!this.selectedPreset || this.presetDeleting) return
+
+      this.presetDeleting = true
+      this.sendWebsocket('audio_preset_delete', { name: this.selectedPreset })
+
+      window.setTimeout(() => {
+        this.presetDeleting = false
+        this.presetDeleteDialogOpen = false
+        this.selectedPreset = ''
+      }, 250)
+    },
+
+    presetDescription(preset: any): string {
+      const parts: string[] = []
+
+      if (preset?.volumes) {
+        parts.push(
+          String(this.$t('audio.presets.volumeTracks', {
+            count: Object.keys(preset.volumes).length,
+          })),
+        )
+      }
+
+      if (preset?.outputs) {
+        parts.push(
+          String(this.$t('audio.presets.mappingTracks', {
+            count: Object.keys(preset.outputs).length,
+          })),
+        )
+      }
+
+      return parts.join(' · ')
+    },
+
     sendWebsocket(method: string, params: Record<string, any> = {}) {
       const client = getWebsocketClient()
 
@@ -559,6 +734,15 @@ export default {
 </script>
 
 <style scoped>
+.preset-toolbar {
+  min-width: min(100%, 520px);
+}
+
+.preset-select {
+  min-width: 220px;
+  max-width: 340px;
+}
+
 
 .audio-page-layout {
   width: 100%;
