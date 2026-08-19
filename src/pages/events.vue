@@ -8,14 +8,6 @@
         </div>
       </div>
 
-      <v-btn
-        prepend-icon="mdi-refresh"
-        variant="tonal"
-        :loading="loading"
-        @click="refreshEvents"
-      >
-        {{ $t('common.refresh') }}
-      </v-btn>
     </v-card-title>
 
     <v-card-text>
@@ -112,7 +104,8 @@
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import EventEntry from '@/components/EventEntry.vue'
 import EventEditorDialog from '@/components/dialogs/EventEditorDialog.vue'
-import eventBus from "@/eventBus.ts";
+import { mapState } from "pinia";
+import { useAppStore } from "@/stores/app";
 
 type EventEntryData = {
   name: string
@@ -148,12 +141,9 @@ export default {
 
   data() {
     return {
-      loading: false,
       errorMessage: '',
       editorError: '',
       searchQuery: '',
-      events: {} as Record<string, EventEntryData[]>,
-      configuredEvents: {} as Record<string, EventEntryData[]>,
       selectedEvent: null as EventEntryData | null,
       editorDialog: false,
       workingAction: null as null | 'save',
@@ -161,12 +151,11 @@ export default {
   },
 
   computed: {
-    eventList(): EventEntryData[] {
-      const entries = this.normalizeEvents(this.configuredEvents).length
-        ? this.normalizeEvents(this.configuredEvents)
-        : this.normalizeEvents(this.events)
+    ...mapState(useAppStore, ['getEvents']),
 
-      return entries.sort((a, b) => a.configName.localeCompare(b.configName))
+    eventList(): EventEntryData[] {
+      return this.normalizeEvents(this.getEvents)
+        .sort((a, b) => a.configName.localeCompare(b.configName))
     },
 
     totalEvents(): number {
@@ -223,14 +212,6 @@ export default {
     },
   },
 
-  mounted() {
-    this.refreshEvents()
-    eventBus.$on?.('websocket:connected', this.refreshEvents)
-  },
-
-  beforeUnmount() {
-    eventBus.$off?.('websocket:connected', this.refreshEvents)
-  },
 
   methods: {
     async requestWebsocket(method: string, params: Record<string, any> = {}, timeout = 15_000): Promise<any> {
@@ -352,22 +333,6 @@ export default {
       }
     },
 
-    async refreshEvents() {
-      this.loading = true
-      this.errorMessage = ''
-
-      try {
-        const data = await this.requestEventEndpoint('events_list')
-        if (data?.error) throw new Error(data.error)
-
-        this.events = data?.events ?? {}
-        this.configuredEvents = data?.configured_events ?? data?.configuredEvents ?? {}
-      } catch (error: any) {
-        this.errorMessage = error?.message ?? 'loading events failed'
-      } finally {
-        this.loading = false
-      }
-    },
 
     async openEditDialog(eventEntry: EventEntryData) {
       this.selectedEvent = eventEntry
@@ -400,7 +365,6 @@ export default {
         }, 30_000)
 
         this.editorDialog = false
-        await this.refreshEvents()
       } catch (error: any) {
         this.editorError = error?.message ?? 'saving event failed'
       } finally {

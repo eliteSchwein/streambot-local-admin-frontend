@@ -47,6 +47,7 @@ export const useAppStore = defineStore('app', {
     commands: {},
     autoMacros: [],
     rotatingScenes: {},
+    events: {},
     variables: {},
     giveaway: {},
     yoloboxData: {},
@@ -99,6 +100,7 @@ export const useAppStore = defineStore('app', {
     getCommands: (state) => state.commands,
     getAutoMacros: (state) => state.autoMacros,
     getRotatingScenes: (state) => state.rotatingScenes,
+    getEvents: (state) => state.events,
     getVariables: (state) => state.variables,
     getGiveaway: (state) => state.giveaway,
     getYoloboxData: (state) => state.yoloboxData,
@@ -348,6 +350,10 @@ export const useAppStore = defineStore('app', {
     setRotatingScenes(rotatingScenes: {}) {
       this.rotatingScenes = rotatingScenes ?? {}
       this.$patch(state => state.rotatingScenes = this.rotatingScenes)
+    },
+    setEvents(events: {}) {
+      this.events = events ?? {}
+      this.$patch(state => state.events = this.events)
     },
     setVariables(variables: {}) {
       this.variables = variables
