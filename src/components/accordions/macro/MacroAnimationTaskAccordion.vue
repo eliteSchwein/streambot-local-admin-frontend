@@ -13,13 +13,16 @@
   >
     <v-row density="comfortable">
       <v-col cols="12" md="6">
-        <v-text-field
+        <v-combobox
           v-model="task.data.target"
+          :items="animationTargetOptions"
           :label="$t('macro.core.animation.target')"
           prepend-inner-icon="mdi-crosshairs-gps"
+          clearable
           hide-details="auto"
           variant="outlined"
           density="comfortable"
+          auto-select-first
         />
       </v-col>
 
@@ -210,6 +213,7 @@ export default {
 
   data() {
     return {
+      appStore: useAppStore(),
       frameRateOptions: [60, 45, 30],
       loadingSources: false,
       mediaEntries: [] as MediaEntry[],
@@ -219,6 +223,26 @@ export default {
   },
 
   computed: {
+    animationTargetOptions(): string[] {
+      const dynamicData =
+        this.appStore?.getDynamicData ??
+        this.appStore?.dynamicData ??
+        {}
+
+      const targets = Array.isArray(dynamicData?.animation_targets)
+        ? dynamicData.animation_targets
+        : []
+
+      const current = String(this.task.data?.target ?? '').trim()
+
+      return [...new Set([
+        ...targets
+          .map((value: any) => String(value).trim())
+          .filter(Boolean),
+        ...(current ? [current] : []),
+      ])].sort((a, b) => a.localeCompare(b))
+    },
+
     task(): any {
       return (this.item as any).task
     },

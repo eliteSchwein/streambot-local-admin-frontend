@@ -55,7 +55,7 @@ const localizedStage = computed(() => {
           </div>
 
           <div class="text-h6">
-            {{ localizedStage }}
+            <v-progress-circular indeterminate class="mr-1" :size="20"></v-progress-circular> {{ localizedStage }}
           </div>
         </v-card-text>
       </template>

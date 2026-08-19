@@ -12,8 +12,9 @@
   >
     <v-row density="comfortable">
       <v-col cols="12">
-        <v-text-field
+        <v-combobox
           v-model="task.data.target"
+          :items="mediaTargetOptions"
           :label="$t('macro.final.media.target')"
           :hint="$t('macro.final.media.clearTargetHint')"
           prepend-inner-icon="mdi-crosshairs-gps"
@@ -21,6 +22,7 @@
           variant="outlined"
           density="comfortable"
           clearable
+          auto-select-first
         />
       </v-col>
 
@@ -37,6 +39,7 @@
 </template>
 
 <script lang="ts">
+import { useAppStore } from '@/stores/app'
 import MacroTaskAccordionTemplate from './MacroTaskAccordionTemplate.vue'
 
 export default {
@@ -53,9 +56,35 @@ export default {
 
   emits: ['remove', 'move-up', 'move-down'],
 
+  data() {
+    return {
+      appStore: useAppStore(),
+    }
+  },
+
   computed: {
     task(): any {
       return (this.item as any).task
+    },
+
+    mediaTargetOptions(): string[] {
+      const dynamicData =
+        this.appStore?.getDynamicData ??
+        this.appStore?.dynamicData ??
+        {}
+
+      const targets = Array.isArray(dynamicData?.media_targets)
+        ? dynamicData.media_targets
+        : []
+
+      const current = String(this.task.data?.target ?? '').trim()
+
+      return [...new Set([
+        ...targets
+          .map((value: any) => String(value).trim())
+          .filter(Boolean),
+        ...(current ? [current] : []),
+      ])].sort((a, b) => a.localeCompare(b))
     },
   },
 

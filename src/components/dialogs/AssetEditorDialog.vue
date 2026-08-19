@@ -166,6 +166,25 @@ export default {
       },
     },
 
+    alertChannelOptions(): string[] {
+      const dynamicData =
+        this.appStore?.getDynamicData ??
+        this.appStore?.dynamicData ??
+        {}
+
+      const channels = Array.isArray(dynamicData?.alert_channels)
+        ? dynamicData.alert_channels
+        : []
+
+      const options = [...new Set(
+        channels
+          .map((value: any) => String(value).trim())
+          .filter(Boolean),
+      )].sort((a, b) => a.localeCompare(b))
+
+      return options
+    },
+
     macroOptions(): string[] {
       return (this.macroItems as any[])
         .map((item: any) => (typeof item === "string" ? item : item?.name))
@@ -181,7 +200,6 @@ export default {
         .map(String)
         .sort((a: string, b: string) => a.localeCompare(b));
     },
-
 
     iconOptions(): string[] {
       const current = this.normalizeIconName(this.form.icon);
@@ -464,13 +482,10 @@ export default {
     async initializeWledData(reason = "unknown") {
       const appStore = useAppStore();
 
-
       try {
         await appStore.fetchConfig();
       } catch (error) {
       }
-
-      const entries = this.getWledConfigEntries();
 
       await this.loadWledEffectsForAllLamps(`initialize: ${reason}`);
     },
@@ -529,7 +544,6 @@ export default {
       const baseUrl = this.getWledBaseUrl(lamp);
       const cacheKey = this.getWledEffectCacheKey(name);
       const url = baseUrl ? `${baseUrl}/json/eff` : "";
-
 
       if (!cacheKey || !url) {
         return;
@@ -745,7 +759,6 @@ export default {
     },
 
     addWledControl() {
-
       this.form.wled.push({
         name: "",
         red: null,
@@ -939,10 +952,14 @@ export default {
                 <v-combobox
                   v-model="form.channel"
                   :disabled="loading"
+                  :items="alertChannelOptions"
                   :label="$t('assets.channel')"
+                  clearable
                   hide-details="auto"
                   prepend-inner-icon="mdi-broadcast"
                   variant="outlined"
+                  auto-select-first
+                  eager
                 />
               </v-col>
             </v-row>
@@ -1147,8 +1164,7 @@ export default {
           variant="text"
           @click="$emit('update:modelValue', false)"
         >{{ $t("common.cancel")}}
-        </v-btn
-        >
+        </v-btn>
         <v-btn
           :disabled="!canSave"
           :loading="loading"
@@ -1156,8 +1172,7 @@ export default {
           variant="flat"
           @click="submit"
         >{{ $t("common.save")}}
-        </v-btn
-        >
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

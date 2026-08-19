@@ -32,6 +32,7 @@ export const useAppStore = defineStore('app', {
     audioData: {},
     audioOutputs: {},
     audioPresets: {},
+    dynamicData: {},
     systemInfo: {
       components: {},
       config: {},
@@ -115,6 +116,7 @@ export const useAppStore = defineStore('app', {
     getAudioOutput: (state) => state.audioOutputs,
     getAudioOutputs: (state) => state.audioOutputs,
     getAudioPresets: (state) => state.audioPresets,
+    getDynamicData: (state) => state.dynamicData,
     getStorage: (state) => state.storage,
     getIntegrations: (state) => state.integrations,
     getSettings: (state) => state.settings,
@@ -414,6 +416,10 @@ export const useAppStore = defineStore('app', {
     setAudioPresets(audioPresets: any) {
       this.audioPresets = audioPresets ?? {}
       this.$patch(state => state.audioPresets = this.audioPresets)
+    },
+    setDynamicData(dynamicData: any) {
+      this.dynamicData = dynamicData ?? {}
+      this.$patch(state => state.dynamicData = this.dynamicData)
     },
     setStorage(storage: any) {
       this.storage = storage

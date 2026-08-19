@@ -119,6 +119,7 @@ import {
   MacroChannelPointPauseTaskAccordion, MacroChannelPointToggleTaskAccordion,
   MacroKeyboardTaskAccordion,
 } from '@/components/accordions/macro'
+import MacroClearMediaTaskAccordion from '@/components/accordions/macro/MacroClearMediaTaskAccordion.vue'
 import {
   MacroObsDisableSourceFilterTaskAccordion,
   MacroObsEnableSourceFilterTaskAccordion,
@@ -236,6 +237,7 @@ export default {
     MacroLoopControlTaskAccordion,
     MacroLoopTaskAccordion,
     MacroMediaTaskAccordion,
+    MacroClearMediaTaskAccordion,
     MacroWebhookTaskAccordion,
     MacroNeopixelTaskAccordion,
     MacroEffectTaskAccordion,
@@ -452,22 +454,39 @@ export default {
           factory: () => this.createTask({ channel: 'animation', method: 'play' }),
         },
         {
-          titleKey: 'macro.presets.media',
+          titleKey: 'macro.presets.mediaGroup.title',
           icon: 'mdi-multimedia',
-          factory: () => this.createTask({
-            channel: 'media',
-            method: 'show_media',
-            data: {
-              target: 'default',
-              path: '',
-              type: null,
-              clearOnEmpty: true,
-              autoplay: true,
-              loop: false,
-              muted: false,
-              controls: false,
+          children: [
+            {
+              titleKey: 'macro.presets.mediaGroup.show',
+              icon: 'mdi-play-box-outline',
+              factory: () => this.createTask({
+                channel: 'media',
+                method: 'show_media',
+                data: {
+                  target: 'default',
+                  path: '',
+                  type: null,
+                  clearOnEmpty: true,
+                  autoplay: true,
+                  loop: false,
+                  muted: false,
+                  controls: false,
+                },
+              }),
             },
-          }),
+            {
+              titleKey: 'macro.presets.mediaGroup.clear',
+              icon: 'mdi-image-off-outline',
+              factory: () => this.createTask({
+                channel: 'media',
+                method: 'clear_media',
+                data: {
+                  target: 'default',
+                },
+              }),
+            },
+          ],
         },
 
         {
@@ -1240,6 +1259,10 @@ export default {
         }
 
         return musicComponentsByMethod[item?.task?.method] ?? 'MacroTaskAccordion'
+      }
+
+      if (item?.task?.channel === 'media' && item?.task?.method === 'clear_media') {
+        return 'MacroClearMediaTaskAccordion'
       }
 
       const componentsByChannel: Record<string, string> = {

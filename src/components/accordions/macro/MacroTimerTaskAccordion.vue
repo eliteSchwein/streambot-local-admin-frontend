@@ -12,12 +12,14 @@
   >
     <v-row density="comfortable">
       <v-col cols="12" md="4">
-        <v-text-field
+        <v-combobox
           v-model="task.data.name"
+          :items="timerNameOptions"
           :label="$t('macro.final.timer.timerName')"
           prepend-inner-icon="mdi-timer-outline"
           variant="outlined"
           hide-details="auto"
+          auto-select-first
         />
       </v-col>
 
@@ -86,7 +88,8 @@ export default {
 
   data() {
     return {
-      endActionOptions: [
+
+      appStore: useAppStore(),endActionOptions: [
         { title: String(this.$t('macro.final.timer.blink')), value: 'blink' },
         { title: String(this.$t('macro.final.timer.fade')), value: 'fade' },
       ],
@@ -94,6 +97,30 @@ export default {
   },
 
   computed: {
+    timerNameOptions(): string[] {
+      const dynamicData =
+        this.appStore?.getDynamicData ??
+        this.appStore?.dynamicData ??
+        {}
+
+      const names = Array.isArray(dynamicData?.timer_names)
+        ? dynamicData.timer_names
+        : []
+
+      const current = String(
+        this.task.data?.name ??
+        this.task.data?.timer_name ??
+        '',
+      ).trim()
+
+      return [...new Set([
+        ...names
+          .map((value: any) => String(value).trim())
+          .filter(Boolean),
+        ...(current ? [current] : []),
+      ])].sort((a, b) => a.localeCompare(b))
+    },
+
     task(): any {
       const task = (this.item as any).task
 

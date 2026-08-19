@@ -17,10 +17,14 @@
             <v-combobox
               v-model="form.channel"
               :disabled="loadingInternal || disabled"
+              :items="alertChannelOptions"
               :label="$t('assets.channel')"
+              clearable
               hide-details="auto"
               prepend-inner-icon="mdi-broadcast"
               variant="outlined"
+              auto-select-first
+              eager
             />
           </v-col>
         </v-row>
@@ -339,6 +343,23 @@ export default {
       set(value: string) {
         this.form.color = String(value ?? '').replace(/^#/, '').toUpperCase()
       },
+    },
+
+    alertChannelOptions(): string[] {
+      const dynamicData =
+        this.appStore?.getDynamicData ??
+        this.appStore?.dynamicData ??
+        {}
+
+      const channels = Array.isArray(dynamicData?.alert_channels)
+        ? dynamicData.alert_channels
+        : []
+
+      return [...new Set(
+        channels
+          .map((value: any) => String(value).trim())
+          .filter(Boolean),
+      )].sort((a, b) => a.localeCompare(b))
     },
 
     macroOptions(): string[] {

@@ -13,13 +13,17 @@
   >
     <v-row density="comfortable">
       <v-col cols="12" md="6">
-        <v-text-field
+        <v-combobox
           v-model="task.data.target"
+          :items="mediaTargetOptions"
           :label="$t('macro.final.media.target')"
           prepend-inner-icon="mdi-crosshairs-gps"
+          clearable
           hide-details="auto"
           variant="outlined"
           density="comfortable"
+          auto-select-first
+          eager
         />
       </v-col>
 
@@ -152,6 +156,7 @@ export default {
 
   data() {
     return {
+      appStore: useAppStore(),
       loadingSources: false,
       mediaEntries: [] as MediaEntry[],
       mediaLoaded: false,
@@ -177,6 +182,26 @@ export default {
 
     mediaPathPlaceholder(): string {
       return 'assets/image.webp, https://example.com/image.png, ${variables.media_url}'
+    },
+
+    mediaTargetOptions(): string[] {
+      const dynamicData =
+        this.appStore?.getDynamicData ??
+        this.appStore?.dynamicData ??
+        {}
+
+      const targets = Array.isArray(dynamicData?.media_targets)
+        ? dynamicData.media_targets
+        : []
+
+      const current = String(this.task.data?.target ?? '').trim()
+
+      return [...new Set([
+        ...targets
+          .map((value: any) => String(value).trim())
+          .filter(Boolean),
+        ...(current ? [current] : []),
+      ])].sort((a, b) => a.localeCompare(b))
     },
 
     sourceOptions(): Array<{ title: string; value: string; icon: string }> {
