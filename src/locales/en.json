@@ -878,6 +878,12 @@
         "title": "Media",
         "show": "Show media",
         "clear": "Clear media"
+      },
+      "command": {
+        "title": "Commands",
+        "enable": "Enable command",
+        "disable": "Disable command",
+        "toggle": "Toggle command"
       }
     },
     "core": {
@@ -1059,6 +1065,14 @@
         "expression": "Value / expression",
         "expressionPlaceholder": "${count} + 1",
         "expressionHint": "Only changes this running macro. Supports variables, arithmetic, exponentiation, comparisons, boolean AND/OR/NOT, parentheses, booleans, null and quoted strings."
+      },
+      "commandToggle": {
+        "title": "Control command",
+        "action": "Action",
+        "command": "Command",
+        "enable": "Enable",
+        "disable": "Disable",
+        "toggle": "Toggle"
       }
     },
     "final": {
@@ -1582,7 +1596,11 @@
     "deleteConfirm": "Do you want to delete the following command:",
     "macro": "Macro",
     "aliases": "Aliases",
-    "parameters": "{count} parameter(s)"
+    "parameters": "{count} parameter(s)",
+    "singleUseUser": "Single use / user",
+    "singleUseGlobal": "Single use / global",
+    "blacklist": "Blacklist",
+    "whitelist": "Whitelist"
   },
   "integrations": {
     "wled": {
@@ -1788,7 +1806,17 @@
       "params": "Params",
       "addParam": "Add param",
       "asset": "Asset",
-      "macro": "Macro"
+      "macro": "Macro",
+      "enabled": "Enabled",
+      "singleUse": "Single use",
+      "singleUseNone": "Disabled",
+      "singleUseUser": "Once per user",
+      "singleUseGlobal": "Once globally",
+      "userListMode": "User access list",
+      "userListNone": "No list",
+      "userBlacklist": "Blacklist",
+      "userWhitelist": "Whitelist",
+      "users": "Users"
     },
     "fileDeleteConfirmDialog": {},
     "fileCopyDialog": {},

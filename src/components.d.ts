@@ -68,6 +68,7 @@ declare module 'vue' {
     MacroChannelPointPauseTaskAccordion: typeof import('./components/accordions/macro/MacroChannelPointPauseTaskAccordion.vue')['default']
     MacroChannelPointToggleTaskAccordion: typeof import('./components/accordions/macro/MacroChannelPointToggleTaskAccordion.vue')['default']
     MacroClearMediaTaskAccordion: typeof import('./components/accordions/macro/MacroClearMediaTaskAccordion.vue')['default']
+    MacroCommandToggleTaskAccordion: typeof import('./components/accordions/macro/MacroCommandToggleTaskAccordion.vue')['default']
     MacroConditionTaskAccordion: typeof import('./components/accordions/macro/MacroConditionTaskAccordion.vue')['default']
     MacroDeleteConfirmDialog: typeof import('./components/dialogs/MacroDeleteConfirmDialog.vue')['default']
     MacroDummyAlertTaskAccordion: typeof import('./components/accordions/macro/MacroDummyAlertTaskAccordion.vue')['default']

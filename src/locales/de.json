@@ -878,6 +878,12 @@
         "title": "Medien",
         "show": "Medium anzeigen",
         "clear": "Medien leeren"
+      },
+      "command": {
+        "title": "Befehle",
+        "enable": "Befehl aktivieren",
+        "disable": "Befehl deaktivieren",
+        "toggle": "Befehl umschalten"
       }
     },
     "core": {
@@ -1059,6 +1065,14 @@
         "expression": "Wert / Ausdruck",
         "expressionPlaceholder": "${count} + 1",
         "expressionHint": "Ändert nur dieses laufende Makro. Unterstützt Variablen, Rechenoperationen, Potenzen, Vergleiche, boolesches UND/ODER/NOT, Klammern, Boolesche Werte, null und Strings in Anführungszeichen."
+      },
+      "commandToggle": {
+        "title": "Befehl steuern",
+        "action": "Aktion",
+        "command": "Befehl",
+        "enable": "Aktivieren",
+        "disable": "Deaktivieren",
+        "toggle": "Umschalten"
       }
     },
     "final": {
@@ -1582,7 +1596,11 @@
     "deleteConfirm": "Möchtest du folgenden Befehl löschen:",
     "macro": "Makro",
     "aliases": "Aliase",
-    "parameters": "{count} Parameter"
+    "parameters": "{count} Parameter",
+    "singleUseUser": "Einmalig / Benutzer",
+    "singleUseGlobal": "Einmalig / global",
+    "blacklist": "Blacklist",
+    "whitelist": "Whitelist"
   },
   "integrations": {
     "wled": {
@@ -1788,7 +1806,17 @@
       "params": "Parameter",
       "addParam": "Parameter hinzufügen",
       "asset": "Asset",
-      "macro": "Makro"
+      "macro": "Makro",
+      "enabled": "Aktiviert",
+      "singleUse": "Einmalige Nutzung",
+      "singleUseNone": "Deaktiviert",
+      "singleUseUser": "Einmal pro Benutzer",
+      "singleUseGlobal": "Einmal global",
+      "userListMode": "Benutzerzugriffsliste",
+      "userListNone": "Keine Liste",
+      "userBlacklist": "Blacklist",
+      "userWhitelist": "Whitelist",
+      "users": "Benutzer"
     },
     "fileDeleteConfirmDialog": {},
     "fileCopyDialog": {},

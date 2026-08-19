@@ -129,6 +129,7 @@ import {
   MacroKeyboardTaskAccordion,
 } from '@/components/accordions/macro'
 import MacroClearMediaTaskAccordion from '@/components/accordions/macro/MacroClearMediaTaskAccordion.vue'
+import MacroCommandToggleTaskAccordion from '@/components/accordions/macro/MacroCommandToggleTaskAccordion.vue'
 import MacroVariableLocalSetTaskAccordion from '@/components/accordions/macro/MacroVariableLocalSetTaskAccordion.vue'
 import {
   MacroObsDisableSourceFilterTaskAccordion,
@@ -275,6 +276,7 @@ export default {
     MacroChannelPointCancelTaskAccordion,
     MacroChannelPointPauseTaskAccordion,
     MacroChannelPointToggleTaskAccordion,
+    MacroCommandToggleTaskAccordion,
     MacroKeyboardTaskAccordion,
     MacroTimerTaskAccordion,
     MacroWledCustomTaskAccordion,
@@ -672,6 +674,27 @@ export default {
               titleKey: 'macro.presets.channelPoint.setEnabledState',
               icon: 'mdi-toggle-switch-outline',
               factory: () => this.createTask({ channel: 'channel_point', method: 'toggle', data: { name: '', state: 'enable' } }),
+            },
+          ],
+        },
+        {
+          titleKey: 'macro.presets.command.title',
+          icon: 'mdi-console-line',
+          children: [
+            {
+              titleKey: 'macro.presets.command.enable',
+              icon: 'mdi-toggle-switch',
+              factory: () => this.createTask({ channel: 'command', method: 'enable', data: { name: '' } }),
+            },
+            {
+              titleKey: 'macro.presets.command.disable',
+              icon: 'mdi-toggle-switch-off-outline',
+              factory: () => this.createTask({ channel: 'command', method: 'disable', data: { name: '' } }),
+            },
+            {
+              titleKey: 'macro.presets.command.toggle',
+              icon: 'mdi-toggle-switch-outline',
+              factory: () => this.createTask({ channel: 'command', method: 'toggle', data: { name: '' } }),
             },
           ],
         },
@@ -1251,6 +1274,10 @@ export default {
 
       if (item?.task?.channel === 'channel_point' && ['enable', 'disable', 'toggle'].includes(item?.task?.method)) {
         return 'MacroChannelPointToggleTaskAccordion'
+      }
+
+      if (item?.task?.channel === 'command' && ['enable', 'disable', 'toggle'].includes(item?.task?.method)) {
+        return 'MacroCommandToggleTaskAccordion'
       }
 
       if (item?.task?.channel === 'api_request') {

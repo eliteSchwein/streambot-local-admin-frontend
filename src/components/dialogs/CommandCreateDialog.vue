@@ -42,6 +42,54 @@
           </v-col>
         </v-row>
 
+        <v-row density="comfortable" class="mt-3 px-3">
+          <v-col cols="12" md="3">
+            <v-switch
+              v-model="form.enabled"
+              :label="$t('dialogs.commandCreateDialog.enabled')"
+              color="primary"
+              hide-details
+              density="comfortable"
+            />
+          </v-col>
+
+          <v-col cols="12" md="3">
+            <v-select
+              v-model="form.single_use"
+              :items="singleUseOptions"
+              :label="$t('dialogs.commandCreateDialog.singleUse')"
+              variant="outlined"
+              density="comfortable"
+              hide-details
+            />
+          </v-col>
+
+          <v-col cols="12" md="3">
+            <v-select
+              v-model="form.user_list_mode"
+              :items="userListModeOptions"
+              :label="$t('dialogs.commandCreateDialog.userListMode')"
+              variant="outlined"
+              density="comfortable"
+              hide-details
+            />
+          </v-col>
+
+          <v-col cols="12" md="3">
+            <v-combobox
+              v-model="form.users"
+              :label="$t('dialogs.commandCreateDialog.users')"
+              :disabled="form.user_list_mode === 'none'"
+              variant="outlined"
+              density="comfortable"
+              multiple
+              chips
+              closable-chips
+              hide-details
+            />
+          </v-col>
+        </v-row>
+
         <div class="d-flex flex-wrap ga-2 my-3 px-3">
           <v-switch v-model="form.enforce_primary" :label="$t('dialogs.commandCreateDialog.primaryOnly')" color="primary" hide-details density="comfortable" />
           <v-switch v-model="form.requiresBroadcaster" :label="$t('dialogs.commandCreateDialog.broadcaster')" color="primary" hide-details density="comfortable" />
@@ -172,6 +220,22 @@ export default {
   },
 
   computed: {
+    singleUseOptions() {
+      return [
+        { title: this.$t('dialogs.commandCreateDialog.singleUseNone'), value: 'none' },
+        { title: this.$t('dialogs.commandCreateDialog.singleUseUser'), value: 'user' },
+        { title: this.$t('dialogs.commandCreateDialog.singleUseGlobal'), value: 'global' },
+      ]
+    },
+
+    userListModeOptions() {
+      return [
+        { title: this.$t('dialogs.commandCreateDialog.userListNone'), value: 'none' },
+        { title: this.$t('dialogs.commandCreateDialog.userBlacklist'), value: 'blacklist' },
+        { title: this.$t('dialogs.commandCreateDialog.userWhitelist'), value: 'whitelist' },
+      ]
+    },
+
     safeParams(): any[] {
       if (!Array.isArray((this.form as any).params)) {
         ;(this.form as any).params = []
@@ -223,6 +287,10 @@ export default {
         name: '',
         aliases: [] as string[],
         params: [] as any[],
+        enabled: true,
+        single_use: 'none',
+        user_list_mode: 'none',
+        users: [] as string[],
         userCooldown: undefined as any,
         globalCooldown: undefined as any,
         enforce_primary: false,
@@ -245,6 +313,16 @@ export default {
         ...value,
         aliases: this.toArray(value.aliases),
         params: this.toArray(value.params),
+        users: this.toArray(value.users ?? value.user_list ?? value.userList)
+          .map((user: any) => String(user ?? '').replace(/^@+/, '').trim())
+          .filter(Boolean),
+        enabled: value.enabled !== false,
+        single_use: ['user', 'global'].includes(value.single_use ?? value.singleUse)
+          ? (value.single_use ?? value.singleUse)
+          : 'none',
+        user_list_mode: ['blacklist', 'whitelist'].includes(value.user_list_mode ?? value.userListMode)
+          ? (value.user_list_mode ?? value.userListMode)
+          : 'none',
       }
     },
 

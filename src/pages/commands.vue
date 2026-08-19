@@ -61,6 +61,42 @@
             </div>
 
             <v-chip
+              v-if="item.command?.single_use === 'user' || item.command?.singleUse === 'user'"
+              size="x-small"
+              variant="tonal"
+              class="command-row__chip"
+            >
+              {{ $t('commands.singleUseUser') }}
+            </v-chip>
+
+            <v-chip
+              v-else-if="item.command?.single_use === 'global' || item.command?.singleUse === 'global'"
+              size="x-small"
+              variant="tonal"
+              class="command-row__chip"
+            >
+              {{ $t('commands.singleUseGlobal') }}
+            </v-chip>
+
+            <v-chip
+              v-if="item.command?.user_list_mode === 'blacklist' || item.command?.userListMode === 'blacklist'"
+              size="x-small"
+              variant="tonal"
+              class="command-row__chip"
+            >
+              {{ $t('commands.blacklist') }}
+            </v-chip>
+
+            <v-chip
+              v-else-if="item.command?.user_list_mode === 'whitelist' || item.command?.userListMode === 'whitelist'"
+              size="x-small"
+              variant="tonal"
+              class="command-row__chip"
+            >
+              {{ $t('commands.whitelist') }}
+            </v-chip>
+
+            <v-chip
               v-if="commandAliasCount(item) > 0"
               size="x-small"
               variant="tonal"
@@ -110,6 +146,17 @@
           </div>
 
           <div class="command-row__actions">
+            <v-switch
+              :model-value="commandRuntimeEnabled(item)"
+              :disabled="reloadInProgress"
+              density="compact"
+              hide-details
+              inset
+              color="primary"
+              class="command-row__toggle"
+              @update:model-value="toggleCommandEnabled(item, $event)"
+            />
+
             <v-btn
               size="small"
               variant="tonal"
@@ -209,6 +256,7 @@ export default {
       selectedCommand: null as CommandEntry | null,
       workingName: null as string | null,
       workingAction: null as string | null,
+      togglePending: {} as Record<string, boolean>,
     }
   },
 
@@ -292,6 +340,36 @@ export default {
       return Array.isArray(item.command?.params) ? item.command.params.length : 0
     },
 
+
+    commandRuntimeEnabled(item: CommandEntry): boolean {
+      if (typeof item.command?.runtime_enabled === 'boolean') {
+        return item.command.runtime_enabled
+      }
+
+      return item.command?.enabled !== false
+    },
+
+    async toggleCommandEnabled(item: CommandEntry, enabled: boolean) {
+      if (this.reloadInProgress || this.togglePending[item.name]) return
+
+      this.togglePending[item.name] = true
+      this.errorMessage = ''
+
+      try {
+        await this.requestEndpoint(
+          'commands_toggle',
+          'commands/toggle',
+          {
+            name: item.name,
+            enabled: enabled === true,
+          },
+        )
+      } catch (error: any) {
+        this.errorMessage = error?.message ?? 'failed to toggle command'
+      } finally {
+        delete this.togglePending[item.name]
+      }
+    },
 
     openCreateDialog() {
       if (this.reloadInProgress) return
@@ -409,6 +487,10 @@ export default {
 
       const commandContent = this.yamlDump({
         name,
+        enabled: payload.enabled !== false,
+        single_use: payload.single_use ?? 'none',
+        user_list_mode: payload.user_list_mode ?? 'none',
+        users: Array.isArray(payload.users) ? payload.users : [],
         aliases: payload.aliases ?? [],
         params: payload.params ?? [],
         asset: assetName,
@@ -475,7 +557,8 @@ export default {
     yamlDump(value: any) {
       const lines: string[] = []
       for (const [key, rawValue] of Object.entries(value)) {
-        if (rawValue === undefined || rawValue === null || rawValue === false || rawValue === '') continue
+        if (rawValue === undefined || rawValue === null || rawValue === '') continue
+        if (rawValue === false && key !== 'enabled') continue
         if (Array.isArray(rawValue)) {
           if (rawValue.length === 0) {
             lines.push(`${key}: []`)
@@ -523,6 +606,7 @@ export default {
   flex: 1 1 auto;
 }
 
+
 .command-row__name {
   min-width: 0;
   font-weight: 500;
@@ -537,6 +621,11 @@ export default {
   align-items: center;
   gap: 8px;
   flex: 0 0 auto;
+}
+
+.command-row__toggle {
+  flex: 0 0 auto;
+  margin-right: 2px;
 }
 
 .min-width-0 {

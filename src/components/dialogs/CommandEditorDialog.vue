@@ -51,6 +51,16 @@ export default {
         name,
         aliases: this.toArray(command.aliases ?? command.alias),
         params: this.expandParams(command.params),
+        enabled: command.enabled !== false,
+        single_use: ['user', 'global'].includes(command.single_use ?? command.singleUse)
+          ? (command.single_use ?? command.singleUse)
+          : 'none',
+        user_list_mode: ['blacklist', 'whitelist'].includes(command.user_list_mode ?? command.userListMode)
+          ? (command.user_list_mode ?? command.userListMode)
+          : 'none',
+        users: this.toArray(command.users ?? command.user_list ?? command.userList)
+          .map((user: any) => String(user ?? '').replace(/^@+/, '').trim())
+          .filter(Boolean),
         userCooldown: command.userCooldown,
         globalCooldown: command.globalCooldown,
         enforce_primary: command.enforce_primary === true || command.enforceSame === true,
