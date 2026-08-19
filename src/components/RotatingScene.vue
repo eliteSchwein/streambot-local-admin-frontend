@@ -1,56 +1,58 @@
 <template>
-  <v-card color="grey-darken-4" variant="flat" class="rotating-scene-card">
-    <v-card-text class="py-3">
-      <div class="d-flex align-center justify-space-between ga-3">
-        <div class="d-flex align-center ga-3 min-width-0">
-          <v-avatar color="grey-darken-3" size="40">
-            <v-icon icon="mdi-filmstrip" />
-          </v-avatar>
-
-          <div class="min-width-0">
-            <div class="text-subtitle-1 text-truncate" :title="rotatingSceneName">
-              {{ rotatingSceneName }}
-            </div>
-            <div class="text-caption text-medium-emphasis">
-              {{ $t('components.rotatingScene.summary', { count: sceneCount, interval: intervalLabel }) }}
-            </div>
-          </div>
-        </div>
-
-        <div class="d-flex align-center ga-2 flex-shrink-0">
-          <v-btn
-            color="primary"
-            variant="tonal"
-            prepend-icon="mdi-pencil"
-            @click="$emit('edit', rotatingScene)"
-          >
-        {{ $t('components.rotatingScene.edit') }}
-      </v-btn>
-
-          <v-btn
-            color="error"
-            variant="tonal"
-            prepend-icon="mdi-delete"
-            @click="$emit('delete', rotatingScene)"
-          >
-        {{ $t('components.rotatingScene.delete') }}
-      </v-btn>
-        </div>
+  <div class="rotating-scene-row">
+    <div class="rotating-scene-row__content">
+      <div
+        class="rotating-scene-row__name text-truncate"
+        :title="rotatingSceneName"
+      >
+        {{ rotatingSceneName }}
       </div>
 
-      <div v-if="sceneNames.length" class="d-flex flex-wrap ga-1 mt-3">
-        <v-chip
-          v-for="scene in sceneNames"
-          :key="scene.key"
-          size="x-small"
-          variant="tonal"
-          prepend-icon="mdi-video-switch"
-        >
-          {{ scene.label }}
-        </v-chip>
-      </div>
-    </v-card-text>
-  </v-card>
+      <v-chip
+        size="x-small"
+        variant="tonal"
+        class="rotating-scene-row__chip"
+        prepend-icon="mdi-clock-outline"
+      >
+        {{ intervalLabel }}
+      </v-chip>
+
+      <v-chip
+        size="x-small"
+        variant="tonal"
+        class="rotating-scene-row__chip"
+        prepend-icon="mdi-video-switch"
+      >
+        {{ $t('components.rotatingScene.sceneCount', { count: sceneCount }) }}
+      </v-chip>
+    </div>
+
+    <div class="rotating-scene-row__actions">
+      <v-btn
+        size="small"
+        variant="tonal"
+        color="primary"
+        @click.stop="$emit('edit', rotatingScene)"
+      >
+        <v-icon icon="mdi-pencil" />
+        <span class="d-none d-sm-inline ml-1">
+          {{ $t('common.edit') }}
+        </span>
+      </v-btn>
+
+      <v-btn
+        size="small"
+        variant="tonal"
+        color="red"
+        @click.stop="$emit('delete', rotatingScene)"
+      >
+        <v-icon icon="mdi-delete" />
+        <span class="d-none d-sm-inline ml-1">
+          {{ $t('common.delete') }}
+        </span>
+      </v-btn>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -74,20 +76,6 @@ const sceneItems = computed(() => {
 
 const sceneCount = computed(() => sceneItems.value.length)
 
-const sceneNames = computed(() => sceneItems.value.map((scene: any, index: number) => {
-  if (typeof scene === 'string') {
-    return { key: `${scene}-${index}`, label: scene }
-  }
-
-  const sceneName = String(scene?.sceneName ?? scene?.name ?? scene?.sceneUuid ?? scene?.uuid ?? '')
-  const canvasName = String(scene?.canvasName ?? '')
-
-  return {
-    key: `${scene?.sceneUuid ?? scene?.uuid ?? sceneName}-${index}`,
-    label: canvasName ? `${canvasName} / ${sceneName}` : sceneName,
-  }
-}))
-
 const intervalLabel = computed(() => formatDuration(Number(props.rotatingScene?.interval ?? 0) * 60))
 
 function formatDuration(totalSeconds: number) {
@@ -98,17 +86,62 @@ function formatDuration(totalSeconds: number) {
   const remainingMinutes = minutes % 60
 
   if (hours > 0) return `${hours}h ${remainingMinutes}m`
-  if (minutes > 0) return `${minutes}m ${remainingSeconds}s`
+  if (minutes > 0) return remainingSeconds ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`
   return `${seconds}s`
 }
 </script>
 
 <style scoped lang="scss">
-.rotating-scene-card {
-  border: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
+.rotating-scene-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 8px 14px;
+  background: rgb(var(--v-theme-grey-darken-4));
+  border-bottom: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 
-.min-width-0 {
+.rotating-scene-row__content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   min-width: 0;
+  flex: 1 1 auto;
+}
+
+.rotating-scene-row__name {
+  min-width: 0;
+  font-weight: 500;
+}
+
+.rotating-scene-row__chip {
+  flex: 0 0 auto;
+}
+
+.rotating-scene-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 600px) {
+  .rotating-scene-row {
+    padding-inline: 10px;
+  }
+
+  .rotating-scene-row__content {
+    gap: 6px;
+  }
+
+  .rotating-scene-row__actions {
+    gap: 4px;
+  }
+
+  .rotating-scene-row__actions .v-btn {
+    min-width: 36px;
+    padding-inline: 8px;
+  }
 }
 </style>

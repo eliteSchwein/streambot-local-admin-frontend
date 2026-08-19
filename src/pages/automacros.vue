@@ -74,6 +74,8 @@
           :key="item.name"
           :auto-macro="item.autoMacro"
           mode="editor"
+          :disabled="workingName === item.name"
+          :deleting="workingName === item.name && workingAction === 'delete'"
           @edit="openEditor"
           @delete="openDeleteDialog"
         />
@@ -348,9 +350,8 @@ export default {
 
 <style scoped lang="scss">
 .auto-macro-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  overflow: hidden;
+  border-radius: 4px;
 }
 
 .min-width-0 {

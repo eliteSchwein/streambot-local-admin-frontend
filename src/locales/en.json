@@ -1776,7 +1776,8 @@
     "rotatingScene": {
       "summary": "{count} scenes · every {interval}",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "sceneCount": "{count} scenes"
     },
     "yamlImportExport": {
       "export": "Export",
@@ -1882,5 +1883,14 @@
     "fileCard": {},
     "fileManagerPage": {},
     "filePreview": {}
+  },
+  "rotatingScenes": {
+    "title": "Scene rotations",
+    "listTitle": "Scene rotations",
+    "headerTitle": "Scene rotation",
+    "create": "Create scene rotation",
+    "upload": "Upload scene rotation",
+    "search": "Search scene rotations",
+    "noScenesFound": "No scene rotations found"
   }
 }

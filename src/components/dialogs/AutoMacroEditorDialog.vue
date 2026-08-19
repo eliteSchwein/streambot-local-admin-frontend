@@ -141,6 +141,8 @@
                     v-model="selectedMacroToAdd"
                     :label="$t('dialogs.autoMacroEditorDialog.addMacro')"
                     class="flex-grow-1"
+                    @focus="beginMacroSelection"
+                    @click="beginMacroSelection"
                     @update:model-value="addSelectedMacro"
                   />
                 </div>
@@ -272,11 +274,6 @@ export default {
       content: '',
       rawMode: false,
       intervalUnit: 'seconds',
-      intervalUnits: [
-        { title: 'Seconds', value: 'seconds' },
-        { title: 'Minutes', value: 'minutes' },
-        { title: 'Hours', value: 'hours' },
-      ],
       visualAutoMacro: {
         name: '',
         default_enabled: false,
@@ -284,6 +281,7 @@ export default {
         macros: [] as string[],
       } as VisualAutoMacro,
       selectedMacroToAdd: '',
+      consumedMacroSelection: '',
       macroEditorOpen: false,
       editingMacroName: '',
       loadingFile: false,
@@ -310,6 +308,23 @@ export default {
 
     macroOptions(): string[] {
       return Object.keys(this.getMacros ?? {}).sort((a, b) => a.localeCompare(b))
+    },
+
+    intervalUnits() {
+      return [
+        {
+          title: this.$t('macro.function.sleep.units.seconds'),
+          value: 'seconds',
+        },
+        {
+          title: this.$t('macro.function.sleep.units.minutes'),
+          value: 'minutes',
+        },
+        {
+          title: this.$t('macro.function.sleep.units.hours'),
+          value: 'hours',
+        },
+      ]
     },
 
     intervalSeconds(): number {
@@ -646,14 +661,29 @@ export default {
       return parseBlock(0, lines[0].indent).value
     },
 
+    beginMacroSelection() {
+      // Only an actual new interaction with the selector allows the same macro
+      // to be chosen again. Store refreshes after creating/saving a macro do
+      // not clear this guard.
+      this.consumedMacroSelection = ''
+    },
+
     addSelectedMacro(value?: string) {
       const macro = String(value ?? this.selectedMacroToAdd ?? '').trim()
       if (!macro) return
+
+      if (this.consumedMacroSelection === macro) {
+        this.selectedMacroToAdd = ''
+        return
+      }
+
+      this.consumedMacroSelection = macro
 
       this.visualAutoMacro.macros = [
         ...(this.visualAutoMacro.macros ?? []),
         macro,
       ]
+
       this.selectedMacroToAdd = ''
     },
 

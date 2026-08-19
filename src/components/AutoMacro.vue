@@ -1,67 +1,63 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { getWebsocketClient } from "@/plugins/websocketInstance";
+import { computed } from 'vue'
+import { getWebsocketClient } from '@/plugins/websocketInstance'
 
 const props = withDefaults(defineProps<{
-  autoMacro: any;
-  mode?: "dashboard" | "editor";
+  autoMacro: any
+  mode?: 'dashboard' | 'editor'
+  disabled?: boolean
+  deleting?: boolean
 }>(), {
-  mode: "dashboard",
-});
+  mode: 'dashboard',
+  disabled: false,
+  deleting: false,
+})
 
 const emit = defineEmits<{
-  edit: [autoMacro: any];
-  delete: [autoMacro: any];
-}>();
+  edit: [autoMacro: any]
+  delete: [autoMacro: any]
+}>()
 
-const isDashboardMode = computed(() => props.mode === "dashboard");
-const isEditorMode = computed(() => props.mode === "editor");
-const autoMacroName = computed(() => String(props.autoMacro?.name ?? ""));
+const isDashboardMode = computed(() => props.mode === 'dashboard')
+const autoMacroName = computed(() => String(props.autoMacro?.name ?? ''))
 
 const progressValue = computed(() => {
-  const interval = Number(props.autoMacro?.interval ?? 0);
-  const currentInterval = Number(props.autoMacro?.current_interval ?? 0);
+  const interval = Number(props.autoMacro?.interval ?? 0)
+  const currentInterval = Number(props.autoMacro?.current_interval ?? 0)
 
-  if (!interval || interval <= 0) return 0;
-  return Math.max(0, Math.min(100, (100 / interval) * currentInterval));
-});
+  if (!interval || interval <= 0) return 0
+  return Math.max(0, Math.min(100, (100 / interval) * currentInterval))
+})
 
-const intervalLabel = computed(() => formatDuration(Number(props.autoMacro?.interval ?? 0)));
+const intervalLabel = computed(() => formatDuration(Number(props.autoMacro?.interval ?? 0)))
 
 const macroList = computed(() => {
-  const macros = props.autoMacro?.macros;
-  return Array.isArray(macros) ? macros.map((macro: any) => String(macro)) : [];
-});
-
-const macrosLabel = computed(() => {
-  if (macroList.value.length === 1) return "1 macro";
-  return `${macroList.value.length} macros`;
-});
-
-const defaultEnabledLabel = computed(() => (
-  props.autoMacro?.default_enabled === true ? "Starts enabled" : "Starts disabled"
-));
+  const macros = props.autoMacro?.macros
+  return Array.isArray(macros) ? macros.map((macro: any) => String(macro)) : []
+})
 
 function formatDuration(totalSeconds: number) {
-  const seconds = Math.max(0, Math.round(Number(totalSeconds) || 0));
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
+  const seconds = Math.max(0, Math.round(Number(totalSeconds) || 0))
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = minutes % 60
 
-  if (hours > 0) return `${hours}h ${remainingMinutes}m`;
-  if (minutes > 0) return remainingSeconds ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
-  return `${seconds}s`;
+  if (hours > 0) return `${hours}h ${remainingMinutes}m`
+  if (minutes > 0) return remainingSeconds ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`
+  return `${seconds}s`
 }
 
 function toggleAutoMacro(value: boolean | null) {
-  const enabled = value === true;
+  if (props.disabled) return
 
-  getWebsocketClient()?.send("toggle_auto_macro", {
+  const enabled = value === true
+
+  getWebsocketClient()?.send('toggle_auto_macro', {
     name: autoMacroName.value,
     enable: enabled,
     enabled,
-  });
+  })
 }
 </script>
 
@@ -98,72 +94,71 @@ function toggleAutoMacro(value: boolean | null) {
     </template>
   </v-toolbar>
 
-  <v-card
-    v-else
-    color="grey-darken-4"
-    variant="flat"
-    class="auto-macro-editor mb-3"
-  >
-    <v-card-text class="pa-4">
-      <div class="d-flex flex-column flex-md-row align-md-center ga-3">
-        <div class="flex-grow-1 min-width-0">
-          <div class="d-flex align-center ga-2 min-width-0 mb-2">
-            <v-icon icon="mdi-timer-cog" size="small" />
-            <div class="text-subtitle-1 text-truncate" :title="autoMacroName">
-              {{ autoMacroName }}
-            </div>
-          </div>
-
-          <div class="d-flex flex-wrap ga-2 mb-2">
-            <v-chip size="small" variant="tonal" prepend-icon="mdi-clock-outline">
-              Every {{ intervalLabel }}
-            </v-chip>
-            <v-chip size="small" variant="tonal" prepend-icon="mdi-code-braces">
-              {{ macrosLabel }}
-            </v-chip>
-            <v-chip size="small" variant="tonal" prepend-icon="mdi-power">
-              {{ defaultEnabledLabel }}
-            </v-chip>
-          </div>
-
-          <div v-if="macroList.length" class="d-flex flex-wrap ga-1">
-            <v-chip
-              v-for="macro in macroList"
-              :key="macro"
-              size="x-small"
-              variant="outlined"
-            >
-              {{ macro }}
-            </v-chip>
-          </div>
-
-          <div v-else class="text-caption text-grey-lighten-1">
-            No macros selected yet.
-          </div>
-        </div>
-
-        <div class="d-flex flex-column flex-sm-row ga-2 flex-shrink-0">
-          <v-btn
-            color="primary"
-            variant="tonal"
-            prepend-icon="mdi-pencil"
-            @click.stop="emit('edit', autoMacro)"
-          >
-            Edit auto macro
-          </v-btn>
-
-          <v-btn
-            color="error"
-            variant="tonal"
-            prepend-icon="mdi-delete"
-            @click.stop="emit('delete', autoMacro)"
-          >
-            Delete auto macro
-          </v-btn>
-        </div>
+  <div v-else class="auto-macro-row">
+    <div class="auto-macro-row__content">
+      <div class="auto-macro-row__name text-truncate" :title="autoMacroName">
+        {{ autoMacroName }}
       </div>
-    </v-card-text>
-  </v-card>
+
+      <v-chip
+        size="x-small"
+        variant="tonal"
+        class="auto-macro-row__chip"
+        prepend-icon="mdi-clock-outline"
+      >
+        {{ intervalLabel }}
+      </v-chip>
+
+      <v-chip
+        size="x-small"
+        variant="tonal"
+        class="auto-macro-row__chip"
+      >
+        {{ macroList.length }} macros
+      </v-chip>
+    </div>
+
+    <div class="auto-macro-row__actions">
+      <v-switch
+        :model-value="autoMacro?.enabled === true"
+        :disabled="disabled"
+        density="compact"
+        hide-details
+        inset
+        color="primary"
+        class="auto-macro-row__toggle"
+        @update:model-value="toggleAutoMacro"
+        @click.stop
+      />
+
+      <v-btn
+        size="small"
+        variant="tonal"
+        color="primary"
+        :disabled="disabled"
+        @click.stop="emit('edit', autoMacro)"
+      >
+        <v-icon icon="mdi-pencil" />
+        <span class="d-none d-sm-inline ml-1">
+          {{ $t('common.edit') }}
+        </span>
+      </v-btn>
+
+      <v-btn
+        size="small"
+        variant="tonal"
+        color="red"
+        :loading="deleting"
+        :disabled="disabled"
+        @click.stop="emit('delete', autoMacro)"
+      >
+        <v-icon icon="mdi-delete" />
+        <span class="d-none d-sm-inline ml-1">
+          {{ $t('common.delete') }}
+        </span>
+      </v-btn>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="scss">
@@ -171,11 +166,65 @@ function toggleAutoMacro(value: boolean | null) {
   min-height: 48px;
 }
 
-.auto-macro-editor {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.auto-macro-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 8px 14px;
+  background: rgb(var(--v-theme-grey-darken-4));
+  border-bottom: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.auto-macro-row__content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.auto-macro-row__name {
+  min-width: 0;
+  font-weight: 500;
+}
+
+.auto-macro-row__chip,
+.auto-macro-row__toggle {
+  flex: 0 0 auto;
+}
+
+.auto-macro-row__toggle {
+  margin-right: 2px;
+}
+
+.auto-macro-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
 }
 
 .min-width-0 {
   min-width: 0;
+}
+
+@media (max-width: 600px) {
+  .auto-macro-row {
+    padding-inline: 10px;
+  }
+
+  .auto-macro-row__content {
+    gap: 6px;
+  }
+
+  .auto-macro-row__actions {
+    gap: 4px;
+  }
+
+  .auto-macro-row__actions .v-btn {
+    min-width: 36px;
+    padding-inline: 8px;
+  }
 }
 </style>

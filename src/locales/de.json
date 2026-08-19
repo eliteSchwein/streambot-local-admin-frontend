@@ -41,7 +41,7 @@
       "commands": "Befehle",
       "integrations": "Integrationen",
       "automacros": "Auto-Makros",
-      "rotatingscene": "Szenenrotation",
+      "rotatingscene": "Szenenwechsel",
       "settings": "Einstellungen",
       "system": "System"
     },
@@ -657,8 +657,8 @@
         "runMacro": "Makro ausführen",
         "startAutoMacro": "Auto-Makro starten",
         "stopAutoMacro": "Auto-Makro stoppen",
-        "startSceneRotation": "Szenenrotation starten",
-        "stopSceneRotation": "Szenenrotation stoppen",
+        "startSceneRotation": "Szenenwechsel starten",
+        "stopSceneRotation": "Szenenwechsel stoppen",
         "endMacro": "Makro beenden"
       },
       "alert": "Alarm",
@@ -1107,12 +1107,12 @@
       "obsTask": {},
       "rest": {},
       "rotateSceneStart": {
-        "startRotatingScene": "Szenenrotation starten",
-        "rotatingScene": "Szenenrotation"
+        "startRotatingScene": "Szenenwechsel starten",
+        "rotatingScene": "Szenenwechsel"
       },
       "rotateSceneStop": {
-        "stopRotatingScene": "Szenenrotation stoppen",
-        "stopsTheCurrentlyRunningRotatingScene": "Stoppt die aktuell laufende Szenenrotation."
+        "stopRotatingScene": "Szenenwechsel stoppen",
+        "stopsTheCurrentlyRunningRotatingScene": "Stoppt die aktuell laufende Szenenwechsel."
       },
       "taskAccordion": {
         "channel": "Kanal",
@@ -1386,7 +1386,7 @@
         "starting_tts": "TTS wird gestartet…",
         "updating_obs_filters": "OBS-Filter werden aktualisiert…",
         "starting_auto_macros": "Auto-Makros werden gestartet…",
-        "loading_scene_rotations": "Szenenrotationen werden geladen…",
+        "loading_scene_rotations": "Szenenwechselen werden geladen…",
         "starting_music_player": "Musikplayer wird gestartet…",
         "updating_event_index": "Event-Index wird aktualisiert…",
         "finished": "Fertig"
@@ -1438,7 +1438,7 @@
     "mediaUsed": "Belegt durch Medien",
     "channelPointUsed": "Belegt durch Kanalpunkte",
     "commandUsed": "Belegt durch Befehle",
-    "rotatingSceneUsed": "Belegt durch Szenenrotation",
+    "rotatingSceneUsed": "Belegt durch Szenenwechsel",
     "autoMacroUsed": "Belegt durch Auto-Makros",
     "assetConfigUsed": "Von Asset-Konfigurationen verwendet",
     "updates": {
@@ -1776,7 +1776,8 @@
     "rotatingScene": {
       "summary": "{count} Szenen · alle {interval}",
       "edit": "Bearbeiten",
-      "delete": "Löschen"
+      "delete": "Löschen",
+      "sceneCount": "{count} Szenen"
     },
     "yamlImportExport": {
       "export": "Exportieren",
@@ -1882,5 +1883,14 @@
     "fileCard": {},
     "fileManagerPage": {},
     "filePreview": {}
+  },
+  "rotatingScenes": {
+    "title": "Szenenwechsel",
+    "listTitle": "Szenenwechsel",
+    "headerTitle": "Szenenwechsel",
+    "create": "Szenenwechsel erstellen",
+    "upload": "Szenenwechsel hochladen",
+    "search": "Szenenwechsel suchen",
+    "noScenesFound": "Keine Szenenwechsel gefunden"
   }
 }

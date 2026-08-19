@@ -33,6 +33,8 @@ import NotifyCommandsUpdateMessage from "@/plugins/websocketEvents/websocketMess
 import NotifyUpdateManagerMessage from "@/plugins/websocketEvents/websocketMessage/NotifyUpdateManagerMessage.ts";
 import NotifyServiceReloadMessage from "@/plugins/websocketEvents/websocketMessage/NotifyServiceReloadMessage.ts";
 import NotifyOllamaUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyOllamaUpdateMessage.ts";
+import NotifyRotatingSceneUpdateMessage
+  from "@/plugins/websocketEvents/websocketMessage/NotifyRotatingSceneUpdateMessage.ts";
 
 export default class MessageEvent extends BaseEvent {
   name = 'message'
@@ -79,5 +81,6 @@ export default class MessageEvent extends BaseEvent {
     await new NotifyUpdateManagerMessage(this.webSocketClient).handleMessage(data)
     await new NotifyServiceReloadMessage(this.webSocketClient).handleMessage(data)
     await new NotifyOllamaUpdateMessage(this.webSocketClient).handleMessage(data)
+    await new NotifyRotatingSceneUpdateMessage(this.webSocketClient).handleMessage(data)
   }
 }

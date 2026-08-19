@@ -4,27 +4,18 @@
       <div class="d-flex align-center ga-2 min-width-0">
         <v-icon icon="mdi-filmstrip" />
         <div class="min-width-0">
-          <div class="text-truncate">Scene rotation</div>
+          <div class="text-truncate">{{ $t('rotatingScenes.headerTitle') }}</div>
         </div>
       </div>
 
       <div class="d-flex align-center ga-2">
-        <v-btn
-          prepend-icon="mdi-refresh"
-          variant="tonal"
-          :loading="loading"
-          @click="loadRotatingScenes"
-        >
-          {{ $t('common.refresh') }}
-        </v-btn>
-
         <v-btn
           prepend-icon="mdi-plus"
           color="primary"
           variant="tonal"
           @click="openCreateEditor"
         >
-          Create
+          {{ $t('rotatingScenes.create') }}
         </v-btn>
       </div>
     </v-card-title>
@@ -41,8 +32,8 @@
         <v-col cols="12" md="6">
           <UploadCard
             ref="uploadCard"
-            label="Upload rotating scene"
-            :drop-label="$t('file.dropFiles') || 'Drop files here'"
+            :label="$t('rotatingScenes.upload')"
+            :drop-label="$t('file.dropFiles')"
             icon="mdi-upload"
             accept=".yaml,.yml,.json"
             :loading="uploading"
@@ -53,7 +44,7 @@
 
       <v-text-field
         v-model="searchQuery"
-        label="Search rotating scenes"
+        :label="$t('rotatingScenes.search')"
         prepend-inner-icon="mdi-magnify"
         clearable
         variant="outlined"
@@ -71,10 +62,10 @@
       />
 
       <v-alert
-        v-if="!loading && filteredRotatingScenes.length === 0"
+        v-if="filteredRotatingScenes.length === 0"
         type="info"
         color="grey-darken-3"
-        text="No rotating scenes found"
+        :text="$t('rotatingScenes.noScenesFound')"
       />
 
       <div v-else class="rotating-scene-list">
@@ -117,7 +108,6 @@ import UploadCard from '@/components/cards/UploadCard.vue'
 import RotatingScene from '@/components/RotatingScene.vue'
 import RotatingSceneEditorDialog from '@/components/dialogs/RotatingSceneEditorDialog.vue'
 import RotatingSceneDeleteConfirmDialog from '@/components/dialogs/RotatingSceneDeleteConfirmDialog.vue'
-import eventBus from "@/eventBus.ts";
 
 type RotatingSceneEntry = {
   name: string
@@ -139,12 +129,10 @@ export default {
   data() {
     return {
       searchQuery: '',
-      loading: false,
       uploading: false,
       errorMessage: '',
       editorDialog: false,
       deleteDialog: false,
-      rotatingScenes: [] as RotatingSceneEntry[],
       selectedRotatingSceneName: '',
       selectedRotatingScene: null as any,
       selectedRotatingSceneFile: '',
@@ -156,14 +144,27 @@ export default {
   },
 
   computed: {
-    ...mapState(useAppStore, ['getRestApi']),
+    ...mapState(useAppStore, ['getRestApi', 'getRotatingScenes']),
+
+    rotatingSceneList(): RotatingSceneEntry[] {
+      return Object.entries(this.getRotatingScenes ?? {})
+        .map(([name, rotatingScene]: [string, any]) => ({
+          name,
+          path: String(rotatingScene?.file ?? `${name}.yaml`),
+          rotatingScene: {
+            ...rotatingScene,
+            name,
+          },
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name))
+    },
 
     filteredRotatingScenes(): RotatingSceneEntry[] {
       const query = String(this.searchQuery ?? '').trim().toLowerCase()
 
-      if (!query) return this.rotatingScenes
+      if (!query) return this.rotatingSceneList
 
-      return this.rotatingScenes.filter((item) => {
+      return this.rotatingSceneList.filter((item) => {
         return (
           item.name.toLowerCase().includes(query) ||
           item.path.toLowerCase().includes(query) ||
@@ -173,13 +174,6 @@ export default {
     },
   },
 
-  mounted() {
-    eventBus.$on?.('websocket:connected', this.loadRotatingScenes)
-  },
-
-  beforeUnmount() {
-    eventBus.$off?.('websocket:connected', this.loadRotatingScenes)
-  },
 
   methods: {
     async requestWebsocket(method: string, params: Record<string, any> = {}, timeout = 30_000): Promise<any> {
@@ -238,59 +232,6 @@ export default {
       return this.assertWebsocketResponse(data, `${method} failed`)
     },
 
-    async loadRotatingScenes() {
-      this.loading = true
-      this.errorMessage = ''
-
-      try {
-        const listResponse = await this.requestRotatingSceneEndpoint('rotating_scene_list')
-        const files = Array.isArray(listResponse?.files) ? listResponse.files : []
-        const fileEntries = files.filter((file: any) => file?.type === 'file')
-        const result: RotatingSceneEntry[] = []
-
-        for (const file of fileEntries) {
-          try {
-            const readResponse = await this.requestRotatingSceneEndpoint('rotating_scene_read', {
-              path: file.path,
-              file: file.path,
-            })
-            const content = String(readResponse?.content ?? '')
-            const parsed = this.parseRotatingSceneContent(content)
-            const name = String(parsed?.name ?? file.name?.replace(/\.(yaml|yml|json)$/i, '') ?? '')
-
-            result.push({
-              name,
-              path: String(readResponse?.path ?? file.path ?? ''),
-              rotatingScene: {
-                ...parsed,
-                name,
-                file: String(readResponse?.path ?? file.path ?? ''),
-              },
-            })
-          } catch (error) {
-            console.warn(error)
-          }
-        }
-
-        this.rotatingScenes = result.sort((a, b) => a.name.localeCompare(b.name))
-      } catch (error: any) {
-        this.errorMessage = error?.message ?? 'loading rotating scenes failed'
-      } finally {
-        this.loading = false
-      }
-    },
-
-    parseRotatingSceneContent(content: string) {
-      const trimmed = String(content ?? '').trim()
-      if (!trimmed) return {}
-
-      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-        return JSON.parse(trimmed)
-      }
-
-      return this.yamlLoad(trimmed)
-    },
-
     async uploadFiles(files: File[] | FileList) {
       const fileList = Array.from(files as any)
 
@@ -318,7 +259,6 @@ export default {
           throw new Error(payload?.message ?? payload?.error ?? 'rotating scene upload failed')
         }
 
-        await this.loadRotatingScenes()
         await (this.$refs.storageCard as any)?.fetchStorageInfo?.()
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'rotating scene upload failed'
@@ -379,7 +319,6 @@ export default {
         this.selectedDeleteRotatingScene = null
         this.selectedRotatingSceneFile = ''
 
-        await this.loadRotatingScenes()
         await (this.$refs.storageCard as any)?.fetchStorageInfo?.()
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'delete rotating scene failed'
@@ -391,7 +330,6 @@ export default {
 
     async handleEditorSaved() {
       this.editorDialog = false
-      await this.loadRotatingScenes()
       await (this.$refs.storageCard as any)?.fetchStorageInfo?.()
     },
 
@@ -518,9 +456,8 @@ export default {
 
 <style scoped lang="scss">
 .rotating-scene-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  overflow: hidden;
+  border-radius: 4px;
 }
 
 .min-width-0 {
