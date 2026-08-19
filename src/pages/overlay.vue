@@ -46,6 +46,8 @@
     :target-folder-label="$t('common.target') + ' ' + $t('file.folder')"
     :normal-url-label="$t('overlay.url')"
     :compressed-url-label="$t('assets.compressedUrl')"
+    :copy-label="$t('common.copyUrl')"
+    full-url
     :move-label="$t('overlay.move')"
     :delete-label="$t('overlay.delete')"
     :cancel-label="$t('common.cancel')"

@@ -1418,7 +1418,8 @@
     "refresh": "Aktualisieren",
     "enabled": "Aktiviert",
     "yes": "Ja",
-    "no": "Nein"
+    "no": "Nein",
+    "copyUrl": "URL kopieren"
   },
   "file": {
     "name": "Dateiname",
@@ -1499,7 +1500,6 @@
     "deleteConfirmText": "Möchtest du diese Datei/diesen Ordner wirklich löschen?",
     "noMediaFound": "Keine Medien gefunden!",
     "noAssetsFound": "Keine Medien gefunden!",
-    "copyUrl": "URL kopieren",
     "deleteCompressed": "Komprimierte Datei löschen",
     "deleteCompressedConfirmTitle": "Komprimierte Datei löschen?",
     "deleteCompressedConfirmText": "Möchtest du die komprimierte Version dieser Datei wirklich löschen?"

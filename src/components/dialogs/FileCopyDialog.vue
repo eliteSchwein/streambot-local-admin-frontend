@@ -61,6 +61,14 @@ export default {
       type: String,
       default: '',
     },
+    baseUrl: {
+      type: String,
+      default: '',
+    },
+    fullUrl: {
+      type: Boolean,
+      default: false,
+    },
     title: {
       type: String,
       default: 'Copy URL',
@@ -102,7 +110,20 @@ export default {
 
     toPublicPath(value: string): string {
       const normalized = this.withPublicPrefix(this.normalizePath(value))
-      return normalized ? `/${normalized}` : '/'
+      const encoded = normalized
+        .split('/')
+        .filter(Boolean)
+        .map(part => encodeURIComponent(part))
+        .join('/')
+
+      const publicPath = encoded ? `/${encoded}` : '/'
+
+      if(!this.fullUrl) {
+        return publicPath
+      }
+
+      const baseUrl = String(this.baseUrl ?? '').replace(/\/+$/, '')
+      return `${baseUrl}${publicPath}`
     },
 
     withPublicPrefix(value: string): string {

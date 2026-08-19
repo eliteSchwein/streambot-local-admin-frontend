@@ -54,9 +54,6 @@ const localizedStage = computed(() => {
             {{ $t('connectDialog.startup.text') }}
           </div>
 
-          <div class="text-medium-emphasis">
-            {{ $t('connectDialog.startup.stage') }}
-          </div>
           <div class="text-h6">
             {{ localizedStage }}
           </div>

@@ -1418,7 +1418,8 @@
     "refresh": "Refresh",
     "enabled": "Enabled",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "copyUrl": "Copy URL"
   },
   "file": {
     "name": "Filename",
@@ -1499,7 +1500,6 @@
     "deleteConfirmText": "Are you sure you want to delete this File/Folder?",
     "noMediaFound": "No media found!",
     "noAssetsFound": "No media found!",
-    "copyUrl": "Copy URL",
     "deleteCompressed": "Delete compressed",
     "deleteCompressedConfirmTitle": "Delete compressed file?",
     "deleteCompressedConfirmText": "Do you really want to delete the compressed version of this file?"

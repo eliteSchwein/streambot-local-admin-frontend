@@ -180,6 +180,8 @@
       v-model="copyDialog"
       :entry="selectedCopyEntry"
       :public-prefix="publicPrefix"
+      :base-url="publicBaseUrl"
+      :full-url="fullUrl"
       :title="copyDialogTitle"
       :normal-label="normalUrlLabel"
       :compressed-label="compressedUrlLabel"
@@ -366,6 +368,10 @@ export default {
     publicPrefix: {
       type: String,
       default: '',
+    },
+    fullUrl: {
+      type: Boolean,
+      default: false,
     },
     canCompress: {
       type: Boolean,
@@ -584,7 +590,15 @@ export default {
   },
 
   computed: {
-    ...mapState(useAppStore, ['getRestApi']),
+    ...mapState(useAppStore, ['getRestApi', 'getConfig']),
+
+    publicBaseUrl(): string {
+      const hostname = window.location.hostname
+      const port = Number(this.getConfig?.webserverPort ?? 8105)
+      const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:'
+
+      return `${protocol}//${hostname}:${port}`
+    },
 
     filteredEntries(): FileEntry[] {
       const query = String(this.searchQuery ?? '').trim().toLowerCase()
@@ -828,9 +842,9 @@ export default {
             compressed: null,
             asset: typeof this.selectedPreviewEntry.asset === 'object'
               ? {
-                  ...this.selectedPreviewEntry.asset,
-                  compressed: null,
-                }
+                ...this.selectedPreviewEntry.asset,
+                compressed: null,
+              }
               : this.selectedPreviewEntry.asset,
           }
         }

@@ -30,7 +30,7 @@
     :target-folder-label="$t('common.target') + ' ' + $t('file.folder')"
     :normal-url-label="$t('media.normalUrl')"
     :compressed-url-label="$t('media.compressedUrl')"
-    :copy-label="$t('media.copyUrl')"
+    :copy-label="$t('common.copyUrl')"
     :compress-label="$t('media.compress')"
     :move-label="$t('media.move')"
     :delete-compressed-label="$t('media.deleteCompressed')"
