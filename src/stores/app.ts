@@ -1,6 +1,6 @@
 // Utilities
 import { defineStore } from 'pinia'
-import { setI18nLanguage, setI18nLanguageFromConfig } from '@/plugins/i18n'
+import { setI18nLanguage } from '@/plugins/i18n'
 
 export const useAppStore = defineStore('app', {
   state: () => ({
@@ -70,7 +70,7 @@ export const useAppStore = defineStore('app', {
   getters: {
     getConfig: (state) => state.config,
     getSystemConfig: (state) => state.systemConfig,
-    getLanguage: (state) => state.systemConfig.language,
+    getLanguage: (state) => (state.settings as any)?.language ?? 'en',
     getWebsocket: (state) => {
       return `ws://${location.hostname}:${state.config.websocketPort}`
     },
@@ -298,19 +298,18 @@ export const useAppStore = defineStore('app', {
         ...systemConfig
       }
 
-      if (mergedSystemConfig.language) {
-        mergedSystemConfig.language = setI18nLanguageFromConfig(mergedSystemConfig.language)
-      }
-
       this.systemConfig = mergedSystemConfig
       this.$patch(state => state.systemConfig = mergedSystemConfig)
     },
     setSystemLanguage(language: string) {
       const normalizedLanguage = setI18nLanguage(language)
 
-      this.setSystemConfig({
+      this.settings = {
+        ...this.settings,
         language: normalizedLanguage
-      })
+      }
+
+      this.$patch(state => state.settings = this.settings)
     },
     setObsSceneData(obsSceneData: []) {
       this.obsSceneData = obsSceneData
@@ -399,8 +398,14 @@ export const useAppStore = defineStore('app', {
       this.$patch(state => state.integrations = integrations)
     },
     setSettings(settings: any) {
-      this.settings = settings
-      this.$patch(state => state.settings = settings)
+      const nextSettings = settings ?? {}
+
+      this.settings = nextSettings
+      this.$patch(state => state.settings = nextSettings)
+
+      if(typeof nextSettings.language === 'string') {
+        setI18nLanguage(nextSettings.language)
+      }
     },
 
     setUpdateManager(updateManager: any) {

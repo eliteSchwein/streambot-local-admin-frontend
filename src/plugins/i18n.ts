@@ -9,47 +9,27 @@ const messages = {
 
 export type SupportedLocale = keyof typeof messages
 
-export function getSupportedLocale(input: string | null | undefined): SupportedLocale | undefined {
-  if (!input) return undefined
+export function normalizeLocale(
+  input: string | null | undefined,
+): SupportedLocale {
+  const language = String(input ?? '').trim().toLowerCase()
 
-  const lower = input.toLowerCase()
+  if(language.startsWith('de')) return 'de'
+  if(language.startsWith('en')) return 'en'
 
-  if (lower.startsWith('de')) return 'de'
-  if (lower.startsWith('en')) return 'en'
-
-  return undefined
-}
-
-export function normalizeLocale(input: string | null | undefined): SupportedLocale {
-  return getSupportedLocale(input) ?? 'en'
-}
-
-export function getBrowserLocale(): SupportedLocale | undefined {
-  const languages = [
-    ...(navigator.languages ?? []),
-    navigator.language,
-  ]
-
-  for (const language of languages) {
-    const locale = getSupportedLocale(language)
-    if (locale) return locale
-  }
-
-  return undefined
-}
-
-export function resolveLocale(configLanguage: string | null | undefined): SupportedLocale {
-  return getBrowserLocale() ?? normalizeLocale(configLanguage)
+  return 'en'
 }
 
 export const i18n = createI18n({
   legacy: false,
-  locale: resolveLocale(null),
+  locale: 'en',
   fallbackLocale: 'en',
   messages,
 })
 
-export function setI18nLanguage(language: string | null | undefined) {
+export function setI18nLanguage(
+  language: string | null | undefined,
+): SupportedLocale {
   const locale = normalizeLocale(language)
 
   i18n.global.locale.value = locale
@@ -58,11 +38,11 @@ export function setI18nLanguage(language: string | null | undefined) {
   return locale
 }
 
-export function setI18nLanguageFromConfig(language: string | null | undefined) {
-  const locale = resolveLocale(language)
-
-  i18n.global.locale.value = locale
-  document.documentElement.lang = locale
-
-  return locale
+// Compatibility alias. This intentionally does NOT inspect navigator/browser locale.
+export function setI18nLanguageFromConfig(
+  language: string | null | undefined,
+): SupportedLocale {
+  return setI18nLanguage(language)
 }
+
+export default i18n

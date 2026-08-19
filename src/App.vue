@@ -19,11 +19,9 @@
 import { useAppStore } from '@/stores/app'
 import WebsocketClient from "@/plugins/webSocketClient"
 import { sleep } from "@/helper/GeneralHelper.ts"
-import { setI18nLanguageFromConfig } from '@/plugins/i18n'
 import { getWebsocketClient, setWebsocketClient } from "@/plugins/websocketInstance"
 
 const appOption = useAppStore()
-setI18nLanguageFromConfig(appOption.getLanguage)
 
 const ready = ref(false)
 const stage = ref<string | undefined>(undefined)

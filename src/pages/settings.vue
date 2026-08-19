@@ -78,7 +78,7 @@
               >
                 <template #activator="{ props }">
                   <v-text-field
-                :disabled="settingsLocked"
+                    :disabled="settingsLocked"
                     v-model="form.theme.default_color"
                     :label="$t('settings.themeHexColor')"
                     variant="outlined"
@@ -100,7 +100,7 @@
 
                 <v-card color="grey-darken-3">
                   <v-color-picker
-                :disabled="settingsLocked"
+                    :disabled="settingsLocked"
                     v-model="defaultColorPickerValue"
                     hide-inputs
                     mode="hex"
@@ -153,7 +153,7 @@
                 <div v-show="showVoicePicker">
                   <div class="d-flex justify-end mb-2">
                     <v-btn
-                :disabled="settingsLocked"
+                      :disabled="settingsLocked"
                       size="small"
                       variant="text"
                       prepend-icon="mdi-chevron-up"
@@ -169,7 +169,7 @@
                     color="grey-darken-3"
                   >
                     <v-expansion-panel
-                :disabled="settingsLocked"
+                      :disabled="settingsLocked"
                       v-for="language in filteredVoiceLanguages"
                       :key="language"
                     >
@@ -185,7 +185,7 @@
                       <v-expansion-panel-text class="pa-0">
                         <v-list bg-color="grey-darken-4" density="compact" class="py-0">
                           <v-list-item
-                :disabled="settingsLocked"
+                            :disabled="settingsLocked"
                             v-for="voice in filteredVoicesByLanguage[language]"
                             :key="voice"
                             :active="form.tts.model === voice"
@@ -232,7 +232,7 @@
               <v-row density="compact">
                 <v-col cols="12" md="6">
                   <v-select
-                :disabled="settingsLocked"
+                    :disabled="settingsLocked"
                     v-model="form.asset_tune.codec"
                     :items="codecItems"
                     :label="$t('settings.videoCodec')"
@@ -244,7 +244,7 @@
 
                 <v-col cols="12" md="6">
                   <v-text-field
-                :disabled="settingsLocked"
+                    :disabled="settingsLocked"
                     v-model.number="form.asset_tune.image_compress_level"
                     :label="$t('settings.imageCompressionLevel')"
                     type="number"
@@ -259,7 +259,7 @@
 
                 <v-col cols="12" md="6">
                   <v-text-field
-                :disabled="settingsLocked"
+                    :disabled="settingsLocked"
                     v-model.number="form.asset_tune.image_compress_percent"
                     :label="$t('settings.imageQualityPercent')"
                     type="number"
@@ -273,7 +273,7 @@
                 </v-col>
                 <v-col cols="12" md="6">
                   <v-switch
-                :disabled="settingsLocked"
+                    :disabled="settingsLocked"
                     v-model="form.asset_tune.auto_compress_upload"
                     :label="$t('settings.autoCompressUpload')"
                     color="primary"
@@ -294,7 +294,7 @@
               <v-row density="compact">
                 <v-col cols="12" md="6">
                   <v-text-field
-                :disabled="settingsLocked"
+                    :disabled="settingsLocked"
                     v-model.number="form.cava.bars"
                     :label="$t('settings.cavaBars')"
                     type="number"
@@ -323,7 +323,7 @@
                 <v-row density="compact" align="center">
                   <v-col cols="12" md="5">
                     <v-text-field
-                :disabled="settingsLocked"
+                      :disabled="settingsLocked"
                       v-model="newCavaTargetName"
                       :label="$t('settings.cavaTargetName')"
                       placeholder="jukebox"
@@ -335,7 +335,7 @@
 
                   <v-col cols="12" md="4">
                     <v-text-field
-                :disabled="settingsLocked"
+                      :disabled="settingsLocked"
                       v-model.number="newCavaTargetBars"
                       :label="$t('settings.cavaBars')"
                       type="number"
@@ -350,7 +350,7 @@
 
                   <v-col cols="12" md="3">
                     <v-btn
-                :disabled="settingsLocked"
+                      :disabled="settingsLocked"
                       block
                       prepend-icon="mdi-plus"
                       color="primary"
@@ -369,7 +369,7 @@
                 class="mb-3"
               >
                 <v-expansion-panel
-                :disabled="settingsLocked"
+                  :disabled="settingsLocked"
                   v-for="targetName in cavaTargetNames"
                   :key="targetName"
                   color="grey-darken-3"
@@ -389,7 +389,7 @@
                     <v-row density="compact">
                       <v-col cols="12" md="6">
                         <v-text-field
-                :disabled="settingsLocked"
+                          :disabled="settingsLocked"
                           v-model.number="form.cava.targets[targetName].bars"
                           :label="$t('settings.cavaBars')"
                           type="number"
@@ -404,7 +404,7 @@
 
                       <v-col cols="12" md="6">
                         <v-switch
-                :disabled="settingsLocked"
+                          :disabled="settingsLocked"
                           v-model="form.cava.targets[targetName].enabled"
                           :label="$t('common.enabled')"
                           color="primary"
@@ -423,7 +423,7 @@
                         <td class="text-caption text-grey-lighten-1" style="width: 38%">{{ settingKey }}</td>
                         <td>
                           <v-text-field
-                :disabled="settingsLocked"
+                            :disabled="settingsLocked"
                             v-model="form.cava.targets[targetName][settingKey]"
                             variant="outlined"
                             density="compact"
@@ -432,7 +432,7 @@
                         </td>
                         <td class="text-right" style="width: 48px">
                           <v-btn
-                :disabled="settingsLocked"
+                            :disabled="settingsLocked"
                             icon="mdi-delete"
                             size="small"
                             variant="text"
@@ -447,7 +447,7 @@
                     <v-row density="compact" align="center" class="mt-2">
                       <v-col cols="12" md="5">
                         <v-text-field
-                :disabled="settingsLocked"
+                          :disabled="settingsLocked"
                           v-model="newCavaTargetSettings[targetName].key"
                           :label="$t('settings.cavaSettingKey')"
                           placeholder="framerate"
@@ -459,7 +459,7 @@
 
                       <v-col cols="12" md="5">
                         <v-text-field
-                :disabled="settingsLocked"
+                          :disabled="settingsLocked"
                           v-model="newCavaTargetSettings[targetName].value"
                           :label="$t('settings.cavaSettingValue')"
                           placeholder="60"
@@ -471,7 +471,7 @@
 
                       <v-col cols="12" md="2">
                         <v-btn
-                :disabled="settingsLocked"
+                          :disabled="settingsLocked"
                           block
                           prepend-icon="mdi-plus"
                           variant="tonal"
@@ -484,7 +484,7 @@
 
                     <div class="d-flex justify-end mt-3">
                       <v-btn
-                :disabled="settingsLocked"
+                        :disabled="settingsLocked"
                         prepend-icon="mdi-delete"
                         color="red-lighten-2"
                         variant="text"
@@ -591,7 +591,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useAppStore, ['systemConfig', 'getVoices', 'getReloadUpdate']),
+    ...mapState(useAppStore, ['settings', 'getVoices', 'getReloadUpdate']),
 
     reloadFinished(): boolean {
       return (this as any).getReloadUpdate?.finished === true
@@ -681,7 +681,7 @@ export default {
   },
 
   watch: {
-    systemConfig: {
+    settings: {
       immediate: true,
       deep: true,
       handler() {
@@ -737,7 +737,7 @@ export default {
       this.syncingFromStore = true
 
       const defaults = defaultForm()
-      const settings: any = this.systemConfig || {}
+      const settings: any = this.settings || {}
       const assetTune = settings.asset_tune || {}
       const tts = settings.tts || {}
       const theme = settings.theme || {}
