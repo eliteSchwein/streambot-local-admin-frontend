@@ -212,7 +212,15 @@ export const useAppStore = defineStore('app', {
   },
   actions: {
     async fetchConfig() {
-      const request = await fetch(`/config.json`, { cache: "no-store" })
+      const request = await fetch(`/config.json`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(2000)
+      })
+
+      if(!request.ok) {
+        throw new Error(`Failed to load config.json: ${request.status}`)
+      }
+
       const config = await request.json()
 
       this.$patch(state => state.config = {
@@ -407,9 +415,19 @@ export const useAppStore = defineStore('app', {
       this.$patch(state => state.reloadUpdate = this.reloadUpdate)
     },
     async fetchStatus(): Promise<any> {
-      let status = 'Unknown'
+      let status: any = null
+
       try {
-        status = (await (await fetch(`${this.getRestApi}/api/status`, { cache: "no-store" })).json()).data
+        const response = await fetch(`${this.getRestApi}/api/status`, {
+          cache: "no-store",
+          signal: AbortSignal.timeout(2000)
+        })
+
+        if(!response.ok) {
+          throw new Error(`Failed to fetch backend status: ${response.status}`)
+        }
+
+        status = (await response.json()).data
       } catch (error) {
         console.warn(error)
       }

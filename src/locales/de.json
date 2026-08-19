@@ -1310,8 +1310,40 @@
   "connectDialog": {
     "reconnecting": "Verbindung wird wiederhergestellt...",
     "connectionLost": "Verbindung verloren",
-    "connectionLostText": "Die Verbindung zum Bot-Backend wurde unterbrochen. Erneut verbinden?",
-    "reconnect": "Erneut verbinden"
+    "connectionLostText": "Die Verbindung zum Bot-Backend wurde unterbrochen. Die Verbindung wird automatisch wiederhergestellt…",
+    "startup": {
+      "title": "System wird gestartet",
+      "text": "Bitte warten, während die Dienste initialisiert werden…",
+      "stage": "Status",
+      "stages": {
+        "unknown": "Unbekannt",
+        "loading_cache": "Cache wird geladen…",
+        "loading_variables": "Variablen werden geladen…",
+        "loading_web_components": "Web-Komponenten werden geladen…",
+        "starting_ollama": "Ollama wird gestartet…",
+        "loading_system_components": "Systemkomponenten werden geladen…",
+        "starting_twitch_bot": "Twitch-Bot wird gestartet…",
+        "connecting_obs": "Verbindung zu OBS wird hergestellt…",
+        "connecting_yolobox": "Verbindung zur YoloBox wird hergestellt…",
+        "fetching_game_info": "Spielinformationen werden geladen…",
+        "starting_schedulers": "Scheduler werden gestartet…",
+        "initializing_macros": "Makros werden initialisiert…",
+        "sending_default_wled_colors": "WLED-Standardfarben werden gesetzt…",
+        "starting_audio": "Audio wird gestartet…",
+        "updating_system_information": "Systeminformationen werden aktualisiert…",
+        "reading_assets_folder": "Asset-Ordner wird eingelesen…",
+        "starting_watchers": "Watcher werden gestartet…",
+        "starting_gpio": "GPIO wird gestartet…",
+        "starting_neopixel": "NeoPixel wird gestartet…",
+        "starting_tts": "TTS wird gestartet…",
+        "updating_obs_filters": "OBS-Filter werden aktualisiert…",
+        "starting_auto_macros": "Auto-Makros werden gestartet…",
+        "loading_scene_rotations": "Szenenrotationen werden geladen…",
+        "starting_music_player": "Musikplayer wird gestartet…",
+        "updating_event_index": "Event-Index wird aktualisiert…",
+        "finished": "Fertig"
+      }
+    }
   },
   "audio": {
     "title": "Bot-Audiomixer",

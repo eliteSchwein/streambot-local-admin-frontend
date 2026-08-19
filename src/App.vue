@@ -1,83 +1,23 @@
 <template>
   <v-app>
-    <template v-if="updating">
-      <v-card color="transparent" rounded="0" flat class="boot-root">
-        <v-layout class="boot-layout">
-          <!-- background -->
-          <div class="boot-bg" aria-hidden="true">
-          </div>
+    <v-card color="transparent" rounded="0">
+      <v-layout style="min-height: 100vh; max-height: 100vh; position: relative">
+        <Navigation />
+        <router-view />
+      </v-layout>
+    </v-card>
 
-          <!-- content -->
-          <v-card class="boot-card" rounded="xl" elevation="12">
-            <v-card-text class="pa-8 pa-md-10">
-              <div class="d-flex align-center justify-space-between">
-                <div class="d-flex align-center ga-4">
-
-                  <div>
-                    <div class="text-h5 font-weight-bold">System Updating</div>
-                    <div class="text-body-2 text-medium-emphasis">
-                      Please wait while the system is updating…
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-layout>
-      </v-card>
-    </template>
-
-    <template v-else-if="ready">
-      <v-card color="transparent" rounded="0">
-        <v-layout style="min-height: 100vh; max-height: 100vh">
-          <Navigation />
-          <router-view />
-        </v-layout>
-      </v-card>
-      <ConnectDialog />
-      <PowerDialog />
-    </template>
-
-    <template v-else>
-      <v-card color="transparent" rounded="0" flat class="boot-root">
-        <v-layout class="boot-layout">
-          <!-- background -->
-          <div class="boot-bg" aria-hidden="true">
-          </div>
-
-          <!-- content -->
-          <v-card class="boot-card" rounded="xl" elevation="12">
-            <v-card-text class="pa-8 pa-md-10">
-              <div class="d-flex align-center justify-space-between mb-6">
-                <div class="d-flex align-center ga-4">
-
-                  <div>
-                    <div class="text-h5 font-weight-bold">System Booting</div>
-                    <div class="text-body-2 text-medium-emphasis">
-                      Please wait while services initialize…
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="d-flex align-center ga-4">
-                <div class="text-body-2">
-                  <span class="text-medium-emphasis">Stage:</span>
-                  <span class="font-weight-medium ms-2">{{ stage ?? "Unknown" }}</span>
-                </div>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-layout>
-      </v-card>
-    </template>
+    <ConnectDialog
+      :backend-ready="ready === true"
+      :startup-stage="stage"
+    />
+    <PowerDialog/>
   </v-app>
 </template>
 
 <script lang="ts" setup>
 import { useAppStore } from '@/stores/app'
 import WebsocketClient from "@/plugins/webSocketClient"
-import eventBus from "@/eventBus"
 import { sleep } from "@/helper/GeneralHelper.ts"
 import { setI18nLanguageFromConfig } from '@/plugins/i18n'
 import { getWebsocketClient, setWebsocketClient } from "@/plugins/websocketInstance"
@@ -85,96 +25,112 @@ import { getWebsocketClient, setWebsocketClient } from "@/plugins/websocketInsta
 const appOption = useAppStore()
 setI18nLanguageFromConfig(appOption.getLanguage)
 
-const ready = ref<boolean | undefined>(false)
-const updating = ref<boolean | undefined>(false)
-const stage = ref<string | undefined>('Unknown')
+const ready = ref(false)
+const stage = ref<string | undefined>(undefined)
+
+let configLoaded = false
+let gamesLoaded = false
+let reconnectLoopRunning = false
+let stopped = false
 
 if(window.location.hostname === 'localhost') {
   ready.value = true
 }
 
-eventBus.$on('websocket:reconnect', () => {
-  void getWebsocketClient()?.connect()
-})
-
-onMounted(async () => {
-  await appOption.fetchConfig()
-
-  if(window.location.hostname !== 'localhost') {
-    let isReady = (await appOption.fetchStatus()).ready
-    if (!isReady) {
-      do {
-        const status = await appOption.fetchStatus()
-        stage.value = status.bootup_stage
-        isReady = status.ready
-        await sleep(250)
-      } while (!isReady)
-    }
+async function tryFetchConfig() {
+  if(configLoaded) {
+    return true
   }
 
-  await appOption.fetchGames()
+  try {
+    await appOption.fetchConfig()
+    configLoaded = true
+    return true
+  } catch {
+    return false
+  }
+}
 
-  setWebsocketClient(new WebsocketClient(appOption.getWebsocket, appOption))
-  await getWebsocketClient()?.connect()
+async function tryFetchGames() {
+  if(gamesLoaded || !configLoaded) {
+    return
+  }
 
-  ready.value = true
+  try {
+    await appOption.fetchGames()
+    gamesLoaded = true
+  } catch {
+    // Games are not required for reconnecting. Retry on the next loop.
+  }
+}
+
+async function reconnectLoop() {
+  if(reconnectLoopRunning) {
+    return
+  }
+
+  reconnectLoopRunning = true
+
+  try {
+    while(!stopped) {
+      const status = await appOption.fetchStatus()
+      const hasStatus = Boolean(
+        status &&
+        typeof status === 'object'
+      )
+      const backendReady = hasStatus && status.ready === true
+
+      ready.value = backendReady
+      stage.value = hasStatus && typeof status.bootup_stage === 'string'
+        ? status.bootup_stage
+        : undefined
+
+      if(!backendReady) {
+        await sleep(500)
+        continue
+      }
+
+      const hasConfig = await tryFetchConfig()
+
+      if(!hasConfig) {
+        await sleep(500)
+        continue
+      }
+
+      if(!getWebsocketClient()) {
+        setWebsocketClient(new WebsocketClient(appOption.getWebsocket, appOption))
+      }
+
+      if(
+        !appOption.isWebsocketConnected &&
+        !appOption.isWebsocketConnecting
+      ) {
+        try {
+          await getWebsocketClient()?.connect()
+        } catch {
+          // Keep polling status and retrying automatically.
+        }
+      }
+
+      await tryFetchGames()
+      await sleep(appOption.isWebsocketConnected ? 2000 : 500)
+    }
+  } finally {
+    reconnectLoopRunning = false
+  }
+}
+
+onMounted(() => {
+  void reconnectLoop()
+})
+
+onBeforeUnmount(() => {
+  stopped = true
 })
 </script>
 
 <style>
 html {
   overflow: hidden;
-}
-</style>
-
-<style scoped>
-.boot-root {
-  min-height: 100vh;
-}
-
-.boot-layout {
-  min-height: 100vh;
-  position: relative;
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-}
-
-/* Background */
-.boot-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at top left, transparent 9%, #3A0045 10%, #3A0045 15%, transparent 16%),
-    radial-gradient(circle at bottom left, transparent 9%, #3A0045 10%, #3A0045 15%, transparent 16%),
-    radial-gradient(circle at top right, transparent 9%, #3A0045 10%, #3A0045 15%, transparent 16%),
-    radial-gradient(circle at bottom right, transparent 9%, #3A0045 10%, #3A0045 15%, transparent 16%),
-    radial-gradient(circle, transparent 25%, #000000 26%),
-    linear-gradient(45deg, transparent 46%, #3A0045 47%, #3A0045 52%, transparent 53%),
-    linear-gradient(135deg, transparent 46%, #3A0045 47%, #3A0045 52%, transparent 53%);
-  background-size: 3em 3em;
-  background-color: #000000;
-  opacity: 1;
-
-  animation: rainbow-cycle 12s linear infinite;
-}
-
-@keyframes rainbow-cycle {
-  from {
-    filter: hue-rotate(0deg);
-  }
-  to {
-    filter: hue-rotate(360deg);
-  }
-}
-
-/* Card */
-.boot-card {
-  width: min(620px, 92vw);
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(18, 18, 22, 0.8);
-  backdrop-filter: blur(14px);
 }
 </style>
