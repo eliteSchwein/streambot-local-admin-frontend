@@ -71,6 +71,11 @@ async function reconnectLoop() {
 
   try {
     while(!stopped) {
+      if(appOption.isWebsocketConnected) {
+        await sleep(2000)
+        continue
+      }
+
       const status = await appOption.fetchStatus()
       const hasStatus = Boolean(
         status &&
@@ -83,14 +88,19 @@ async function reconnectLoop() {
         ? status.bootup_stage
         : undefined
 
+      // As soon as the backend answers /api/status at least once,
+      // config.json should also be retried. This lets the admin panel
+      // pick up language and connection settings during backend startup.
+      if(hasStatus) {
+        await tryFetchConfig()
+      }
+
       if(!backendReady) {
         await sleep(500)
         continue
       }
 
-      const hasConfig = await tryFetchConfig()
-
-      if(!hasConfig) {
+      if(!configLoaded) {
         await sleep(500)
         continue
       }
