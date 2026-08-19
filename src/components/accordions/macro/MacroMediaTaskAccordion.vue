@@ -24,47 +24,34 @@
       </v-col>
 
       <v-col cols="12" md="6">
-        <v-menu
-          v-model="pathSuggestionsOpen"
-          :close-on-content-click="true"
-          location="bottom"
-          max-height="320"
+        <v-combobox
+          v-model="task.data.path"
+          v-model:menu="pathSuggestionsOpen"
+          :items="sourceOptions"
+          item-title="title"
+          item-value="value"
+          :loading="loadingSources"
+          :label="$t('macro.final.media.mediaPathURLPlaceholder')"
+          :placeholder="mediaPathPlaceholder"
+          :no-data-text="$t('macro.final.media.noMediaSuggestionsFound')"
+          prepend-inner-icon="mdi-link-variant"
+          clearable
+          hide-details="auto"
+          variant="outlined"
+          density="comfortable"
+          persistent-placeholder
+          auto-select-first
+          @focus="openPathSuggestions"
+          @click="openPathSuggestions"
         >
-          <template #activator="{ props }">
-            <v-text-field
+          <template #item="{ props, item }">
+            <v-list-item
               v-bind="props"
-              v-model="task.data.path"
-              :loading="loadingSources"
-              :label="$t('macro.final.media.mediaPathURLPlaceholder')"
-              :placeholder="mediaPathPlaceholder"
-              prepend-inner-icon="mdi-link-variant"
-              append-inner-icon="mdi-menu-down"
-              clearable
-              hide-details="auto"
-              variant="outlined"
-              density="comfortable"
-              persistent-placeholder
-              @focus="openPathSuggestions"
-              @click:append-inner="togglePathSuggestions"
+              :prepend-icon="item?.raw?.icon ?? item?.icon ?? 'mdi-file-outline'"
+              :title="item?.raw?.title ?? item?.title ?? String(item?.value ?? '')"
             />
           </template>
-
-          <v-list density="compact">
-            <v-list-item
-              v-if="!sourceOptions.length"
-              :title="$t('macro.final.media.noMediaSuggestionsFound')"
-              disabled
-            />
-
-            <v-list-item
-              v-for="source in sourceOptions"
-              :key="source"
-              :title="source"
-              prepend-icon="mdi-file-image-outline"
-              @click="selectPath(source)"
-            />
-          </v-list>
-        </v-menu>
+        </v-combobox>
       </v-col>
 
       <v-col cols="12" md="6">
@@ -192,8 +179,12 @@ export default {
       return 'assets/image.webp, https://example.com/image.png, ${variables.media_url}'
     },
 
-    sourceOptions(): string[] {
-      return this.mediaOptions(mediaSourceRegex, true)
+    sourceOptions(): Array<{ title: string; value: string; icon: string }> {
+      return this.mediaOptions(mediaSourceRegex, true).map((source: string) => ({
+        title: source,
+        value: source,
+        icon: this.mediaFileIcon(source),
+      }))
     },
   },
 
@@ -242,25 +233,38 @@ export default {
       await this.fetchMediaEntries()
     },
 
-    async openPathSuggestions() {
-      this.pathSuggestionsOpen = true
+    mediaFileIcon(source: string) {
+      const cleanSource = String(source ?? '').split(/[?#]/, 1)[0].toLowerCase()
+      const extension = cleanSource.includes('.')
+        ? cleanSource.slice(cleanSource.lastIndexOf('.') + 1)
+        : ''
 
+      if (['gif', 'apng'].includes(extension)) {
+        return 'mdi-file-gif-box'
+      }
+
+      if (['png', 'jpg', 'jpeg', 'webp', 'bmp', 'svg', 'avif'].includes(extension)) {
+        return 'mdi-file-image-outline'
+      }
+
+      if (['mp4', 'webm', 'mkv', 'mov', 'avi', 'm4v'].includes(extension)) {
+        return 'mdi-file-video-outline'
+      }
+
+      if (['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'opus'].includes(extension)) {
+        return 'mdi-file-music-outline'
+      }
+
+      return 'mdi-file-outline'
+    },
+
+    async openPathSuggestions() {
       if (!this.mediaLoaded && !this.loadingSources) {
         await this.fetchMediaEntries()
       }
-    },
 
-    async togglePathSuggestions() {
-      this.pathSuggestionsOpen = !this.pathSuggestionsOpen
-
-      if (this.pathSuggestionsOpen && !this.mediaLoaded && !this.loadingSources) {
-        await this.fetchMediaEntries()
-      }
-    },
-
-    selectPath(path: string) {
-      this.task.data.path = path
-      this.pathSuggestionsOpen = false
+      await this.$nextTick()
+      this.pathSuggestionsOpen = true
     },
 
     async requestMediaList(path: string = ''): Promise<any> {
