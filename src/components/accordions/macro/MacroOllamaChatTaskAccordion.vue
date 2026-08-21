@@ -3,7 +3,7 @@
     class="macro-ollama-chat-task-accordion"
     :item="item"
     :index="index"
-    icon="mdi-robot-outline"
+    icon="mdi-chat-processing-outline"
     :title="$t('macro.core.ollamaChat.title')"
     export-prefix="macro_ollama_chat"
     @remove="$emit('remove')"

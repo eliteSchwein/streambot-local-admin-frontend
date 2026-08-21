@@ -204,6 +204,7 @@ import MacroYoloboxAudioVolumeTaskAccordion from '@/components/accordions/macro/
 import MacroYoloboxAudioMuteTaskAccordion from '@/components/accordions/macro/yolobox/MacroYoloboxAudioMuteTaskAccordion.vue'
 import MacroYoloboxAudioDelayTaskAccordion from '@/components/accordions/macro/yolobox/MacroYoloboxAudioDelayTaskAccordion.vue'
 import MacroYoloboxAudioAfvTaskAccordion from '@/components/accordions/macro/yolobox/MacroYoloboxAudioAfvTaskAccordion.vue'
+import MacroOllamaChatTaskAccordion from '@/components/accordions/macro/MacroOllamaChatTaskAccordion.vue'
 import MacroSystemRebootTaskAccordion from "@/components/accordions/macro/system/MacroSystemRebootTaskAccordion.vue";
 import MacroSystemShutdownTaskAccordion
   from "@/components/accordions/macro/system/MacroSystemShutdownTaskAccordion.vue";
@@ -324,6 +325,7 @@ export default {
     MacroObsTriggerHotkeyTaskAccordion,
     MacroObsUnlockSceneItemTaskAccordion,
     MacroObsUnmuteInputTaskAccordion,
+    MacroOllamaChatTaskAccordion,
     MacroSystemRebootTaskAccordion,
     MacroSystemShutdownTaskAccordion,
   },
@@ -512,6 +514,25 @@ export default {
                 data: {
                   content: '',
                   color: 'primary',
+                },
+              }),
+            },
+            {
+              titleKey: 'macro.core.ollamaChat.title',
+              icon: 'mdi-chat-processing-outline',
+              factory: () => this.createTask({
+                channel: 'ollama',
+                method: 'chat',
+                data: {
+                  messages: [
+                    {
+                      role: 'user',
+                      content: '',
+                    },
+                  ],
+                  result_variable: 'ollama_response',
+                  timeout: 0,
+                  strip_emojis: false,
                 },
               }),
             },
@@ -1077,6 +1098,10 @@ export default {
       if (item?.type === 'loop' || (item?.task?.channel === 'loop' && item?.task?.method === 'for')) return 'MacroLoopTaskAccordion'
       if (item?.task?.channel === 'loop' && ['break', 'continue', 'end_for'].includes(item?.task?.method)) return 'MacroLoopControlTaskAccordion'
       if (item?.task?.channel === 'condition' && item?.task?.method === 'end_macro') return 'MacroEndMacroTaskAccordion'
+
+      if (item?.task?.channel === 'ollama' && item?.task?.method === 'chat') {
+        return 'MacroOllamaChatTaskAccordion'
+      }
 
       if (item?.task?.channel === 'timer') {
         return 'MacroTimerTaskAccordion'
