@@ -504,7 +504,8 @@
         "title": "Clip erstellen",
         "createAfterDelay": "Nach Verzögerung erstellen",
         "waitBeforeFetch": "Warten vor Abrufen des Clips (Sekunden)",
-        "resultHint": "Der fertige Clip ist z. B. als ${clip.url} verfügbar"
+        "resultHint": "Der fertige Clip ist z. B. als ${clip.url} verfügbar",
+        "urlVariableHint": "Die Clip-URL ist als {variable} verfügbar."
       },
       "pollArchive": {
         "title": "Umfrage archivieren"

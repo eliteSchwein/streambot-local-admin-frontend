@@ -504,7 +504,8 @@
         "title": "Create clip",
         "createAfterDelay": "Create after delay",
         "waitBeforeFetch": "Wait before fetching clip (seconds)",
-        "resultHint": "The completed clip is available as e.g. ${clip.url}"
+        "resultHint": "The completed clip is available as e.g. ${clip.url}",
+        "urlVariableHint": "The clip URL is available as {variable}."
       },
       "pollArchive": {
         "title": "Archive poll"

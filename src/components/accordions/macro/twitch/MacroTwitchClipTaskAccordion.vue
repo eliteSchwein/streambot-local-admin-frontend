@@ -31,6 +31,15 @@
         />
       </v-col>
     </v-row>
+
+    <v-alert
+      type="info"
+      variant="tonal"
+      density="compact"
+      class="mt-2"
+    >
+      {{ $t('macro.twitch.clip.urlVariableHint', { variable: clipUrlVariable }) }}
+    </v-alert>
   </MacroTaskAccordionTemplate>
 </template>
 
@@ -47,6 +56,10 @@ export default {
   emits: ['remove', 'move-up', 'move-down'],
   computed: {
     task(): any { return (this.item as any).task },
+    clipUrlVariable(): string {
+      const variable = String(this.task?.data?.variable || 'clip').trim() || 'clip'
+      return `\${${variable}.url}`
+    },
   },
   created() {
     this.task.channel = 'twitch'
