@@ -368,7 +368,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useAppStore, ['getIntegrations']),
+    ...mapState(useAppStore, ['getIntegrations', 'hasOllamaEnabled']),
 
     currentTaskListComponent(): any {
       return this.taskListComponent || this.$options
@@ -544,7 +544,8 @@ export default {
             },
             {
               titleKey: 'macro.core.ollamaChat.title',
-              icon: 'mdi-chat-processing-outline',
+              icon: 'mdi-robot-outline',
+              ollamaOnly: true,
               factory: () => this.createTask({
                 channel: 'ollama',
                 method: 'chat',
@@ -1145,6 +1146,7 @@ export default {
         .map((preset: any) => {
           if (preset.loopOnly === true && !this.insideLoop) return null
           if (preset.switchOnly === true && !this.insideSwitch) return null
+          if (preset.ollamaOnly === true && !this.hasOllamaEnabled) return null
 
           if (!preset.children?.length) return preset
 
