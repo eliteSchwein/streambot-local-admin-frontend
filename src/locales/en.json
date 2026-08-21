@@ -763,6 +763,9 @@
           "title": "Random clips",
           "enable": "Enable random clips",
           "disable": "Disable random clips"
+        },
+        "clips": {
+          "title": "Clips"
         }
       },
       "yolobox": {

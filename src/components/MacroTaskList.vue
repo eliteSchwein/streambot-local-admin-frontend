@@ -748,37 +748,55 @@ export default {
           titleKey: 'macro.presets.twitch.title',
           icon: 'mdi-twitch',
           children: [
-            { titleKey: 'macro.presets.twitch.createClip', icon: 'mdi-content-cut', factory: () => this.createTask({ channel: 'twitch', method: 'clip', data: { create_after_delay: false, wait_seconds: 35, variable: 'clip' } }) },
+            {
+              titleKey: 'macro.presets.twitch.clips.title',
+              icon: 'mdi-movie-open-outline',
+              children: [
+                {
+                  titleKey: 'macro.presets.twitch.createClip',
+                  icon: 'mdi-content-cut',
+                  factory: () => this.createTask({
+                    channel: 'twitch',
+                    method: 'clip',
+                    data: {
+                      create_after_delay: false,
+                      wait_seconds: 35,
+                      variable: 'clip',
+                    },
+                  }),
+                },
+                {
+                  titleKey: 'macro.twitch.randomClip.enableTitle',
+                  icon: 'mdi-movie-open-play',
+                  factory: () => this.createTask({
+                    channel: 'twitch',
+                    method: 'enable_random_clip',
+                    data: {
+                      channel: '',
+                      mode: 'random',
+                      recent_clips: 0,
+                      max_length: 60,
+                      filter_long_videos: false,
+                      info: false,
+                      show_timer: false,
+                      volume: 50,
+                      variable: 'random_clip',
+                    },
+                  }),
+                },
+                {
+                  titleKey: 'macro.twitch.randomClip.disableTitle',
+                  icon: 'mdi-movie-open-off',
+                  factory: () => this.createTask({
+                    channel: 'twitch',
+                    method: 'disable_random_clip',
+                    data: {},
+                  }),
+                },
+              ],
+            },
             { titleKey: 'macro.presets.twitch.shoutout', icon: 'mdi-account-voice', factory: () => this.createTask({ channel: 'twitch', method: 'shoutout', data: { user: '', variable: 'shoutout' } }) },
             { titleKey: 'macro.presets.twitch.changeCategory', icon: 'mdi-gamepad-variant-outline', factory: () => this.createTask({ channel: 'twitch', method: 'set_category', data: { category: '', variable: 'category' } }) },
-            {
-              titleKey: 'macro.twitch.randomClip.enableTitle',
-              icon: 'mdi-movie-open-play',
-              factory: () => this.createTask({
-                channel: 'twitch',
-                method: 'enable_random_clip',
-                data: {
-                  channel: '',
-                  mode: 'random',
-                  recent_clips: 0,
-                  max_length: 60,
-                  filter_long_videos: false,
-                  info: false,
-                  show_timer: false,
-                  volume: 50,
-                  variable: 'random_clip',
-                },
-              }),
-            },
-            {
-              titleKey: 'macro.twitch.randomClip.disableTitle',
-              icon: 'mdi-movie-open-off',
-              factory: () => this.createTask({
-                channel: 'twitch',
-                method: 'disable_random_clip',
-                data: {},
-              }),
-            },
             {
               titleKey: 'macro.presets.twitch.polls.title',
               icon: 'mdi-poll',

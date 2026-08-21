@@ -763,6 +763,9 @@
           "title": "Zufällige Clips",
           "enable": "Zufällige Clips aktivieren",
           "disable": "Zufällige Clips deaktivieren"
+        },
+        "clips": {
+          "title": "Clips"
         }
       },
       "yolobox": {
