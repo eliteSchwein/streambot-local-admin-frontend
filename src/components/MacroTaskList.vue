@@ -120,6 +120,7 @@ import {
   MacroKeyboardTaskAccordion,
 } from '@/components/accordions/macro'
 import MacroClearMediaTaskAccordion from '@/components/accordions/macro/MacroClearMediaTaskAccordion.vue'
+import MacroVariableLocalSetTaskAccordion from '@/components/accordions/macro/MacroVariableLocalSetTaskAccordion.vue'
 import MacroSwitchTaskAccordion from '@/components/accordions/macro/MacroSwitchTaskAccordion.vue'
 import MacroSwitchBreakTaskAccordion from '@/components/accordions/macro/MacroSwitchBreakTaskAccordion.vue'
 import {
@@ -252,6 +253,7 @@ export default {
     MacroEndMacroTaskAccordion,
     MacroVariableGetTaskAccordion,
     MacroVariableSetTaskAccordion,
+    MacroVariableLocalSetTaskAccordion,
     MacroChannelPointAcceptTaskAccordion,
     MacroChannelPointCancelTaskAccordion,
     MacroChannelPointPauseTaskAccordion,
@@ -652,6 +654,18 @@ export default {
               titleKey: 'macro.presets.variables.setVariable',
               icon: 'mdi-database-export-outline',
               factory: () => this.createTask({ channel: 'variable', method: 'set', data: { value: null, key: '', to_file: false } }),
+            },
+            {
+              titleKey: 'macro.core.variableLocalSet.title',
+              icon: 'mdi-variable-box',
+              factory: () => this.createTask({
+                channel: 'variable',
+                method: 'local_set',
+                data: {
+                  key: '',
+                  expression: '',
+                },
+              }),
             },
             {
               titleKey: 'macro.presets.variables.getVariable',
@@ -1167,6 +1181,10 @@ export default {
 
       if (item?.task?.channel === 'variable' && item?.task?.method === 'set') {
         return 'MacroVariableSetTaskAccordion'
+      }
+
+      if (item?.task?.channel === 'variable' && item?.task?.method === 'local_set') {
+        return 'MacroVariableLocalSetTaskAccordion'
       }
 
       if (item?.task?.channel === 'channel_point' && item?.task?.method === 'accept') {
