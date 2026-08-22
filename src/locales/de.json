@@ -1516,7 +1516,13 @@
     "reload": "Neu laden",
     "save": "Speichern",
     "delete": "Löschen",
-    "search": "Variable suchen"
+    "search": "Variable suchen",
+    "persistentTitle": "Persistente Variablen",
+    "persistentDescription": "Werden auf die Festplatte geschrieben und nach einem Neustart wiederhergestellt.",
+    "runtimeTitle": "Laufzeitvariablen",
+    "runtimeDescription": "Werden nur im Speicher/Redis gehalten und nicht auf die Festplatte geschrieben.",
+    "emptyPersistent": "Keine persistenten Variablen gefunden",
+    "emptyRuntime": "Keine Laufzeitvariablen gefunden"
   },
   "overlay": {
     "title": "Overlays",

@@ -7,6 +7,7 @@
         :key="item.id"
         :item="item"
         :index="index"
+        :panel-value="item.id"
         :depth="depth"
         :task-list-component="currentTaskListComponent"
         :inside-loop="isItemInsideLoop(item)"
@@ -372,6 +373,16 @@ export default {
     insideSwitch: {
       type: Boolean,
       default: false,
+    },
+  },
+
+  watch: {
+    items: {
+      immediate: true,
+      deep: true,
+      handler() {
+        this.ensureItemIds(this.items as any[])
+      },
     },
   },
 
@@ -1531,7 +1542,38 @@ export default {
       return this.insideLoop || item?.type === 'loop' || (item?.task?.channel === 'loop' && item?.task?.method === 'for')
     },
 
+    ensureItemIds(items: any[]) {
+      for (const item of items ?? []) {
+        if (!item || typeof item !== 'object') continue
+
+        if (!item.id) {
+          item.id = this.uid()
+        }
+
+        if (Array.isArray(item.children)) {
+          this.ensureItemIds(item.children)
+        }
+
+        if (Array.isArray(item.branches)) {
+          for (const branch of item.branches) {
+            if (Array.isArray(branch?.children)) {
+              this.ensureItemIds(branch.children)
+            }
+          }
+        }
+
+        if (Array.isArray(item.cases)) {
+          for (const switchCase of item.cases) {
+            if (Array.isArray(switchCase?.children)) {
+              this.ensureItemIds(switchCase.children)
+            }
+          }
+        }
+      }
+    },
+
     addTask(item: any) {
+      this.ensureItemIds([item])
       ;(this.items as any[]).push(item)
     },
 

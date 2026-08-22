@@ -1516,7 +1516,13 @@
     "reload": "Reload",
     "save": "Save",
     "delete": "Delete",
-    "search": "Search variable"
+    "search": "Search variable",
+    "persistentTitle": "Persistent variables",
+    "persistentDescription": "Written to disk and restored after a restart.",
+    "runtimeTitle": "Runtime variables",
+    "runtimeDescription": "Stored only in memory/Redis and not written to disk.",
+    "emptyPersistent": "No persistent variables found",
+    "emptyRuntime": "No runtime variables found"
   },
   "overlay": {
     "title": "Overlays",
