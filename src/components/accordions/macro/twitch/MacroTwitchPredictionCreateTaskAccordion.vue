@@ -17,7 +17,7 @@
       <v-col cols="12">
         <div class="text-subtitle-2 mb-2">{{ $t('macro.twitch.predictionCreate.outcomes') }}</div>
 
-        <v-row v-for="(_, outcomeIndex) in outcomeFields" :key="outcomeIndex" dense>
+        <v-row v-for="(_, outcomeIndex) in outcomeFields" :key="outcomeIndex" density="comfortable">
           <v-col>
             <v-text-field
               v-model="outcomeFields[outcomeIndex]"

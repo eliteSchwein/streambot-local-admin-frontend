@@ -42,7 +42,7 @@
       class="mb-3"
     />
 
-    <v-row dense>
+    <v-row density="comfortable">
       <v-col cols="12" md="6">
         <v-text-field
           v-model.number="task.data.imageWidth"

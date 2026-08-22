@@ -10,6 +10,8 @@
         :depth="depth"
         :task-list-component="currentTaskListComponent"
         :inside-loop="isItemInsideLoop(item)"
+        :can-move-up="index > 0"
+        :can-move-down="index < items.length - 1"
         @remove="removeItem(index)"
         @move-up="moveItem(index, -1)"
         @move-down="moveItem(index, 1)"
@@ -201,6 +203,7 @@ import MacroApiPostTaskAccordion from '@/components/accordions/macro/api/MacroAp
 import MacroApiPutTaskAccordion from '@/components/accordions/macro/api/MacroApiPutTaskAccordion.vue'
 import MacroApiPatchTaskAccordion from '@/components/accordions/macro/api/MacroApiPatchTaskAccordion.vue'
 import MacroApiDeleteTaskAccordion from '@/components/accordions/macro/api/MacroApiDeleteTaskAccordion.vue'
+import MacroObsScreenshotTaskAccordion from '@/components/accordions/macro/obs/MacroObsScreenshotTaskAccordion.vue'
 
 import MacroYoloboxVideoSourceTaskAccordion from '@/components/accordions/macro/yolobox/MacroYoloboxVideoSourceTaskAccordion.vue'
 import MacroYoloboxOverlayTaskAccordion from '@/components/accordions/macro/yolobox/MacroYoloboxOverlayTaskAccordion.vue'
@@ -210,6 +213,8 @@ import MacroYoloboxAudioMuteTaskAccordion from '@/components/accordions/macro/yo
 import MacroYoloboxAudioDelayTaskAccordion from '@/components/accordions/macro/yolobox/MacroYoloboxAudioDelayTaskAccordion.vue'
 import MacroYoloboxAudioAfvTaskAccordion from '@/components/accordions/macro/yolobox/MacroYoloboxAudioAfvTaskAccordion.vue'
 import MacroOllamaChatTaskAccordion from '@/components/accordions/macro/MacroOllamaChatTaskAccordion.vue'
+import MacroThemeSetColorTaskAccordion from '@/components/accordions/macro/theme/MacroThemeSetColorTaskAccordion.vue'
+import MacroThemeRestoreColorTaskAccordion from '@/components/accordions/macro/theme/MacroThemeRestoreColorTaskAccordion.vue'
 import MacroSystemRebootTaskAccordion from "@/components/accordions/macro/system/MacroSystemRebootTaskAccordion.vue";
 import MacroSystemShutdownTaskAccordion
   from "@/components/accordions/macro/system/MacroSystemShutdownTaskAccordion.vue";
@@ -305,6 +310,7 @@ export default {
     MacroApiPutTaskAccordion,
     MacroApiPatchTaskAccordion,
     MacroApiDeleteTaskAccordion,
+    MacroObsScreenshotTaskAccordion,
     MacroObsDisableSourceFilterTaskAccordion,
     MacroObsEnableSourceFilterTaskAccordion,
     MacroObsTransitionSourceFilterTaskAccordion,
@@ -336,6 +342,8 @@ export default {
     MacroObsUnlockSceneItemTaskAccordion,
     MacroObsUnmuteInputTaskAccordion,
     MacroOllamaChatTaskAccordion,
+    MacroThemeSetColorTaskAccordion,
+    MacroThemeRestoreColorTaskAccordion,
     MacroSystemRebootTaskAccordion,
     MacroSystemShutdownTaskAccordion,
   },
@@ -1028,6 +1036,8 @@ export default {
                 { titleKey: 'macro.presets.obs.recording.toggleRecording', icon: 'mdi-record-circle-outline', factory: () => this.createTask({ channel: 'obs', method: 'ToggleRecord', data: {} }) },
                 { titleKey: 'macro.presets.obs.recording.pauseRecording', icon: 'mdi-pause-circle', factory: () => this.createTask({ channel: 'obs', method: 'PauseRecord', data: {} }) },
                 { titleKey: 'macro.presets.obs.recording.resumeRecording', icon: 'mdi-play-circle', factory: () => this.createTask({ channel: 'obs', method: 'ResumeRecord', data: {} }) },
+                { titleKey: 'macro.presets.obs.tools.sourceScreenshot', icon: 'mdi-camera', factory: () => this.createTask({ channel: 'obs', method: 'GetSourceScreenshot', data: { sourceName: '', imageFormat: 'png', resultVariable: 'screenshot' } }) },
+                { titleKey: 'macro.presets.obs.tools.outputScreenshot', icon: 'mdi-monitor-screenshot', factory: () => this.createTask({ channel: 'obs', method: 'get_output_screenshot', data: { imageFormat: 'png', resultVariable: 'screenshot' } }) },
               ],
             },
             {
@@ -1126,6 +1136,32 @@ export default {
                   titleKey: 'macro.presets.expert.apiRequest.delete',
                   icon: 'mdi-delete-outline',
                   factory: () => this.createApiRequestTask('delete'),
+                },
+              ],
+            },
+            {
+              titleKey: 'macro.presets.expert.theme.title',
+              icon: 'mdi-palette-outline',
+              children: [
+                {
+                  titleKey: 'macro.theme.setColor.title',
+                  icon: 'mdi-palette',
+                  factory: () => this.createTask({
+                    channel: 'theme',
+                    method: 'set_color',
+                    data: {
+                      color: 'ff9800',
+                    },
+                  }),
+                },
+                {
+                  titleKey: 'macro.theme.restoreColor.title',
+                  icon: 'mdi-palette-outline',
+                  factory: () => this.createTask({
+                    channel: 'theme',
+                    method: 'restore_color',
+                    data: {},
+                  }),
                 },
               ],
             },
@@ -1229,6 +1265,11 @@ export default {
         if (item?.task?.method === 'put') return 'MacroApiPutTaskAccordion'
         if (item?.task?.method === 'patch') return 'MacroApiPatchTaskAccordion'
         if (item?.task?.method === 'delete') return 'MacroApiDeleteTaskAccordion'
+      }
+
+      if (item?.task?.channel === 'theme') {
+        if (item?.task?.method === 'set_color') return 'MacroThemeSetColorTaskAccordion'
+        if (item?.task?.method === 'restore_color') return 'MacroThemeRestoreColorTaskAccordion'
       }
 
       if (item?.task?.channel === 'keyboard') {
@@ -1336,6 +1377,8 @@ export default {
         if (item?.task?.method === 'ToggleRecord') return 'MacroObsToggleRecordTaskAccordion'
         if (item?.task?.method === 'PauseRecord') return 'MacroObsPauseRecordTaskAccordion'
         if (item?.task?.method === 'ResumeRecord') return 'MacroObsResumeRecordTaskAccordion'
+        if (item?.task?.method === 'GetSourceScreenshot') return 'MacroObsScreenshotTaskAccordion'
+        if (item?.task?.method === 'get_output_screenshot') return 'MacroObsScreenshotTaskAccordion'
         if (item?.task?.method === 'StartReplayBuffer') return 'MacroObsStartReplayBufferTaskAccordion'
         if (item?.task?.method === 'StopReplayBuffer') return 'MacroObsStopReplayBufferTaskAccordion'
         if (item?.task?.method === 'SaveReplayBuffer') return 'MacroObsSaveReplayBufferTaskAccordion'

@@ -3,6 +3,7 @@ import {useAppStore} from '@/stores/app'
 import {getWebsocketClient} from '@/plugins/websocketInstance.ts'
 import YamlImportExportButtons from '@/components/YamlImportExportButtons.vue'
 import MacroWledControlEditor from '@/components/MacroWledControlEditor.vue'
+import ColorPickerField from '@/components/inputs/ColorPickerField.vue'
 
 type WledControl = {
   name: string;
@@ -92,6 +93,7 @@ export default {
   components: {
     YamlImportExportButtons,
     MacroWledControlEditor,
+    ColorPickerField,
   },
 
   props: {
@@ -112,7 +114,6 @@ export default {
       appStore: useAppStore(),
       form: emptyForm(),
       localMediaEntries: [] as MediaEntry[],
-      colorMenu: false,
       wledColorMenus: [] as boolean[],
       mdiSuggestions,
       wledEffectsByLamp: {} as Record<string, Array<{ title: string; value: number }>>,
@@ -151,19 +152,6 @@ export default {
 
     canSave(): boolean {
       return this.form.name.trim().length > 0 && !this.loading;
-    },
-
-    normalizedColor: {
-      get(): string {
-        const value = String(this.form.color ?? "").trim();
-        if (!value) return "#66BB6A";
-        return value.startsWith("#") ? value : `#${value}`;
-      },
-      set(value: string) {
-        this.form.color = String(value ?? "")
-          .replace(/^#/, "")
-          .toUpperCase();
-      },
     },
 
     alertChannelOptions(): string[] {
@@ -1067,26 +1055,12 @@ export default {
             <div class="asset-form-section__label">{{ $t('assets.theme') }}</div>
             <v-row density="comfortable">
               <v-col cols="12" md="6">
-                <v-menu v-model="colorMenu" :close-on-content-click="false">
-                  <template #activator="{ props }">
-                    <v-text-field
-                      v-model="form.color"
-                      :disabled="loading"
-                      :label="$t('assets.color')"
-                      hide-details="auto"
-                      prepend-inner-icon="mdi-palette"
-                      v-bind="props"
-                      variant="outlined"
-                    >
-                      <template #append-inner>
-                        <div :style="{ backgroundColor: normalizedColor }" class="asset-color-preview" />
-                      </template>
-                    </v-text-field>
-                  </template>
-                  <v-card color="grey-darken-3">
-                    <v-color-picker v-model="normalizedColor" hide-inputs mode="hex" />
-                  </v-card>
-                </v-menu>
+                <ColorPickerField
+                  v-model="form.color"
+                  :disabled="loading"
+                  :label="$t('assets.color')"
+                  omit-hash
+                />
               </v-col>
               <v-col cols="12" md="6">
                 <v-combobox
@@ -1179,12 +1153,6 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-.asset-color-preview {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  border: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
-}
 
 .min-width-0 {
   min-width: 0;

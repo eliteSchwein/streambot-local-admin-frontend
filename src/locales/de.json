@@ -874,7 +874,10 @@
           "delete": "DELETE-Anfrage"
         },
         "rawTask": "Rohe Aufgabe",
-        "keyboard": "Tastatur"
+        "keyboard": "Tastatur",
+        "theme": {
+          "title": "Theme"
+        }
       },
       "parallel": "Parallele Tasks",
       "theme": {
@@ -1183,10 +1186,10 @@
         "fields": "Felder",
         "addField": "Feld hinzufügen",
         "discordPreview": "Discord-Vorschau",
-        "variable": "{{ discordPayload.content }}",
-        "variable2": "{{ embed.title }}",
-        "variable3": "{{ embed.description }}",
-        "variable4": "{{ embed.footer.text }}"
+        "variable": "{'{{'} discordPayload.content {'}}'}",
+        "variable2": "{'{{'} embed.title {'}}'}",
+        "variable3": "{'{{'} embed.description {'}}'}",
+        "variable4": "{'{{'} embed.footer.text {'}}'}"
       },
       "websocket": {},
       "wledCustom": {

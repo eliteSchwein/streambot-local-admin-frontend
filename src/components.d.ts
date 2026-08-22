@@ -27,6 +27,7 @@ declare module 'vue' {
     ChannelPointDeleteConfirmDialog: typeof import('./components/dialogs/ChannelPointDeleteConfirmDialog.vue')['default']
     ChannelPointEditorDialog: typeof import('./components/dialogs/ChannelPointEditorDialog.vue')['default']
     ChannelPointMacroAccordion: typeof import('./components/accordions/ChannelPointMacroAccordion.vue')['default']
+    ColorPickerField: typeof import('./components/inputs/ColorPickerField.vue')['default']
     CommandAssetAccordion: typeof import('./components/accordions/CommandAssetAccordion.vue')['default']
     CommandCreateDialog: typeof import('./components/dialogs/CommandCreateDialog.vue')['default']
     CommandEditorDialog: typeof import('./components/dialogs/CommandEditorDialog.vue')['default']

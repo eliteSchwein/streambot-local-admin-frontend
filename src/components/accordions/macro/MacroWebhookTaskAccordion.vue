@@ -124,36 +124,10 @@
                 </v-col>
 
                 <v-col cols="12" md="4">
-                  <v-menu :close-on-content-click="false" location="bottom">
-                    <template #activator="{ props }">
-                      <v-text-field
-                        v-bind="props"
-                        :model-value="firstEmbedColorHex"
-                        :label="$t('macro.final.webhook.color')"
-                        prepend-inner-icon="mdi-palette"
-                        variant="outlined"
-                        density="comfortable"
-                        readonly
-                        hide-details="auto"
-                      >
-                        <template #append-inner>
-                          <div
-                            class="discord-color-swatch"
-                            :style="{ backgroundColor: firstEmbedColorHex }"
-                          />
-                        </template>
-                      </v-text-field>
-                    </template>
-
-                    <v-card>
-                      <v-color-picker
-                        :model-value="firstEmbedColorHex"
-                        mode="hex"
-                        hide-inputs
-                        @update:model-value="setDiscordEmbedColor"
-                      />
-                    </v-card>
-                  </v-menu>
+                  <ColorPickerField
+                    v-model="discordEmbedColor"
+                    :label="$t('macro.final.webhook.color')"
+                  />
                 </v-col>
 
                 <v-col cols="12">
@@ -353,6 +327,7 @@
 
 <script lang="ts">
 import MacroTaskAccordionTemplate from './MacroTaskAccordionTemplate.vue'
+import ColorPickerField from '@/components/inputs/ColorPickerField.vue'
 
 type DiscordEmbed = {
   title?: string
@@ -385,6 +360,7 @@ export default {
 
   components: {
     MacroTaskAccordionTemplate,
+    ColorPickerField,
   },
 
   props: {
@@ -457,8 +433,14 @@ export default {
       return this.discordEmbeds[0] ?? {}
     },
 
-    firstEmbedColorHex(): string {
-      return this.embedColor(this.firstEmbed.color)
+    discordEmbedColor: {
+      get(): string {
+        return this.embedColor(this.firstEmbed.color)
+      },
+
+      set(value: string) {
+        this.setDiscordEmbedColor(value)
+      },
     },
 
     discordContent(): string {
@@ -827,9 +809,4 @@ export default {
   }
 }
 
-.discord-color-swatch {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-}
 </style>

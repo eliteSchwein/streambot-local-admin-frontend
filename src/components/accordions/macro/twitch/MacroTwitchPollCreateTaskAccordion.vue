@@ -17,7 +17,7 @@
       <v-col cols="12">
         <div class="text-subtitle-2 mb-2">{{ $t('macro.twitch.pollCreate.choices') }}</div>
 
-        <v-row v-for="(_, choiceIndex) in choiceFields" :key="choiceIndex" dense>
+        <v-row v-for="(_, choiceIndex) in choiceFields" :key="choiceIndex" density="comfortable">
           <v-col>
             <v-text-field
               v-model="choiceFields[choiceIndex]"

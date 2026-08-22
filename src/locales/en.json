@@ -874,7 +874,10 @@
           "delete": "DELETE request"
         },
         "rawTask": "Raw task",
-        "keyboard": "Keyboard"
+        "keyboard": "Keyboard",
+        "theme": {
+          "title": "Theme"
+        }
       },
       "parallel": "Parallel tasks",
       "theme": {
@@ -1183,10 +1186,10 @@
         "fields": "Fields",
         "addField": "Add field",
         "discordPreview": "Discord preview",
-        "variable": "{{ discordPayload.content }}",
-        "variable2": "{{ embed.title }}",
-        "variable3": "{{ embed.description }}",
-        "variable4": "{{ embed.footer.text }}"
+        "variable": "{'{{'} discordPayload.content {'}}'}",
+        "variable2": "{'{{'} embed.title {'}}'}",
+        "variable3": "{'{{'} embed.description {'}}'}",
+        "variable4": "{'{{'} embed.footer.text {'}}'}"
       },
       "websocket": {},
       "wledCustom": {

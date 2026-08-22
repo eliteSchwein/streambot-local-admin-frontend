@@ -70,43 +70,12 @@
                 </div>
               </v-sheet>
 
-              <v-menu
+              <ColorPickerField
+                v-model="form.theme.default_color"
                 :disabled="settingsLocked"
-                v-model="showThemeColorPicker"
-                :close-on-content-click="false"
-                location="bottom"
-              >
-                <template #activator="{ props }">
-                  <v-text-field
-                    :disabled="settingsLocked"
-                    v-model="form.theme.default_color"
-                    :label="$t('settings.themeHexColor')"
-                    variant="outlined"
-                    density="comfortable"
-                    hide-details="auto"
-                    prepend-inner-icon="mdi-palette"
-                    prefix="#"
-                    v-bind="props"
-                    @blur="form.theme.default_color = normalizeHexColor(form.theme.default_color)"
-                  >
-                    <template #append-inner>
-                      <div
-                        class="settings-color-preview"
-                        :style="{ backgroundColor: normalizedDefaultColorPreview }"
-                      />
-                    </template>
-                  </v-text-field>
-                </template>
-
-                <v-card color="grey-darken-3">
-                  <v-color-picker
-                    :disabled="settingsLocked"
-                    v-model="defaultColorPickerValue"
-                    hide-inputs
-                    mode="hex"
-                  />
-                </v-card>
-              </v-menu>
+                :label="$t('settings.themeHexColor')"
+                omit-hash
+              />
             </v-card-text>
           </v-card>
 
@@ -508,6 +477,7 @@
 import { mapState } from 'pinia'
 import { useAppStore } from '@/stores/app'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
+import ColorPickerField from '@/components/inputs/ColorPickerField.vue'
 
 type SettingsForm = {
   language: string
@@ -564,6 +534,10 @@ const defaultForm = (): SettingsForm => ({
 export default {
   name: 'Settings',
 
+  components: {
+    ColorPickerField,
+  },
+
   data() {
     return {
       saving: false,
@@ -575,7 +549,6 @@ export default {
       form: defaultForm(),
       voiceSearch: '',
       showVoicePicker: false,
-      showThemeColorPicker: false,
       newCavaTargetName: '',
       newCavaTargetBars: 63,
       newCavaTargetSettings: {} as Record<string, { key: string, value: string }>,
@@ -603,15 +576,6 @@ export default {
         (this as any).waitingForReload ||
         !(this as any).reloadFinished
       )
-    },
-
-    defaultColorPickerValue: {
-      get(): string {
-        return (this as any).normalizedDefaultColorPreview
-      },
-      set(value: string) {
-        ;(this as any).form.theme.default_color = (this as any).normalizeHexColor(value)
-      },
     },
 
     normalizedDefaultColorPreview(): string {
