@@ -211,6 +211,7 @@ declare module 'vue' {
     ObsAudioMixer: typeof import('./components/obs/ObsAudioMixer.vue')['default']
     ObsSceneBrowser: typeof import('./components/obs/ObsSceneBrowser.vue')['default']
     OBSSettings: typeof import('./components/obs/OBSSettings.vue')['default']
+    OverlayCustomizationDialog: typeof import('./components/dialogs/OverlayCustomizationDialog.vue')['default']
     OverlayEditorDialog: typeof import('./components/dialogs/OverlayEditorDialog.vue')['default']
     PowerDialog: typeof import('./components/dialogs/PowerDialog.vue')['default']
     RotatingScene: typeof import('./components/RotatingScene.vue')['default']

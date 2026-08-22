@@ -1553,7 +1553,31 @@
       "rendered": "Rendered saved file",
       "raw": "Raw unsaved HTML"
     },
-    "testMode": "Test mode"
+    "testMode": "Test mode",
+    "customization": {
+      "title": "Overlay customization",
+      "open": "Custom CSS & Fonts",
+      "customCss": "Custom CSS",
+      "fonts": "Fonts",
+      "cssHint": "Saved as user custom CSS and included in every overlay as /custom.css.",
+      "scssHint": "SCSS is compiled on demand, cached separately, and served as /custom.css.",
+      "saved": "Custom stylesheet saved.",
+      "uploadFonts": "Upload fonts",
+      "fontFiles": "Font files or ZIP archives",
+      "fontUploadHint": "Supports TTF, OTF, WOFF, WOFF2, EOT and ZIP archives containing those files.",
+      "installedFonts": "Installed fonts",
+      "family": "Family",
+      "weight": "Weight",
+      "style": "Style",
+      "cssClass": "CSS class",
+      "noFonts": "No custom fonts installed.",
+      "generatedFontCss": "Generated fonts.css",
+      "fontsUploaded": "Fonts uploaded.",
+      "fontDeleted": "Font deleted.",
+      "downloadCustomCss": "Download custom.css",
+      "downloadFontCss": "Download fonts.css",
+      "scssSupportNote": "SCSS syntax is supported here. Plain CSS works as usual."
+    }
   },
   "media": {
     "title": "Media",

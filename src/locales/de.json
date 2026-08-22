@@ -1553,7 +1553,31 @@
       "rendered": "Gerenderte gespeicherte Datei",
       "raw": "Rohes ungespeichertes HTML"
     },
-    "testMode": "Testmodus"
+    "testMode": "Testmodus",
+    "customization": {
+      "title": "Overlay-Anpassungen",
+      "open": "Eigenes CSS & Schriftarten",
+      "customCss": "Eigenes CSS",
+      "fonts": "Schriftarten",
+      "cssHint": "Wird als eigenes Benutzer-CSS gespeichert und in jedes Overlay als /custom.css eingebunden.",
+      "scssHint": "SCSS wird bei Bedarf kompiliert, separat gecacht und als /custom.css ausgeliefert.",
+      "saved": "Eigenes Stylesheet gespeichert.",
+      "uploadFonts": "Schriftarten hochladen",
+      "fontFiles": "Schriftdateien oder ZIP-Archive",
+      "fontUploadHint": "Unterstützt TTF, OTF, WOFF, WOFF2, EOT und ZIP-Archive mit diesen Dateitypen.",
+      "installedFonts": "Installierte Schriftarten",
+      "family": "Familie",
+      "weight": "Gewicht",
+      "style": "Stil",
+      "cssClass": "CSS-Klasse",
+      "noFonts": "Keine eigenen Schriftarten installiert.",
+      "generatedFontCss": "Generierte fonts.css",
+      "fontsUploaded": "Schriftarten hochgeladen.",
+      "fontDeleted": "Schriftart gelöscht.",
+      "downloadCustomCss": "custom.css herunterladen",
+      "downloadFontCss": "fonts.css herunterladen",
+      "scssSupportNote": "Hier wird auch SCSS-Syntax unterstützt. Normales CSS funktioniert wie gewohnt."
+    }
   },
   "media": {
     "title": "Medien",

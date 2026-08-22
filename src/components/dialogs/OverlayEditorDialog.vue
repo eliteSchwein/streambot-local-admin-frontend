@@ -23,6 +23,14 @@
         />
 
         <v-btn
+          variant="text"
+          prepend-icon="mdi-palette-outline"
+          @click="customizationDialog = true"
+        >
+          {{ $t('overlay.customization.open') }}
+        </v-btn>
+
+        <v-btn
           icon="mdi-refresh"
           variant="text"
           :loading="loading"
@@ -191,6 +199,8 @@
       </v-card-text>
     </v-card>
   </v-dialog>
+
+  <OverlayCustomizationDialog v-model="customizationDialog" />
 </template>
 
 <script lang="ts">
@@ -198,6 +208,7 @@ import { mapState } from 'pinia'
 import { useAppStore } from '@/stores/app'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import {VueMonacoEditor} from "@guolao/vue-monaco-editor";
+import OverlayCustomizationDialog from '@/components/dialogs/OverlayCustomizationDialog.vue'
 
 type FileEntry = {
   name?: string
@@ -210,6 +221,7 @@ export default {
 
   components: {
     VueMonacoEditor,
+    OverlayCustomizationDialog,
   },
 
   props: {
@@ -239,6 +251,7 @@ export default {
     return {
       content: '',
       originalContent: '',
+      customizationDialog: false,
       loading: false,
       saving: false,
       errorMessage: '',
@@ -252,6 +265,7 @@ export default {
       templatePathSuggestions: [] as string[],
       completionProvider: [] as any[],
       assetPathSuggestions: [] as string[],
+      cssClassSuggestions: [] as Array<{ name: string; source: string }>,
       previewPresets: [
         { titleKey: 'overlay.previewPresets.4kHorizontal', title: '4K horizontal', value: '3840x2160', width: 3840, height: 2160 },
         { titleKey: 'overlay.previewPresets.1440pHorizontal', title: '1440p horizontal', value: '2560x1440', width: 2560, height: 1440 },
@@ -422,6 +436,14 @@ export default {
   },
 
 
+  watch: {
+    customizationDialog(value: boolean, oldValue: boolean) {
+      if (!value && oldValue) {
+        void this.loadCssClassSuggestions()
+      }
+    },
+  },
+
   beforeUnmount() {
     this.disposeCompletionProviders()
   },
@@ -460,6 +482,59 @@ export default {
       this.registerCompletionProviders()
 
       void this.loadTemplatePathSuggestions()
+      void this.loadCssClassSuggestions()
+    },
+
+    async loadCssClassSuggestions() {
+      const stylesheets = [
+        { path: 'dist/app.css', source: 'dist/app.css' },
+        { path: 'custom.css', source: 'custom.css' },
+        { path: 'fonts.css', source: 'fonts.css' },
+      ]
+
+      const suggestions = new Map<string, { name: string; source: string }>()
+
+      await Promise.all(stylesheets.map(async (stylesheet) => {
+        try {
+          const base = String(this.getRestApi || '').replace(/\/+$/, '')
+          const response = await fetch(`${base}/${stylesheet.path}?_=${Date.now()}`, {
+            cache: 'no-store',
+          })
+
+          if (!response.ok) return
+
+          const css = await response.text()
+
+          for (const className of this.extractCssClassNames(css)) {
+            if (!suggestions.has(className)) {
+              suggestions.set(className, {
+                name: className,
+                source: stylesheet.source,
+              })
+            }
+          }
+        } catch (error) {
+          console.error(`loading ${stylesheet.source} class suggestions failed`, error)
+        }
+      }))
+
+      this.cssClassSuggestions = Array.from(suggestions.values())
+        .sort((a, b) => a.name.localeCompare(b.name))
+    },
+
+    extractCssClassNames(css: string): string[] {
+      const result = new Set<string>()
+
+      // Remove comments first so commented-out selectors do not become suggestions.
+      const withoutComments = String(css || '').replace(/\/\*[\s\S]*?\*\//g, '')
+      const classRegex = /\.(-?[_a-zA-Z]+[_a-zA-Z0-9-]*)/g
+
+      for (const match of withoutComments.matchAll(classRegex)) {
+        const className = match[1]
+        if (className) result.add(className)
+      }
+
+      return Array.from(result)
     },
 
     async loadTemplatePathSuggestions(path = '') {
@@ -607,6 +682,30 @@ export default {
                 kind: this.monacoInstance.languages.CompletionItemKind.File,
                 insertText: path,
                 detail: 'Overlay template',
+                range: {
+                  startLineNumber: position.lineNumber,
+                  endLineNumber: position.lineNumber,
+                  startColumn,
+                  endColumn: position.column,
+                },
+              })),
+            }
+          }
+
+          const classMatch = textUntilPosition.match(/\bclass=(["'])([^"']*)$/i)
+          if (classMatch) {
+            const classValue = classMatch[2] || ''
+            const currentToken = classValue.match(/(?:^|\s)([^\s]*)$/)?.[1] || ''
+            const startColumn = position.column - currentToken.length
+
+            return {
+              suggestions: this.cssClassSuggestions.map((item) => ({
+                label: item.name,
+                kind: this.monacoInstance.languages.CompletionItemKind.Class,
+                insertText: item.name,
+                detail: `CSS class · ${item.source}`,
+                filterText: item.name,
+                sortText: `${item.source === 'fonts.css' ? '0' : '1'}_${item.name}`,
                 range: {
                   startLineNumber: position.lineNumber,
                   endLineNumber: position.lineNumber,

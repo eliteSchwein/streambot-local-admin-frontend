@@ -20,6 +20,14 @@
 
       <div class="d-flex align-center ga-1">
         <v-btn
+          v-if="routeBase === 'overlay'"
+          icon="mdi-palette-outline"
+          variant="text"
+          :title="$t('overlay.customization.open')"
+          @click="customizationDialog = true"
+        />
+
+        <v-btn
           v-if="createFileMethod"
           icon="mdi-file-plus"
           variant="text"
@@ -227,6 +235,11 @@
       @created="handleFileCreated"
     />
 
+    <OverlayCustomizationDialog
+      v-if="routeBase === 'overlay'"
+      v-model="customizationDialog"
+    />
+
     <OverlayEditorDialog
       v-if="enableEditor"
       ref="overlayEditorDialog"
@@ -265,6 +278,7 @@ import FileCreateFolderDialog from '@/components/dialogs/FileCreateFolderDialog.
 import FileDeleteConfirmDialog from '@/components/dialogs/FileDeleteConfirmDialog.vue'
 import CreateFileDialog from '@/components/dialogs/CreateFileDialog.vue'
 import OverlayEditorDialog from '@/components/dialogs/OverlayEditorDialog.vue'
+import OverlayCustomizationDialog from '@/components/dialogs/OverlayCustomizationDialog.vue'
 
 type FileEntry = {
   name: string
@@ -293,6 +307,7 @@ export default {
     FileCreateFolderDialog,
     FileDeleteConfirmDialog,
     CreateFileDialog,
+    OverlayCustomizationDialog,
     OverlayEditorDialog,
   },
 
@@ -573,6 +588,7 @@ export default {
       previewDialog: false,
       createFolderDialog: false,
       createFileDialog: false,
+      customizationDialog: false,
       editorDialog: false,
       deleteDialog: false,
       deleteDialogMode: 'file' as 'file' | 'compressed',
