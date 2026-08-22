@@ -1592,7 +1592,7 @@
     "volume": "Volume",
     "image": "Image",
     "video": "Video",
-    "message": "Message",
+    "message": "Overlay Message",
     "name": "Asset name",
     "editor": "Asset editor",
     "createFile": "Add asset",

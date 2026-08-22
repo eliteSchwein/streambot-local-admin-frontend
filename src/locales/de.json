@@ -1592,7 +1592,7 @@
     "volume": "Lautstärke",
     "image": "Bild",
     "video": "Video",
-    "message": "Nachricht",
+    "message": "Overlay Nachricht",
     "name": "Asset-Name",
     "editor": "Asset-Editor",
     "createFile": "Asset hinzufügen",
