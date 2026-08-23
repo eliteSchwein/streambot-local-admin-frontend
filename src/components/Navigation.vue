@@ -364,10 +364,20 @@ export default {
       <v-divider></v-divider>
       <v-list-subheader>{{ $t('navigation.sections.systemTools') }}</v-list-subheader>
       <v-list-item
-        prepend-icon="mdi-server"
         :title="$t('navigation.tabs.system')"
         color=""
-        to="/system"></v-list-item>
+        to="/system"
+      >
+        <template #prepend>
+          <v-badge
+            :model-value="hasAvailableUpdates"
+            color="warning"
+            dot
+          >
+            <v-icon icon="mdi-server"></v-icon>
+          </v-badge>
+        </template>
+      </v-list-item>
       <v-list-item
         prepend-icon="mdi-cog"
         :title="$t('navigation.tabs.settings')"
