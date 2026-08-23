@@ -107,6 +107,21 @@ import EventEditorDialog from '@/components/dialogs/EventEditorDialog.vue'
 import { mapState } from "pinia";
 import { useAppStore } from "@/stores/app";
 
+type SimulationField = {
+  name: string
+  type: 'text' | 'number' | 'boolean' | 'textarea' | 'select'
+  localeKey?: string
+  default?: string | number | boolean
+  required?: boolean
+  min?: number
+  max?: number
+  step?: number
+  options?: Array<{
+    title: string
+    value: string | number | boolean
+  }>
+}
+
 type EventEntryData = {
   name: string
   channel: string
@@ -115,6 +130,10 @@ type EventEntryData = {
   macro?: boolean
   asset?: boolean
   configured?: boolean
+  localeKey?: string
+  channelLocaleKey?: string
+  subchannelLocaleKey?: string
+  simulationFields?: SimulationField[]
   raw?: any
 }
 
@@ -317,6 +336,10 @@ export default {
         macro: raw?.macro === true,
         asset: raw?.asset === true,
         configured: raw?.configured === true || raw?.macro === true || raw?.asset === true,
+        localeKey: typeof raw?.localeKey === 'string' ? raw.localeKey : undefined,
+        channelLocaleKey: typeof raw?.channelLocaleKey === 'string' ? raw.channelLocaleKey : undefined,
+        subchannelLocaleKey: typeof raw?.subchannelLocaleKey === 'string' ? raw.subchannelLocaleKey : undefined,
+        simulationFields: Array.isArray(raw?.simulationFields) ? raw.simulationFields : [],
         raw,
       }
     },
