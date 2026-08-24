@@ -888,7 +888,8 @@
       "mediaGroup": {
         "title": "Medien",
         "show": "Medium anzeigen",
-        "clear": "Medien leeren"
+        "clear": "Medien leeren",
+        "ffmpeg": "FFmpeg"
       },
       "command": {
         "title": "Befehle",
@@ -1270,6 +1271,37 @@
       "resetAll": {
         "title": "Alle temporären Befehlseinstellungen zurücksetzen"
       }
+    },
+    "ffmpeg": {
+      "title": "FFmpeg",
+      "input": "Eingabedatei",
+      "inputPlaceholder": "Mediendatei oder Variable auswählen",
+      "noInputSuggestions": "Keine Mediendateien oder Variablen gefunden",
+      "arguments": "FFmpeg-Argumente",
+      "argumentsPlaceholder": "-vf scale=1280:-2 -c:v libx264 -crf 23",
+      "outputFolder": "Ausgabeordner",
+      "outputFolderPlaceholder": "Ordner innerhalb des Medienordners",
+      "outputFilename": "Ausgabedateiname",
+      "outputFilenamePlaceholder": "output.mp4",
+      "temporaryFile": "Temporäre Datei",
+      "outputVariable": "Ausgabevariable",
+      "outputVariablePlaceholder": "ffmpeg_output",
+      "outputVariableHint": "Die Variable enthält den absoluten Pfad der erzeugten Datei.",
+      "template": "Vorlage",
+      "argumentsHelp": "FFmpeg-Optionen öffnen",
+      "templates": {
+        "custom": "Benutzerdefiniert",
+        "rescale1080p": "Video skalieren → 1080p",
+        "rescale720p": "Video skalieren → 720p",
+        "borderWebp": "Rahmenbild → WebP"
+      },
+      "filterInputs": "Filter-Dateieingaben",
+      "addFilterInput": "Filter-Eingabe hinzufügen",
+      "removeFilterInput": "Filter-Eingabe entfernen",
+      "filterInputFile": "Filter-Eingabe {number}",
+      "filterInputFilePlaceholder": "Mediendatei oder Variable auswählen",
+      "filterInputVariable": "Variable",
+      "commandPreview": "Befehlsvorschau"
     }
   },
   "giveaway": {

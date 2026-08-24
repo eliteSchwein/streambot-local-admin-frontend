@@ -123,6 +123,7 @@ import {
   MacroKeyboardTaskAccordion,
 } from '@/components/accordions/macro'
 import MacroClearMediaTaskAccordion from '@/components/accordions/macro/MacroClearMediaTaskAccordion.vue'
+import MacroFfmpegTaskAccordion from '@/components/accordions/macro/MacroFfmpegTaskAccordion.vue'
 import MacroVariableLocalSetTaskAccordion from '@/components/accordions/macro/MacroVariableLocalSetTaskAccordion.vue'
 import MacroSwitchTaskAccordion from '@/components/accordions/macro/MacroSwitchTaskAccordion.vue'
 import MacroSwitchBreakTaskAccordion from '@/components/accordions/macro/MacroSwitchBreakTaskAccordion.vue'
@@ -250,6 +251,7 @@ export default {
     MacroLoopTaskAccordion,
     MacroMediaTaskAccordion,
     MacroClearMediaTaskAccordion,
+    MacroFfmpegTaskAccordion,
     MacroSwitchTaskAccordion,
     MacroSwitchBreakTaskAccordion,
     MacroWebhookTaskAccordion,
@@ -518,6 +520,23 @@ export default {
                   loop: false,
                   muted: false,
                   controls: false,
+                },
+              }),
+            },
+            {
+              titleKey: 'macro.presets.mediaGroup.ffmpeg',
+              icon: 'mdi-movie-open-cog-outline',
+              factory: () => this.createTask({
+                channel: 'media',
+                method: 'ffmpeg',
+                data: {
+                  input: '',
+                  filter_inputs: [],
+                  arguments: '',
+                  output_folder: '',
+                  output_filename: 'output.mp4',
+                  temporary_file: false,
+                  result_variable: 'ffmpeg_output',
                 },
               }),
             },
@@ -1436,6 +1455,10 @@ export default {
 
       if (item?.task?.channel === 'media' && item?.task?.method === 'clear_media') {
         return 'MacroClearMediaTaskAccordion'
+      }
+
+      if (item?.task?.channel === 'media' && item?.task?.method === 'ffmpeg') {
+        return 'MacroFfmpegTaskAccordion'
       }
 
       const componentsByChannel: Record<string, string> = {
