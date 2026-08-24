@@ -40,6 +40,7 @@ import NotifyAudioPresetsUpdateMessage
   from "@/plugins/websocketEvents/websocketMessage/NotifyAudioPresetsUpdateMessage.ts";
 import NotifyDynamicDataUpdateMessage
   from "@/plugins/websocketEvents/websocketMessage/NotifyDynamicDataUpdateMessage.ts";
+import NotifySpeedtestMessage from "@/plugins/websocketEvents/websocketMessage/NotifySpeedtestMessage.ts";
 
 export default class MessageEvent extends BaseEvent {
   name = 'message'
@@ -90,5 +91,6 @@ export default class MessageEvent extends BaseEvent {
     await new NotifyEventsUpdateMessage(this.webSocketClient).handleMessage(data)
     await new NotifyAudioPresetsUpdateMessage(this.webSocketClient).handleMessage(data)
     await new NotifyDynamicDataUpdateMessage(this.webSocketClient).handleMessage(data)
+    await new NotifySpeedtestMessage(this.webSocketClient).handleMessage(data)
   }
 }

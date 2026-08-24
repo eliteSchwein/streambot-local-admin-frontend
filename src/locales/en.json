@@ -1517,7 +1517,22 @@
       "category": "Category",
       "usage": "Usage"
     },
-    "ollamaUsed": "Used by Ollama"
+    "ollamaUsed": "Used by Ollama",
+    "speedtest": {
+      "title": "Speedtest",
+      "ping": "Ping",
+      "download": "Download",
+      "upload": "Upload",
+      "run": "Run speedtest",
+      "stages": {
+        "idle": "Ready",
+        "ping": "Ping",
+        "download": "Download",
+        "upload": "Upload",
+        "finished": "Finished",
+        "error": "Error"
+      }
+    }
   },
   "common": {
     "cancel": "Cancel",

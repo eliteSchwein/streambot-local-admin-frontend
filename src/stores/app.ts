@@ -70,6 +70,16 @@ export const useAppStore = defineStore('app', {
       finished: true,
     },
     updateManager: {},
+    speedtest: {
+      running: false,
+      stage: 'idle',
+      ping_ms: null,
+      download_mbps: null,
+      upload_mbps: null,
+      error: null,
+      started_at: null,
+      finished_at: null,
+    },
   }),
   getters: {
     getConfig: (state) => state.config,
@@ -122,6 +132,7 @@ export const useAppStore = defineStore('app', {
     getSettings: (state) => state.settings,
     getReloadUpdate: (state) => state.reloadUpdate,
     getUpdateManager: (state) => state.updateManager,
+    getSpeedtest: (state) => state.speedtest,
 
     hasObsEnabled: (state) => {
       const integrations: any = state.integrations ?? {}
@@ -450,6 +461,21 @@ export const useAppStore = defineStore('app', {
         finished: reloadUpdate?.finished === true,
       }
       this.$patch(state => state.reloadUpdate = this.reloadUpdate)
+    },
+
+    setSpeedtest(speedtest: any) {
+      this.speedtest = {
+        running: speedtest?.running === true,
+        stage: speedtest?.stage ?? 'idle',
+        ping_ms: speedtest?.ping_ms ?? null,
+        download_mbps: speedtest?.download_mbps ?? null,
+        upload_mbps: speedtest?.upload_mbps ?? null,
+        error: speedtest?.error ?? null,
+        started_at: speedtest?.started_at ?? null,
+        finished_at: speedtest?.finished_at ?? null,
+      }
+
+      this.$patch(state => state.speedtest = this.speedtest)
     },
     async fetchStatus(): Promise<any> {
       let status: any = null

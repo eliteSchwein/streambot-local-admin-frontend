@@ -1517,7 +1517,22 @@
       "category": "Kategorie",
       "usage": "Speicher"
     },
-    "ollamaUsed": "Belegt durch Ollama"
+    "ollamaUsed": "Belegt durch Ollama",
+    "speedtest": {
+      "title": "Speedtest",
+      "ping": "Ping",
+      "download": "Download",
+      "upload": "Upload",
+      "run": "Speedtest starten",
+      "stages": {
+        "idle": "Bereit",
+        "ping": "Ping",
+        "download": "Download",
+        "upload": "Upload",
+        "finished": "Fertig",
+        "error": "Fehler"
+      }
+    }
   },
   "common": {
     "cancel": "Abbrechen",

@@ -223,6 +223,7 @@ declare module 'vue' {
     RotatingSceneSelect: typeof import('./components/accordions/macro/RotatingSceneSelect.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SpeedtestCard: typeof import('./components/cards/SpeedtestCard.vue')['default']
     StorageCard: typeof import('./components/cards/StorageCard.vue')['default']
     UpdateCard: typeof import('./components/cards/UpdateCard.vue')['default']
     UploadCard: typeof import('./components/cards/UploadCard.vue')['default']
