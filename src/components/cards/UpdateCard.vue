@@ -82,19 +82,10 @@
             </div>
 
             <template #append>
-              <v-progress-circular
-                v-if="manager.checking && !manager.updating"
-                indeterminate
-                size="20"
-                width="2"
-                class="mr-2"
-              />
-
               <v-btn
                 size="small"
                 color="primary"
                 variant="tonal"
-                :loading="manager.updating"
                 :disabled="manager.checking || manager.updating || !manager.update_available"
                 @click="update(manager.name)"
               >

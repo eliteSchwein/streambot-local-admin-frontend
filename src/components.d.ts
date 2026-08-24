@@ -40,6 +40,7 @@ declare module 'vue' {
     EventEditorDialog: typeof import('./components/dialogs/EventEditorDialog.vue')['default']
     EventEntry: typeof import('./components/EventEntry.vue')['default']
     EventMacroAccordion: typeof import('./components/accordions/EventMacroAccordion.vue')['default']
+    EventSimulationDialog: typeof import('./components/dialogs/EventSimulationDialog.vue')['default']
     FileCard: typeof import('./components/files/FileCard.vue')['default']
     FileCopyDialog: typeof import('./components/dialogs/FileCopyDialog.vue')['default']
     FileCreateFolderDialog: typeof import('./components/dialogs/FileCreateFolderDialog.vue')['default']

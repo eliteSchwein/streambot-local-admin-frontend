@@ -7,6 +7,17 @@
     <template #append>
       <div class="event-entry-item__actions">
         <v-btn
+          v-if="canSimulate"
+          prepend-icon="mdi-play"
+          color="secondary"
+          variant="tonal"
+          size="small"
+          :text="$t('dialogs.eventEditorDialog.simulate')"
+          :disabled="disabled"
+          @click.stop="simulationDialog = true"
+        />
+
+        <v-btn
           prepend-icon="mdi-pencil"
           color="primary"
           variant="tonal"
@@ -18,11 +29,23 @@
       </div>
     </template>
   </v-list-item>
+
+  <EventSimulationDialog
+    v-model="simulationDialog"
+    :event-entry="eventEntry"
+    :disabled="disabled"
+  />
 </template>
 
 <script lang="ts">
+import EventSimulationDialog from '@/components/dialogs/EventSimulationDialog.vue'
+
 export default {
   name: 'EventEntry',
+
+  components: {
+    EventSimulationDialog,
+  },
 
   props: {
     eventEntry: { type: Object, required: true },
@@ -30,6 +53,12 @@ export default {
   },
 
   emits: ['edit'],
+
+  data() {
+    return {
+      simulationDialog: false,
+    }
+  },
 
   computed: {
     configName(): string {
@@ -48,6 +77,11 @@ export default {
 
     configured(): boolean {
       return this.eventEntry?.configured === true || this.eventEntry?.asset === true || this.eventEntry?.macro === true
+    },
+
+    canSimulate(): boolean {
+      return Array.isArray(this.eventEntry?.simulationFields)
+        && this.eventEntry.simulationFields.length > 0
     },
 
     icon(): string {
