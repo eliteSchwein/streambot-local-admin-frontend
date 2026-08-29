@@ -478,13 +478,13 @@
         "description": "Beschreibung"
       },
       "placeholders": {
-        "usernameOrVariable": "Benutzername oder {{variable}}",
-        "optionalReasonOrVariable": "Optionaler Grund oder {{variable}}",
-        "categoryOrVariable": "Just Chatting oder {{variable}}",
+        "usernameOrVariable": "Benutzername oder ${variable}",
+        "optionalReasonOrVariable": "Optionaler Grund oder ${variable}",
+        "categoryOrVariable": "Just Chatting oder ${variable}",
         "clipVariable": "clip",
-        "pollIdOrVariable": "${poll.id} oder {{variable}}",
+        "pollIdOrVariable": "${poll.id} oder ${variable}",
         "pollVariable": "poll",
-        "predictionIdOrVariable": "${prediction.id} oder {{variable}}",
+        "predictionIdOrVariable": "${prediction.id} oder ${variable}",
         "predictionVariable": "prediction",
         "predictionId": "${prediction.id}",
         "winningOutcomeId": "${prediction.outcomes.0.id}",
