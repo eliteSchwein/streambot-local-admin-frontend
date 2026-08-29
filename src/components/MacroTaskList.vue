@@ -127,6 +127,7 @@ import MacroFfmpegTaskAccordion from '@/components/accordions/macro/MacroFfmpegT
 import MacroVariableLocalSetTaskAccordion from '@/components/accordions/macro/MacroVariableLocalSetTaskAccordion.vue'
 import MacroSwitchTaskAccordion from '@/components/accordions/macro/MacroSwitchTaskAccordion.vue'
 import MacroSwitchBreakTaskAccordion from '@/components/accordions/macro/MacroSwitchBreakTaskAccordion.vue'
+import MacroFunctionParallelTaskAccordion from '@/components/accordions/macro/functions/MacroFunctionParallelTaskAccordion.vue'
 import {
   MacroObsDisableSourceFilterTaskAccordion,
   MacroObsEnableSourceFilterTaskAccordion,
@@ -254,6 +255,7 @@ export default {
     MacroFfmpegTaskAccordion,
     MacroSwitchTaskAccordion,
     MacroSwitchBreakTaskAccordion,
+    MacroFunctionParallelTaskAccordion,
     MacroWebhookTaskAccordion,
     MacroNeopixelTaskAccordion,
     MacroEffectTaskAccordion,
@@ -434,6 +436,15 @@ export default {
               titleKey: 'macro.core.switch.title',
               icon: 'mdi-call-split',
               factory: () => this.createSwitchTask(),
+            },
+            {
+              titleKey: 'macro.function.parallel.title',
+              icon: 'mdi-call-split',
+              factory: () => this.createTask({
+                channel: 'function',
+                method: 'parallel',
+                data: { tasks: [] },
+              }),
             },
             {
               titleKey: 'macro.core.switch.breakTitle',
@@ -1252,6 +1263,7 @@ export default {
       if (item?.task?.channel === 'condition' && item?.task?.method === 'end_macro') return 'MacroEndMacroTaskAccordion'
       if (item?.type === 'switch' || (item?.task?.channel === 'switch' && item?.task?.method === 'switch')) return 'MacroSwitchTaskAccordion'
       if (item?.task?.channel === 'switch' && item?.task?.method === 'break') return 'MacroSwitchBreakTaskAccordion'
+      if (item?.task?.channel === 'function' && item?.task?.method === 'parallel') return 'MacroFunctionParallelTaskAccordion'
 
       if (item?.task?.channel === 'ollama' && item?.task?.method === 'chat') {
         return 'MacroOllamaChatTaskAccordion'

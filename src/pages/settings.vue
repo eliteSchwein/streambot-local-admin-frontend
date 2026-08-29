@@ -86,15 +86,6 @@
             </v-card-title>
 
             <v-card-text>
-              <v-switch
-                v-model="form.tts.enabled"
-                :disabled="settingsLocked"
-                :label="$t('common.enabled')"
-                color="success"
-                hide-details
-                class="mb-3"
-              />
-
               <v-alert
                 type="warning"
                 variant="tonal"
@@ -104,28 +95,28 @@
               />
 
               <v-list
-                v-if="configuredTtsModels.length"
+                v-if="configuredTtsLocales.length"
                 bg-color="grey-darken-3"
                 density="compact"
                 rounded
                 class="mb-3"
               >
                 <v-list-item
-                  v-for="item in configuredTtsModels"
-                  :key="`${item.locale}:${item.voice}`"
-                  :title="item.voice"
-                  :subtitle="item.locale"
+                  v-for="locale in configuredTtsLocales"
+                  :key="locale"
+                  :title="locale"
+                  :subtitle="form.tts.voices[locale]"
                 >
                   <template #prepend>
                     <v-icon icon="mdi-check-circle" color="success" />
                   </template>
                   <template #append>
                     <v-btn
-                      :disabled="settingsLocked || !form.tts.enabled"
+                      :disabled="settingsLocked"
                       icon="mdi-delete"
                       size="small"
                       variant="text"
-                      @click="removeVoice(item.locale, item.voice)"
+                      @click="removeVoice(locale)"
                     />
                   </template>
                 </v-list-item>
@@ -141,7 +132,7 @@
               />
 
               <v-text-field
-                :disabled="settingsLocked || !form.tts.enabled"
+                :disabled="settingsLocked"
                 v-model="voiceSearch"
                 :label="$t('settings.searchVoiceModel')"
                 prepend-inner-icon="mdi-magnify"
@@ -166,7 +157,7 @@
                     <v-expansion-panel
                       v-for="language in filteredVoiceLanguages"
                       :key="language"
-                      :disabled="settingsLocked || !form.tts.enabled"
+                      :disabled="settingsLocked"
                     >
                       <v-expansion-panel-title>
                         <div class="d-flex align-center justify-space-between w-100 pr-3">
@@ -182,15 +173,15 @@
                           <v-list-item
                             v-for="voice in filteredVoicesByLanguage[language]"
                             :key="voice"
-                            :disabled="settingsLocked || !form.tts.enabled"
-                            :active="(form.tts.voices[language] || []).includes(voice)"
+                            :disabled="settingsLocked"
+                            :active="form.tts.voices[language] === voice"
                             rounded="0"
                             @click="selectVoice(language, voice)"
                           >
                             <template #prepend>
                               <v-icon
-                                :icon="(form.tts.voices[language] || []).includes(voice) ? 'mdi-check-circle' : 'mdi-download'"
-                                :color="(form.tts.voices[language] || []).includes(voice) ? 'success' : undefined"
+                                :icon="form.tts.voices[language] === voice ? 'mdi-check-circle' : 'mdi-download'"
+                                :color="form.tts.voices[language] === voice ? 'success' : undefined"
                               />
                             </template>
                             <v-list-item-title class="text-truncate">{{ voice }}</v-list-item-title>
@@ -511,8 +502,7 @@ type SettingsForm = {
     image_compress_percent: number
   }
   tts: {
-    enabled: boolean
-    voices: Record<string, string[]>
+    voices: Record<string, string>
   }
   theme: {
     default_color: string
@@ -538,7 +528,6 @@ const defaultForm = (): SettingsForm => ({
     image_compress_percent: 80,
   },
   tts: {
-    enabled: false,
     voices: {},
   },
   theme: {
@@ -650,15 +639,8 @@ export default {
       return Object.keys((this as any).filteredVoicesByLanguage).sort()
     },
 
-    configuredTtsModels(): Array<{ locale: string, voice: string }> {
-      const voices = (this as any).form?.tts?.voices ?? {}
-      return Object.entries(voices)
-        .flatMap(([locale, voiceList]: [string, any]) =>
-          (Array.isArray(voiceList) ? voiceList : [voiceList])
-            .filter(Boolean)
-            .map((voice: string) => ({ locale, voice: String(voice) }))
-        )
-        .sort((a, b) => a.locale.localeCompare(b.locale) || a.voice.localeCompare(b.voice))
+    configuredTtsLocales(): string[] {
+      return Object.keys((this as any).form?.tts?.voices ?? {}).sort()
     },
   },
 
@@ -710,28 +692,17 @@ export default {
 
     selectVoice(locale: string, voice: string) {
       if (this.settingsLocked) return
-      const current = Array.isArray(this.form.tts.voices?.[locale])
-        ? this.form.tts.voices[locale]
-        : []
-
-      if (current.includes(voice)) return
-
       this.form.tts.voices = {
         ...(this.form.tts.voices || {}),
-        [locale]: [...current, voice],
+        [locale]: voice,
       }
       this.voiceSearch = ''
     },
 
-    removeVoice(locale: string, voice: string) {
+    removeVoice(locale: string) {
       if (this.settingsLocked) return
       const voices = {...(this.form.tts.voices || {})}
-      const remaining = (Array.isArray(voices[locale]) ? voices[locale] : [])
-        .filter((entry: string) => entry !== voice)
-
-      if (remaining.length) voices[locale] = remaining
-      else delete voices[locale]
-
+      delete voices[locale]
       this.form.tts.voices = voices
     },
 
@@ -754,16 +725,8 @@ export default {
           ...assetTune,
         },
         tts: {
-          enabled: tts.enabled === true,
           voices: tts.voices && typeof tts.voices === 'object' && !Array.isArray(tts.voices)
-            ? Object.fromEntries(
-                Object.entries(tts.voices).map(([locale, rawVoiceList]: [string, any]) => [
-                  locale,
-                  [...new Set((Array.isArray(rawVoiceList) ? rawVoiceList : [rawVoiceList])
-                    .map((voice: any) => String(voice ?? '').trim())
-                    .filter(Boolean))],
-                ])
-              )
+            ? {...tts.voices}
             : {},
         },
         theme: {
@@ -958,20 +921,6 @@ export default {
       return Number.isFinite(number) ? number : fallback
     },
 
-    saveRequiresReload(settings: SettingsForm): boolean {
-      if (!this.lastSavedSnapshot) return true
-
-      try {
-        const previous = JSON.parse(this.lastSavedSnapshot) as SettingsForm
-        const {tts: _previousTts, ...previousWithoutTts} = previous
-        const {tts: _nextTts, ...nextWithoutTts} = settings
-
-        return JSON.stringify(previousWithoutTts) !== JSON.stringify(nextWithoutTts)
-      } catch {
-        return true
-      }
-    },
-
     normalizeForm(): SettingsForm {
       const defaults = defaultForm()
 
@@ -984,16 +933,10 @@ export default {
           image_compress_percent: Number(this.form.asset_tune.image_compress_percent),
         },
         tts: {
-          enabled: Boolean(this.form.tts.enabled),
           voices: Object.fromEntries(
             Object.entries(this.form.tts.voices || {})
-              .map(([locale, rawVoiceList]: [string, any]) => [
-                String(locale).trim(),
-                [...new Set((Array.isArray(rawVoiceList) ? rawVoiceList : [rawVoiceList])
-                  .map((voice: any) => String(voice ?? '').trim())
-                  .filter(Boolean))],
-              ])
-              .filter(([locale, voiceList]: [string, any]) => Boolean(locale) && voiceList.length > 0)
+              .map(([locale, voice]) => [String(locale).trim(), String(voice ?? '').trim()])
+              .filter(([locale, voice]) => Boolean(locale) && Boolean(voice))
           ),
         },
         theme: {
@@ -1029,13 +972,12 @@ export default {
 
     async saveSettings() {
       this.saving = true
+      this.waitingForReload = true
       this.showThemeColorPicker = false
       this.errorMessage = ''
 
-      const settings = this.normalizeForm()
-      this.waitingForReload = this.saveRequiresReload(settings)
-
       try {
+        const settings = this.normalizeForm()
         const response = await this.requestWebsocket('settings_save', settings)
         const savedSettings = this.unwrapWebsocketResponse(response, 'settings_save') || settings
 
