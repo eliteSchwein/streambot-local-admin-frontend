@@ -181,7 +181,8 @@
         "url": "URL",
         "text": "Text",
         "eventId": "Event ID",
-        "autoMacroName": "Auto macro name"
+        "autoMacroName": "Auto macro name",
+        "locale": "Locale"
       },
       "announce": {
         "title": "Announce"
@@ -1532,7 +1533,8 @@
         "finished": "Finished",
         "error": "Error"
       }
-    }
+    },
+    "ttsUsed": "Used by TTS"
   },
   "common": {
     "cancel": "Cancel",
@@ -1959,7 +1961,7 @@
     "themeDefaultPrimaryColorHint": "Used as CSS variable var(--theme-color) for the overlays, example: background: var(--theme-color).",
     "themeHexColor": "Hex color",
     "tts": "Text to Speech",
-    "ttsWarning": "Avoid too high quality voice models on small systems. Medium models are usually the best balance for stream alerts.",
+    "ttsWarning": "TTS is optional. Add one or more locales below to install Piper and download their voices. Medium models are usually the best balance for stream alerts.",
     "selectedVoiceModel": "Selected voice model",
     "searchVoiceModel": "Search / change voice model",
     "hideVoices": "Hide voices",
@@ -1977,7 +1979,8 @@
     "cavaTargetName": "Target name",
     "cavaSettingKey": "Option",
     "cavaSettingValue": "Option Value",
-    "autoCompressUpload": "Auto compress on upload"
+    "autoCompressUpload": "Auto compress on upload",
+    "noConfiguredTtsLocales": "No TTS locales configured. Select a voice below to add and download a locale."
   },
   "components": {
     "storageCard": {},

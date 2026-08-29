@@ -44,7 +44,7 @@ export const useAppStore = defineStore('app', {
     parsedBackendConfig: {},
     obsSceneData: [],
     testMode: false,
-    voices: [],
+    voices: {},
     macros: {},
     commands: {},
     autoMacros: [],
@@ -346,7 +346,7 @@ export const useAppStore = defineStore('app', {
       this.testMode = testMode
       this.$patch(state => state.testMode = testMode)
     },
-    setVoices(voices: []) {
+    setVoices(voices: Record<string, string[]>) {
       this.voices = voices
       this.$patch(state => state.voices = voices)
     },

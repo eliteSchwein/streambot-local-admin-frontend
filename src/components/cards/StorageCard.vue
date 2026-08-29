@@ -108,6 +108,11 @@
           <span class="text-caption text-grey-lighten-1">{{ $t('system.ollamaUsed') }}</span>
           <span>{{ formatFileSize(ollamaUsed) }}</span>
         </div>
+
+        <div v-if="!hideTtsUsed && ttsUsed !== null">
+          <span class="text-caption text-grey-lighten-1">{{ $t('system.ttsUsed') }}</span>
+          <span>{{ formatFileSize(ttsUsed) }}</span>
+        </div>
       </div>
 
       <v-table
@@ -190,6 +195,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    hideTtsUsed: {
+      type: Boolean,
+      default: true,
+    },
   },
 
   computed: {
@@ -218,6 +227,7 @@ export default {
         !this.hideCommandUsed ? this.commandUsed : null,
         !this.hideRotatingSceneUsed ? this.rotatingSceneUsed : null,
         !this.hideOllamaUsed ? this.ollamaUsed : null,
+        !this.hideTtsUsed ? this.ttsUsed : null,
       ]
 
       return values.reduce((total, value) => {
@@ -295,6 +305,7 @@ export default {
         { key: 'command', label: this.$t('system.commandUsed'), value: this.commandUsed, colorClass: 'bg-teal' },
         { key: 'rotating-scene', label: this.$t('system.rotatingSceneUsed'), value: this.rotatingSceneUsed, colorClass: 'bg-lime' },
         { key: 'ollama', label: this.$t('system.ollamaUsed'), value: this.ollamaUsed, colorClass: 'bg-indigo' },
+        { key: 'tts', label: this.$t('system.ttsUsed'), value: this.ttsUsed, colorClass: 'bg-blue-grey' },
       ]
 
       return candidates.flatMap((candidate) => {
@@ -435,6 +446,13 @@ export default {
       return this.firstNumber([
         this.storageInfo?.folders?.ollama,
         this.storageInfo?.ollamaUsed,
+      ])
+    },
+
+    ttsUsed(): number | null {
+      return this.firstNumber([
+        this.storageInfo?.folders?.tts,
+        this.storageInfo?.ttsUsed,
       ])
     },
   },

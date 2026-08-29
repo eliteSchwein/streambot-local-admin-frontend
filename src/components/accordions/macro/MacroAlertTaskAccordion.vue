@@ -33,7 +33,18 @@
         />
       </v-col>
 
-      <v-col cols="12" md="4">
+      <v-col v-if="task.speak" cols="12" md="4">
+        <v-select
+          v-model="task.locale"
+          :items="localeItems"
+          :label="$t('macro.function.fields.locale')"
+          density="comfortable"
+          variant="outlined"
+          hide-details
+        />
+      </v-col>
+
+      <v-col cols="12" :md="task.speak ? 12 : 4">
         <MacroAssetSelect
           v-model="task.asset"
           :label="$t('macro.core.alert.asset')"
@@ -46,6 +57,7 @@
 <script lang="ts">
 import MacroTaskAccordionTemplate from './MacroTaskAccordionTemplate.vue'
 import MacroAssetSelect from './MacroAssetSelect.vue'
+import { useAppStore } from '@/stores/app'
 
 export default {
   name: 'MacroAlertTaskAccordion',
@@ -70,6 +82,14 @@ export default {
 
     title(): string {
       return `Alert: ${this.task.message || 'empty message'}`
+    },
+
+    localeItems(): Array<{ title: string, value: string }> {
+      const voices = (useAppStore().getSettings as any)?.tts?.voices ?? {}
+      return Object.entries(voices)
+        .filter(([locale, voice]) => Boolean(String(locale).trim()) && Boolean(String(voice).trim()))
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([locale, voice]) => ({ title: `${locale} · ${voice}`, value: locale }))
     },
   },
 }

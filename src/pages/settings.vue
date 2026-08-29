@@ -86,6 +86,15 @@
             </v-card-title>
 
             <v-card-text>
+              <v-switch
+                v-model="form.tts.enabled"
+                :disabled="settingsLocked"
+                :label="$t('common.enabled')"
+                color="success"
+                hide-details
+                class="mb-3"
+              />
+
               <v-alert
                 type="warning"
                 variant="tonal"
@@ -94,16 +103,45 @@
                 :text="$t('settings.ttsWarning')"
               />
 
-              <v-sheet color="grey-darken-3" rounded class="pa-3 mb-3">
-                <div class="text-caption text-grey-lighten-1 mb-1">{{ $t('settings.selectedVoiceModel') }}</div>
-                <div class="d-flex align-center ga-2 min-width-0">
-                  <v-icon icon="mdi-check-circle" color="success" size="small" />
-                  <span class="text-body-2 text-truncate">{{ form.tts.model || 'de_DE-thorsten-medium' }}</span>
-                </div>
-              </v-sheet>
+              <v-list
+                v-if="configuredTtsLocales.length"
+                bg-color="grey-darken-3"
+                density="compact"
+                rounded
+                class="mb-3"
+              >
+                <v-list-item
+                  v-for="locale in configuredTtsLocales"
+                  :key="locale"
+                  :title="locale"
+                  :subtitle="form.tts.voices[locale]"
+                >
+                  <template #prepend>
+                    <v-icon icon="mdi-check-circle" color="success" />
+                  </template>
+                  <template #append>
+                    <v-btn
+                      :disabled="settingsLocked || !form.tts.enabled"
+                      icon="mdi-delete"
+                      size="small"
+                      variant="text"
+                      @click="removeVoice(locale)"
+                    />
+                  </template>
+                </v-list-item>
+              </v-list>
+
+              <v-alert
+                v-else
+                type="info"
+                variant="tonal"
+                density="comfortable"
+                class="mb-3"
+                :text="$t('settings.noConfiguredTtsLocales')"
+              />
 
               <v-text-field
-                :disabled="settingsLocked"
+                :disabled="settingsLocked || !form.tts.enabled"
                 v-model="voiceSearch"
                 :label="$t('settings.searchVoiceModel')"
                 prepend-inner-icon="mdi-magnify"
@@ -120,27 +158,15 @@
 
               <v-expand-transition>
                 <div v-show="showVoicePicker">
-                  <div class="d-flex justify-end mb-2">
-                    <v-btn
-                      :disabled="settingsLocked"
-                      size="small"
-                      variant="text"
-                      prepend-icon="mdi-chevron-up"
-                      @click="showVoicePicker = false"
-                    >
-                      {{ $t('settings.hideVoices') }}
-                    </v-btn>
-                  </div>
-
                   <v-expansion-panels
                     v-if="filteredVoiceLanguages.length"
                     variant="accordion"
                     color="grey-darken-3"
                   >
                     <v-expansion-panel
-                      :disabled="settingsLocked"
                       v-for="language in filteredVoiceLanguages"
                       :key="language"
+                      :disabled="settingsLocked || !form.tts.enabled"
                     >
                       <v-expansion-panel-title>
                         <div class="d-flex align-center justify-space-between w-100 pr-3">
@@ -154,23 +180,20 @@
                       <v-expansion-panel-text class="pa-0">
                         <v-list bg-color="grey-darken-4" density="compact" class="py-0">
                           <v-list-item
-                            :disabled="settingsLocked"
                             v-for="voice in filteredVoicesByLanguage[language]"
                             :key="voice"
-                            :active="form.tts.model === voice"
+                            :disabled="settingsLocked || !form.tts.enabled"
+                            :active="form.tts.voices[language] === voice"
                             rounded="0"
-                            @click="selectVoice(voice)"
+                            @click="selectVoice(language, voice)"
                           >
                             <template #prepend>
                               <v-icon
-                                :icon="form.tts.model === voice ? 'mdi-radiobox-marked' : 'mdi-radiobox-blank'"
-                                :color="form.tts.model === voice ? 'primary' : undefined"
+                                :icon="form.tts.voices[language] === voice ? 'mdi-check-circle' : 'mdi-download'"
+                                :color="form.tts.voices[language] === voice ? 'success' : undefined"
                               />
                             </template>
-
-                            <v-list-item-title class="text-truncate">
-                              {{ voice }}
-                            </v-list-item-title>
+                            <v-list-item-title class="text-truncate">{{ voice }}</v-list-item-title>
                           </v-list-item>
                         </v-list>
                       </v-expansion-panel-text>
@@ -488,7 +511,8 @@ type SettingsForm = {
     image_compress_percent: number
   }
   tts: {
-    model: string
+    enabled: boolean
+    voices: Record<string, string>
   }
   theme: {
     default_color: string
@@ -514,7 +538,8 @@ const defaultForm = (): SettingsForm => ({
     image_compress_percent: 80,
   },
   tts: {
-    model: 'de_DE-thorsten-medium',
+    enabled: false,
+    voices: {},
   },
   theme: {
     default_color: 'ff9800',
@@ -596,24 +621,6 @@ export default {
         }
       }
 
-      if (!Object.values(normalized).some(voices => voices.includes('de_DE-thorsten-medium'))) {
-        normalized.de_DE = Array.from(new Set([
-          'de_DE-thorsten-medium',
-          ...(normalized.de_DE || []),
-        ])).sort((a, b) => String(a).localeCompare(String(b)))
-      }
-
-      const selectedModel = String((this as any).form?.tts?.model || '').trim()
-
-      if (selectedModel && !Object.values(normalized).some(voices => voices.includes(selectedModel))) {
-        const language = selectedModel.split('-')[0] || 'custom'
-
-        normalized[language] = Array.from(new Set([
-          selectedModel,
-          ...(normalized[language] || []),
-        ])).sort((a, b) => String(a).localeCompare(String(b)))
-      }
-
       return normalized
     },
 
@@ -641,6 +648,10 @@ export default {
 
     filteredVoiceLanguages(): string[] {
       return Object.keys((this as any).filteredVoicesByLanguage).sort()
+    },
+
+    configuredTtsLocales(): string[] {
+      return Object.keys((this as any).form?.tts?.voices ?? {}).sort()
     },
   },
 
@@ -690,11 +701,20 @@ export default {
 
   methods: {
 
-    selectVoice(voice: string) {
+    selectVoice(locale: string, voice: string) {
       if (this.settingsLocked) return
-      this.form.tts.model = voice
+      this.form.tts.voices = {
+        ...(this.form.tts.voices || {}),
+        [locale]: voice,
+      }
       this.voiceSearch = ''
-      this.showVoicePicker = false
+    },
+
+    removeVoice(locale: string) {
+      if (this.settingsLocked) return
+      const voices = {...(this.form.tts.voices || {})}
+      delete voices[locale]
+      this.form.tts.voices = voices
     },
 
     syncFromStore() {
@@ -716,9 +736,10 @@ export default {
           ...assetTune,
         },
         tts: {
-          ...defaults.tts,
-          ...tts,
-          model: tts.model || defaults.tts.model,
+          enabled: tts.enabled === true,
+          voices: tts.voices && typeof tts.voices === 'object' && !Array.isArray(tts.voices)
+            ? {...tts.voices}
+            : {},
         },
         theme: {
           ...defaults.theme,
@@ -924,7 +945,12 @@ export default {
           image_compress_percent: Number(this.form.asset_tune.image_compress_percent),
         },
         tts: {
-          model: String(this.form.tts.model || defaults.tts.model).trim(),
+          enabled: Boolean(this.form.tts.enabled),
+          voices: Object.fromEntries(
+            Object.entries(this.form.tts.voices || {})
+              .map(([locale, voice]) => [String(locale).trim(), String(voice ?? '').trim()])
+              .filter(([locale, voice]) => Boolean(locale) && Boolean(voice))
+          ),
         },
         theme: {
           default_color: this.normalizeHexColor(this.form.theme.default_color || defaults.theme.default_color),

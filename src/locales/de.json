@@ -181,7 +181,8 @@
         "url": "URL",
         "text": "Text",
         "eventId": "Ereignis-ID",
-        "autoMacroName": "Auto-Makro-Name"
+        "autoMacroName": "Auto-Makro-Name",
+        "locale": "Locale"
       },
       "announce": {
         "title": "Ankündigen"
@@ -1532,7 +1533,8 @@
         "finished": "Fertig",
         "error": "Fehler"
       }
-    }
+    },
+    "ttsUsed": "Belegt durch TTS"
   },
   "common": {
     "cancel": "Abbrechen",
@@ -1959,7 +1961,7 @@
     "themeDefaultPrimaryColorHint": "Wird als CSS-Variable var(--theme-color) für die Overlays verwendet, z. B. background: var(--theme-color).",
     "themeHexColor": "Hex-Farbe",
     "tts": "Text zu Sprache",
-    "ttsWarning": "Vermeide zu hochwertige Sprachmodelle auf kleinen Systemen. Mittlere Modelle bieten meist die beste Balance für Stream-Alarme.",
+    "ttsWarning": "TTS ist optional. Füge unten eine oder mehrere Locales hinzu, um Piper zu installieren und die jeweiligen Stimmen herunterzuladen. Medium-Modelle bieten meist die beste Balance für Stream-Alarme.",
     "selectedVoiceModel": "Ausgewähltes Sprachmodell",
     "searchVoiceModel": "Sprachmodell suchen / ändern",
     "hideVoices": "Stimmen ausblenden",
@@ -1977,7 +1979,8 @@
     "cavaTargetName": "Zielname",
     "cavaSettingKey": "Option",
     "cavaSettingValue": "Optionswert",
-    "autoCompressUpload": "Beim Upload automatisch komprimieren"
+    "autoCompressUpload": "Beim Upload automatisch komprimieren",
+    "noConfiguredTtsLocales": "Keine TTS-Locale konfiguriert. Wähle unten eine Stimme aus, um eine Locale hinzuzufügen und herunterzuladen."
   },
   "components": {
     "storageCard": {},
