@@ -22,7 +22,8 @@
 
       <v-col cols="12" md="4">
         <v-select
-          v-model="data.locale"
+          :model-value="voiceValue(data)"
+          @update:model-value="setVoice(data, $event)"
           :items="localeItems"
           :label="$t('macro.function.fields.locale')"
           density="compact"
@@ -68,12 +69,32 @@ export default {
       const voices = settings?.tts?.voices ?? {}
 
       return Object.entries(voices)
-        .filter(([locale, voice]) => Boolean(String(locale).trim()) && Boolean(String(voice).trim()))
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([locale, voice]) => ({
-          title: `${locale} · ${voice}`,
-          value: locale,
-        }))
+        .flatMap(([locale, rawVoiceList]: [string, any]) =>
+          (Array.isArray(rawVoiceList) ? rawVoiceList : [rawVoiceList])
+            .filter(Boolean)
+            .map((voice: string) => ({
+              title: `${locale} · ${voice}`,
+              value: `${locale}::${voice}`,
+            }))
+        )
+        .sort((a, b) => a.title.localeCompare(b.title))
+    },
+  },
+
+  methods: {
+    voiceValue(data: any) {
+      if (!data?.locale) return undefined
+      return data.voice ? `${data.locale}::${data.voice}` : undefined
+    },
+    setVoice(data: any, value: string | undefined) {
+      if (!value) {
+        delete data.locale
+        delete data.voice
+        return
+      }
+      const [locale, ...voiceParts] = String(value).split('::')
+      data.locale = locale
+      data.voice = voiceParts.join('::')
     },
   },
 

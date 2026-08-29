@@ -35,7 +35,8 @@
 
       <v-col v-if="task.speak" cols="12" md="4">
         <v-select
-          v-model="task.locale"
+          :model-value="voiceValue"
+          @update:model-value="setVoice"
           :items="localeItems"
           :label="$t('macro.function.fields.locale')"
           density="comfortable"
@@ -87,9 +88,31 @@ export default {
     localeItems(): Array<{ title: string, value: string }> {
       const voices = (useAppStore().getSettings as any)?.tts?.voices ?? {}
       return Object.entries(voices)
-        .filter(([locale, voice]) => Boolean(String(locale).trim()) && Boolean(String(voice).trim()))
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([locale, voice]) => ({ title: `${locale} · ${voice}`, value: locale }))
+        .flatMap(([locale, rawVoiceList]: [string, any]) =>
+          (Array.isArray(rawVoiceList) ? rawVoiceList : [rawVoiceList])
+            .filter(Boolean)
+            .map((voice: string) => ({ title: `${locale} · ${voice}`, value: `${locale}::${voice}` }))
+        )
+        .sort((a, b) => a.title.localeCompare(b.title))
+    },
+
+    voiceValue(): string | undefined {
+      return this.task?.locale && this.task?.voice
+        ? `${this.task.locale}::${this.task.voice}`
+        : undefined
+    },
+  },
+
+  methods: {
+    setVoice(value: string | undefined) {
+      if (!value) {
+        delete this.task.locale
+        delete this.task.voice
+        return
+      }
+      const [locale, ...voiceParts] = String(value).split('::')
+      this.task.locale = locale
+      this.task.voice = voiceParts.join('::')
     },
   },
 }

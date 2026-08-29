@@ -90,7 +90,7 @@
                 v-model="form.tts.enabled"
                 :disabled="settingsLocked"
                 :label="$t('common.enabled')"
-                color="primary"
+                color="success"
                 hide-details
                 class="mb-3"
               />
@@ -104,17 +104,17 @@
               />
 
               <v-list
-                v-if="configuredTtsLocales.length"
+                v-if="configuredTtsModels.length"
                 bg-color="grey-darken-3"
                 density="compact"
                 rounded
                 class="mb-3"
               >
                 <v-list-item
-                  v-for="locale in configuredTtsLocales"
-                  :key="locale"
-                  :title="locale"
-                  :subtitle="form.tts.voices[locale]"
+                  v-for="item in configuredTtsModels"
+                  :key="`${item.locale}:${item.voice}`"
+                  :title="item.voice"
+                  :subtitle="item.locale"
                 >
                   <template #prepend>
                     <v-icon icon="mdi-check-circle" color="success" />
@@ -125,7 +125,7 @@
                       icon="mdi-delete"
                       size="small"
                       variant="text"
-                      @click="removeVoice(locale)"
+                      @click="removeVoice(item.locale, item.voice)"
                     />
                   </template>
                 </v-list-item>
@@ -183,14 +183,14 @@
                             v-for="voice in filteredVoicesByLanguage[language]"
                             :key="voice"
                             :disabled="settingsLocked || !form.tts.enabled"
-                            :active="form.tts.voices[language] === voice"
+                            :active="(form.tts.voices[language] || []).includes(voice)"
                             rounded="0"
                             @click="selectVoice(language, voice)"
                           >
                             <template #prepend>
                               <v-icon
-                                :icon="form.tts.voices[language] === voice ? 'mdi-check-circle' : 'mdi-download'"
-                                :color="form.tts.voices[language] === voice ? 'success' : undefined"
+                                :icon="(form.tts.voices[language] || []).includes(voice) ? 'mdi-check-circle' : 'mdi-download'"
+                                :color="(form.tts.voices[language] || []).includes(voice) ? 'success' : undefined"
                               />
                             </template>
                             <v-list-item-title class="text-truncate">{{ voice }}</v-list-item-title>
@@ -512,7 +512,7 @@ type SettingsForm = {
   }
   tts: {
     enabled: boolean
-    voices: Record<string, string>
+    voices: Record<string, string[]>
   }
   theme: {
     default_color: string
@@ -650,8 +650,15 @@ export default {
       return Object.keys((this as any).filteredVoicesByLanguage).sort()
     },
 
-    configuredTtsLocales(): string[] {
-      return Object.keys((this as any).form?.tts?.voices ?? {}).sort()
+    configuredTtsModels(): Array<{ locale: string, voice: string }> {
+      const voices = (this as any).form?.tts?.voices ?? {}
+      return Object.entries(voices)
+        .flatMap(([locale, voiceList]: [string, any]) =>
+          (Array.isArray(voiceList) ? voiceList : [voiceList])
+            .filter(Boolean)
+            .map((voice: string) => ({ locale, voice: String(voice) }))
+        )
+        .sort((a, b) => a.locale.localeCompare(b.locale) || a.voice.localeCompare(b.voice))
     },
   },
 
@@ -703,17 +710,28 @@ export default {
 
     selectVoice(locale: string, voice: string) {
       if (this.settingsLocked) return
+      const current = Array.isArray(this.form.tts.voices?.[locale])
+        ? this.form.tts.voices[locale]
+        : []
+
+      if (current.includes(voice)) return
+
       this.form.tts.voices = {
         ...(this.form.tts.voices || {}),
-        [locale]: voice,
+        [locale]: [...current, voice],
       }
       this.voiceSearch = ''
     },
 
-    removeVoice(locale: string) {
+    removeVoice(locale: string, voice: string) {
       if (this.settingsLocked) return
       const voices = {...(this.form.tts.voices || {})}
-      delete voices[locale]
+      const remaining = (Array.isArray(voices[locale]) ? voices[locale] : [])
+        .filter((entry: string) => entry !== voice)
+
+      if (remaining.length) voices[locale] = remaining
+      else delete voices[locale]
+
       this.form.tts.voices = voices
     },
 
@@ -738,7 +756,14 @@ export default {
         tts: {
           enabled: tts.enabled === true,
           voices: tts.voices && typeof tts.voices === 'object' && !Array.isArray(tts.voices)
-            ? {...tts.voices}
+            ? Object.fromEntries(
+                Object.entries(tts.voices).map(([locale, rawVoiceList]: [string, any]) => [
+                  locale,
+                  [...new Set((Array.isArray(rawVoiceList) ? rawVoiceList : [rawVoiceList])
+                    .map((voice: any) => String(voice ?? '').trim())
+                    .filter(Boolean))],
+                ])
+              )
             : {},
         },
         theme: {
@@ -962,8 +987,13 @@ export default {
           enabled: Boolean(this.form.tts.enabled),
           voices: Object.fromEntries(
             Object.entries(this.form.tts.voices || {})
-              .map(([locale, voice]) => [String(locale).trim(), String(voice ?? '').trim()])
-              .filter(([locale, voice]) => Boolean(locale) && Boolean(voice))
+              .map(([locale, rawVoiceList]: [string, any]) => [
+                String(locale).trim(),
+                [...new Set((Array.isArray(rawVoiceList) ? rawVoiceList : [rawVoiceList])
+                  .map((voice: any) => String(voice ?? '').trim())
+                  .filter(Boolean))],
+              ])
+              .filter(([locale, voiceList]: [string, any]) => Boolean(locale) && voiceList.length > 0)
           ),
         },
         theme: {
