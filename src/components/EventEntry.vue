@@ -66,7 +66,14 @@ export default {
     },
 
     displayName(): string {
+      const localeKey = String(this.eventEntry?.localeKey ?? '')
+
+      if (localeKey && this.$te(localeKey)) {
+        return this.$t(localeKey) as string
+      }
+
       const raw = String(this.eventEntry?.name ?? this.configName)
+
       return raw
         .replace(/^event_/, '')
         .split('_')
@@ -76,7 +83,9 @@ export default {
     },
 
     configured(): boolean {
-      return this.eventEntry?.configured === true || this.eventEntry?.asset === true || this.eventEntry?.macro === true
+      return this.eventEntry?.configured === true
+        || this.eventEntry?.asset === true
+        || this.eventEntry?.macro === true
     },
 
     canSimulate(): boolean {
@@ -85,8 +94,17 @@ export default {
     },
 
     icon(): string {
-      if (this.eventEntry?.channel === 'twitch' || this.eventEntry?.subchannel === 'twitch') return 'mdi-twitch'
-      if (this.eventEntry?.channel === 'system') return 'mdi-power'
+      if (
+        this.eventEntry?.channel === 'twitch'
+        || this.eventEntry?.subchannel === 'twitch'
+      ) {
+        return 'mdi-twitch'
+      }
+
+      if (this.eventEntry?.channel === 'system') {
+        return 'mdi-power'
+      }
+
       return 'mdi-lightning-bolt'
     },
   },
