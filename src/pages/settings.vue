@@ -90,7 +90,7 @@
                 v-model="form.tts.enabled"
                 :disabled="settingsLocked"
                 :label="$t('common.enabled')"
-                color="success"
+                color="primary"
                 hide-details
                 class="mb-3"
               />
