@@ -157,8 +157,12 @@
       :rest-api="getRestApi"
       :public-prefix="publicPrefix"
       :loading="workingAction === 'delete' || workingAction === 'delete-compressed'"
-      :title="deleteDialogMode === 'compressed' ? deleteCompressedConfirmTitle : deleteConfirmTitle"
-      :text="deleteDialogMode === 'compressed' ? deleteCompressedConfirmText : deleteConfirmText"
+      :title="deleteDialogMode === 'compressed'
+        ? $t('media.deleteCompressedConfirmTitle')
+        : $t('media.deleteConfirmTitle')"
+      :text="deleteDialogMode === 'compressed'
+        ? $t('media.deleteCompressedConfirmText')
+        : $t('media.deleteConfirmText')"
       :cancel-label="cancelLabel"
       :delete-label="deleteDialogMode === 'compressed' ? deleteCompressedLabel : deleteLabel"
       @confirm="confirmDeleteEntry"
@@ -495,22 +499,6 @@ export default {
     previewLabel: {
       type: String,
       default: 'Preview',
-    },
-    deleteConfirmTitle: {
-      type: String,
-      default: 'Delete?',
-    },
-    deleteConfirmText: {
-      type: String,
-      default: 'Do you really want to delete this file?',
-    },
-    deleteCompressedConfirmTitle: {
-      type: String,
-      default: 'Delete compressed file?',
-    },
-    deleteCompressedConfirmText: {
-      type: String,
-      default: 'Do you really want to delete the compressed version of this file?',
     },
     targetLabel: {
       type: String,
