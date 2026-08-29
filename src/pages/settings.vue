@@ -933,6 +933,20 @@ export default {
       return Number.isFinite(number) ? number : fallback
     },
 
+    saveRequiresReload(settings: SettingsForm): boolean {
+      if (!this.lastSavedSnapshot) return true
+
+      try {
+        const previous = JSON.parse(this.lastSavedSnapshot) as SettingsForm
+        const {tts: _previousTts, ...previousWithoutTts} = previous
+        const {tts: _nextTts, ...nextWithoutTts} = settings
+
+        return JSON.stringify(previousWithoutTts) !== JSON.stringify(nextWithoutTts)
+      } catch {
+        return true
+      }
+    },
+
     normalizeForm(): SettingsForm {
       const defaults = defaultForm()
 
@@ -985,12 +999,13 @@ export default {
 
     async saveSettings() {
       this.saving = true
-      this.waitingForReload = true
       this.showThemeColorPicker = false
       this.errorMessage = ''
 
+      const settings = this.normalizeForm()
+      this.waitingForReload = this.saveRequiresReload(settings)
+
       try {
-        const settings = this.normalizeForm()
         const response = await this.requestWebsocket('settings_save', settings)
         const savedSettings = this.unwrapWebsocketResponse(response, 'settings_save') || settings
 
