@@ -7,20 +7,25 @@
     <v-card color="grey-darken-4">
       <v-toolbar color="warning" flat density="compact">
         <v-toolbar-title class="d-flex align-center">
-          {{ title }}
+          {{ resolvedTitle }}
         </v-toolbar-title>
+
         <v-btn icon="mdi-close" @click="close" />
       </v-toolbar>
 
       <v-card-text>
         <div class="mb-2">
-          {{ text }}
+          {{ resolvedText }}
         </div>
 
         <v-card color="grey-darken-3" variant="flat" class="pa-3">
           <div class="d-flex align-center ga-2 min-width-0 mb-3">
             <v-icon :icon="entry?.type === 'folder' ? 'mdi-folder' : 'mdi-file'" />
-            <div class="text-truncate" :title="entry?.path || entry?.name">
+
+            <div
+              class="text-truncate"
+              :title="entry?.path || entry?.name"
+            >
               {{ entry?.path || entry?.name }}
             </div>
           </div>
@@ -47,7 +52,7 @@
           :disabled="loading"
           @click="close"
         >
-          {{ cancelLabel }}
+          {{ resolvedCancelLabel }}
         </v-btn>
 
         <v-btn
@@ -56,7 +61,7 @@
           :loading="loading"
           @click="$emit('confirm')"
         >
-          {{ deleteLabel }}
+          {{ resolvedDeleteLabel }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -78,45 +83,93 @@ export default {
       type: Boolean,
       default: false,
     },
+
     entry: {
       type: Object,
       default: null,
     },
+
     loading: {
       type: Boolean,
       default: false,
     },
+
     restApi: {
       type: String,
       required: true,
     },
+
     publicPrefix: {
       type: String,
       default: '',
     },
+
     title: {
       type: String,
-      default: 'Delete?',
+      default: '',
     },
+
     text: {
       type: String,
-      default: 'Do you really want to delete this file?',
+      default: '',
     },
+
     cancelLabel: {
       type: String,
-      default: 'Cancel',
+      default: '',
     },
+
     deleteLabel: {
       type: String,
-      default: 'Delete',
+      default: '',
+    },
+
+    compressed: {
+      type: Boolean,
+      default: false,
     },
   },
 
-  emits: ['update:modelValue', 'confirm'],
+  emits: [
+    'update:modelValue',
+    'confirm',
+  ],
+
+  computed: {
+    resolvedTitle(): string {
+      if (this.title) return this.title
+
+      return this.compressed
+        ? this.$t('media.deleteCompressedConfirmTitle') as string
+        : this.$t('media.deleteConfirmTitle') as string
+    },
+
+    resolvedText(): string {
+      if (this.text) return this.text
+
+      return this.compressed
+        ? this.$t('media.deleteCompressedConfirmText') as string
+        : this.$t('media.deleteConfirmText') as string
+    },
+
+    resolvedCancelLabel(): string {
+      return this.cancelLabel
+        || this.$t('common.cancel') as string
+    },
+
+    resolvedDeleteLabel(): string {
+      if (this.deleteLabel) return this.deleteLabel
+
+      return this.compressed
+        ? this.$t('media.deleteCompressed') as string
+        : this.$t('common.delete') as string
+    },
+  },
 
   methods: {
     close() {
       if (this.loading) return
+
       this.$emit('update:modelValue', false)
     },
   },
