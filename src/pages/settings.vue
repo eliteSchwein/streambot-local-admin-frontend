@@ -86,6 +86,16 @@
             </v-card-title>
 
             <v-card-text>
+              <v-switch
+                v-model="form.tts.enabled"
+                :disabled="settingsLocked"
+                :label="$t('common.enabled')"
+                color="primary"
+                inset
+                hide-details
+                class="mb-3"
+              />
+
               <v-alert
                 type="warning"
                 variant="tonal"
@@ -117,7 +127,7 @@
 
                     <template #append>
                       <v-btn
-                        :disabled="settingsLocked"
+                        :disabled="settingsLocked || !form.tts.enabled"
                         icon="mdi-delete-outline"
                         size="small"
                         variant="text"
@@ -139,7 +149,7 @@
               />
 
               <v-text-field
-                :disabled="settingsLocked"
+                :disabled="settingsLocked || !form.tts.enabled"
                 v-model="voiceSearch"
                 :label="$t('settings.searchVoiceModel')"
                 prepend-inner-icon="mdi-magnify"
@@ -164,7 +174,6 @@
                     <v-expansion-panel
                       v-for="language in filteredVoiceLanguages"
                       :key="language"
-                      :disabled="settingsLocked"
                     >
                       <v-expansion-panel-title>
                         <div class="d-flex align-center justify-space-between w-100 pr-3">
@@ -509,6 +518,7 @@ type SettingsForm = {
     image_compress_percent: number
   }
   tts: {
+    enabled: boolean
     voices: Record<string, string[]>
   }
   theme: {
@@ -535,6 +545,7 @@ const defaultForm = (): SettingsForm => ({
     image_compress_percent: 80,
   },
   tts: {
+    enabled: false,
     voices: {},
   },
   theme: {
@@ -763,6 +774,7 @@ export default {
           ...assetTune,
         },
         tts: {
+          enabled: tts.enabled === true,
           voices: tts.voices && typeof tts.voices === 'object' && !Array.isArray(tts.voices)
             ? Object.fromEntries(
               Object.entries(tts.voices)
@@ -980,6 +992,7 @@ export default {
           image_compress_percent: Number(this.form.asset_tune.image_compress_percent),
         },
         tts: {
+          enabled: Boolean(this.form.tts.enabled),
           voices: Object.fromEntries(
             Object.entries(this.form.tts.voices || {})
               .map(([locale, value]: [string, any]) => [
