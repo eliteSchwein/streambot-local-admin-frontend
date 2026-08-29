@@ -11,10 +11,23 @@ import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
 
+const fixLayerOrder = {
+  name: 'vuetify-layer-order',
+  transformIndexHtml: {
+    order: 'pre',
+    handler: () => [{
+      tag: 'style',
+      injectTo: 'head-prepend',
+      children: '@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;'
+    }]
+  }
+};
+
 // https://vitejs.dev/config/
 export default defineConfig({
   base: '/commander',
   plugins: [
+    fixLayerOrder,
     VueRouter({
       dts: 'src/typed-router.d.ts',
     }),
