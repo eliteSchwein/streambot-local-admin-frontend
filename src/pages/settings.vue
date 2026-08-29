@@ -94,33 +94,40 @@
                 :text="$t('settings.ttsWarning')"
               />
 
-              <v-list
-                v-if="configuredTtsLocales.length"
-                bg-color="grey-darken-3"
-                density="compact"
-                rounded
-                class="mb-3"
-              >
-                <v-list-item
-                  v-for="locale in configuredTtsLocales"
-                  :key="locale"
-                  :title="locale"
-                  :subtitle="form.tts.voices[locale]"
-                >
-                  <template #prepend>
-                    <v-icon icon="mdi-check-circle" color="success" />
-                  </template>
-                  <template #append>
-                    <v-btn
-                      :disabled="settingsLocked"
-                      icon="mdi-delete"
-                      size="small"
-                      variant="text"
-                      @click="removeVoice(locale)"
-                    />
-                  </template>
-                </v-list-item>
-              </v-list>
+              <div v-if="configuredTtsModels.length" class="mb-3">
+                <div class="d-flex align-center justify-space-between mb-2">
+                  <div class="text-subtitle-2">{{ $t('settings.configuredTtsLocales') }}</div>
+                  <v-chip size="x-small" variant="tonal">{{ configuredTtsModels.length }}</v-chip>
+                </div>
+
+                <v-list bg-color="grey-darken-3" density="compact" rounded class="py-0">
+                  <v-list-item
+                    v-for="model in configuredTtsModels"
+                    :key="`${model.locale}:${model.voice}`"
+                    class="tts-model-row"
+                  >
+                    <template #prepend>
+                      <v-icon icon="mdi-account-voice" color="success" class="mr-3" />
+                    </template>
+
+                    <v-list-item-title class="text-body-2 text-truncate">
+                      {{ model.voice }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle>{{ model.locale }}</v-list-item-subtitle>
+
+                    <template #append>
+                      <v-btn
+                        :disabled="settingsLocked"
+                        icon="mdi-delete-outline"
+                        size="small"
+                        variant="text"
+                        color="red-lighten-2"
+                        @click="removeVoice(model.locale, model.voice)"
+                      />
+                    </template>
+                  </v-list-item>
+                </v-list>
+              </div>
 
               <v-alert
                 v-else
@@ -174,14 +181,14 @@
                             v-for="voice in filteredVoicesByLanguage[language]"
                             :key="voice"
                             :disabled="settingsLocked"
-                            :active="form.tts.voices[language] === voice"
+                            :active="isVoiceSelected(language, voice)"
                             rounded="0"
                             @click="selectVoice(language, voice)"
                           >
                             <template #prepend>
                               <v-icon
-                                :icon="form.tts.voices[language] === voice ? 'mdi-check-circle' : 'mdi-download'"
-                                :color="form.tts.voices[language] === voice ? 'success' : undefined"
+                                :icon="isVoiceSelected(language, voice) ? 'mdi-check-circle' : 'mdi-download'"
+                                :color="isVoiceSelected(language, voice) ? 'success' : undefined"
                               />
                             </template>
                             <v-list-item-title class="text-truncate">{{ voice }}</v-list-item-title>
@@ -502,7 +509,7 @@ type SettingsForm = {
     image_compress_percent: number
   }
   tts: {
-    voices: Record<string, string>
+    voices: Record<string, string[]>
   }
   theme: {
     default_color: string
@@ -639,8 +646,22 @@ export default {
       return Object.keys((this as any).filteredVoicesByLanguage).sort()
     },
 
-    configuredTtsLocales(): string[] {
-      return Object.keys((this as any).form?.tts?.voices ?? {}).sort()
+    configuredTtsModels(): Array<{ locale: string, voice: string }> {
+      const configured = (this as any).form?.tts?.voices ?? {}
+      const models: Array<{ locale: string, voice: string }> = []
+
+      for (const locale of Object.keys(configured).sort()) {
+        const voices = Array.isArray(configured[locale]) ? configured[locale] : [configured[locale]]
+
+        for (const voice of voices) {
+          const normalizedVoice = String(voice ?? '').trim()
+          if (normalizedVoice) models.push({ locale, voice: normalizedVoice })
+        }
+      }
+
+      return models.sort((a, b) =>
+        a.locale.localeCompare(b.locale) || a.voice.localeCompare(b.voice)
+      )
     },
   },
 
@@ -690,20 +711,37 @@ export default {
 
   methods: {
 
-    selectVoice(locale: string, voice: string) {
-      if (this.settingsLocked) return
-      this.form.tts.voices = {
-        ...(this.form.tts.voices || {}),
-        [locale]: voice,
-      }
-      this.voiceSearch = ''
+    isVoiceSelected(locale: string, voice: string): boolean {
+      const configured = this.form.tts.voices?.[locale]
+      const voices = Array.isArray(configured) ? configured : configured ? [configured] : []
+      return voices.includes(voice)
     },
 
-    removeVoice(locale: string) {
+    selectVoice(locale: string, voice: string) {
+      if (this.settingsLocked || this.isVoiceSelected(locale, voice)) return
+
+      const configured = this.form.tts.voices?.[locale]
+      const voices = Array.isArray(configured) ? [...configured] : configured ? [configured] : []
+
+      this.form.tts.voices = {
+        ...(this.form.tts.voices || {}),
+        [locale]: [...voices, voice],
+      }
+    },
+
+    removeVoice(locale: string, voice: string) {
       if (this.settingsLocked) return
-      const voices = {...(this.form.tts.voices || {})}
-      delete voices[locale]
-      this.form.tts.voices = voices
+
+      const configured = this.form.tts.voices?.[locale]
+      const voices = (Array.isArray(configured) ? configured : configured ? [configured] : [])
+        .filter((configuredVoice: string) => configuredVoice !== voice)
+
+      const next = {...(this.form.tts.voices || {})}
+
+      if (voices.length) next[locale] = voices
+      else delete next[locale]
+
+      this.form.tts.voices = next
     },
 
     syncFromStore() {
@@ -726,7 +764,16 @@ export default {
         },
         tts: {
           voices: tts.voices && typeof tts.voices === 'object' && !Array.isArray(tts.voices)
-            ? {...tts.voices}
+            ? Object.fromEntries(
+              Object.entries(tts.voices)
+                .map(([locale, value]: [string, any]) => [
+                  locale,
+                  (Array.isArray(value) ? value : [value])
+                    .map((voice: any) => String(voice ?? '').trim())
+                    .filter(Boolean),
+                ])
+                .filter(([, voices]: [string, any]) => voices.length)
+            )
             : {},
         },
         theme: {
@@ -935,8 +982,13 @@ export default {
         tts: {
           voices: Object.fromEntries(
             Object.entries(this.form.tts.voices || {})
-              .map(([locale, voice]) => [String(locale).trim(), String(voice ?? '').trim()])
-              .filter(([locale, voice]) => Boolean(locale) && Boolean(voice))
+              .map(([locale, value]: [string, any]) => [
+                String(locale).trim(),
+                (Array.isArray(value) ? value : [value])
+                  .map((voice: any) => String(voice ?? '').trim())
+                  .filter(Boolean),
+              ])
+              .filter(([locale, voices]: [string, any]) => Boolean(locale) && voices.length)
           ),
         },
         theme: {
@@ -1013,5 +1065,9 @@ export default {
 .settings-color-preview--large {
   width: 38px;
   height: 38px;
+}
+
+.tts-model-row + .tts-model-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 </style>
