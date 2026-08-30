@@ -80,21 +80,22 @@
           </v-card>
 
           <v-card color="grey-darken-4" elevation="0">
-            <v-card-title class="d-flex align-center ga-2">
-              <v-icon icon="mdi-account-voice" />
-              <span>{{ $t('settings.tts') }}</span>
-            </v-card-title>
+            <v-card-title class="d-flex align-center justify-space-between">
+              <div class="d-flex align-center ga-2">
+                <v-icon icon="mdi-account-voice" />
+                <span>{{ $t('settings.tts') }}</span>
+              </div>
 
-            <v-card-text>
               <v-switch
                 v-model="form.tts.enabled"
-                :disabled="settingsLocked"
-                :label="$t('common.enabled')"
                 color="primary"
-                inset
+                density="compact"
                 hide-details
-                class="mb-3"
+                :disabled="settingsLocked"
               />
+            </v-card-title>
+
+            <v-card-text class="pt-2">
 
               <v-alert
                 type="warning"

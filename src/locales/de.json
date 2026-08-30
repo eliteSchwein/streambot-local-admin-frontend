@@ -1980,7 +1980,8 @@
     "cavaSettingKey": "Option",
     "cavaSettingValue": "Optionswert",
     "autoCompressUpload": "Beim Upload automatisch komprimieren",
-    "noConfiguredTtsLocales": "Keine TTS-Locale konfiguriert. Wähle unten eine Stimme aus, um eine Locale hinzuzufügen und herunterzuladen."
+    "noConfiguredTtsLocales": "Keine TTS-Locale konfiguriert. Wähle unten eine Stimme aus, um eine Locale hinzuzufügen und herunterzuladen.",
+    "configuredTtsLocales": "Konfigurierte TTS-Modelle"
   },
   "components": {
     "storageCard": {},
