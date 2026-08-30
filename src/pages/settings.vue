@@ -1036,14 +1036,32 @@ export default {
       }
     },
 
+    requiresBackendReload(settings: SettingsForm): boolean {
+      if (!this.lastSavedSnapshot) return true
+
+      try {
+        const previous = JSON.parse(this.lastSavedSnapshot)
+        const current = JSON.parse(JSON.stringify(settings))
+
+        delete previous.tts
+        delete current.tts
+
+        return JSON.stringify(previous) !== JSON.stringify(current)
+      } catch {
+        return true
+      }
+    },
+
     async saveSettings() {
       this.saving = true
-      this.waitingForReload = true
       this.showThemeColorPicker = false
       this.errorMessage = ''
 
       try {
         const settings = this.normalizeForm()
+        const waitForReload = this.requiresBackendReload(settings)
+        this.waitingForReload = waitForReload
+
         const response = await this.requestWebsocket('settings_save', settings)
         const savedSettings = this.unwrapWebsocketResponse(response, 'settings_save') || settings
 
@@ -1052,6 +1070,10 @@ export default {
         }
 
         this.lastSavedSnapshot = this.getFormSnapshot()
+
+        if (!waitForReload) {
+          this.waitingForReload = false
+        }
       } catch (error: any) {
         this.waitingForReload = false
         this.errorMessage = error?.message || 'Failed to save settings'
