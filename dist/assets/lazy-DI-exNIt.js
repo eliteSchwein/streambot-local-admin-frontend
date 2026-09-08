@@ -1,1 +1,0 @@
-import{An as e,On as t,m as n,mn as r}from"./dimensions-cjT5U6ho.js";var i=n({eager:Boolean},`lazy`);function a(n,i){let a=t(!1),o=e(()=>a.value||n.eager||i.value);r(i,()=>a.value=!0);function s(){n.eager||(a.value=!1)}return{isBooted:a,hasContent:o,onAfterLeave:s}}export{a as n,i as t};

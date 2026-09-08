@@ -14,11 +14,15 @@ import type {
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
 } from 'vue-router'
+import type {
+  _ExtractParamParserType,
+} from 'vue-router/experimental'
 
 declare module 'vue-router' {
   interface TypesConfig {
-    ParamParsers:
-      | never
+    _ParamParsers: {}
+    RouteNamedMap: import('vue-router/auto-routes').RouteNamedMap
+    _RouteFileInfoMap: import('vue-router/auto-routes')._RouteFileInfoMap
   }
 }
 
@@ -199,11 +203,15 @@ declare module 'vue-router/auto-routes' {
         | '/'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/assets.vue': {
       routes:
         | '/assets'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/audio.vue': {
@@ -211,11 +219,15 @@ declare module 'vue-router/auto-routes' {
         | '/audio'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/automacros.vue': {
       routes:
         | '/automacros'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/channelPoints.vue': {
@@ -223,11 +235,15 @@ declare module 'vue-router/auto-routes' {
         | '/channelPoints'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/commands.vue': {
       routes:
         | '/commands'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/connections.vue': {
@@ -235,11 +251,15 @@ declare module 'vue-router/auto-routes' {
         | '/connections'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/events.vue': {
       routes:
         | '/events'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/games.vue': {
@@ -247,11 +267,15 @@ declare module 'vue-router/auto-routes' {
         | '/games'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/gameScene.vue': {
       routes:
         | '/gameScene'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/integrations.vue': {
@@ -259,11 +283,15 @@ declare module 'vue-router/auto-routes' {
         | '/integrations'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/macros.vue': {
       routes:
         | '/macros'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/media.vue': {
@@ -271,11 +299,15 @@ declare module 'vue-router/auto-routes' {
         | '/media'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/music.vue': {
       routes:
         | '/music'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/obs.vue': {
@@ -283,11 +315,15 @@ declare module 'vue-router/auto-routes' {
         | '/obs'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/overlay.vue': {
       routes:
         | '/overlay'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/recovery.vue': {
@@ -295,11 +331,15 @@ declare module 'vue-router/auto-routes' {
         | '/recovery'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/rotatingscenes.vue': {
       routes:
         | '/rotatingscenes'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/settings.vue': {
@@ -307,11 +347,15 @@ declare module 'vue-router/auto-routes' {
         | '/settings'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/system.vue': {
       routes:
         | '/system'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/variables.vue': {
@@ -319,11 +363,15 @@ declare module 'vue-router/auto-routes' {
         | '/variables'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/yolobox.vue': {
       routes:
         | '/yolobox'
       views:
+        | never
+      pathParamNames:
         | never
     }
   }
