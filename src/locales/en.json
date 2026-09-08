@@ -4,7 +4,9 @@
       "throttled": "Throttled",
       "shield": "Shield",
       "savingPleaseWait": "Saving, please wait...",
-      "updatesAvailable": "Updates available"
+      "updatesAvailable": "Updates available",
+      "updateInProgress": "Update in progress...",
+      "updateInProgressManger": "Updating {manager}..."
     },
     "actions": {
       "reloadPage": "Reload page",
@@ -1512,7 +1514,10 @@
       "available": "Update available",
       "upToDate": "Up to date",
       "packageCount": "{count} packages",
-      "noState": "No update state available yet"
+      "noState": "No update state available yet",
+      "updating": "Updating...",
+      "backendBlocked": "Backend update is blocked until these updates finish: {managers}",
+      "blockedByBackend": "Blocked while the backend update is running"
     },
     "storageLegend": {
       "category": "Category",

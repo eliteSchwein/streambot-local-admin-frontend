@@ -39,7 +39,7 @@
             <template #prepend>
               <v-icon
                 :icon="manager.type === 'git' ? 'mdi-git' : 'mdi-package-variant'"
-                :color="manager.update_available ? 'warning' : 'success'"
+                :color="manager.updating ? 'primary' : (manager.update_available ? 'warning' : 'success')"
                 class="mr-3"
               />
             </template>
@@ -50,12 +50,14 @@
               <v-chip
                 size="x-small"
                 variant="tonal"
-                :color="manager.update_available ? 'warning' : 'success'"
+                :color="manager.updating ? 'primary' : (manager.update_available ? 'warning' : 'success')"
               >
                 {{
-                  manager.update_available
-                    ? $t('system.updates.available')
-                    : $t('system.updates.upToDate')
+                  manager.updating
+                    ? $t('system.updates.updating')
+                    : manager.update_available
+                      ? $t('system.updates.available')
+                      : $t('system.updates.upToDate')
                 }}
               </v-chip>
             </v-list-item-title>
@@ -86,7 +88,10 @@
                 size="small"
                 color="primary"
                 variant="tonal"
-                :disabled="manager.checking || manager.updating || !manager.update_available"
+                class="update-card__update-btn"
+                :loading="manager.updating"
+                :disabled="isManagerUpdateBlocked(manager) || !manager.update_available"
+                :title="managerBlockReason(manager)"
                 @click="update(manager.name)"
               >
                 {{ $t('system.updates.update') }}
@@ -129,7 +134,7 @@ type AptUpdate = {
 
 type UpdateManager = {
   name: string
-  type: 'git' | 'apt'
+  type: 'git' | 'apt' | 'ollama' | 'piper'
   current_version?: string
   latest_version?: string
   commit?: string
@@ -173,9 +178,51 @@ export default {
     isUpdating(): boolean {
       return this.managers.some(manager => manager.updating)
     },
+
+    backendUpdating(): boolean {
+      return this.updateManager.backend?.updating === true
+    },
+
+    updatingManagers(): UpdateManager[] {
+      return this.managers.filter(manager => manager.updating)
+    },
   },
 
   methods: {
+    isManagerUpdateBlocked(manager: UpdateManager): boolean {
+      if (manager.checking || manager.updating) return true
+
+      if (manager.name === 'backend') {
+        return this.updatingManagers.some(active => active.name !== 'backend')
+      }
+
+      return this.backendUpdating
+    },
+
+    managerBlockReason(manager: UpdateManager): string {
+      if (manager.updating) {
+        return this.$t('system.updates.updating') as string
+      }
+
+      if (manager.name === 'backend') {
+        const blockers = this.updatingManagers
+          .filter(active => active.name !== 'backend')
+          .map(active => active.name)
+
+        if (blockers.length) {
+          return this.$t('system.updates.backendBlocked', {
+            managers: blockers.join(', '),
+          }) as string
+        }
+      }
+
+      if (this.backendUpdating) {
+        return this.$t('system.updates.blockedByBackend') as string
+      }
+
+      return ''
+    },
+
     refresh() {
       void getWebsocketClient()?.send('update_refresh')
     },
@@ -214,6 +261,11 @@ export default {
 <style scoped>
 .update-card {
   min-height: 116px;
+}
+
+.update-card__update-btn {
+  width: 112px;
+  min-width: 112px;
 }
 
 .update-card__packages {

@@ -4,7 +4,9 @@
       "throttled": "Gedrosselt",
       "shield": "Schutz",
       "savingPleaseWait": "Speichern, bitte warten...",
-      "updatesAvailable": "Updates verfügbar"
+      "updatesAvailable": "Updates verfügbar",
+      "updateInProgress": "Update läuft...",
+      "updateInProgressManager": "{manager} wird aktualisiert.."
     },
     "actions": {
       "reloadPage": "Seite neu laden",
@@ -1512,7 +1514,10 @@
       "available": "Update verfügbar",
       "upToDate": "Aktuell",
       "packageCount": "{count} Pakete",
-      "noState": "Noch kein Update-Status verfügbar"
+      "noState": "Noch kein Update-Status verfügbar",
+      "updating": "Wird aktualisiert...",
+      "backendBlocked": "Das Backend-Update ist blockiert, bis diese Updates abgeschlossen sind: {managers}",
+      "blockedByBackend": "Blockiert, solange das Backend-Update läuft"
     },
     "storageLegend": {
       "category": "Kategorie",

@@ -32,6 +32,26 @@ export default {
         .some((manager) => manager?.update_available === true)
     },
 
+    updatingManagers() {
+      return Object.entries(this.getUpdateManager ?? {})
+        .filter(([, manager]) => manager?.updating === true)
+        .map(([name, manager]) => manager?.name || name)
+    },
+
+    hasUpdateInProgress() {
+      return this.updatingManagers.length > 0
+    },
+
+    updateInProgressTitle() {
+      if (this.updatingManagers.length === 0) {
+        return this.$t('navigation.status.updateInProgress')
+      }
+
+      return this.$t('navigation.status.updateInProgressManager', {
+        manager: this.updatingManagers.join(', ')
+      })
+    },
+
     currentRouteTitle() {
       const path = this.$route.path || '/';
       const firstPathPart = path.split('?')[0].split('#')[0].split('/').filter(Boolean)[0] || 'dashboard';
@@ -144,7 +164,27 @@ export default {
     </v-btn>
 
     <v-btn
-      v-if="hasAvailableUpdates"
+      v-if="hasUpdateInProgress"
+      class="mr-1 update-progress-button"
+      color="grey-darken-4"
+      variant="flat"
+      :to="{ path: '/system' }"
+      :active="false"
+      :title="updateInProgressTitle"
+    >
+      <v-progress-circular
+        indeterminate
+        color="primary"
+        size="18"
+        width="2"
+      />
+      <p class="text-primary ml-2 ubuntu-mono">
+        {{ updateInProgressTitle }}
+      </p>
+    </v-btn>
+
+    <v-btn
+      v-else-if="hasAvailableUpdates"
       class="mr-1"
       color="grey-darken-4"
       variant="flat"
@@ -370,8 +410,8 @@ export default {
       >
         <template #prepend>
           <v-badge
-            :model-value="hasAvailableUpdates"
-            color="warning"
+            :model-value="hasAvailableUpdates || hasUpdateInProgress"
+            :color="hasUpdateInProgress ? 'primary' : 'warning'"
             dot
           >
             <v-icon icon="mdi-server"></v-icon>
@@ -414,6 +454,10 @@ export default {
 </template>
 
 <style scoped lang="scss">
+.update-progress-button {
+  min-width: 190px;
+}
+
 .cpu-entry {
   width: 65px;
   max-width: 65px;
