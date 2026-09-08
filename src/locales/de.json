@@ -1428,6 +1428,7 @@
         "loading_cache": "Cache wird geladen…",
         "loading_variables": "Variablen werden geladen…",
         "loading_web_components": "Web-Komponenten werden geladen…",
+        "loading_integrations": "Lade Integrationen…",
         "starting_ollama": "Ollama wird gestartet…",
         "loading_system_components": "Systemkomponenten werden geladen…",
         "starting_twitch_bot": "Twitch-Bot wird gestartet…",

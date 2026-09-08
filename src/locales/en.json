@@ -1428,6 +1428,7 @@
         "loading_cache": "Loading cache…",
         "loading_variables": "Loading variables…",
         "loading_web_components": "Loading web components…",
+        "loading_integrations": "Loading integrations…",
         "starting_ollama": "Starting Ollama…",
         "loading_system_components": "Loading system components…",
         "starting_twitch_bot": "Starting Twitch bot…",
