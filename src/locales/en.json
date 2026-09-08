@@ -6,7 +6,7 @@
       "savingPleaseWait": "Saving, please wait...",
       "updatesAvailable": "Updates available",
       "updateInProgress": "Update in progress...",
-      "updateInProgressManger": "Updating {manager}..."
+      "updateInProgressManager": "Updating {manager}..."
     },
     "actions": {
       "reloadPage": "Reload page",
