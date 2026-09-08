@@ -237,6 +237,10 @@
         "info": "Entfernt Emoji-Zeichen aus einem Text und speichert das bereinigte Ergebnis in einer Makro-Variable.",
         "contentHint": "Unterstützt Makro-Variablen, zum Beispiel ${ollama_response}.",
         "variableHint": "Der bereinigte Text wird in dieser Variable gespeichert."
+      },
+      "dumpVariables": {
+        "title": "Variablen dumpen",
+        "info": "Speichert alle aktuellen Makro-Variablen formatiert als dumped_variables.json im Asset-Medien-Root, damit die Datei einfach heruntergeladen werden kann. Eine vorhandene Datei wird überschrieben."
       }
     },
     "music": {
@@ -885,7 +889,8 @@
         "keyboard": "Tastatur",
         "theme": {
           "title": "Theme"
-        }
+        },
+        "dumpVariables": "Variablen dumpen"
       },
       "parallel": "Parallele Tasks",
       "theme": {
@@ -1054,16 +1059,16 @@
         "removeCaseInput": "Case-Eingabe entfernen"
       },
       "ollamaChat": {
-        "title": "Chat-Prompt",
-        "description": "Sendet einen einmaligen Prompt an das konfigurierte Ollama-Modell. Die Unterhaltung wird nach Abschluss der Aufgabe nicht beibehalten.",
-        "messages": "Nachrichten",
-        "addMessage": "Nachricht hinzufügen",
+        "title": "AI Chatbot",
+        "description": "Sendet die konfigurierte Nachrichtenfolge an das aktuell ausgewählte AI-Chatbot-Backend und speichert die Antwort des Assistenten in einer Makro-Variable. Funktioniert mit lokal verwaltetem Ollama, externem Ollama und OpenAI-kompatiblen APIs.",
+        "messages": "Chat-Nachrichten",
+        "addMessage": "Chat-Nachricht hinzufügen",
         "role": "Rolle",
         "content": "Inhalt",
-        "resultVariable": "Ergebnisvariable",
-        "resultVariableHint": "Der Antworttext des Assistenten wird in dieser Makro-Variable gespeichert.",
+        "resultVariable": "Antwortvariable",
+        "resultVariableHint": "Der Antworttext des AI Chatbots wird in dieser Makro-Variable gespeichert.",
         "timeout": "Zeitüberschreitung (ms)",
-        "timeoutHint": "0 deaktiviert die Zeitüberschreitung der Anfrage.",
+        "timeoutHint": "0 deaktiviert die Zeitüberschreitung der Chatbot-Anfrage.",
         "roles": {
           "system": "System",
           "user": "Benutzer",
@@ -1071,14 +1076,16 @@
           "tool": "Werkzeug"
         },
         "roleDescriptions": {
-          "system": "Legt Verhalten, Persönlichkeit, Regeln und allgemeine Anweisungen für den Chatbot fest.",
-          "user": "Eine Nachricht oder Frage, die an den Chatbot gesendet wird.",
-          "assistant": "Eine vorherige Antwort des Assistenten. Nützlich für Beispiele oder zusätzlichen Gesprächskontext.",
-          "tool": "Ein Tool-Ergebnis, das dem Modell als zusätzlicher Kontext bereitgestellt wird."
+          "system": "Legt Verhalten, Persönlichkeit, Regeln und allgemeine Anweisungen für den AI Chatbot fest.",
+          "user": "Eine Nachricht oder Frage, die an den AI Chatbot gesendet wird.",
+          "assistant": "Eine vorherige Antwort des AI Chatbots. Nützlich für Beispiele oder zusätzlichen Gesprächskontext.",
+          "tool": "Ein Tool-Ergebnis, das dem Chatbot-Modell als zusätzlicher Kontext bereitgestellt wird."
         },
-        "stripEmojis": "Emojis aus Ausgabe entfernen",
-        "stripEmojisHint": "Entfernt automatisch Emojis aus der Assistenten-Antwort, bevor sie gespeichert oder zurückgegeben wird.",
-        "deleteMessage": "Nachricht löschen"
+        "stripEmojis": "Emojis aus Chatbot-Antwort entfernen",
+        "stripEmojisHint": "Entfernt automatisch Emojis aus der Antwort des AI Chatbots, bevor sie gespeichert oder zurückgegeben wird.",
+        "deleteMessage": "Nachricht löschen",
+        "contextSize": "Kontextgröße",
+        "contextSizeHint": "0 verwendet den Standard des Anbieters/Modells. Bei Ollama wird options.num_ctx gesetzt. OpenAI-kompatible APIs verwalten das Kontextfenster serverseitig."
       },
       "variableLocalSet": {
         "title": "Lokale Variable setzen",
@@ -1698,7 +1705,8 @@
     "noAssetsFound": "Keine Medien gefunden!",
     "deleteCompressed": "Komprimierte Datei löschen",
     "deleteCompressedConfirmTitle": "Komprimierte Datei löschen?",
-    "deleteCompressedConfirmText": "Möchtest du die komprimierte Version dieser Datei wirklich löschen?"
+    "deleteCompressedConfirmText": "Möchtest du die komprimierte Version dieser Datei wirklich löschen?",
+    "download": "Herunterladen"
   },
   "assets": {
     "title": "Assets",
@@ -1954,27 +1962,44 @@
         "running": "Läuft",
         "installing": "Ollama wird installiert...",
         "changingModel": "Modell wird gewechselt. Vorhandene Modelle werden entfernt und das neue Modell wird heruntergeladen...",
-        "model": "Modell",
+        "model": "Chatbot-Modell",
         "changeModel": "Modell wechseln",
-        "currentModel": "Aktuelles Modell",
+        "currentModel": "Aktives Chatbot-Modell",
         "restart": "Ollama neu starten",
-        "descriptionTitle": "Lokaler Chatbot",
-        "description": "Ollama stellt das lokale KI-Modell bereit, das Streambot für Chatbot-Funktionen verwendet. Die Modelle laufen direkt auf diesem System.",
+        "descriptionTitle": "AI Chatbot",
+        "description": "Konfiguriert das Backend des AI Chatbots. Nutze die von Streambot verwaltete lokale Ollama-Instanz, verbinde einen externen Ollama-Server oder verwende eine OpenAI-kompatible API.",
         "modelWarning": "Wähle ein ausreichend kleines Modell. Große Modelle können viel Arbeitsspeicher und CPU-/GPU-Leistung belegen und dadurch den restlichen Betrieb des Systems beeinträchtigen.",
         "modelHint": "Beliebigen Ollama-Modellnamen eingeben oder eine der getesteten Empfehlungen wählen.",
         "installingShort": "Wird installiert",
         "external": {
-          "title": "Externer Ollama-Server",
-          "active": "External",
-          "description": "Use an Ollama-compatible server instead of starting Ollama locally. Streambot sends requests directly to this server.",
-          "useExternal": "Externen Ollama-Server verwenden",
-          "url": "Server-URL",
-          "urlPlaceholder": "https://ollama.example.com",
-          "urlRequired": "A server URL is required for external Ollama.",
+          "title": "Externes Chatbot-Backend",
+          "active": "Externes Backend",
+          "description": "Betreibe den AI Chatbot über einen externen Ollama-Server oder eine OpenAI-kompatible API anstelle der lokal verwalteten Ollama-Instanz.",
+          "provider": "Anbietertyp",
+          "url": "API-URL",
+          "urlRequired": "Für ein externes Chatbot-Backend ist eine API-URL erforderlich.",
+          "ollamaUrlPlaceholder": "https://ollama.example.com",
+          "openaiUrlPlaceholder": "https://api.example.com/v1",
+          "openaiHint": "Für OpenAI-kompatible Dienste. Streambot lädt Modelle über /v1/models und sendet Chat-Anfragen an /v1/chat/completions.",
           "apiKey": "API-Schlüssel",
-          "apiKeyConfigured": "API key already configured",
-          "apiKeySaved": "API key saved",
-          "clearApiKey": "API-Schlüssel löschen"
+          "apiKeyConfigured": "API-Schlüssel ist bereits konfiguriert",
+          "apiKeySaved": "API-Schlüssel gespeichert",
+          "clearApiKey": "API-Schlüssel löschen",
+          "connect": "Speichern & verbinden",
+          "modelHint": "Verfügbare Chatbot-Modelle werden vom ausgewählten Anbieter geladen. Ein Modellname kann auch manuell eingegeben werden.",
+          "useModel": "Chatbot-Modell verwenden"
+        },
+        "title": "AI Chatbot",
+        "internalDescription": "Streambot installiert und verwaltet Ollama lokal, hält genau ein Chatbot-Modell installiert und lädt das ausgewählte Modell für schnelle Antworten vor.",
+        "mode": "Chatbot-Backend",
+        "modes": {
+          "internal": "Verwaltetes lokales Ollama",
+          "external": "Externer Anbieter"
+        },
+        "providers": {
+          "internal": "Verwaltetes lokales Ollama",
+          "ollama": "Externes Ollama",
+          "openai": "OpenAI-kompatible API"
         }
       }
     }

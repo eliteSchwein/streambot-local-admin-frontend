@@ -64,6 +64,14 @@
           />
 
           <v-list-item
+            v-if="entry.type === 'file'"
+            prepend-icon="mdi-download"
+            :title="downloadLabel"
+            :disabled="disabled"
+            @click="$emit('download', entry)"
+          />
+
+          <v-list-item
             prepend-icon="mdi-folder-move"
             :title="moveLabel"
             :disabled="disabled"
@@ -152,6 +160,10 @@ export default {
       type: String,
       default: 'Compress',
     },
+    downloadLabel: {
+      type: String,
+      default: 'Download',
+    },
     moveLabel: {
       type: String,
       default: 'Move',
@@ -174,6 +186,7 @@ export default {
     'move',
     'delete-compressed',
     'delete',
+    'download',
   ],
 
   computed: {

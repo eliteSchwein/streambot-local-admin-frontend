@@ -33,6 +33,7 @@
     :copy-label="$t('common.copyUrl')"
     :compress-label="$t('media.compress')"
     :move-label="$t('media.move')"
+    :download-label="$t('media.download')"
     :delete-compressed-label="$t('media.deleteCompressed')"
     :delete-label="$t('media.delete')"
     :cancel-label="$t('common.cancel')"

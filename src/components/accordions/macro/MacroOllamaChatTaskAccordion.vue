@@ -129,6 +129,20 @@
         />
       </v-col>
 
+      <v-col cols="12" md="6">
+        <v-text-field
+          v-model.number="task.data.context_size"
+          type="number"
+          min="0"
+          step="1024"
+          :label="$t('macro.core.ollamaChat.contextSize')"
+          :hint="$t('macro.core.ollamaChat.contextSizeHint')"
+          persistent-hint
+          density="comfortable"
+          variant="outlined"
+        />
+      </v-col>
+
       <v-col cols="12">
         <v-switch
           v-model="task.data.strip_emojis"
@@ -214,6 +228,7 @@ export default {
 
     this.task.data.result_variable ??= 'ollama_response'
     this.task.data.timeout ??= 0
+    this.task.data.context_size ??= 0
     this.task.data.strip_emojis ??= false
   },
 

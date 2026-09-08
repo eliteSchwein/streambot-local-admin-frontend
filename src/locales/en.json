@@ -237,6 +237,10 @@
         "info": "Removes emoji characters from text and stores the cleaned result in a macro variable.",
         "contentHint": "Supports macro variables, for example ${ollama_response}.",
         "variableHint": "The cleaned text is stored in this variable."
+      },
+      "dumpVariables": {
+        "title": "Dump variables",
+        "info": "Saves all current macro variables as pretty-printed JSON to dumped_variables.json in the asset media root so it can be downloaded easily. An existing file is overwritten."
       }
     },
     "music": {
@@ -885,7 +889,8 @@
         "keyboard": "Keyboard",
         "theme": {
           "title": "Theme"
-        }
+        },
+        "dumpVariables": "Dump variables"
       },
       "parallel": "Parallel tasks",
       "theme": {
@@ -1054,16 +1059,16 @@
         "removeCaseInput": "Remove case input"
       },
       "ollamaChat": {
-        "title": "Chat prompt",
-        "description": "Sends a one-time prompt to the configured Ollama model. The conversation is not retained after the task finishes.",
-        "messages": "Messages",
-        "addMessage": "Add message",
+        "title": "AI Chatbot",
+        "description": "Sends the configured message sequence to the currently selected AI Chatbot backend and stores the assistant response in a macro variable. Works with managed local Ollama, external Ollama, and OpenAI-compatible APIs.",
+        "messages": "Chat messages",
+        "addMessage": "Add chat message",
         "role": "Role",
         "content": "Content",
-        "resultVariable": "Result variable",
-        "resultVariableHint": "The assistant response text is stored in this macro variable.",
+        "resultVariable": "Response variable",
+        "resultVariableHint": "The AI Chatbot response text is stored in this macro variable.",
         "timeout": "Timeout (ms)",
-        "timeoutHint": "0 disables the request timeout.",
+        "timeoutHint": "0 disables the chatbot request timeout.",
         "roles": {
           "system": "System",
           "user": "User",
@@ -1071,14 +1076,16 @@
           "tool": "Tool"
         },
         "roleDescriptions": {
-          "system": "Defines the chatbot's behavior, personality, rules, and general instructions.",
-          "user": "A message or question sent to the chatbot.",
-          "assistant": "A previous assistant response. Useful for examples or additional conversation context.",
-          "tool": "A tool result supplied to the model as additional context."
+          "system": "Defines the AI Chatbot's behavior, personality, rules, and general instructions.",
+          "user": "A message or question sent to the AI Chatbot.",
+          "assistant": "A previous AI Chatbot response. Useful for examples or additional conversation context.",
+          "tool": "A tool result supplied to the chatbot model as additional context."
         },
-        "stripEmojis": "Strip emojis from output",
-        "stripEmojisHint": "Automatically removes emojis from the assistant response before it is stored or returned.",
-        "deleteMessage": "Delete message"
+        "stripEmojis": "Strip emojis from chatbot response",
+        "stripEmojisHint": "Automatically removes emojis from the AI Chatbot response before it is stored or returned.",
+        "deleteMessage": "Delete message",
+        "contextSize": "Context size",
+        "contextSizeHint": "0 uses the provider/model default. For Ollama, this sets options.num_ctx. OpenAI-compatible APIs control the context window server-side."
       },
       "variableLocalSet": {
         "title": "Set local variable",
@@ -1698,7 +1705,8 @@
     "noAssetsFound": "No media found!",
     "deleteCompressed": "Delete compressed",
     "deleteCompressedConfirmTitle": "Delete compressed file?",
-    "deleteCompressedConfirmText": "Do you really want to delete the compressed version of this file?"
+    "deleteCompressedConfirmText": "Do you really want to delete the compressed version of this file?",
+    "download": "Download"
   },
   "assets": {
     "title": "Assets",
@@ -1954,27 +1962,44 @@
         "running": "Running",
         "installing": "Installing Ollama...",
         "changingModel": "Changing model. Existing models are being removed and the new model is being downloaded...",
-        "model": "Model",
+        "model": "Chatbot model",
         "changeModel": "Change model",
-        "currentModel": "Current model",
+        "currentModel": "Active chatbot model",
         "restart": "Restart Ollama",
-        "descriptionTitle": "Local chatbot",
-        "description": "Ollama provides the local AI model used by Streambot for chatbot features. Models run directly on this system.",
+        "descriptionTitle": "AI Chatbot",
+        "description": "Configure the AI Chatbot backend. Use Streambot's managed local Ollama instance, connect to an external Ollama server, or use an OpenAI-compatible API.",
         "modelWarning": "Choose a reasonably small model. Large models can use a lot of memory and CPU/GPU resources and may make the rest of the system less responsive.",
         "modelHint": "Type any Ollama model name or choose one of the tested suggestions.",
         "installingShort": "Installing",
         "external": {
-          "title": "External Ollama server",
-          "active": "External",
-          "description": "Use an Ollama-compatible server instead of starting Ollama locally. Streambot sends requests directly to this server.",
-          "useExternal": "Use external Ollama server",
-          "url": "Server URL",
-          "urlPlaceholder": "https://ollama.example.com",
-          "urlRequired": "A server URL is required for external Ollama.",
+          "title": "External chatbot backend",
+          "active": "External backend",
+          "description": "Run the AI Chatbot through an external Ollama server or an OpenAI-compatible API instead of the locally managed Ollama instance.",
+          "provider": "Provider type",
+          "url": "API URL",
+          "urlRequired": "An API URL is required for an external chatbot backend.",
+          "ollamaUrlPlaceholder": "https://ollama.example.com",
+          "openaiUrlPlaceholder": "https://api.example.com/v1",
+          "openaiHint": "Use this for OpenAI-compatible services. Streambot reads models from /v1/models and sends chat requests to /v1/chat/completions.",
           "apiKey": "API key",
           "apiKeyConfigured": "API key already configured",
           "apiKeySaved": "API key saved",
-          "clearApiKey": "Clear API key"
+          "clearApiKey": "Clear API key",
+          "connect": "Save & connect",
+          "modelHint": "Available chatbot models are loaded from the selected provider. You can also enter a model name manually.",
+          "useModel": "Use chatbot model"
+        },
+        "title": "AI Chatbot",
+        "internalDescription": "Streambot installs and manages Ollama locally, keeps exactly one chatbot model installed, and preloads the selected model for fast responses.",
+        "mode": "Chatbot backend",
+        "modes": {
+          "internal": "Managed local Ollama",
+          "external": "External provider"
+        },
+        "providers": {
+          "internal": "Managed local Ollama",
+          "ollama": "External Ollama",
+          "openai": "OpenAI-compatible API"
         }
       }
     }

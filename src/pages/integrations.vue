@@ -505,7 +505,7 @@
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
                 <v-icon icon="mdi-robot-outline" />
-                <span>Ollama</span>
+                <span>{{ $t('integrations.ui.ollama.title') }}</span>
               </div>
 
               <v-switch
@@ -531,33 +531,36 @@
 
                 <v-chip
                   size="x-small"
-                  :color="(loading.ollamaToggle || ollamaStatus.installing) ? 'info' : (ollamaStatus.installed ? 'success' : 'grey')"
+                  :color="ollamaStatus.running ? 'success' : 'grey'"
                   variant="tonal"
                 >
-                  <v-progress-circular
-                    v-if="loading.ollamaToggle || ollamaStatus.installing"
-                    indeterminate
-                    size="12"
-                    width="2"
-                    class="mr-1"
-                  />
-                  {{
-                    (loading.ollamaToggle || ollamaStatus.installing)
-                      ? $t('integrations.ui.ollama.installingShort')
-                      : (ollamaStatus.installed
-                        ? $t('integrations.ui.ollama.installed')
-                        : $t('integrations.ui.ollama.notInstalled'))
-                  }}
+                  {{ ollamaStatus.running ? $t('integrations.ui.status.connected') : $t('integrations.ui.status.offline') }}
                 </v-chip>
 
                 <v-chip
                   size="x-small"
-                  :color="ollamaStatus.running ? 'success' : 'grey'"
+                  color="info"
                   variant="tonal"
                 >
-                  {{ ollamaStatus.running ? $t('integrations.ui.ollama.running') : $t('integrations.ui.status.offline') }}
+                  {{
+                    ollamaStatus.external
+                      ? (ollamaStatus.external_provider === 'openai'
+                        ? $t('integrations.ui.ollama.providers.openai')
+                        : $t('integrations.ui.ollama.providers.ollama'))
+                      : $t('integrations.ui.ollama.providers.internal')
+                  }}
                 </v-chip>
               </div>
+
+              <v-alert
+                v-if="ollamaStatus.error"
+                type="error"
+                variant="tonal"
+                density="compact"
+                class="mb-4"
+              >
+                {{ ollamaStatus.error }}
+              </v-alert>
 
               <v-alert
                 type="info"
@@ -572,89 +575,275 @@
                 <div>
                   {{ $t('integrations.ui.ollama.description') }}
                 </div>
-                <div class="mt-2 text-medium-emphasis">
-                  {{ $t('integrations.ui.ollama.modelWarning') }}
+              </v-alert>
+
+              <div class="text-caption text-medium-emphasis mb-2">
+                {{ $t('integrations.ui.ollama.mode') }}
+              </div>
+
+              <v-btn-toggle
+                :model-value="ollamaExternalEnabled ? 'external' : 'internal'"
+                mandatory
+                color="primary"
+                variant="outlined"
+                divided
+                class="mb-4"
+                :disabled="reloadInProgress || loading.ollamaExternal"
+                @update:model-value="setAiMode"
+              >
+                <v-btn value="internal" prepend-icon="mdi-chip">
+                  {{ $t('integrations.ui.ollama.modes.internal') }}
+                </v-btn>
+                <v-btn value="external" prepend-icon="mdi-server-network">
+                  {{ $t('integrations.ui.ollama.modes.external') }}
+                </v-btn>
+              </v-btn-toggle>
+
+              <template v-if="!ollamaExternalEnabled">
+                <v-alert
+                  v-if="ollamaStatus.installing"
+                  type="info"
+                  variant="tonal"
+                  density="compact"
+                  class="mb-4"
+                >
+                  {{ $t('integrations.ui.ollama.installing') }}
+                </v-alert>
+
+                <v-alert
+                  v-if="ollamaStatus.changing_model"
+                  type="info"
+                  variant="tonal"
+                  density="compact"
+                  class="mb-4"
+                >
+                  {{ $t('integrations.ui.ollama.changingModel') }}
+                </v-alert>
+
+                <div class="text-body-2 text-medium-emphasis mb-4">
+                  {{ $t('integrations.ui.ollama.internalDescription') }}
                 </div>
-              </v-alert>
 
-              <v-alert
-                v-if="ollamaStatus.installing"
-                type="info"
-                variant="tonal"
-                density="compact"
-                class="mb-4"
-              >
-                {{ $t('integrations.ui.ollama.installing') }}
-              </v-alert>
+                <v-row density="comfortable" class="integration-form">
+                  <v-col cols="12" md="8">
+                    <v-combobox
+                      :model-value="ollamaSelectedModel"
+                      :items="ollamaStatus.models"
+                      :label="$t('integrations.ui.ollama.model')"
+                      :hint="$t('integrations.ui.ollama.modelHint')"
+                      persistent-hint
+                      density="compact"
+                      variant="outlined"
+                      clearable
+                      :disabled="
+                        reloadInProgress
+                        || !ollamaStatus.enabled
+                        || ollamaStatus.installing
+                        || ollamaStatus.changing_model
+                      "
+                      @update:model-value="setOllamaSelectedModel"
+                    />
+                  </v-col>
 
-              <v-alert
-                v-if="ollamaStatus.changing_model"
-                type="info"
-                variant="tonal"
-                density="compact"
-                class="mb-4"
-              >
-                {{ $t('integrations.ui.ollama.changingModel') }}
-              </v-alert>
+                  <v-col cols="12" md="4">
+                    <v-btn
+                      block
+                      class="integration-action-btn"
+                      color="primary"
+                      variant="flat"
+                      prepend-icon="mdi-download"
+                      :loading="loading.ollamaModel || ollamaStatus.changing_model"
+                      :disabled="
+                        reloadInProgress
+                        || !ollamaStatus.enabled
+                        || ollamaStatus.installing
+                        || ollamaStatus.changing_model
+                        || !ollamaSelectedModel
+                        || ollamaSelectedModel === ollamaStatus.model
+                      "
+                      @click="changeOllamaModel"
+                    >
+                      {{ $t('integrations.ui.ollama.changeModel') }}
+                    </v-btn>
+                  </v-col>
+                </v-row>
 
-              <v-alert
-                v-if="ollamaStatus.error"
-                type="error"
-                variant="tonal"
-                density="compact"
-                class="mb-4"
-              >
-                {{ ollamaStatus.error }}
-              </v-alert>
+                <v-divider class="my-4" />
 
-              <v-row density="comfortable" class="integration-form">
-                <v-col cols="12" md="8">
-                  <v-combobox
-                    :model-value="ollamaSelectedModel"
-                    :items="ollamaStatus.models"
-                    :label="$t('integrations.ui.ollama.model')"
-                    :hint="$t('integrations.ui.ollama.modelHint')"
-                    persistent-hint
-                    density="compact"
-                    variant="outlined"
-                    clearable
-                    :disabled="
-                      reloadInProgress
-                      || !ollamaStatus.enabled
-                      || ollamaStatus.installing
-                      || ollamaStatus.changing_model
-                    "
-                    @update:model-value="setOllamaSelectedModel"
-                  />
-                </v-col>
+                <div class="d-flex align-center justify-space-between ga-3 flex-wrap">
+                  <div>
+                    <div class="text-body-2">
+                      {{ $t('integrations.ui.ollama.currentModel') }}
+                    </div>
+                    <div class="text-medium-emphasis text-caption">
+                      {{ ollamaStatus.model || $t('integrations.ui.status.none') }}
+                    </div>
+                  </div>
 
-                <v-col cols="12" md="4">
                   <v-btn
-                    block
-                    class="integration-action-btn"
-                    color="primary"
-                    variant="flat"
-                    prepend-icon="mdi-download"
-                    :loading="loading.ollamaModel || ollamaStatus.changing_model"
+                    color="secondary"
+                    variant="tonal"
+                    prepend-icon="mdi-restart"
+                    :loading="loading.ollamaRestart"
                     :disabled="
                       reloadInProgress
                       || !ollamaStatus.enabled
+                      || !ollamaStatus.installed
                       || ollamaStatus.installing
                       || ollamaStatus.changing_model
-                      || !ollamaSelectedModel
-                      || ollamaSelectedModel === ollamaStatus.model
                     "
-                    @click="changeOllamaModel"
+                    @click="restartOllama"
                   >
-                    {{ $t('integrations.ui.ollama.changeModel') }}
+                    {{ $t('integrations.ui.ollama.restart') }}
                   </v-btn>
-                </v-col>
-              </v-row>
+                </div>
+              </template>
 
-              <v-divider class="my-4" />
+              <template v-else>
+                <div class="text-body-2 text-medium-emphasis mb-4">
+                  {{ $t('integrations.ui.ollama.external.description') }}
+                </div>
 
-              <div class="d-flex align-center justify-space-between ga-3 flex-wrap">
-                <div>
+                <div class="text-caption text-medium-emphasis mb-2">
+                  {{ $t('integrations.ui.ollama.external.provider') }}
+                </div>
+
+                <v-btn-toggle
+                  :model-value="ollamaExternalProvider"
+                  mandatory
+                  color="primary"
+                  variant="outlined"
+                  divided
+                  class="mb-4"
+                  :disabled="reloadInProgress || loading.ollamaExternal"
+                  @update:model-value="setOllamaExternalProvider"
+                >
+                  <v-btn value="ollama">
+                    {{ $t('integrations.ui.ollama.providers.ollama') }}
+                  </v-btn>
+                  <v-btn value="openai">
+                    {{ $t('integrations.ui.ollama.providers.openai') }}
+                  </v-btn>
+                </v-btn-toggle>
+
+                <v-alert
+                  v-if="ollamaExternalProvider === 'openai'"
+                  type="info"
+                  variant="tonal"
+                  density="compact"
+                  class="mb-4"
+                >
+                  {{ $t('integrations.ui.ollama.external.openaiHint') }}
+                </v-alert>
+
+                <v-text-field
+                  :model-value="ollamaExternalUrl"
+                  :label="$t('integrations.ui.ollama.external.url')"
+                  :placeholder="
+                    ollamaExternalProvider === 'openai'
+                      ? $t('integrations.ui.ollama.external.openaiUrlPlaceholder')
+                      : $t('integrations.ui.ollama.external.ollamaUrlPlaceholder')
+                  "
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  :disabled="reloadInProgress || loading.ollamaExternal"
+                  @update:model-value="setOllamaExternalUrl"
+                />
+
+                <v-text-field
+                  v-model="ollamaExternalApiKey"
+                  class="mt-4"
+                  :label="$t('integrations.ui.ollama.external.apiKey')"
+                  :placeholder="ollamaExternalHasApiKey ? $t('integrations.ui.ollama.external.apiKeyConfigured') : ''"
+                  type="password"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  autocomplete="new-password"
+                  :disabled="reloadInProgress || loading.ollamaExternal"
+                />
+
+                <div
+                  v-if="ollamaExternalHasApiKey"
+                  class="d-flex align-center ga-2 mt-2"
+                >
+                  <v-chip size="x-small" color="success" variant="tonal">
+                    {{ $t('integrations.ui.ollama.external.apiKeySaved') }}
+                  </v-chip>
+                  <v-btn
+                    size="small"
+                    color="error"
+                    variant="text"
+                    :disabled="reloadInProgress || loading.ollamaExternal"
+                    @click="clearOllamaExternalApiKey"
+                  >
+                    {{ $t('integrations.ui.ollama.external.clearApiKey') }}
+                  </v-btn>
+                </div>
+
+                <v-btn
+                  block
+                  class="mt-4"
+                  color="primary"
+                  variant="flat"
+                  prepend-icon="mdi-content-save-outline"
+                  :loading="loading.ollamaExternal"
+                  :disabled="
+                    reloadInProgress
+                    || loading.ollamaExternal
+                    || !ollamaExternalUrl.trim()
+                  "
+                  @click="saveOllamaExternal"
+                >
+                  {{ $t('integrations.ui.ollama.external.connect') }}
+                </v-btn>
+
+                <v-divider class="my-4" />
+
+                <v-row density="comfortable" class="integration-form">
+                  <v-col cols="12" md="8">
+                    <v-combobox
+                      :model-value="ollamaSelectedModel"
+                      :items="ollamaStatus.models"
+                      :label="$t('integrations.ui.ollama.model')"
+                      :hint="$t('integrations.ui.ollama.external.modelHint')"
+                      persistent-hint
+                      density="compact"
+                      variant="outlined"
+                      clearable
+                      :disabled="
+                        reloadInProgress
+                        || !ollamaStatus.enabled
+                        || loading.ollamaExternal
+                        || ollamaStatus.changing_model
+                      "
+                      @update:model-value="setOllamaSelectedModel"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="4">
+                    <v-btn
+                      block
+                      class="integration-action-btn"
+                      color="primary"
+                      variant="flat"
+                      prepend-icon="mdi-check"
+                      :loading="loading.ollamaModel"
+                      :disabled="
+                        reloadInProgress
+                        || !ollamaStatus.enabled
+                        || !ollamaSelectedModel
+                        || ollamaSelectedModel === ollamaStatus.model
+                      "
+                      @click="changeOllamaModel"
+                    >
+                      {{ $t('integrations.ui.ollama.external.useModel') }}
+                    </v-btn>
+                  </v-col>
+                </v-row>
+
+                <div class="mt-2">
                   <div class="text-body-2">
                     {{ $t('integrations.ui.ollama.currentModel') }}
                   </div>
@@ -662,120 +851,7 @@
                     {{ ollamaStatus.model || $t('integrations.ui.status.none') }}
                   </div>
                 </div>
-
-                <v-btn
-                  color="secondary"
-                  variant="tonal"
-                  prepend-icon="mdi-restart"
-                  :loading="loading.ollamaRestart"
-                  :disabled="
-                    reloadInProgress
-                    || !ollamaStatus.enabled
-                    || !ollamaStatus.installed
-                    || ollamaStatus.external
-                    || ollamaStatus.installing
-                    || ollamaStatus.changing_model
-                  "
-                  @click="restartOllama"
-                >
-                  {{ $t('integrations.ui.ollama.restart') }}
-                </v-btn>
-              </div>
-
-              <v-expansion-panels class="mt-4" variant="accordion">
-                <v-expansion-panel>
-                  <v-expansion-panel-title>
-                    <div class="d-flex align-center ga-2">
-                      <v-icon icon="mdi-server-network" />
-                      <span>{{ $t('integrations.ui.ollama.external.title') }}</span>
-                      <v-chip
-                        v-if="ollamaStatus.external"
-                        size="x-small"
-                        color="info"
-                        variant="tonal"
-                      >
-                        {{ $t('integrations.ui.ollama.external.active') }}
-                      </v-chip>
-                    </div>
-                  </v-expansion-panel-title>
-
-                  <v-expansion-panel-text>
-                    <div class="text-body-2 text-medium-emphasis mb-4">
-                      {{ $t('integrations.ui.ollama.external.description') }}
-                    </div>
-
-                    <v-switch
-                      :model-value="ollamaExternalEnabled"
-                      color="primary"
-                      density="compact"
-                      hide-details
-                      :label="$t('integrations.ui.ollama.external.useExternal')"
-                      :disabled="reloadInProgress || loading.ollamaExternal"
-                      @update:model-value="setOllamaExternalEnabled"
-                    />
-
-                    <v-text-field
-                      :model-value="ollamaExternalUrl"
-                      class="mt-4"
-                      :label="$t('integrations.ui.ollama.external.url')"
-                      :placeholder="$t('integrations.ui.ollama.external.urlPlaceholder')"
-                      density="compact"
-                      variant="outlined"
-                      hide-details
-                      :disabled="reloadInProgress || loading.ollamaExternal || !ollamaExternalEnabled"
-                      @update:model-value="setOllamaExternalUrl"
-                    />
-
-                    <v-text-field
-                      v-model="ollamaExternalApiKey"
-                      class="mt-4"
-                      :label="$t('integrations.ui.ollama.external.apiKey')"
-                      :placeholder="ollamaStatus.has_api_key ? $t('integrations.ui.ollama.external.apiKeyConfigured') : ''"
-                      type="password"
-                      density="compact"
-                      variant="outlined"
-                      hide-details
-                      autocomplete="new-password"
-                      :disabled="reloadInProgress || loading.ollamaExternal || !ollamaExternalEnabled"
-                    />
-
-                    <div
-                      v-if="ollamaStatus.has_api_key"
-                      class="d-flex align-center ga-2 mt-2"
-                    >
-                      <v-chip size="x-small" color="success" variant="tonal">
-                        {{ $t('integrations.ui.ollama.external.apiKeySaved') }}
-                      </v-chip>
-                      <v-btn
-                        size="small"
-                        color="error"
-                        variant="text"
-                        :disabled="reloadInProgress || loading.ollamaExternal"
-                        @click="clearOllamaExternalApiKey"
-                      >
-                        {{ $t('integrations.ui.ollama.external.clearApiKey') }}
-                      </v-btn>
-                    </div>
-
-                    <v-btn
-                      block
-                      class="mt-4"
-                      color="primary"
-                      variant="flat"
-                      prepend-icon="mdi-content-save-outline"
-                      :loading="loading.ollamaExternal"
-                      :disabled="
-                        reloadInProgress
-                        || loading.ollamaExternal
-                        || (ollamaExternalEnabled && !ollamaExternalUrl.trim())
-                      "
-                      @click="saveOllamaExternal"
-                    >
-                      {{ $t('common.save') }}
-                    </v-btn>
-                  </v-expansion-panel-text>
-                </v-expansion-panel>
-              </v-expansion-panels>
+              </template>
             </v-card-text>
           </v-card>
         </v-col>
@@ -832,6 +908,7 @@ export default {
 
       ollamaModel: '',
       ollamaExternalEnabledOverride: null as boolean | null,
+      ollamaExternalProviderOverride: null as 'ollama' | 'openai' | null,
       ollamaExternalUrlOverride: null as string | null,
       ollamaExternalApiKey: '',
 
@@ -923,8 +1000,11 @@ export default {
       model: string
       models: string[]
       external: boolean
+      external_provider: 'ollama' | 'openai'
       external_url: string
       has_api_key: boolean
+      external_ollama: { url: string; model: string; has_api_key: boolean }
+      external_openai: { url: string; model: string; has_api_key: boolean }
       error: string
     } {
       const ollama = this.integrations?.ollama ?? {}
@@ -938,8 +1018,19 @@ export default {
         model: String(ollama.model ?? ''),
         models: Array.isArray(ollama.models) ? ollama.models.map(String) : [],
         external: Boolean(ollama.external),
+        external_provider: ollama.external_provider === 'openai' ? 'openai' : 'ollama',
         external_url: String(ollama.external_url ?? ''),
         has_api_key: Boolean(ollama.has_api_key),
+        external_ollama: {
+          url: String(ollama.external_ollama?.url ?? ''),
+          model: String(ollama.external_ollama?.model ?? ''),
+          has_api_key: Boolean(ollama.external_ollama?.has_api_key),
+        },
+        external_openai: {
+          url: String(ollama.external_openai?.url ?? ''),
+          model: String(ollama.external_openai?.model ?? ''),
+          has_api_key: Boolean(ollama.external_openai?.has_api_key),
+        },
         error: String(ollama.error ?? ''),
       }
     },
@@ -948,8 +1039,23 @@ export default {
       return this.ollamaExternalEnabledOverride ?? this.ollamaStatus.external
     },
 
+    ollamaExternalProvider(): 'ollama' | 'openai' {
+      return this.ollamaExternalProviderOverride ?? this.ollamaStatus.external_provider
+    },
+
+    ollamaExternalProviderConfig(): any {
+      return this.ollamaExternalProvider === 'openai'
+        ? this.ollamaStatus.external_openai
+        : this.ollamaStatus.external_ollama
+    },
+
     ollamaExternalUrl(): string {
-      return this.ollamaExternalUrlOverride ?? this.ollamaStatus.external_url
+      return this.ollamaExternalUrlOverride
+        ?? String(this.ollamaExternalProviderConfig?.url ?? '')
+    },
+
+    ollamaExternalHasApiKey(): boolean {
+      return Boolean(this.ollamaExternalProviderConfig?.has_api_key)
     },
 
     ollamaSelectedModel(): string {
@@ -1108,8 +1214,65 @@ export default {
 
     },
 
-    setOllamaExternalEnabled(enabled: boolean | null) {
-      this.ollamaExternalEnabledOverride = Boolean(enabled)
+    async setAiMode(mode: 'internal' | 'external' | null) {
+      const external = mode === 'external'
+      this.ollamaModel = ''
+
+      if (!external) {
+        this.loading.ollamaExternal = true
+
+        try {
+          const sent = await this.sendWebsocket('ollama_external', {
+            external: false,
+            provider: this.ollamaExternalProvider,
+            external_url: this.ollamaExternalUrl.trim(),
+          })
+
+          if (sent) {
+            this.ollamaExternalEnabledOverride = null
+            this.ollamaExternalProviderOverride = null
+            this.ollamaExternalUrlOverride = null
+          }
+        } finally {
+          this.loading.ollamaExternal = false
+        }
+
+        return
+      }
+
+      // If this provider is already configured, switching to external can happen
+      // immediately. Otherwise reveal the external form and let Save & connect
+      // finish the transition once a URL has been entered.
+      if (this.ollamaExternalUrl.trim()) {
+        this.loading.ollamaExternal = true
+
+        try {
+          const sent = await this.sendWebsocket('ollama_external', {
+            external: true,
+            provider: this.ollamaExternalProvider,
+            external_url: this.ollamaExternalUrl.trim(),
+          })
+
+          if (sent) {
+            this.ollamaExternalEnabledOverride = null
+            this.ollamaExternalProviderOverride = null
+            this.ollamaExternalUrlOverride = null
+          }
+        } finally {
+          this.loading.ollamaExternal = false
+        }
+
+        return
+      }
+
+      this.ollamaExternalEnabledOverride = true
+    },
+
+    setOllamaExternalProvider(provider: 'ollama' | 'openai' | null) {
+      this.ollamaExternalProviderOverride = provider === 'openai' ? 'openai' : 'ollama'
+      this.ollamaExternalUrlOverride = null
+      this.ollamaExternalApiKey = ''
+      this.ollamaModel = ''
     },
 
     setOllamaExternalUrl(url: string | null) {
@@ -1130,14 +1293,17 @@ export default {
       try {
         const sent = await this.sendWebsocket('ollama_external', {
           external,
+          provider: this.ollamaExternalProvider,
           external_url: externalUrl,
           api_key: this.ollamaExternalApiKey.trim() || undefined,
         })
 
         if (sent) {
           this.ollamaExternalEnabledOverride = null
+          this.ollamaExternalProviderOverride = null
           this.ollamaExternalUrlOverride = null
           this.ollamaExternalApiKey = ''
+          this.ollamaModel = ''
         }
       } finally {
         this.loading.ollamaExternal = false
@@ -1150,6 +1316,7 @@ export default {
       try {
         const sent = await this.sendWebsocket('ollama_external', {
           external: this.ollamaExternalEnabled,
+          provider: this.ollamaExternalProvider,
           external_url: this.ollamaExternalUrl.trim(),
           clear_api_key: true,
         })
@@ -1157,6 +1324,7 @@ export default {
         if (sent) {
           this.ollamaExternalApiKey = ''
           this.ollamaExternalEnabledOverride = null
+          this.ollamaExternalProviderOverride = null
           this.ollamaExternalUrlOverride = null
         }
       } finally {

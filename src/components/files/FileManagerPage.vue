@@ -126,12 +126,14 @@
             :copy-label="copyLabel"
             :compress-label="compressLabel"
             :move-label="moveLabel"
+            :download-label="downloadLabel"
             :delete-compressed-label="deleteCompressedLabel"
             :delete-label="deleteLabel"
             @open-folder="openFolder"
             @preview="openPreviewDialog"
             @copy="openCopyDialog"
             @compress="compressEntry"
+            @download="downloadEntry"
             @move="openMoveDialog"
             @delete-compressed="openDeleteCompressedDialog"
             @delete="openDeleteDialog"
@@ -527,6 +529,10 @@ export default {
     deleteCompressedLabel: {
       type: String,
       default: 'Delete compressed',
+    },
+    downloadLabel: {
+      type: String,
+      default: 'Download',
     },
     moveLabel: {
       type: String,
@@ -965,6 +971,55 @@ export default {
         this.workingPath = null
         this.workingAction = null
       }
+    },
+
+    async downloadEntry(item: FileEntry | null) {
+      if (!item?.path || item.type !== 'file') return
+
+      const url = this.getPublicFileUrl(item.path)
+
+      try {
+        const response = await fetch(url)
+
+        if (!response.ok) {
+          throw new Error(`download failed with status ${response.status}`)
+        }
+
+        const blob = await response.blob()
+        const objectUrl = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+
+        link.href = objectUrl
+        link.download = item.name || item.path.split('/').pop() || 'download'
+        link.style.display = 'none'
+
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+
+        URL.revokeObjectURL(objectUrl)
+      } catch (error) {
+        console.error('file download failed', error)
+      }
+    },
+
+    getPublicFileUrl(value: string): string {
+      const normalized = this.normalizePath(value)
+      const prefix = this.normalizePath(this.publicPrefix)
+
+      const prefixed = prefix &&
+        normalized !== prefix &&
+        !normalized.startsWith(`${prefix}/`)
+        ? `${prefix}/${normalized}`
+        : normalized || prefix
+
+      const encoded = prefixed
+        .split('/')
+        .filter(Boolean)
+        .map((part: string) => encodeURIComponent(part))
+        .join('/')
+
+      return `${String(this.getRestApi).replace(/\/+$/, '')}/${encoded}`
     },
 
     openCopyDialog(item: FileEntry | null) {

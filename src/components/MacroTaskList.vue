@@ -128,6 +128,8 @@ import MacroVariableLocalSetTaskAccordion from '@/components/accordions/macro/Ma
 import MacroSwitchTaskAccordion from '@/components/accordions/macro/MacroSwitchTaskAccordion.vue'
 import MacroSwitchBreakTaskAccordion from '@/components/accordions/macro/MacroSwitchBreakTaskAccordion.vue'
 import MacroFunctionParallelTaskAccordion from '@/components/accordions/macro/functions/MacroFunctionParallelTaskAccordion.vue'
+import MacroFunctionDumpVariablesTaskAccordion from '@/components/accordions/macro/functions/MacroFunctionDumpVariablesTaskAccordion.vue'
+import MacroFunctionStripEmojisTaskAccordion from '@/components/accordions/macro/functions/MacroFunctionStripEmojisTaskAccordion.vue'
 import {
   MacroObsDisableSourceFilterTaskAccordion,
   MacroObsEnableSourceFilterTaskAccordion,
@@ -260,6 +262,8 @@ export default {
     MacroSwitchTaskAccordion,
     MacroSwitchBreakTaskAccordion,
     MacroFunctionParallelTaskAccordion,
+    MacroFunctionDumpVariablesTaskAccordion,
+    MacroFunctionStripEmojisTaskAccordion,
     MacroWebhookTaskAccordion,
     MacroNeopixelTaskAccordion,
     MacroEffectTaskAccordion,
@@ -596,6 +600,18 @@ export default {
                 data: {
                   content: '',
                   color: 'primary',
+                },
+              }),
+            },
+            {
+              titleKey: 'macro.presets.message.stripEmojis',
+              icon: 'mdi-emoticon-remove-outline',
+              factory: () => this.createTask({
+                channel: 'function',
+                method: 'strip_emojis',
+                data: {
+                  content: '',
+                  key: 'stripped_text',
                 },
               }),
             },
@@ -1220,6 +1236,15 @@ export default {
               factory: () => this.createTask({ channel: '', method: '', data: {} }),
             },
             {
+              titleKey: 'macro.presets.expert.dumpVariables',
+              icon: 'mdi-database-export-outline',
+              factory: () => this.createTask({
+                channel: 'function',
+                method: 'dump_variables',
+                data: {},
+              }),
+            },
+            {
               titleKey: 'macro.presets.expert.keyboard',
               icon: 'mdi-keyboard-outline',
               factory: () => this.createTask({
@@ -1272,6 +1297,8 @@ export default {
       if (item?.type === 'switch' || (item?.task?.channel === 'switch' && item?.task?.method === 'switch')) return 'MacroSwitchTaskAccordion'
       if (item?.task?.channel === 'switch' && item?.task?.method === 'break') return 'MacroSwitchBreakTaskAccordion'
       if (item?.task?.channel === 'function' && item?.task?.method === 'parallel') return 'MacroFunctionParallelTaskAccordion'
+      if (item?.task?.channel === 'function' && item?.task?.method === 'dump_variables') return 'MacroFunctionDumpVariablesTaskAccordion'
+      if (item?.task?.channel === 'function' && item?.task?.method === 'strip_emojis') return 'MacroFunctionStripEmojisTaskAccordion'
 
       if (item?.task?.channel === 'ollama' && item?.task?.method === 'chat') {
         return 'MacroOllamaChatTaskAccordion'
