@@ -160,7 +160,11 @@ import {
   MacroObsUnlockSceneItemTaskAccordion,
   MacroObsUnmuteInputTaskAccordion
 } from '@/components/accordions/macro/obs'
-import MacroTimerTaskAccordion from "@/components/accordions/macro/MacroTimerTaskAccordion.vue";
+import MacroTimerStartTaskAccordion from '@/components/accordions/macro/timer/MacroTimerStartTaskAccordion.vue'
+import MacroTimerAddTimeTaskAccordion from '@/components/accordions/macro/timer/MacroTimerAddTimeTaskAccordion.vue'
+import MacroTimerReduceTimeTaskAccordion from '@/components/accordions/macro/timer/MacroTimerReduceTimeTaskAccordion.vue'
+import MacroTimerPauseTaskAccordion from '@/components/accordions/macro/timer/MacroTimerPauseTaskAccordion.vue'
+import MacroTimerStopTaskAccordion from '@/components/accordions/macro/timer/MacroTimerStopTaskAccordion.vue' 
 import MacroWledCustomTaskAccordion from '@/components/accordions/macro/MacroWledCustomTaskAccordion.vue'
 import MacroWledOffTaskAccordion from '@/components/accordions/macro/MacroWledOffTaskAccordion.vue'
 import MacroAutoMacroStartTaskAccordion from '@/components/accordions/macro/MacroAutoMacroStartTaskAccordion.vue'
@@ -269,7 +273,11 @@ export default {
     MacroChannelPointPauseTaskAccordion,
     MacroChannelPointToggleTaskAccordion,
     MacroKeyboardTaskAccordion,
-    MacroTimerTaskAccordion,
+    MacroTimerStartTaskAccordion,
+    MacroTimerAddTimeTaskAccordion,
+    MacroTimerReduceTimeTaskAccordion,
+    MacroTimerPauseTaskAccordion,
+    MacroTimerStopTaskAccordion,
     MacroWledCustomTaskAccordion,
     MacroWledOffTaskAccordion,
     MacroAutoMacroStartTaskAccordion,
@@ -618,24 +626,24 @@ export default {
           icon: 'mdi-clock-time-eight',
           children: [
             {
-              titleKey: 'macro.presets.time.sleep1s',
+              titleKey: 'macro.presets.time.sleep.title',
               icon: 'mdi-timer-sand',
-              factory: () => this.createTask({ channel: 'function', method: 'sleep', data: { time: 1000 } }),
+              children: [
+                { titleKey: 'macro.presets.time.sleep1s', icon: 'mdi-timer-sand', factory: () => this.createTask({ channel: 'function', method: 'sleep', data: { time: 1000 } }) },
+                { titleKey: 'macro.presets.time.sleep1min', icon: 'mdi-timer-sand', factory: () => this.createTask({ channel: 'function', method: 'sleep', data: { time: 60000 } }) },
+                { titleKey: 'macro.presets.time.sleep5min', icon: 'mdi-timer-sand', factory: () => this.createTask({ channel: 'function', method: 'sleep', data: { time: 300000 } }) },
+              ],
             },
             {
-              titleKey: 'macro.presets.time.sleep1min',
-              icon: 'mdi-timer-sand',
-              factory: () => this.createTask({ channel: 'function', method: 'sleep', data: { time: 60000 } }),
-            },
-            {
-              titleKey: 'macro.presets.time.sleep5min',
-              icon: 'mdi-timer-sand',
-              factory: () => this.createTask({ channel: 'function', method: 'sleep', data: { time: 300000 } }),
-            },
-            {
-              titleKey: 'macro.presets.time.timer',
-              icon: 'mdi-timer-play',
-              factory: () => this.createTask({ channel: 'timer', method: '', data: { } }),
+              titleKey: 'macro.presets.time.timer.title',
+              icon: 'mdi-timer-outline',
+              children: [
+                { titleKey: 'macro.final.timer.actions.start', icon: 'mdi-timer-play', factory: () => this.createTask({ channel: 'timer', method: 'start', data: { time: 10, unit: 'seconds', end: 'blink' } }) },
+                { titleKey: 'macro.final.timer.actions.addTime', icon: 'mdi-timer-plus-outline', factory: () => this.createTask({ channel: 'timer', method: 'add_time', data: { time: 1, unit: 'seconds' } }) },
+                { titleKey: 'macro.final.timer.actions.reduceTime', icon: 'mdi-timer-minus-outline', factory: () => this.createTask({ channel: 'timer', method: 'reduce_time', data: { time: 1, unit: 'seconds' } }) },
+                { titleKey: 'macro.final.timer.actions.pause', icon: 'mdi-pause-circle-outline', factory: () => this.createTask({ channel: 'timer', method: 'pause', data: {} }) },
+                { titleKey: 'macro.final.timer.actions.stop', icon: 'mdi-stop-circle-outline', factory: () => this.createTask({ channel: 'timer', method: 'stop', data: {} }) },
+              ],
             },
           ]
         },
@@ -1270,7 +1278,11 @@ export default {
       }
 
       if (item?.task?.channel === 'timer') {
-        return 'MacroTimerTaskAccordion'
+        if (item?.task?.method === 'add_time') return 'MacroTimerAddTimeTaskAccordion'
+        if (item?.task?.method === 'reduce_time') return 'MacroTimerReduceTimeTaskAccordion'
+        if (item?.task?.method === 'pause') return 'MacroTimerPauseTaskAccordion'
+        if (item?.task?.method === 'stop') return 'MacroTimerStopTaskAccordion'
+        return 'MacroTimerStartTaskAccordion'
       }
 
       if (item?.task?.channel === 'variable' && item?.task?.method === 'get') {

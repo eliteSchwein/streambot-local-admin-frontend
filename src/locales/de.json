@@ -683,7 +683,12 @@
         "sleep1s": "1s pausieren",
         "sleep1min": "1min pausieren",
         "sleep5min": "5min pausieren",
-        "timer": "Timer"
+        "timer": {
+          "title": "Timer"
+        },
+        "sleep": {
+          "title": "Pause"
+        }
       },
       "random": "Zufall",
       "fileReadAssetFolder": "Datei: Asset-Ordner lesen",
@@ -1154,7 +1159,16 @@
         "finishedMacro": "Abschluss-Makro",
         "optionalMacroThatRunsWhenTheTimerReaches0": "Optionales Makro, das ausgeführt wird, wenn der Timer 0 erreicht",
         "blink": "Blinken",
-        "fade": "Ausblenden"
+        "fade": "Ausblenden",
+        "title": "Timer: {action} — {name}",
+        "action": "Aktion",
+        "actions": {
+          "start": "Timer starten",
+          "addTime": "Zeit hinzufügen",
+          "reduceTime": "Zeit reduzieren",
+          "pause": "Timer pausieren",
+          "stop": "Timer stoppen"
+        }
       },
       "variableGet": {
         "variableKey": "Variablenschlüssel"

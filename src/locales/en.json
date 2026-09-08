@@ -683,7 +683,12 @@
         "sleep1s": "Sleep 1s",
         "sleep1min": "Sleep 1min",
         "sleep5min": "Sleep 5min",
-        "timer": "Timer"
+        "timer": {
+          "title": "Timer"
+        },
+        "sleep": {
+          "title": "Sleep"
+        }
       },
       "random": "Random",
       "fileReadAssetFolder": "File: read asset folder",
@@ -1154,7 +1159,16 @@
         "finishedMacro": "Finished macro",
         "optionalMacroThatRunsWhenTheTimerReaches0": "Optional macro that runs when the timer reaches 0",
         "blink": "Blink",
-        "fade": "Fade"
+        "fade": "Fade",
+        "title": "Timer: {action} — {name}",
+        "action": "Action",
+        "actions": {
+          "start": "Start timer",
+          "addTime": "Add time",
+          "reduceTime": "Reduce time",
+          "pause": "Pause timer",
+          "stop": "Stop timer"
+        }
       },
       "variableGet": {
         "variableKey": "Variable key"
