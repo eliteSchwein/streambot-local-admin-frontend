@@ -1481,8 +1481,14 @@
       "selectPreset": "Select preset",
       "createPreset": "Create preset",
       "deleteConfirmTitle": "Delete preset",
-      "deleteConfirmText": "Do you really want to delete this preset?"
-    }
+      "deleteConfirmText": "Do you really want to delete this preset?",
+      "interfaces": "Audio interfaces",
+      "physicalOutputs": "Physical outputs",
+      "selectPhysicalOutputs": "Select physical outputs",
+      "previewOnlyHint": "Volume and mute changes here only change the value saved in the preset. Live audio output is not changed."
+    },
+    "interface": "Audio interface",
+    "physicalOutputs": "Physical outputs"
   },
   "gameScene": {
     "saveScene": "Save Scene",

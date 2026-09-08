@@ -1481,8 +1481,14 @@
       "selectPreset": "Preset auswählen",
       "createPreset": "Preset erstellen",
       "deleteConfirmTitle": "Preset löschen",
-      "deleteConfirmText": "Möchtest du dieses Preset wirklich löschen?"
-    }
+      "deleteConfirmText": "Möchtest du dieses Preset wirklich löschen?",
+      "interfaces": "Audio-Schnittstellen",
+      "physicalOutputs": "Physische Ausgänge",
+      "selectPhysicalOutputs": "Physische Ausgänge auswählen",
+      "previewOnlyHint": "Lautstärke und Stummschaltung hier ändern nur den gespeicherten Preset-Wert. Die laufende Audioausgabe wird nicht verändert."
+    },
+    "interface": "Audio-Schnittstelle",
+    "physicalOutputs": "Physische Ausgänge"
   },
   "gameScene": {
     "saveScene": "Szene speichern",

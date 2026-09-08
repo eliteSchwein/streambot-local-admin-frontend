@@ -74,8 +74,8 @@
               <tr v-for="(device, key) in getAudioData" :key="key">
                 <td class="audio-name-column">
                   <div class="font-weight-medium">{{ key }}</div>
-                  <div v-if="isPipewireSink(device)" class="text-caption text-medium-emphasis">
-                    {{ $t('audio.sink') }}: {{ device.sink_name || `streambot_${key}` }}
+                  <div class="text-caption text-medium-emphasis">
+                    {{ formatPercent(getVolumeValue(String(key), device)) }}
                   </div>
                 </td>
 
@@ -163,7 +163,7 @@
                     <span>{{ outputLabel(output) }}</span>
                   </div>
                   <div class="text-caption text-medium-emphasis">
-                    {{ outputNumberLabel(output) }}
+                    {{ formatPercent(getOutputVolumeValue(output)) }} | {{ outputNumberLabel(output) }}
                   </div>
                 </td>
 
@@ -176,7 +176,7 @@
                       variant="text"
                       icon="mdi-volume-variant-off"
                       color="red"
-                      @click="setOutputVolume(output, getOutputFallbackVolume(output))"
+                      @click="setOutputMute(output, false)"
                     />
                     <v-btn
                       v-else
@@ -184,7 +184,7 @@
                       elevation="0"
                       variant="text"
                       icon="mdi-volume-source"
-                      @click="setOutputVolume(output, 0)"
+                      @click="setOutputMute(output, true)"
                     />
 
                     <v-btn
@@ -313,7 +313,7 @@ export default {
       presetName: '',
       presetSaveAllVolumes: true,
       presetVolumeTracks: [] as string[],
-      presetSaveAllMappings: false,
+      presetSaveAllMappings: true,
       presetMappings: {} as Record<string, string[]>,
     }
   },
@@ -389,17 +389,24 @@ export default {
       this.presetName = ''
       this.presetSaveAllVolumes = true
       this.presetVolumeTracks = []
-      this.presetSaveAllMappings = false
+      this.presetSaveAllMappings = true
       this.presetMappings = {}
       this.presetDialogOpen = true
     },
 
-    savePreset() {
+    savePreset(draft: any = {}) {
       const name = this.presetName.trim()
 
-      if (!name || !this.hasPresetSelection) return
+      const draftPhysicalOutputNames = Array.isArray(draft?.physical_output_names)
+        ? draft.physical_output_names
+        : []
 
-      const includeVolumes = this.presetSaveAllVolumes || this.presetVolumeTracks.length > 0
+      if (!name) return
+
+      const includeVolumes =
+        this.presetSaveAllVolumes ||
+        this.presetVolumeTracks.length > 0 ||
+        draftPhysicalOutputNames.length > 0
       const selectedMappingInterfaces = Object.keys(this.presetMappings ?? {})
         .filter((key) => Array.isArray(this.presetMappings[key]) && this.presetMappings[key].length > 0)
 
@@ -412,6 +419,9 @@ export default {
         volume_interfaces: this.presetSaveAllVolumes ? [] : this.presetVolumeTracks,
         output_interfaces: this.presetSaveAllMappings ? [] : selectedMappingInterfaces,
         output_mappings: this.presetSaveAllMappings ? null : this.presetMappings,
+        volume_states: draft?.volume_states ?? null,
+        physical_output_names: draftPhysicalOutputNames,
+        physical_output_states: draft?.physical_output_states ?? null,
       })
 
       this.presetDialogOpen = false
@@ -466,6 +476,12 @@ export default {
       return parts.join(' · ')
     },
 
+    clearSelectedPreset() {
+      if (this.selectedPreset) {
+        this.selectedPreset = ''
+      }
+    },
+
     sendWebsocket(method: string, params: Record<string, any> = {}) {
       const client = getWebsocketClient()
 
@@ -475,6 +491,14 @@ export default {
       }
 
       client.send(method, params)
+    },
+
+    formatPercent(volume: number): string {
+      const safeVolume = Number.isFinite(Number(volume))
+        ? Math.max(0, Number(volume))
+        : 0
+
+      return `${Math.round(safeVolume * 100)}%`
     },
 
     clampVolume(volume: number, audioData: any): number {
@@ -499,6 +523,7 @@ export default {
     },
 
     stepVolume(audioInterface: string, audioData: any, direction: number) {
+      this.clearSelectedPreset()
       const current = this.getVolumeValue(audioInterface, audioData)
       const next = this.clampVolume(current + (this.getVolumeStep(audioData) * direction), audioData)
 
@@ -507,6 +532,7 @@ export default {
     },
 
     queueVolume(audioInterface: string, volume: number) {
+      this.clearSelectedPreset()
       this.volumeDrafts[audioInterface] = volume
 
       if (this.volumeDebounceTimers[audioInterface]) {
@@ -533,6 +559,7 @@ export default {
     },
 
     setVolume(audioInterface: string, volume: number) {
+      this.clearSelectedPreset()
       this.sendWebsocket('set_volume', { interface: audioInterface, volume })
     },
 
@@ -593,6 +620,7 @@ export default {
     },
 
     stepOutputVolume(output: AudioOutput, direction: number) {
+      this.clearSelectedPreset()
       const current = this.getOutputVolumeValue(output)
       const next = Math.max(0, Math.min(1, current + (0.01 * direction)))
 
@@ -601,6 +629,7 @@ export default {
     },
 
     queueOutputVolume(output: AudioOutput, volume: number) {
+      this.clearSelectedPreset()
       const key = this.outputVolumeKey(output)
 
       this.outputVolumeDrafts[key] = Math.max(0, Math.min(1, volume))
@@ -630,11 +659,24 @@ export default {
     },
 
     setOutputVolume(output: AudioOutput, volume: number) {
+      this.clearSelectedPreset()
       const outputName = this.outputIdentifier(output)
 
       if (!outputName) return
 
       this.sendWebsocket('set_audio_output_volume', { output: outputName, volume })
+    },
+
+    setOutputMute(output: AudioOutput, muted: boolean) {
+      this.clearSelectedPreset()
+
+      const outputName = this.outputIdentifier(output)
+      if (!outputName) return
+
+      this.sendWebsocket('set_audio_output_mute', {
+        output: outputName,
+        muted,
+      })
     },
 
     isPipewireSink(device: any): boolean {
@@ -719,6 +761,7 @@ export default {
     },
 
     toggleSinkLink(audioInterface: string, output: AudioOutput, linked: boolean) {
+      this.clearSelectedPreset()
       const outputName = this.outputIdentifier(output)
 
       if (!outputName) return
@@ -812,6 +855,14 @@ export default {
 
 .audio-slider {
   flex: 1;
+}
+
+.audio-slider :deep(.v-slider-thumb__surface),
+.audio-slider :deep(.v-slider-thumb),
+.audio-slider :deep(.v-slider-track__fill),
+.audio-slider :deep(.v-slider-track__background) {
+  transition: none !important;
+  animation: none !important;
 }
 
 .audio-output-header {
