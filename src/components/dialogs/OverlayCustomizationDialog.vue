@@ -13,6 +13,7 @@
         </v-toolbar-title>
 
         <v-btn
+          v-if="tab === 'style' && selectedStyle"
           color="primary"
           variant="tonal"
           prepend-icon="mdi-content-save"
@@ -29,7 +30,7 @@
       <v-tabs v-model="tab" bg-color="grey-darken-3">
         <v-tab value="style">
           <v-icon icon="mdi-language-css3" class="mr-2" />
-          {{ $t('overlay.customization.customCss') }}
+          {{ $t('overlay.customization.customStyles') }}
         </v-tab>
         <v-tab value="fonts">
           <v-icon icon="mdi-format-font" class="mr-2" />
@@ -61,31 +62,101 @@
 
         <v-window v-model="tab" class="overlay-customization-dialog__window">
           <v-window-item value="style" class="overlay-customization-dialog__window-item">
-            <div class="overlay-customization-dialog__style-toolbar">
-              <v-btn
-                variant="text"
-                prepend-icon="mdi-download"
-                @click="downloadCustomCss"
-              >
-                {{ $t('overlay.customization.downloadCustomCss') }}
-              </v-btn>
+            <div class="overlay-customization-dialog__styles-layout">
+              <aside class="overlay-customization-dialog__styles-sidebar">
+                <div class="overlay-customization-dialog__styles-sidebar-toolbar">
+                  <span class="text-subtitle-2">{{ $t('overlay.customization.styleFiles') }}</span>
 
-              <div class="text-caption text-grey-lighten-1 ml-3">
-                {{ $t('overlay.customization.scssSupportNote') }}
-              </div>
-            </div>
+                  <v-btn
+                    icon="mdi-plus"
+                    variant="text"
+                    size="small"
+                    :title="$t('overlay.customization.newStyleFile')"
+                    @click="createStyle"
+                  />
+                </div>
 
-            <div class="overlay-customization-dialog__editor">
-              <vue-monaco-editor
-                v-model:value="content"
-                language="scss"
-                theme="vs-dark"
-                height="100%"
-                :options="editorOptions"
-              />
+                <v-list
+                  density="compact"
+                  bg-color="transparent"
+                  class="overlay-customization-dialog__styles-list"
+                >
+                  <v-list-item
+                    v-for="style in styleFiles"
+                    :key="style.path"
+                    :active="selectedStyle?.path === style.path"
+                    @click="selectStyle(style)"
+                  >
+                    <template #prepend>
+                      <v-icon :icon="style.mode === 'scss' ? 'mdi-sass' : 'mdi-language-css3'" />
+                    </template>
+
+                    <v-list-item-title>{{ style.name }}</v-list-item-title>
+
+                    <template #append>
+                      <v-btn
+                        icon="mdi-delete"
+                        variant="text"
+                        color="error"
+                        size="x-small"
+                        @click.stop="deleteStyle(style)"
+                      />
+                    </template>
+                  </v-list-item>
+                </v-list>
+
+                <div v-if="!styleFiles.length && !loading" class="text-caption text-grey-lighten-1 pa-4">
+                  {{ $t('overlay.customization.noStyleFiles') }}
+                </div>
+              </aside>
+
+              <section class="overlay-customization-dialog__styles-main">
+                <div class="overlay-customization-dialog__style-toolbar">
+                  <template v-if="selectedStyle">
+                    <strong>{{ selectedStyle.name }}</strong>
+
+                    <v-chip size="small" variant="tonal" class="ml-2">
+                      {{ selectedStyle.mode.toUpperCase() }}
+                    </v-chip>
+
+                    <v-spacer />
+
+                    <v-btn
+                      variant="text"
+                      prepend-icon="mdi-download"
+                      @click="downloadCurrentStyle"
+                    >
+                      {{ $t('overlay.customization.downloadSource') }}
+                    </v-btn>
+
+                    <v-btn
+                      variant="text"
+                      prepend-icon="mdi-download"
+                      @click="downloadCompiledCss"
+                    >
+                      {{ $t('overlay.customization.downloadCompiledCss') }}
+                    </v-btn>
+                  </template>
+
+                  <template v-else>
+                    <span class="text-grey-lighten-1">
+                      {{ $t('overlay.customization.selectStyleFile') }}
+                    </span>
+                  </template>
+                </div>
+
+                <div v-if="selectedStyle" class="overlay-customization-dialog__editor">
+                  <vue-monaco-editor
+                    v-model:value="content"
+                    :language="selectedStyle.mode"
+                    theme="vs-dark"
+                    height="100%"
+                    :options="editorOptions"
+                  />
+                </div>
+              </section>
             </div>
           </v-window-item>
-
           <v-window-item value="fonts" class="overlay-customization-dialog__window-item">
             <div class="overlay-customization-dialog__fonts pa-4">
               <v-card color="grey-darken-3" variant="flat" class="mb-4">
@@ -343,6 +414,15 @@ import {getWebsocketClient} from '@/plugins/websocketInstance'
 import {useAppStore} from '@/stores/app'
 import {VueMonacoEditor} from '@guolao/vue-monaco-editor'
 
+
+type CustomStyleEntry = {
+  name: string
+  path: string
+  mode: 'css' | 'scss'
+  size: number
+  modified: string
+}
+
 type FontEntry = {
   name: string
   path: string
@@ -391,6 +471,8 @@ export default {
       fontUploadFiles: [] as File[],
       fonts: [] as FontEntry[],
       generatedFontCss: '',
+      styleFiles: [] as CustomStyleEntry[],
+      selectedStyle: null as CustomStyleEntry | null,
     }
   },
 
@@ -400,7 +482,6 @@ export default {
     apiBase(): string {
       return String(this.getRestApi || '').replace(/\/+$/, '')
     },
-
 
     fontFamilies() {
       const weightVariants = [
@@ -471,7 +552,7 @@ export default {
 
     async loadAll() {
       await Promise.all([
-        this.loadStyle(),
+        this.loadStyles(),
         this.loadFonts(),
       ])
     },
@@ -486,7 +567,6 @@ export default {
       const response = await websocketClient.request(method, params, timeout)
       let data = response?.params ?? response
 
-      // Some BaseApi responses are wrapped as { data, status }.
       if (data?.data !== undefined) {
         data = data.data
       }
@@ -519,13 +599,43 @@ export default {
       URL.revokeObjectURL(url)
     },
 
-    async loadStyle() {
+    async loadStyles() {
       this.loading = true
       this.errorMessage = ''
 
       try {
-        const data = await this.requestWebsocket('overlay_custom_style_get')
+        const data = await this.requestWebsocket('overlay_custom_style_list')
+        this.styleFiles = Array.isArray(data?.files) ? data.files : []
+        this.fonts = Array.isArray(data?.fonts) ? data.fonts : this.fonts
+        this.generatedFontCss = String(data?.generated_font_css ?? this.generatedFontCss)
+
+        if (!this.styleFiles.length) {
+          this.selectedStyle = null
+          this.content = ''
+          return
+        }
+
+        const current = this.selectedStyle
+          ? this.styleFiles.find((style: CustomStyleEntry) => style.path === this.selectedStyle?.path)
+          : null
+
+        await this.selectStyle(current ?? this.styleFiles[0])
+      } catch (error: any) {
+        this.errorMessage = error?.message ?? 'loading custom styles failed'
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async selectStyle(style: CustomStyleEntry) {
+      this.loading = true
+      this.errorMessage = ''
+
+      try {
+        const data = await this.requestWebsocket('overlay_custom_style_get', {path: style.path})
+        this.selectedStyle = data?.file ?? style
         this.content = String(data?.content ?? '')
+        this.styleFiles = Array.isArray(data?.files) ? data.files : this.styleFiles
         this.fonts = Array.isArray(data?.fonts) ? data.fonts : this.fonts
         this.generatedFontCss = String(data?.generated_font_css ?? this.generatedFontCss)
       } catch (error: any) {
@@ -535,23 +645,112 @@ export default {
       }
     },
 
-    async saveStyle() {
+    async createStyle() {
+      const fileName = window.prompt(
+        this.$t('overlay.customization.newStyleFilePrompt') as string,
+        'custom.scss',
+      )
+
+      if (!fileName) return
+
       this.saving = true
       this.errorMessage = ''
       this.successMessage = ''
 
       try {
         const data = await this.requestWebsocket('overlay_custom_style_save', {
-          mode: 'scss',
+          path: fileName,
+          content: '',
+        })
+
+        this.styleFiles = Array.isArray(data?.files) ? data.files : this.styleFiles
+        const created = data?.file ?? this.styleFiles.find((style: CustomStyleEntry) => style.path === fileName)
+
+        if (created) {
+          await this.selectStyle(created)
+        }
+
+        this.successMessage = this.$t('overlay.customization.styleCreated') as string
+      } catch (error: any) {
+        this.errorMessage = error?.message ?? 'creating custom style failed'
+      } finally {
+        this.saving = false
+      }
+    },
+
+    async saveStyle() {
+      if (!this.selectedStyle) return
+
+      this.saving = true
+      this.errorMessage = ''
+      this.successMessage = ''
+
+      try {
+        const data = await this.requestWebsocket('overlay_custom_style_save', {
+          path: this.selectedStyle.path,
           content: this.content,
         })
 
+        this.styleFiles = Array.isArray(data?.files) ? data.files : this.styleFiles
+        this.selectedStyle = data?.file ?? this.selectedStyle
         this.generatedFontCss = String(data?.generated_font_css ?? this.generatedFontCss)
         this.successMessage = this.$t('overlay.customization.saved') as string
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'saving custom style failed'
       } finally {
         this.saving = false
+      }
+    },
+
+    async deleteStyle(style: CustomStyleEntry) {
+      if (!window.confirm(
+        this.$t('overlay.customization.deleteStyleConfirm', {name: style.name}) as string,
+      )) return
+
+      this.errorMessage = ''
+      this.successMessage = ''
+
+      try {
+        const data = await this.requestWebsocket('overlay_custom_style_delete', {path: style.path})
+        this.styleFiles = Array.isArray(data?.files) ? data.files : []
+
+        if (this.selectedStyle?.path === style.path) {
+          this.selectedStyle = null
+          this.content = ''
+
+          if (this.styleFiles.length) {
+            await this.selectStyle(this.styleFiles[0])
+          }
+        }
+
+        this.successMessage = this.$t('overlay.customization.styleDeleted') as string
+      } catch (error: any) {
+        this.errorMessage = error?.message ?? 'deleting custom style failed'
+      }
+    },
+
+    async downloadCurrentStyle() {
+      if (!this.selectedStyle) return
+
+      this.errorMessage = ''
+
+      try {
+        this.downloadContent(await this.requestWebsocket(
+          'overlay_custom_style_download',
+          {path: this.selectedStyle.path},
+        ))
+      } catch (error: any) {
+        this.errorMessage = error?.message ?? 'custom stylesheet download failed'
+      }
+    },
+
+    async downloadCompiledCss() {
+      this.errorMessage = ''
+
+      try {
+        this.downloadContent(await this.requestWebsocket('overlay_custom_style_download_compiled'))
+      } catch (error: any) {
+        this.errorMessage = error?.message ?? 'compiled stylesheet download failed'
       }
     },
 
@@ -622,16 +821,6 @@ export default {
       }
     },
 
-    async downloadCustomCss() {
-      this.errorMessage = ''
-
-      try {
-        this.downloadContent(await this.requestWebsocket('overlay_custom_style_download'))
-      } catch (error: any) {
-        this.errorMessage = error?.message ?? 'custom stylesheet download failed'
-      }
-    },
-
     async downloadFontCss() {
       this.errorMessage = ''
 
@@ -676,6 +865,37 @@ export default {
 
 .overlay-customization-dialog__window,
 .overlay-customization-dialog__window-item {
+  height: 100%;
+}
+
+.overlay-customization-dialog__styles-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  height: 100%;
+}
+
+.overlay-customization-dialog__styles-sidebar {
+  min-width: 0;
+  overflow: auto;
+  border-right: 1px solid rgba(255, 255, 255, .12);
+  background: rgb(var(--v-theme-surface));
+}
+
+.overlay-customization-dialog__styles-sidebar-toolbar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+}
+
+.overlay-customization-dialog__styles-list {
+  padding: 0;
+}
+
+.overlay-customization-dialog__styles-main {
+  min-width: 0;
   height: 100%;
 }
 
