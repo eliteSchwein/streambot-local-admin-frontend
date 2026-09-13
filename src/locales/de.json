@@ -2139,34 +2139,10 @@
         "invalidYaml": "Ungültiges Auto-Makro-YAML"
       }
     },
-    "channelPointEditorDialog": {
-      "name": "Name",
-      "enableDefault": "Standardmäßig aktivieren",
-      "autoAccept": "Automatisch akzeptieren",
-      "stripEmotes": "Emotes entfernen",
-      "inputRequired": "Eingabe erforderlich",
-      "asset": "Asset",
-      "macro": "Makro",
-      "cancel": "Abbrechen",
-      "bypassInteractionQueue": "Interaktionswarteschlange umgehen",
-      "general": "Allgemein"
-    },
     "connectDialog": {},
     "commandEditorDialog": {},
     "fileCreateFolderDialog": {},
     "autoMacroDeleteConfirmDialog": {},
-    "channelPointCreateDialog": {
-      "name": "Name",
-      "enableDefault": "Standardmäßig aktivieren",
-      "autoAccept": "Automatisch akzeptieren",
-      "stripEmotes": "Emotes entfernen",
-      "inputRequired": "Eingabe erforderlich",
-      "asset": "Asset",
-      "macro": "Makro",
-      "cancel": "Abbrechen",
-      "bypassInteractionQueue": "Interaktionswarteschlange umgehen",
-      "general": "Allgemein"
-    },
     "eventEditorDialog": {
       "asset": "Asset",
       "macro": "Makro",
@@ -2254,6 +2230,20 @@
       "preset": "Vorlage",
       "noPresets": "Keine Makro-Vorlagen gefunden.",
       "createFailed": "Makro konnte nicht erstellt werden"
+    },
+    "channelPointDialog": {
+      "name": "Name",
+      "enableDefault": "Standardmäßig aktivieren",
+      "autoAccept": "Automatisch akzeptieren",
+      "stripEmotes": "Emotes entfernen",
+      "inputRequired": "Eingabe erforderlich",
+      "asset": "Asset",
+      "macro": "Makro",
+      "cancel": "Abbrechen",
+      "bypassInteractionQueue": "Interaktionswarteschlange umgehen",
+      "general": "Allgemein",
+      "options": "Optionen",
+      "interaction": "Interaktion"
     }
   },
   "fileManager": {

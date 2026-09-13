@@ -36,17 +36,11 @@
         <v-btn icon="mdi-refresh" variant="text" :loading="loadingFile" @click="loadMacro" />
 
         <v-btn
-          color="primary"
-          variant="tonal"
-          prepend-icon="mdi-content-save"
-          :loading="saving"
-          :disabled="!name || loadingFile || hasVisualErrors"
-          @click="saveMacro"
-        >
-          {{ $t('common.save') }}
-        </v-btn>
-
-        <v-btn icon="mdi-close" variant="text" @click="$emit('update:modelValue', false)" />
+          icon="mdi-close"
+          variant="text"
+          :disabled="loadingFile || saving"
+          @click="$emit('update:modelValue', false)"
+        />
       </v-toolbar>
 
       <v-card-text class="pa-0 macro-editor-dialog__body">
@@ -89,6 +83,30 @@
           </div>
         </v-card>
       </v-card-text>
+
+      <v-divider />
+
+      <v-card-actions>
+        <v-spacer />
+        <v-btn
+          variant="text"
+          prepend-icon="mdi-close"
+          :disabled="loadingFile || saving"
+          @click="$emit('update:modelValue', false)"
+        >
+          {{ $t('common.cancel') }}
+        </v-btn>
+        <v-btn
+          color="primary"
+          variant="tonal"
+          prepend-icon="mdi-content-save"
+          :loading="saving"
+          :disabled="!name || loadingFile || saving || hasVisualErrors"
+          @click="saveMacro"
+        >
+          {{ $t('common.save') }}
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>

@@ -2139,34 +2139,10 @@
         "invalidYaml": "Invalid auto macro YAML"
       }
     },
-    "channelPointEditorDialog": {
-      "name": "Name",
-      "enableDefault": "Enable default",
-      "autoAccept": "Auto accept",
-      "stripEmotes": "Strip emotes",
-      "inputRequired": "Input required",
-      "asset": "Asset",
-      "macro": "Macro",
-      "cancel": "Cancel",
-      "bypassInteractionQueue": "Bypass interaction queue",
-      "general": "General"
-    },
     "connectDialog": {},
     "commandEditorDialog": {},
     "fileCreateFolderDialog": {},
     "autoMacroDeleteConfirmDialog": {},
-    "channelPointCreateDialog": {
-      "name": "Name",
-      "enableDefault": "Enable default",
-      "autoAccept": "Auto accept",
-      "stripEmotes": "Strip emotes",
-      "inputRequired": "Input required",
-      "asset": "Asset",
-      "macro": "Macro",
-      "cancel": "Cancel",
-      "bypassInteractionQueue": "Bypass interaction queue",
-      "general": "General"
-    },
     "eventEditorDialog": {
       "asset": "Asset",
       "macro": "Macro",
@@ -2254,6 +2230,20 @@
       "preset": "Preset",
       "noPresets": "No macro presets found.",
       "createFailed": "Failed to create macro"
+    },
+    "channelPointDialog": {
+      "name": "Name",
+      "enableDefault": "Enable default",
+      "autoAccept": "Auto accept",
+      "stripEmotes": "Strip emotes",
+      "inputRequired": "Input required",
+      "asset": "Asset",
+      "macro": "Macro",
+      "cancel": "Cancel",
+      "bypassInteractionQueue": "Bypass interaction queue",
+      "general": "General",
+      "options": "Options",
+      "interaction": "Interaction"
     }
   },
   "fileManager": {

@@ -68,17 +68,9 @@
       </div>
     </v-card-text>
 
-    <ChannelPointCreateDialog
-      ref="createDialog"
-      v-model="createDialog"
-      :loading="workingAction === 'save' || reloadInProgress"
-      :error="editorError"
-      @save="saveChannelPoint"
-    />
-
-    <ChannelPointEditorDialog
-      ref="editorDialog"
-      v-model="editorDialog"
+    <ChannelPointDialog
+      ref="channelPointDialogRef"
+      v-model="channelPointDialog"
       :channel-point="selectedChannelPoint"
       :loading="workingAction === 'save' || reloadInProgress"
       :error="editorError"
@@ -101,8 +93,7 @@ import { getWebsocketClient } from '@/plugins/websocketInstance'
 import StorageCard from '@/components/cards/StorageCard.vue'
 import UploadCard from '@/components/cards/UploadCard.vue'
 import ChannelPoint from '@/components/ChannelPoint.vue'
-import ChannelPointCreateDialog from '@/components/dialogs/ChannelPointCreateDialog.vue'
-import ChannelPointEditorDialog from '@/components/dialogs/ChannelPointEditorDialog.vue'
+import ChannelPointDialog from '@/components/dialogs/ChannelPointDialog.vue'
 import ChannelPointDeleteConfirmDialog from '@/components/dialogs/ChannelPointDeleteConfirmDialog.vue'
 
 type ChannelPointEntry = {
@@ -129,8 +120,7 @@ export default {
     StorageCard,
     UploadCard,
     ChannelPoint,
-    ChannelPointCreateDialog,
-    ChannelPointEditorDialog,
+    ChannelPointDialog,
     ChannelPointDeleteConfirmDialog,
   },
 
@@ -141,8 +131,7 @@ export default {
       errorMessage: '',
       editorError: '',
       searchQuery: '',
-      createDialog: false,
-      editorDialog: false,
+      channelPointDialog: false,
       deleteDialog: false,
       selectedChannelPoint: null as ChannelPointEntry | null,
       selectedDeleteChannelPoint: null as ChannelPointEntry | null,
@@ -376,18 +365,19 @@ export default {
     async openCreateDialog() {
       if (this.reloadInProgress) return
       this.editorError = ''
-      this.createDialog = true
+      this.selectedChannelPoint = null
+      this.channelPointDialog = true
       await this.$nextTick()
-      await (this.$refs.createDialog as any)?.open?.()
+      await (this.$refs.channelPointDialogRef as any)?.open?.()
     },
 
     async openEditDialog(channelPoint: ChannelPointEntry) {
       if (this.reloadInProgress) return
       this.selectedChannelPoint = channelPoint
       this.editorError = ''
-      this.editorDialog = true
+      this.channelPointDialog = true
       await this.$nextTick()
-      await (this.$refs.editorDialog as any)?.open?.()
+      await (this.$refs.channelPointDialogRef as any)?.open?.()
     },
 
     async saveChannelPoint(payload: any) {
@@ -442,8 +432,7 @@ export default {
 
         if (data?.error) throw new Error(data.error)
 
-        this.createDialog = false
-        this.editorDialog = false
+        this.channelPointDialog = false
 
         await (this.$refs.storageCard as any)?.fetchStorageInfo?.()
       } catch (error: any) {

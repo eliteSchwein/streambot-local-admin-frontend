@@ -89,11 +89,23 @@
           {{ $t('dialogs.eventEditorDialog.simulate') }}
         </v-btn>
         <v-spacer />
-        <v-btn variant="text" @click="$emit('update:modelValue', false)">
-          {{ $t('dialogs.eventEditorDialog.cancel') }}
+        <v-btn
+          variant="text"
+          prepend-icon="mdi-close"
+          :disabled="loading || savingInternal"
+          @click="$emit('update:modelValue', false)"
+        >
+          {{ $t('common.cancel') }}
         </v-btn>
-        <v-btn color="primary" variant="flat" :loading="loading || savingInternal" :disabled="!canSave" @click="save">
-          {{ $t('dialogs.eventEditorDialog.save') }}
+        <v-btn
+          color="primary"
+          variant="tonal"
+          prepend-icon="mdi-content-save"
+          :loading="loading || savingInternal"
+          :disabled="!canSave"
+          @click="save"
+        >
+          {{ $t('common.save') }}
         </v-btn>
       </v-card-actions>
     </v-card>

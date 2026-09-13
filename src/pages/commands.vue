@@ -188,21 +188,13 @@
       </div>
     </v-card-text>
 
-    <CommandCreateDialog
-      ref="createDialogRef"
-      v-model="createDialog"
-      :loading="workingAction === 'create'"
-      :disabled="reloadInProgress"
-      @save="createCommand"
-    />
-
-    <CommandEditorDialog
-      ref="editorDialogRef"
-      v-model="editorDialog"
+    <CommandDialog
+      ref="commandDialogRef"
+      v-model="commandDialog"
       :command-entry="selectedCommand"
-      :loading="workingAction === 'save' || workingAction === 'read'"
+      :loading="workingAction === 'create' || workingAction === 'save' || workingAction === 'read'"
       :disabled="reloadInProgress"
-      @save="saveCommand"
+      @save="saveCommandDialog"
     />
 
     <v-dialog v-model="deleteDialog" max-width="420">
@@ -230,8 +222,7 @@ import { useAppStore } from '@/stores/app'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import StorageCard from '@/components/cards/StorageCard.vue'
 import UploadCard from '@/components/cards/UploadCard.vue'
-import CommandCreateDialog from '@/components/dialogs/CommandCreateDialog.vue'
-import CommandEditorDialog from '@/components/dialogs/CommandEditorDialog.vue'
+import CommandDialog from '@/components/dialogs/CommandDialog.vue'
 
 type CommandEntry = { name: string; command: any; file?: string }
 
@@ -241,8 +232,7 @@ export default {
   components: {
     StorageCard,
     UploadCard,
-    CommandCreateDialog,
-    CommandEditorDialog,
+    CommandDialog,
   },
 
   data() {
@@ -250,8 +240,7 @@ export default {
       searchQuery: '',
       uploading: false,
       errorMessage: '',
-      createDialog: false,
-      editorDialog: false,
+      commandDialog: false,
       deleteDialog: false,
       selectedCommand: null as CommandEntry | null,
       workingName: null as string | null,
@@ -373,8 +362,9 @@ export default {
 
     openCreateDialog() {
       if (this.reloadInProgress) return
-      this.createDialog = true
-      this.$nextTick(() => (this.$refs.createDialogRef as any)?.open?.())
+      this.selectedCommand = null
+      this.commandDialog = true
+      this.$nextTick(() => (this.$refs.commandDialogRef as any)?.open?.())
     },
 
     async openEditor(item: CommandEntry) {
@@ -401,9 +391,9 @@ export default {
           },
         }
 
-        this.editorDialog = true
+        this.commandDialog = true
         await this.$nextTick()
-        ;(this.$refs.editorDialogRef as any)?.open?.()
+        ;(this.$refs.commandDialogRef as any)?.open?.()
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'command read failed'
       } finally {
@@ -444,6 +434,13 @@ export default {
       }
     },
 
+    async saveCommandDialog(payload: any) {
+      if (this.selectedCommand) {
+        return this.saveCommand(payload)
+      }
+      return this.createCommand(payload)
+    },
+
     async createCommand(payload: any) {
       if (this.reloadInProgress) return
       this.workingName = payload?.name ?? null
@@ -452,7 +449,7 @@ export default {
 
       try {
         await this.writeCommand(payload)
-        this.createDialog = false
+        this.commandDialog = false
         await (this.$refs.storageCard as any)?.fetchStorageInfo?.()
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'create command failed'
@@ -470,7 +467,7 @@ export default {
 
       try {
         await this.writeCommand(payload)
-        this.editorDialog = false
+        this.commandDialog = false
         await (this.$refs.storageCard as any)?.fetchStorageInfo?.()
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'save command failed'
