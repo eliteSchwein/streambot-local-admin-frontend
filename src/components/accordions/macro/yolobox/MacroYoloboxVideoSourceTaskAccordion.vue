@@ -3,7 +3,8 @@
     :item="item"
     :index="index"
     icon="mdi-video-switch"
-    :title="$t('macro.yolobox.videoSource.title')"
+    :title="$t('macro.presets.yolobox.switchVideoSource')"
+    :detail="yoloboxSourceTitle"
     export-prefix="macro_yolobox_video_source"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -39,6 +40,13 @@ export default {
   },
   emits: ['remove', 'move-up', 'move-down'],
   computed: {
+    yoloboxSourceTitle(): string {
+      const id = String(this.task?.data?.id ?? '').trim()
+      if (!id) return ''
+      const match = this.sources.find((entry: any) => String(entry?.value ?? '') === id)
+      const title = String(match?.title ?? id)
+      return title
+    },
     ...mapState(useAppStore, ['getYoloboxData']),
     task(): any {
       return (this.item as any).task

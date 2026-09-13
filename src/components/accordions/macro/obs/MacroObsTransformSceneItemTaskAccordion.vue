@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-vector-square"
     :title="title"
+    :detail="obsSceneItemTitleDetail"
     export-prefix="macro_obs_transform_scene_item"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -28,7 +29,7 @@
         <v-autocomplete
           v-model="data.sceneItemId"
           :items="sceneItemOptions"
-          item-:title="$t('macro.obs.transformSceneItem.title')"
+          item-title="title"
           item-value="value"
           :label="$t('macro.obs.fields.sceneItem')"
           prepend-inner-icon="mdi-layers-outline"
@@ -118,6 +119,12 @@ export default {
   },
 
   computed: {
+    obsSceneItemTitleDetail(): string {
+      const scene = String((this as any).data?.sceneName ?? (this as any).data?.sceneUuid ?? '').trim()
+      const itemId = String((this as any).data?.sceneItemId ?? '').trim()
+      if (!scene && !itemId) return ''
+      return scene && itemId ? `${scene} · #${itemId}` : (scene || `#${itemId}`)
+    },
     task(): any {
       return (this.item as any).task
     },

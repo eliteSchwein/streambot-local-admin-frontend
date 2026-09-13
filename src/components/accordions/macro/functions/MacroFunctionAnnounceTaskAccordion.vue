@@ -3,7 +3,8 @@
     :item="item"
     :index="index"
     :depth="depth"
-    :title-prefix="$t('macro.function.announce.title')"
+    :custom-title="$t('macro.function.announce.title')"
+    :title-detail="titleDetail"
     icon="mdi-bullhorn-outline"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -52,10 +53,27 @@ export default {
 
   emits: ['remove', 'move-up', 'move-down'],
 
+  computed: {
+    titleDetail(): string {
+      return this.preview(String(this.taskData.content ?? ''))
+    },
+
+    taskData(): any {
+      return (this.item as any).task?.data ?? {}
+    },
+  },
+
   data() {
     return {
       colors: ['primary', 'blue', 'green', 'orange', 'purple'],
     }
+  },
+
+  methods: {
+    preview(value: string): string {
+      const normalized = value.replace(/\s+/g, ' ').trim()
+      return normalized.length > 64 ? `${normalized.slice(0, 61)}…` : normalized
+    },
   },
 
   created() {

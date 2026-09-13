@@ -3,7 +3,8 @@
     :item="item"
     :index="index"
     :depth="depth"
-    :title-prefix="$t('macro.function.speak.title')"
+    :custom-title="$t('macro.presets.audio.speak')"
+    :title-detail="speakTitleDetail"
     icon="mdi-account-voice"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -64,6 +65,15 @@ export default {
   emits: ['remove', 'move-up', 'move-down'],
 
   computed: {
+    speakTitleDetail(): string {
+      const content = String((this.item as any)?.task?.data?.content ?? '').trim()
+      const locale = String((this.item as any)?.task?.data?.locale ?? '').trim()
+      const voice = String((this.item as any)?.task?.data?.voice ?? '').trim()
+      const voiceLabel = locale && voice ? `${locale} · ${voice}` : locale
+      if (content && voiceLabel) return `${content} · ${voiceLabel}`
+      return content || voiceLabel || ''
+    },
+
     localeItems(): Array<{ title: string, value: string }> {
       const settings: any = useAppStore().getSettings ?? {}
       const voices = settings?.tts?.voices ?? {}

@@ -5,6 +5,9 @@
     :index="index"
     :icon="icon"
     :title="accordionTitle"
+    :detail="accordionDetail"
+    :detail-href="detailHref"
+    :detail-target="detailTarget"
     export-prefix="macro_function"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -43,6 +46,9 @@ export default {
     depth: { type: Number, default: 0 },
     titlePrefix: { type: String, default: '' },
     customTitle: { type: String, default: '' },
+    titleDetail: { type: [String, Number], default: undefined },
+    detailHref: { type: String, default: '' },
+    detailTarget: { type: String, default: '_blank' },
     icon: { type: String, default: 'mdi-function' },
   },
 
@@ -65,20 +71,28 @@ export default {
       const customTitle = typeof this.customTitle === 'string'
         ? this.customTitle.trim()
         : ''
+      if (customTitle) return customTitle
 
-      if (customTitle) {
-        return customTitle
-      }
-
-      const prefix = typeof this.titlePrefix === 'string' && this.titlePrefix.trim()
+      const prefix = typeof this.titlePrefix === 'string'
         ? this.titlePrefix.trim()
-        : String(this.$t('macro.function.defaultTitle'))
+        : ''
+      if (prefix) return prefix
 
-      const method = typeof this.task?.method === 'string' && this.task.method.trim()
+      return String(this.$t('macro.function.defaultTitle'))
+    },
+
+    accordionDetail(): string | number | undefined {
+      if (this.titleDetail !== undefined) return this.titleDetail
+
+      const hasExplicitTitle = Boolean(
+        (typeof this.customTitle === 'string' && this.customTitle.trim())
+        || (typeof this.titlePrefix === 'string' && this.titlePrefix.trim()),
+      )
+      if (hasExplicitTitle) return undefined
+
+      return typeof this.task?.method === 'string'
         ? this.task.method.trim()
-        : String(this.$t('macro.function.unknownMethod'))
-
-      return String(this.$t('macro.function.titleWithMethod', { prefix, method }))
+        : ''
     },
   },
 

@@ -103,16 +103,8 @@
       @confirm="confirmDeleteMacro"
     />
 
-    <CreateFileDialog
+    <MacroCreateDialog
       v-model="createDialog"
-      websocket-method="macro_edit"
-      preset-folder="@/presets/macros"
-      extension="yaml"
-      enforce-extension
-      icon="mdi-code-braces"
-      :title="$t('macro.createFile') || 'Add macro'"
-      :name-label="$t('macro.name') || 'Macro name'"
-      :create-label="$t('macro.create') || 'Create macro'"
       @created="handleMacroCreated"
     />
   </v-card>
@@ -127,7 +119,7 @@ import UploadCard from '@/components/cards/UploadCard.vue'
 import Macro from '@/components/Macro.vue'
 import MacroEditorDialog from '@/components/dialogs/MacroEditorDialog.vue'
 import MacroDeleteConfirmDialog from '@/components/dialogs/MacroDeleteConfirmDialog.vue'
-import CreateFileDialog from '@/components/dialogs/CreateFileDialog.vue'
+import MacroCreateDialog from '@/components/dialogs/MacroCreateDialog.vue'
 
 type MacroEntry = {
   name: string
@@ -143,7 +135,7 @@ export default {
     Macro,
     MacroEditorDialog,
     MacroDeleteConfirmDialog,
-    CreateFileDialog,
+    MacroCreateDialog,
   },
 
   data() {

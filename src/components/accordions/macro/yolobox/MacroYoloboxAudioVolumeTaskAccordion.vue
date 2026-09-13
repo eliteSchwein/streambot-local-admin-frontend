@@ -3,7 +3,8 @@
     :item="item"
     :index="index"
     icon="mdi-volume-high"
-    :title="$t('macro.yolobox.audioVolume.title')"
+    :title="$t('macro.presets.yolobox.audioSource.setVolume')"
+    :detail="yoloboxSourceTitle"
     export-prefix="macro_yolobox_set_audio_volume"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -53,6 +54,13 @@ export default {
   },
   emits: ['remove', 'move-up', 'move-down'],
   computed: {
+    yoloboxSourceTitle(): string {
+      const id = String(this.task?.data?.id ?? '').trim()
+      if (!id) return ''
+      const match = this.audioSources.find((entry: any) => String(entry?.value ?? '') === id)
+      const title = String(match?.title ?? id)
+      return `${title} · ${Math.round(Number(this.task.data?.volume ?? 0) * 100)}%`
+    },
     ...mapState(useAppStore, ['getYoloboxData']),
     task(): any {
       return (this.item as any).task

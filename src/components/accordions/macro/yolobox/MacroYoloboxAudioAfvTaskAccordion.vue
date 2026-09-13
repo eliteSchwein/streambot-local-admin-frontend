@@ -2,8 +2,11 @@
   <MacroTaskAccordionTemplate
     :item="item"
     :index="index"
-    icon="mdi-link-variant"
-    :title="$t('macro.yolobox.audioAfv.title')"
+    :icon="task.data.AFV ? 'mdi-link-variant' : 'mdi-link-variant-off'"
+    :title="task.data.AFV
+      ? $t('macro.presets.yolobox.audioSource.enableAfv')
+      : $t('macro.presets.yolobox.audioSource.disableAfv')"
+    :detail="yoloboxSourceTitle"
     export-prefix="macro_yolobox_set_audio_afv"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -19,16 +22,6 @@
           :label="$t('macro.yolobox.fields.audioSource')"
           variant="outlined"
           clearable
-        />
-      </v-col>
-      <v-col cols="12">
-        <v-select
-          v-model="task.data.AFV"
-          :items="afvItems"
-          item-title="title"
-          item-value="value"
-          :label="$t('macro.yolobox.fields.audioFollowsVideo')"
-          variant="outlined"
         />
       </v-col>
     </v-row>
@@ -49,15 +42,16 @@ export default {
   },
   emits: ['remove', 'move-up', 'move-down'],
   computed: {
+    yoloboxSourceTitle(): string {
+      const id = String(this.task?.data?.id ?? '').trim()
+      if (!id) return ''
+      const match = this.audioSources.find((entry: any) => String(entry?.value ?? '') === id)
+      const title = String(match?.title ?? id)
+      return title
+    },
     ...mapState(useAppStore, ['getYoloboxData']),
     task(): any {
       return (this.item as any).task
-    },
-    afvItems(): Array<{ title: string; value: boolean }> {
-      return [
-        { title: String(this.$t('macro.yolobox.audioAfv.enable')), value: true },
-        { title: String(this.$t('macro.yolobox.audioAfv.disable')), value: false },
-      ]
     },
     audioSources(): Array<{ title: string; value: string }> {
       return (this.getYoloboxData?.MixerList ?? []).map((source: any) => ({

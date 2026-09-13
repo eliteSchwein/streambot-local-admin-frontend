@@ -5,6 +5,7 @@
     :depth="depth"
     :title-prefix="$t('macro.function.songRequest.title')"
     icon="mdi-music-note-plus"
+    :title-detail="item.task?.data?.url || ''"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
     @move-down="$emit('move-down')"

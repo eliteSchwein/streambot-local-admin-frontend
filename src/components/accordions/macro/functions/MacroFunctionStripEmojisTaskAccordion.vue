@@ -3,7 +3,7 @@
     :item="item"
     :index="index"
     :depth="depth"
-    :title-prefix="$t('macro.function.stripEmojis.title')"
+    :custom-title="$t('macro.function.stripEmojis.title')"
     icon="mdi-emoticon-remove-outline"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

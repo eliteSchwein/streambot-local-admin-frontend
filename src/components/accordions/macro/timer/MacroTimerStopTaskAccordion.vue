@@ -3,7 +3,8 @@
     :item="item"
     :index="index"
     icon="mdi-stop-circle-outline"
-    :title="`${ $t('macro.final.timer.actions.stop') } — ${task.data.name || '-'}`"
+    :title="$t('macro.final.timer.actions.stop')"
+    :detail="timerTitleDetail"
     export-prefix="macro_timer_stop"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -41,6 +42,9 @@ export default {
     return { appStore: useAppStore() }
   },
   computed: {
+    timerTitleDetail(): string {
+      return String(this.task.data?.name ?? '').trim()
+    },
     timerNameOptions(): string[] {
       const dynamicData = this.appStore?.getDynamicData ?? this.appStore?.dynamicData ?? {}
       const names = Array.isArray(dynamicData?.timer_names) ? dynamicData.timer_names : []

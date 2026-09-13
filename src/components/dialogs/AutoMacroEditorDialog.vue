@@ -30,7 +30,7 @@
           :export-data="rawMode ? null : exportAutoMacroData()"
           :disabled="loadingFile || saving"
           @import="importAutoMacroYaml"
-          @error="errorMessage = $event?.message ?? 'import failed'"
+          @error="errorMessage = $event?.message ?? $t('dialogs.autoMacroEditorDialog.errors.importFailed')"
         />
 
         <v-btn icon="mdi-refresh" variant="text" :loading="loadingFile" @click="loadAutoMacro" />
@@ -126,7 +126,7 @@
                     <div class="min-width-0">
                       <div class="text-subtitle-2">{{ $t('dialogs.autoMacroEditorDialog.macroOrder') }}</div>
                       <div class="text-caption text-medium-emphasis">
-                        Macros are triggered from top to bottom.
+                        {{ $t('dialogs.autoMacroEditorDialog.macroOrderHint') }}
                       </div>
                     </div>
                   </div>
@@ -181,7 +181,7 @@
                           prepend-icon="mdi-pencil"
                           @click="openMacroEditor(macro)"
                         >
-                          Edit
+                          {{ $t('common.edit') }}
                         </v-btn>
 
                         <v-btn
@@ -191,7 +191,7 @@
                           :disabled="index === 0"
                           @click="moveMacroUp(index)"
                         >
-                          Move up
+                          {{ $t('dialogs.autoMacroEditorDialog.moveUp') }}
                         </v-btn>
 
                         <v-btn
@@ -201,7 +201,7 @@
                           :disabled="index === visualAutoMacro.macros.length - 1"
                           @click="moveMacroDown(index)"
                         >
-                          Move down
+                          {{ $t('dialogs.autoMacroEditorDialog.moveDown') }}
                         </v-btn>
 
                         <v-btn
@@ -211,7 +211,7 @@
                           prepend-icon="mdi-delete"
                           @click="removeMacro(index)"
                         >
-                          Remove
+                          {{ $t('common.remove') }}
                         </v-btn>
                       </div>
                     </template>
@@ -303,7 +303,9 @@ export default {
     ...mapState(useAppStore, ['getMacros']),
 
     title(): string {
-      return this.name ? `Edit ${this.name}` : 'Create auto macro'
+      return this.name
+        ? this.$t('dialogs.autoMacroEditorDialog.editTitle', { name: this.name })
+        : this.$t('dialogs.autoMacroEditorDialog.createTitle')
     },
 
     macroOptions(): string[] {
@@ -342,7 +344,7 @@ export default {
 
     async requestWebsocket(method: string, params: Record<string, any> = {}, timeout = 30_000): Promise<any> {
       const client = getWebsocketClient()
-      if (!client) throw new Error('websocket is not connected')
+      if (!client) throw new Error(this.$t('macro.errors.websocketDisconnected'))
       const response = await client.request(method, params, timeout)
       return response?.params ?? response
     },
@@ -433,7 +435,7 @@ export default {
 
         this.$emit('saved', data)
       } catch (error: any) {
-        this.errorMessage = error?.message ?? 'saving auto macro failed'
+        this.errorMessage = error?.message ?? this.$t('dialogs.autoMacroEditorDialog.errors.saveFailed')
       } finally {
         this.saving = false
       }
@@ -477,7 +479,7 @@ export default {
         this.hasVisualErrors = false
       } catch (error: any) {
         this.hasVisualErrors = true
-        this.errorMessage = error?.message ?? 'Failed to parse auto macro YAML'
+        this.errorMessage = error?.message ?? this.$t('dialogs.autoMacroEditorDialog.errors.parseFailed')
       }
     },
 
@@ -494,14 +496,14 @@ export default {
       try {
         const imported = this.yamlLoad(String(payload?.content ?? '')) ?? {}
         if (!imported || typeof imported !== 'object' || Array.isArray(imported)) {
-          throw new Error('invalid auto macro yaml')
+          throw new Error(this.$t('dialogs.autoMacroEditorDialog.errors.invalidYaml'))
         }
 
         this.content = this.yamlDump(imported)
         this.parseContentToVisual()
         this.rawMode = false
       } catch (error: any) {
-        this.errorMessage = error?.message ?? 'import failed'
+        this.errorMessage = error?.message ?? this.$t('dialogs.autoMacroEditorDialog.errors.importFailed')
       }
     },
 

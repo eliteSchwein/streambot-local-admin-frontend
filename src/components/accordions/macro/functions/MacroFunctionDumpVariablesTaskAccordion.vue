@@ -3,8 +3,8 @@
     :item="item"
     :index="index"
     :depth="depth"
-    :title-prefix="$t('macro.function.dumpVariables.title')"
-    icon="mdi-code-json"
+    :title-prefix="$t('macro.presets.expert.dumpVariables')"
+    icon="mdi-database-export-outline"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
     @move-down="$emit('move-down')"
@@ -17,6 +17,17 @@
           density="compact"
           :text="$t('macro.function.dumpVariables.info')"
         />
+      </v-col>
+
+      <v-col cols="12">
+        <v-btn
+          color="primary"
+          variant="tonal"
+          prepend-icon="mdi-open-in-new"
+          @click="openDump"
+        >
+          {{ $t('macro.function.dumpVariables.openDump') }}
+        </v-btn>
       </v-col>
     </template>
   </MacroFunctionBaseTaskAccordion>
@@ -39,6 +50,12 @@ export default {
   },
 
   emits: ['remove', 'move-up', 'move-down'],
+
+  methods: {
+    openDump() {
+      window.open('/dumped_variables.json', '_blank', 'noopener,noreferrer')
+    },
+  },
 
   created() {
     const task = (this.item as any).task

@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-account-cog"
     :title="title"
+    :detail="data.profileName || ''"
     export-prefix="macro_obs_set_profile"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -51,7 +52,7 @@ export default {
     },
 
     title(): string {
-      return 'Set OBS profile'
+      return String(this.$t('macro.obs.setProfile.title'))
     },
   },
 

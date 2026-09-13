@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-lock-open"
     :title="$t('macro.obs.unlockSceneItem.title')"
+    :detail="obsSceneItemTitleDetail"
     export-prefix="macro_obs_unlock_scene_item"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -71,6 +72,12 @@ export default {
   },
 
   computed: {
+    obsSceneItemTitleDetail(): string {
+      const scene = String((this as any).data?.sceneName ?? (this as any).data?.sceneUuid ?? '').trim()
+      const itemId = String((this as any).data?.sceneItemId ?? '').trim()
+      if (!scene && !itemId) return ''
+      return scene && itemId ? `${scene} · #${itemId}` : (scene || `#${itemId}`)
+    },
     task(): any {
       const task = (this.item as any).task
 

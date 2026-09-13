@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-delete-outline"
     :title="$t('macro.api.requestTitles.delete')"
+    :detail="task.data?.url || ''"
     export-prefix="macro_api_delete"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

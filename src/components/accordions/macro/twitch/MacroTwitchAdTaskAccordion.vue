@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-advertisements"
     :title="$t('macro.twitch.ad.title')"
+    :detail="`${task.data?.duration ?? 30}s`"
     export-prefix="macro_twitch_ad"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

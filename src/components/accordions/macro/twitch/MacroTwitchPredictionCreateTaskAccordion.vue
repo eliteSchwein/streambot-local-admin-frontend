@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-crystal-ball"
     :title="$t('macro.twitch.predictionCreate.title')"
+    :detail="task.data?.title || ''"
     export-prefix="macro_twitch_prediction_create"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

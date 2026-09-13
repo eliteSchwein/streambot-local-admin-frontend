@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-download"
     :title="$t('macro.api.requestTitles.get')"
+    :detail="task.data?.url || ''"
     export-prefix="macro_api_get"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

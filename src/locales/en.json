@@ -151,9 +151,9 @@
         "queryKey": "limit",
         "queryValue": "10",
         "headerKey": "Authorization",
-        "headerValue": "Bearer ${token}",
+        "headerValue": "Bearer token",
         "fieldName": "name",
-        "templateValue": "${user.name}"
+        "templateValue": "user.name"
       }
     },
     "audio": {
@@ -208,9 +208,6 @@
       "speak": {
         "title": "Speak"
       },
-      "toggleAutoMacro": {
-        "title": "Toggle auto macro"
-      },
       "sleep": {
         "title": "Sleep: {duration}",
         "time": "Time",
@@ -226,7 +223,8 @@
           "seconds": "{count} seconds",
           "minutes": "{count} minutes",
           "hours": "{count} hours"
-        }
+        },
+        "label": "Sleep"
       },
       "parallel": {
         "title": "Parallel tasks",
@@ -235,12 +233,13 @@
       "stripEmojis": {
         "title": "Strip emojis",
         "info": "Removes emoji characters from text and stores the cleaned result in a macro variable.",
-        "contentHint": "Supports macro variables, for example ${ollama_response}.",
+        "contentHint": "Supports macro variables, for example the Ollama response variable.",
         "variableHint": "The cleaned text is stored in this variable."
       },
       "dumpVariables": {
         "title": "Dump variables",
-        "info": "Saves all current macro variables as pretty-printed JSON to dumped_variables.json in the asset media root so it can be downloaded easily. An existing file is overwritten."
+        "info": "Saves all current macro variables as pretty-printed JSON to dumped_variables.json in the asset media root so it can be downloaded easily. An existing file is overwritten.",
+        "openDump": "Open dump"
       }
     },
     "music": {
@@ -285,9 +284,6 @@
       "previous": {
         "title": "Previous song",
         "info": "Return to the previous playlist entry."
-      },
-      "relativeVolume": {
-        "title": "Adjust music volume"
       },
       "reload": {
         "title": "Reload music player"
@@ -401,17 +397,11 @@
       "stopRecord": {
         "title": "Stop recording"
       },
-      "toggleStream": {
-        "title": "Toggle stream"
-      },
       "switchPreviewScene": {
         "title": "Switch preview scene"
       },
       "startReplayBuffer": {
         "title": "Start replay buffer"
-      },
-      "toggleRecord": {
-        "title": "Toggle recording"
       },
       "startStream": {
         "title": "Start stream"
@@ -485,16 +475,16 @@
         "description": "Description"
       },
       "placeholders": {
-        "usernameOrVariable": "username or ${variable}",
-        "optionalReasonOrVariable": "Optional reason or ${variable}",
-        "categoryOrVariable": "Just Chatting or ${variable}",
+        "usernameOrVariable": "Username or macro variable",
+        "optionalReasonOrVariable": "Optional reason or macro variable",
+        "categoryOrVariable": "Just Chatting or macro variable",
         "clipVariable": "clip",
-        "pollIdOrVariable": "${poll.id} or ${variable}",
+        "pollIdOrVariable": "Poll ID or macro variable",
         "pollVariable": "poll",
-        "predictionIdOrVariable": "${prediction.id} or ${variable}",
+        "predictionIdOrVariable": "Prediction ID or macro variable",
         "predictionVariable": "prediction",
-        "predictionId": "${prediction.id}",
-        "winningOutcomeId": "${prediction.outcomes.0.id}",
+        "predictionId": "Prediction ID",
+        "winningOutcomeId": "Winning outcome ID",
         "randomClipVariable": "random_clip",
         "optionalMarkerDescription": "Optional marker description"
       },
@@ -511,7 +501,7 @@
         "title": "Create clip",
         "createAfterDelay": "Create after delay",
         "waitBeforeFetch": "Wait before fetching clip (seconds)",
-        "resultHint": "The completed clip is available as e.g. ${clip.url}",
+        "resultHint": "The completed clip is stored in the configured result variable.",
         "urlVariableHint": "The clip URL is available as {variable}."
       },
       "pollArchive": {
@@ -526,7 +516,7 @@
         "requirement": "A poll requires between 2 and 5 choices.",
         "allowChannelPointVotes": "Allow channel point votes",
         "pointsPerAdditionalVote": "Points per additional vote",
-        "resultHint": "The created poll is available as ${poll}"
+        "resultHint": "The created poll is stored in the configured result variable."
       },
       "pollTerminate": {
         "title": "Terminate poll"
@@ -545,7 +535,7 @@
         "addOutcome": "Add outcome",
         "requirement": "A prediction requires between 2 and 10 outcomes.",
         "lockAfterSeconds": "Lock after (seconds)",
-        "resultHint": "The created prediction is available as ${prediction}"
+        "resultHint": "The created prediction is stored in the configured result variable."
       },
       "predictionResolve": {
         "title": "Resolve prediction",
@@ -578,7 +568,8 @@
         },
         "enableTitle": "Enable random clips",
         "disableTitle": "Disable random clips",
-        "disableInfo": "Stops the currently active random clip player."
+        "disableInfo": "Stops the currently active random clip player.",
+        "primaryChannelTitle": "Primary channel"
       },
       "streamMarker": {
         "title": "Create stream marker"
@@ -694,7 +685,7 @@
           "title": "Sleep"
         }
       },
-      "random": "Random",
+      "random": "Random number",
       "fileReadAssetFolder": "File: read asset folder",
       "channelPoint": {
         "title": "Channel point",
@@ -702,10 +693,9 @@
         "cancelReward": "Cancel reward",
         "pauseReward": "Pause reward",
         "unpauseReward": "Unpause reward",
-        "setPauseState": "Set pause state",
         "enableReward": "Enable reward",
         "disableReward": "Disable reward",
-        "setEnabledState": "Set enabled state"
+        "redemption": "Redemption"
       },
       "variables": {
         "title": "Variables",
@@ -836,14 +826,12 @@
         "streaming": {
           "title": "Streaming",
           "startStream": "Start stream",
-          "stopStream": "Stop stream",
-          "toggleStream": "Toggle stream"
+          "stopStream": "Stop stream"
         },
         "recording": {
           "title": "Recording",
           "startRecording": "Start recording",
           "stopRecording": "Stop recording",
-          "toggleRecording": "Toggle recording",
           "pauseRecording": "Pause recording",
           "resumeRecording": "Resume recording"
         },
@@ -921,7 +909,9 @@
       "alert": {
         "message": "Message",
         "speak": "Speak",
-        "asset": "Asset"
+        "asset": "Asset",
+        "title": "Alert",
+        "emptyMessage": "Empty message"
       },
       "animation": {
         "target": "Target",
@@ -937,7 +927,8 @@
         "variables": "Variables",
         "addVariable": "Add variable",
         "noVariablesConfigured": "No variables configured.",
-        "timeout15000Promise": "= {}, timeout = 15_000): Promise"
+        "timeout15000Promise": "= {}, timeout = 15_000): Promise",
+        "title": "Animation"
       },
       "assetSelect": {
         "timeout8000Promise": "= {}, timeout = 8_000): Promise",
@@ -969,7 +960,9 @@
         "unpauseReward": "Unpause reward",
         "setTogglePauseState": "Set/toggle pause state",
         "paused": "Paused",
-        "unpaused": "Unpaused"
+        "unpaused": "Unpaused",
+        "pauseInfo": "Pauses the selected channel point reward. If no reward is selected, a channel point redemption macro can use the current reward.",
+        "unpauseInfo": "Unpauses the selected channel point reward. If no reward is selected, a channel point redemption macro can use the current reward."
       },
       "channelPointToggle": {
         "enabledAction": "Enabled action",
@@ -989,7 +982,9 @@
         "condition2": "Condition",
         "then": "Then",
         "addElseIf": "Add else if",
-        "addElse": "Add else"
+        "addElse": "Add else",
+        "title": "If",
+        "emptyCondition": "Empty condition"
       },
       "dummyAlert": {},
       "effect": {},
@@ -1000,7 +995,8 @@
       "file": {
         "assetFolderPath": "Asset folder path",
         "fileExtensionOptional": "File extension (optional)",
-        "variableKey": "Variable key"
+        "variableKey": "Variable key",
+        "title": "Read asset folder"
       },
       "functionTask": {},
       "keyboard": {
@@ -1008,17 +1004,38 @@
         "duration": "Duration",
         "macro": "macro",
         "keyPress": "Key press",
-        "variable": "{{ recordingKeys ? 'Stop recording' : 'Record key press' }}",
         "clear": "Clear",
         "pressAllKeysYouWantThenClick": "Press all keys you want, then click",
         "stopRecording": "Stop recording",
-        "variable2": "{{ key.label }}",
-        "variable3": "{{ key.label }}",
-        "variable4": "{{ key.label }}",
-        "title": "Keyboard: {keys}",
-        "emptyKeyPress": "Empty key press",
         "recordKeyPress": "Record key press",
-        "stopRecordingStrong": "Stop recording"
+        "label": "Keyboard",
+        "keys": {
+          "escape": "Esc",
+          "backspace": "Backspace",
+          "tab": "Tab",
+          "capsLock": "Caps",
+          "enter": "Enter",
+          "shiftLeft": "Shift L",
+          "shiftRight": "Shift R",
+          "ctrlLeft": "Ctrl L",
+          "ctrlRight": "Ctrl R",
+          "metaLeft": "Win L",
+          "metaRight": "Win R",
+          "altLeft": "Alt L",
+          "altRight": "Alt R",
+          "space": "Space",
+          "menu": "Menu",
+          "printScreen": "Print",
+          "scrollLock": "ScrLk",
+          "pause": "Pause",
+          "insert": "Ins",
+          "delete": "Del",
+          "home": "Home",
+          "end": "End",
+          "pageUp": "PgUp",
+          "pageDown": "PgDn",
+          "numLock": "Num"
+        }
       },
       "loopControl": {
         "variable": "{{ description }}"
@@ -1092,7 +1109,7 @@
         "key": "Variable",
         "keyPlaceholder": "count",
         "expression": "Value / expression",
-        "expressionPlaceholder": "${count} + 1",
+        "expressionPlaceholder": "count + 1",
         "expressionHint": "Only changes this running macro. Supports variables, arithmetic, exponentiation, comparisons, boolean AND/OR/NOT, parentheses, booleans, null and quoted strings."
       },
       "commandToggle": {
@@ -1102,6 +1119,9 @@
         "enable": "Enable",
         "disable": "Disable",
         "toggle": "Toggle"
+      },
+      "macro": {
+        "title": "Macro"
       }
     },
     "final": {
@@ -1111,7 +1131,7 @@
       "media": {
         "target": "Target",
         "mediaPathURLPlaceholder": "Media path / URL / placeholder",
-        "assetsImageWebpHttpsExampleComImagePngVariable": "assets/image.webp, https://example.com/image.png, ${ variables.media_url }",
+        "assetsImageWebpHttpsExampleComImagePngVariable": "assets/image.webp, https://example.com/image.png, or a macro variable",
         "noMediaSuggestionsFound": "No media suggestions found",
         "type": "Type",
         "clearWhenPathIsEmpty": "Clear when path is empty",
@@ -1127,7 +1147,8 @@
         "iframe": "Iframe",
         "clearTitle": "Clear media",
         "clearInfo": "Clears the currently displayed media for the selected target.",
-        "clearTargetHint": "The media target to clear. Defaults to default."
+        "clearTargetHint": "The media target to clear. Defaults to default.",
+        "title": "Media"
       },
       "musicTask": {},
       "neopixel": {},
@@ -1151,7 +1172,10 @@
         "icon": "Icon",
         "duration": "Duration",
         "data": "Data",
-        "rawTaskFields": "Raw task fields"
+        "rawTaskFields": "Raw task fields",
+        "dummyAlert": "Dummy alert",
+        "websocket": "WebSocket",
+        "task": "Task"
       },
       "taskAccordionTemplate": {},
       "taskActions": {
@@ -1218,7 +1242,7 @@
       },
       "websocket": {},
       "wledCustom": {
-        "wledCustom": "WLED Custom"
+        "title": "WLED control"
       }
     },
     "cleanup": {
@@ -1235,7 +1259,8 @@
         "wledDevice": "WLED device",
         "thisTaskUsesThe": "This task uses the",
         "off": "off",
-        "methodAndTurnsTheSelectedWLEDDeviceOff": "method and turns the selected WLED device off."
+        "methodAndTurnsTheSelectedWLEDDeviceOff": "method and turns the selected WLED device off.",
+        "title": "Turn off WLED"
       },
       "rotatingSceneSelect": {
         "timeout30000Promise": "= {}, timeout = 30_000): Promise",
@@ -1265,6 +1290,7 @@
     },
     "run": "Run",
     "command": {
+      "title": "Commands",
       "fields": {
         "command": "Command",
         "setting": "Setting",
@@ -1276,9 +1302,6 @@
       },
       "disable": {
         "title": "Disable command"
-      },
-      "toggle": {
-        "title": "Toggle command"
       },
       "set": {
         "title": "Set command setting",
@@ -1326,6 +1349,28 @@
       "filterInputFilePlaceholder": "Select a media file or variable",
       "filterInputVariable": "Variable",
       "commandPreview": "Command preview"
+    },
+    "common": {
+      "empty": "Empty",
+      "notSet": "Not set",
+      "taskCount": "{count} task | {count} tasks",
+      "timeUnit": "Unit",
+      "timeUnits": {
+        "milliseconds": "Milliseconds",
+        "seconds": "Seconds",
+        "minutes": "Minutes",
+        "hours": "Hours"
+      },
+      "duration": {
+        "milliseconds": "{count} ms",
+        "seconds": "{count} seconds",
+        "minutes": "{count} minutes",
+        "hours": "{count} hours"
+      }
+    },
+    "variable": {
+      "getTitle": "Get variable",
+      "setTitle": "Set variable"
     }
   },
   "giveaway": {
@@ -1581,7 +1626,9 @@
     "yes": "Yes",
     "no": "No",
     "copyUrl": "Copy URL",
-    "disabled": "Disabled"
+    "disabled": "Disabled",
+    "remove": "Remove",
+    "preset": "Preset"
   },
   "file": {
     "name": "Filename",
@@ -2076,7 +2123,18 @@
       "startEnabledAfterRestart": "Start enabled after restart",
       "addMacro": "Add macro",
       "noMacrosSelectedYetAddAtLeastOneMacroToTrigger": "No macros selected yet. Add at least one macro to trigger.",
-      "macroOrder": "Macro order"
+      "macroOrder": "Macro order",
+      "createTitle": "Create auto macro",
+      "editTitle": "Edit {name}",
+      "macroOrderHint": "Macros are triggered from top to bottom.",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "errors": {
+        "importFailed": "Failed to import auto macro",
+        "saveFailed": "Failed to save auto macro",
+        "parseFailed": "Failed to parse auto macro YAML",
+        "invalidYaml": "Invalid auto macro YAML"
+      }
     },
     "channelPointEditorDialog": {
       "name": "Name",
@@ -2169,6 +2227,20 @@
     },
     "wledIntegrationDialog": {
       "desk": "desk"
+    },
+    "macroTaskAddDialog": {
+      "title": "Add task",
+      "search": "Search tasks",
+      "searchPlaceholder": "Search by task or category...",
+      "noResults": "No matching tasks found.",
+      "other": "Other"
+    },
+    "macroCreateDialog": {
+      "title": "Create macro",
+      "name": "Macro name",
+      "preset": "Preset",
+      "noPresets": "No macro presets found.",
+      "createFailed": "Failed to create macro"
     }
   },
   "fileManager": {

@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-account-cancel"
     :title="$t('macro.twitch.ban.title')"
+    :detail="task.data?.user || ''"
     export-prefix="macro_twitch_ban"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

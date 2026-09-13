@@ -4,7 +4,7 @@
     :item="item"
     :index="index"
     icon="mdi-restart"
-    :title="$t('macro.system.reboot.title')"
+    :title="$t('macro.presets.system.reboot')"
     export-prefix="macro_system_reboot"
     color="primary"
     @remove="$emit('remove')"

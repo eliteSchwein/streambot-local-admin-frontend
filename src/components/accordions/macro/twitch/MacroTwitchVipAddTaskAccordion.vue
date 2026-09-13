@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-star-plus-outline"
     :title="$t('macro.twitch.vipAdd.title')"
+    :detail="task.data?.user || ''"
     export-prefix="macro_twitch_vip_add"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

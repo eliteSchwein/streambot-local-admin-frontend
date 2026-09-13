@@ -2,8 +2,9 @@
   <MacroTaskAccordionTemplate
     :item="item"
     :index="index"
-    icon="mdi-gamepad-variant"
-    :title="$t('macro.twitch.category.title')"
+    icon="mdi-gamepad-variant-outline"
+    :title="$t('macro.presets.twitch.changeCategory')"
+    :detail="task.data?.category || ''"
     export-prefix="macro_twitch_category"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

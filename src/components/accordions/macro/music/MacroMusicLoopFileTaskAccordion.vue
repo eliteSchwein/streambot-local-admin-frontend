@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-repeat-once"
     :title="$t('macro.music.loopFile.title')"
+    :detail="modeTitle"
     export-prefix="macro_music_loop_file"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -33,6 +34,10 @@ export default {
   },
   emits: ['remove', 'move-up', 'move-down'],
 computed: {
+    modeTitle(): string {
+      const value = String(this.mode ?? 'toggle')
+      return String(this.$t(`macro.music.actions.${value}`))
+    },
     task(): any { return (this.item as any).task },
     mode: {
       get(): string {

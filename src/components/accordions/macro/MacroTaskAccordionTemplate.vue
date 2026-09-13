@@ -1,9 +1,12 @@
 <template>
   <v-expansion-panel :value="panelValue">
     <MacroTaskTitle
-      :icon="icon"
+      :icon="displayIcon"
       :index="index"
-      :title="title"
+      :title="displayTitle"
+      :detail="detail"
+      :detail-href="detailHref"
+      :detail-target="detailTarget"
       :can-move-up="canMoveUp"
       :can-move-down="canMoveDown"
       @move-up="$emit('move-up')"
@@ -62,6 +65,11 @@ export default {
     index: { type: Number, required: true },
     icon: { type: String, required: true },
     title: { type: String, required: true },
+    presetTitleKey: { type: String, default: '' },
+    presetIcon: { type: String, default: '' },
+    detail: { type: [String, Number], default: undefined },
+    detailHref: { type: String, default: '' },
+    detailTarget: { type: String, default: '_blank' },
     exportPrefix: { type: String, default: 'macro_task' },
     panelValue: { type: [String, Number], default: undefined },
     canMoveUp: { type: Boolean, default: true },
@@ -76,6 +84,16 @@ export default {
   },
 
   computed: {
+    displayTitle(): string {
+      return this.presetTitleKey
+        ? String(this.$t(this.presetTitleKey))
+        : this.title
+    },
+
+    displayIcon(): string {
+      return this.presetIcon || this.icon
+    },
+
     task(): any {
       return (this.item as any)?.task ?? {}
     },

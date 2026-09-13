@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-palette"
     :title="$t('macro.theme.setColor.title')"
+    :detail="`#${color.replace(/^#/, '')}`"
     export-prefix="macro_theme_set_color"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

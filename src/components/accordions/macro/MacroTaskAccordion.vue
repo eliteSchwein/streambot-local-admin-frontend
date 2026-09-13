@@ -5,6 +5,7 @@
     :index="index"
     :icon="icon"
     :title="title"
+    :detail="titleDetail"
     export-prefix="macro_task"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -164,15 +165,32 @@ export default {
     },
 
     title(): string {
-      if (this.task.channel === 'alert') return `Alert: ${this.task.message || 'empty message'}`
-      if (this.task.channel === 'dummy_alert') return `Dummy alert: ${this.task.message || 'empty message'}`
-      if (this.task.channel === 'function') return `Function: ${this.task.method || 'method'}`
-      if (this.task.channel === 'websocket') return `Websocket: ${this.task.method || 'method'}`
-      if (this.task.channel === 'macro') return `Macro: ${this.task.method || 'name'}`
-      return `${this.task.channel || 'Task'}${this.task.method ? `: ${this.task.method}` : ''}`
+      if (!String(this.task.channel ?? '').trim() && !String(this.task.method ?? '').trim()) {
+        return String(this.$t('macro.presets.expert.rawTask'))
+      }
+      if (this.task.channel === 'alert') return String(this.$t('macro.core.alert.title'))
+      if (this.task.channel === 'dummy_alert') return String(this.$t('macro.final.taskAccordion.dummyAlert'))
+      if (this.task.channel === 'function') return String(this.$t('macro.function.defaultTitle'))
+      if (this.task.channel === 'websocket') return String(this.$t('macro.final.taskAccordion.websocket'))
+      if (this.task.channel === 'macro') return String(this.$t('macro.core.macro.title'))
+
+      const channel = String(this.task.channel ?? '').trim()
+      return channel || String(this.$t('macro.final.taskAccordion.task'))
+    },
+
+    titleDetail(): string {
+      if (['alert', 'dummy_alert'].includes(this.task.channel)) {
+        return String(this.task.message ?? '').trim()
+      }
+
+      return String(this.task.method ?? '').trim()
     },
 
     icon(): string {
+      if (!String(this.task.channel ?? '').trim() && !String(this.task.method ?? '').trim()) {
+        return 'mdi-code-json'
+      }
+
       const icons: Record<string, string> = {
         alert: 'mdi-bell-ring',
         dummy_alert: 'mdi-bell-outline',

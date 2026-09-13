@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-account-clock"
     :title="$t('macro.twitch.timeout.title')"
+    :detail="timeoutTitleDetail"
     export-prefix="macro_twitch_timeout"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -57,6 +58,11 @@ export default {
   emits: ['remove', 'move-up', 'move-down'],
   computed: {
     task(): any { return (this.item as any).task },
+    timeoutTitleDetail(): string {
+      const user = String(this.task.data?.user ?? '').trim()
+      if (!user) return ''
+      return `${user} · ${Number(this.task.data?.duration ?? 600)}s`
+    },
   },
   created() {
     this.task.channel = 'twitch'

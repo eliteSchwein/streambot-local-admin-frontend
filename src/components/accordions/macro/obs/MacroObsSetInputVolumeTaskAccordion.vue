@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-volume-source"
     :title="$t('macro.obs.setInputVolume.title')"
+    :detail="data.inputName ? `${data.inputName} · ${data.inputVolumeDb ?? 0} dB` : ''"
     export-prefix="macro_obs_set_input_volume"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

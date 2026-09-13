@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-check-decagram-outline"
     :title="$t('macro.twitch.predictionResolve.title')"
+    :detail="task.data?.prediction_id || ''"
     export-prefix="macro_twitch_prediction_resolve"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

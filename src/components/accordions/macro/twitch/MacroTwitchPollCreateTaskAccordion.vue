@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-poll"
     :title="$t('macro.twitch.pollCreate.title')"
+    :detail="task.data?.title || ''"
     export-prefix="macro_twitch_poll_create"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-volume-high"
     :title="$t('macro.obs.unmuteInput.title')"
+    :detail="task.data?.inputName || ''"
     export-prefix="macro_obs_unmute_input"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

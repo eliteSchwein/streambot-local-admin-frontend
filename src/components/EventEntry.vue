@@ -1,5 +1,5 @@
 <template>
-  <v-list-item class="event-entry-item" rounded="lg">
+  <v-list-item v-bind="$attrs" class="event-entry-item" rounded="lg">
     <v-list-item-title class="text-truncate" :title="configName">
       {{ displayName }}
     </v-list-item-title>
@@ -42,6 +42,7 @@ import EventSimulationDialog from '@/components/dialogs/EventSimulationDialog.vu
 
 export default {
   name: 'EventEntry',
+  inheritAttrs: false,
 
   components: {
     EventSimulationDialog,

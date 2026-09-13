@@ -2,8 +2,9 @@
   <MacroTaskAccordionTemplate
     :item="item"
     :index="index"
-    icon="mdi-bullhorn"
-    :title="$t('macro.twitch.shoutout.title')"
+    icon="mdi-account-voice"
+    :title="$t('macro.presets.twitch.shoutout')"
+    :detail="task.data?.user || ''"
     export-prefix="macro_twitch_shoutout"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

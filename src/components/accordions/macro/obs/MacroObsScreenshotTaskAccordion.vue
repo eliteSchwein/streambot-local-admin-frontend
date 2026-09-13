@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-camera"
     :title="title"
+    :detail="isOutput ? undefined : (task.data?.sourceName || '')"
     :export-prefix="isOutput ? 'macro_obs_output_screenshot' : 'macro_obs_source_screenshot'"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

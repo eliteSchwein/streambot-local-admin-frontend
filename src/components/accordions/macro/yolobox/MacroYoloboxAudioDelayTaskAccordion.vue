@@ -3,7 +3,8 @@
     :item="item"
     :index="index"
     icon="mdi-timer-outline"
-    :title="$t('macro.yolobox.audioDelay.title')"
+    :title="$t('macro.presets.yolobox.audioSource.setDelay')"
+    :detail="yoloboxSourceTitle"
     export-prefix="macro_yolobox_set_audio_delay"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -50,6 +51,13 @@ export default {
   },
   emits: ['remove', 'move-up', 'move-down'],
   computed: {
+    yoloboxSourceTitle(): string {
+      const id = String(this.task?.data?.id ?? '').trim()
+      if (!id) return ''
+      const match = this.audioSources.find((entry: any) => String(entry?.value ?? '') === id)
+      const title = String(match?.title ?? id)
+      return `${title} · ${Number(this.task.data?.delayTime ?? 0)} ms`
+    },
     ...mapState(useAppStore, ['getYoloboxData']),
     task(): any {
       return (this.item as any).task

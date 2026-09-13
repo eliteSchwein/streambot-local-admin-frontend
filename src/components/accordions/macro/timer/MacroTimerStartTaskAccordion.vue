@@ -3,7 +3,8 @@
     :item="item"
     :index="index"
     icon="mdi-timer-play"
-    :title="`${ $t('macro.final.timer.actions.start') } — ${task.data.name || '-'}`"
+    :title="$t('macro.final.timer.actions.start')"
+    :detail="timerTitleDetail"
     export-prefix="macro_timer_start"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -70,6 +71,17 @@ export default {
     return { appStore: useAppStore() }
   },
   computed: {
+    timerTitleDetail(): string {
+      const name = String(this.task.data?.name ?? '').trim()
+      if (!name) return ''
+
+      const time = Number(this.task.data?.time)
+      const unit = String(this.task.data?.unit ?? 'seconds')
+      if (!Number.isFinite(time)) return name
+
+      const duration = String(this.$t(`macro.function.sleep.duration.${unit}`, { count: time }))
+      return `${name} · ${duration}`
+    },
     timerNameOptions(): string[] {
       const dynamicData = this.appStore?.getDynamicData ?? this.appStore?.dynamicData ?? {}
       const names = Array.isArray(dynamicData?.timer_names) ? dynamicData.timer_names : []

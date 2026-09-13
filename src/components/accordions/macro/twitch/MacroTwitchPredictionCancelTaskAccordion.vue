@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-cancel"
     :title="$t('macro.twitch.predictionCancel.title')"
+    :detail="task.data?.prediction_id || ''"
     export-prefix="macro_twitch_prediction_cancel"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

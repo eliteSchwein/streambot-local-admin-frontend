@@ -4,7 +4,7 @@
     :item="item"
     :index="index"
     icon="mdi-power"
-    :title="$t('macro.system.shutdown.title')"
+    :title="$t('macro.presets.system.shutdown')"
     export-prefix="macro_system_shutdown"
     color="primary"
     @remove="$emit('remove')"

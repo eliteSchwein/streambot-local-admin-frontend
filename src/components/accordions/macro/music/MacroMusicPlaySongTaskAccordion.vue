@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-music-note"
     :title="$t('macro.music.playSong.title')"
+    :detail="task.data?.song || ''"
     export-prefix="macro_music_play_song"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

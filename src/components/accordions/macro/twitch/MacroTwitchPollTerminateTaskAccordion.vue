@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-close-octagon-outline"
     :title="$t('macro.twitch.pollTerminate.title')"
+    :detail="task.data?.poll_id || ''"
     export-prefix="macro_twitch_poll_terminate"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

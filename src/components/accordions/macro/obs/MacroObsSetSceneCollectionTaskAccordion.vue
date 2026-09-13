@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-folder-cog"
     :title="title"
+    :detail="data.sceneCollectionName || ''"
     export-prefix="macro_obs_set_scene_collection"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -51,7 +52,7 @@ export default {
     },
 
     title(): string {
-      return 'Set scene collection'
+      return String(this.$t('macro.presets.obs.tools.setSceneCollection'))
     },
   },
 

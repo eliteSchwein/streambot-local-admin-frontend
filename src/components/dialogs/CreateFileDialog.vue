@@ -27,7 +27,7 @@
           v-if="presetItems.length"
           v-model="selectedPreset"
           :items="presetItems"
-          :label="presetLabel || $t('overlay.previewPreset')"
+          :label="presetLabel || $t('common.preset')"
           variant="outlined"
           density="compact"
           hide-details="auto"

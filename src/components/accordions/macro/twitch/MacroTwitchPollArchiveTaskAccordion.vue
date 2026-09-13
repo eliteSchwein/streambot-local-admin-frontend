@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-archive-outline"
     :title="$t('macro.twitch.pollArchive.title')"
+    :detail="task.data?.poll_id || ''"
     export-prefix="macro_twitch_poll_archive"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

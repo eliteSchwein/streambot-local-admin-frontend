@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-content-cut"
     :title="$t('macro.twitch.clip.title')"
+    :detail="clipUrlVariable"
     export-prefix="macro_twitch_clip"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

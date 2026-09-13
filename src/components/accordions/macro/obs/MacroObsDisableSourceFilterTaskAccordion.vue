@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-filter-off"
     :title="$t('macro.obs.disableSourceFilter.title')"
+    :detail="sourceFilterTitleDetail"
     export-prefix="macro_obs_disable_source_filter"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -69,6 +70,12 @@ export default {
   },
 
   computed: {
+    sourceFilterTitleDetail(): string {
+      const source = String(this.task?.data?.sourceName ?? this.task?.data?.source ?? '').trim()
+      const filter = String(this.task?.data?.filterName ?? this.task?.data?.filter ?? '').trim()
+      if (!source && !filter) return ''
+      return source && filter ? `${source} · ${filter}` : (filter || source)
+    },
     task(): any {
       const task = (this.item as any).task
 

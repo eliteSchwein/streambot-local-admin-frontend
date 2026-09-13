@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-lock-outline"
     :title="$t('macro.twitch.predictionLock.title')"
+    :detail="task.data?.prediction_id || ''"
     export-prefix="macro_twitch_prediction_lock"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

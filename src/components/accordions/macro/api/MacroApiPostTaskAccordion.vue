@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-upload"
     :title="$t('macro.api.requestTitles.post')"
+    :detail="task.data?.url || ''"
     export-prefix="macro_api_post"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

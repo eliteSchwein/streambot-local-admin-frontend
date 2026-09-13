@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-movie-open-play"
     :title="$t('macro.twitch.randomClip.enableTitle')"
+    :detail="randomClipTitleDetail"
     export-prefix="macro_twitch_enable_random_clip"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -137,6 +138,11 @@ export default {
   computed: {
     task(): any {
       return (this.item as any).task
+    },
+    randomClipTitleDetail(): string {
+      const channel = String(this.task.data?.channel ?? '').trim() || String(this.$t('macro.twitch.randomClip.primaryChannelTitle'))
+      const mode = this.modeItems.find(item => item.value === this.task.data?.mode)?.title ?? String(this.task.data?.mode ?? '')
+      return `${channel} · ${mode}`
     },
     modeItems(): Array<{ title: string; value: string }> {
       return [

@@ -3,7 +3,8 @@
     :item="item"
     :index="index"
     :depth="depth"
-    :custom-title="sleepTitle"
+    :custom-title="$t('macro.function.sleep.label')"
+    :title-detail="sleepTitleDetail"
     icon="mdi-timer-sand"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -89,10 +90,8 @@ export default {
       ]
     },
 
-    sleepTitle(): string {
-      return String(this.$t('macro.function.sleep.title', {
-        duration: this.formatDuration(this.getMilliseconds()),
-      }))
+    sleepTitleDetail(): string {
+      return this.formatDuration(this.getMilliseconds())
     },
   },
 

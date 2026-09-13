@@ -7,9 +7,31 @@
         #{{ index + 1 }}
       </span>
 
-      <span class="text-truncate font-weight-medium">
-        {{ title }}
-      </span>
+      <div class="d-flex align-center min-width-0 flex-grow-1">
+        <span class="text-truncate font-weight-medium">
+          {{ title }}
+        </span>
+
+        <template v-if="hasDetail">
+          <span class="mx-2 text-medium-emphasis">·</span>
+          <span
+            v-if="detailHref && !detailIsEmpty"
+            class="text-truncate macro-task-title__detail-link"
+            @pointerdown.stop
+            @mousedown.stop
+            @click.stop.prevent="openDetail"
+          >
+            {{ displayDetail }}
+          </span>
+          <span
+            v-else
+            class="text-truncate"
+            :class="detailIsEmpty ? 'text-medium-emphasis font-italic' : ''"
+          >
+            {{ displayDetail }}
+          </span>
+        </template>
+      </div>
 
       <v-spacer />
 
@@ -43,10 +65,52 @@ export default {
     icon: { type: String, required: true },
     index: { type: Number, required: true },
     title: { type: String, required: true },
+    detail: { type: [String, Number], default: undefined },
+    detailHref: { type: String, default: '' },
+    detailTarget: { type: String, default: '_blank' },
     canMoveUp: { type: Boolean, default: true },
     canMoveDown: { type: Boolean, default: true },
   },
 
   emits: ['move-up', 'move-down'],
+
+  methods: {
+    openDetail() {
+      if (!this.detailHref) return
+      window.open(this.detailHref, this.detailTarget || '_blank', 'noopener,noreferrer')
+    },
+  },
+
+  computed: {
+    hasDetail(): boolean {
+      return this.detail !== undefined
+    },
+
+    normalizedDetail(): string {
+      return String(this.detail ?? '').trim()
+    },
+
+    detailIsEmpty(): boolean {
+      return this.hasDetail && !this.normalizedDetail
+    },
+
+    displayDetail(): string {
+      return this.detailIsEmpty
+        ? String(this.$t('macro.common.notSet'))
+        : this.normalizedDetail
+    },
+  },
 }
 </script>
+
+<style scoped>
+.macro-task-title__detail-link {
+  color: rgb(var(--v-theme-primary));
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.macro-task-title__detail-link:hover {
+  text-decoration: underline;
+}
+</style>

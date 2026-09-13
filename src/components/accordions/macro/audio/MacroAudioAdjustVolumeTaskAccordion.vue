@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-volume-plus"
     :title="$t('macro.audio.adjustVolumeTitle')"
+    :detail="audioTitleValue"
     export-prefix="macro_audio_adjust_volume"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -61,6 +62,12 @@ export default {
   computed: {
     task(): any {
       return (this.item as any).task
+    },
+    audioTitleValue(): string {
+      const iface = String(this.task.data?.interface ?? '').trim()
+      if (!iface) return ''
+      const volume = Number(this.task.data?.volume)
+      return Number.isFinite(volume) ? `${iface} · ${volume}%` : iface
     },
     audioInterfaces(): string[] {
       return Object.keys(this.appStore.audioData ?? {}).sort((a, b) => a.localeCompare(b))

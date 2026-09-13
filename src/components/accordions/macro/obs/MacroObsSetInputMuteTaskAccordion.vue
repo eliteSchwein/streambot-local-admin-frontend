@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-volume-mute"
     :title="$t('macro.obs.setInputMute.title')"
+    :detail="obsData.inputName || ''"
     export-prefix="macro_obs_set_input_mute"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

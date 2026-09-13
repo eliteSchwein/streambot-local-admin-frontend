@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-file-replace-outline"
     :title="$t('macro.api.requestTitles.put')"
+    :detail="task.data?.url || ''"
     export-prefix="macro_api_put"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

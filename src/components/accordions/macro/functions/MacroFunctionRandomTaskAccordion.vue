@@ -3,7 +3,8 @@
     :item="item"
     :index="index"
     :depth="depth"
-    :title-prefix="$t('macro.function.random.title')"
+    :custom-title="$t('macro.presets.random')"
+    :title-detail="titleDetail"
     icon="mdi-dice-multiple-outline"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -40,6 +41,26 @@ export default {
   },
 
   emits: ['remove', 'move-up', 'move-down'],
+
+  computed: {
+    data(): any {
+      const task = (this.item as any).task
+      if (!task.data || typeof task.data !== 'object') task.data = {}
+      return task.data
+    },
+
+    titleDetail(): string {
+      const key = String(this.data.key ?? '').trim()
+      const hasMin = this.data.min !== undefined && this.data.min !== null && this.data.min !== ''
+      const hasMax = this.data.max !== undefined && this.data.max !== null && this.data.max !== ''
+
+      const range = hasMin || hasMax
+        ? `${hasMin ? this.data.min : '?'}–${hasMax ? this.data.max : '?'}`
+        : ''
+
+      return [key, range].filter(Boolean).join(' · ')
+    },
+  },
 
   created() {
     const task = (this.item as any).task

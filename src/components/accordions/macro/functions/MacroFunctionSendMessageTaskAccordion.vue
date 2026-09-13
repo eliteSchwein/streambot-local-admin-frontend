@@ -3,7 +3,8 @@
     :item="item"
     :index="index"
     :depth="depth"
-    :title-prefix="$t('macro.function.sendMessage.title')"
+    :custom-title="$t('macro.function.sendMessage.title')"
+    :title-detail="titleDetail"
     icon="mdi-message-text-outline"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -34,6 +35,23 @@ export default {
   },
 
   emits: ['remove', 'move-up', 'move-down'],
+
+  computed: {
+    titleDetail(): string {
+      return this.preview(String(this.taskData.content ?? ''))
+    },
+
+    taskData(): any {
+      return (this.item as any).task?.data ?? {}
+    },
+  },
+
+  methods: {
+    preview(value: string): string {
+      const normalized = value.replace(/\s+/g, ' ').trim()
+      return normalized.length > 64 ? `${normalized.slice(0, 61)}…` : normalized
+    },
+  },
 
   created() {
     const task = (this.item as any).task

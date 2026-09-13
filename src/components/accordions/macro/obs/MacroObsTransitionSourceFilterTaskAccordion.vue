@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-transition"
     :title="$t('macro.obs.transitionSourceFilter.title')"
+    :detail="sourceFilterTitleDetail"
     export-prefix="macro_obs_transition_source_filter"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -40,17 +41,29 @@
         />
       </v-col>
 
-      <v-col cols="12" md="3">
+      <v-col cols="12" sm="8" md="2">
         <v-number-input
-          v-model="task.data.duration"
+          v-model="durationValue"
           :label="$t('macro.obs.transitionSourceFilter.duration')"
           prepend-inner-icon="mdi-timer-outline"
           variant="outlined"
           hide-details="auto"
           :min="0"
-          :step="0.000001"
-          :precision="6"
-          suffix="s"
+          :step="0.1"
+          @update:model-value="saveDuration"
+        />
+      </v-col>
+
+      <v-col cols="12" sm="4" md="1">
+        <v-select
+          v-model="durationUnit"
+          :items="timeUnits"
+          item-title="title"
+          item-value="value"
+          :label="$t('macro.common.timeUnit')"
+          variant="outlined"
+          hide-details="auto"
+          @update:model-value="saveDuration"
         />
       </v-col>
     </v-row>
@@ -209,6 +222,14 @@ import {
 } from './obsTaskHelpers'
 
 type TransitionSide = 'start' | 'end'
+type TimeUnit = 'milliseconds' | 'seconds' | 'minutes' | 'hours'
+
+const UNIT_TO_SECONDS: Record<TimeUnit, number> = {
+  milliseconds: 0.001,
+  seconds: 1,
+  minutes: 60,
+  hours: 3600,
+}
 
 interface SettingEntry {
   key: string
@@ -267,10 +288,27 @@ export default {
     return {
       appStore: useAppStore(),
       complexDrafts: {} as Record<string, string>,
+      durationValue: 1,
+      durationUnit: 'seconds' as TimeUnit,
     }
   },
 
   computed: {
+    timeUnits(): Array<{ title: string; value: TimeUnit }> {
+      return [
+        { title: String(this.$t('macro.common.timeUnits.milliseconds')), value: 'milliseconds' },
+        { title: String(this.$t('macro.common.timeUnits.seconds')), value: 'seconds' },
+        { title: String(this.$t('macro.common.timeUnits.minutes')), value: 'minutes' },
+        { title: String(this.$t('macro.common.timeUnits.hours')), value: 'hours' },
+      ]
+    },
+
+    sourceFilterTitleDetail(): string {
+      const source = String(this.task?.data?.sourceName ?? this.task?.data?.source ?? '').trim()
+      const filter = String(this.task?.data?.filterName ?? this.task?.data?.filter ?? '').trim()
+      if (!source && !filter) return ''
+      return source && filter ? `${source} · ${filter}` : (filter || source)
+    },
     task(): any {
       const task = (this.item as any).task
 
@@ -336,10 +374,26 @@ export default {
 
   created() {
     this.task
+    const initial = this.getBestDurationUnit(Number(this.task.data.duration ?? 1))
+    this.durationValue = initial.value
+    this.durationUnit = initial.unit
     this.seedSettingsFromObs(false)
   },
 
   methods: {
+    saveDuration(): void {
+      const value = Number(this.durationValue)
+      const safeValue = Number.isFinite(value) && value >= 0 ? value : 0
+      this.task.data.duration = safeValue * UNIT_TO_SECONDS[this.durationUnit]
+    },
+
+    getBestDurationUnit(seconds: number): { value: number; unit: TimeUnit } {
+      if (seconds > 0 && seconds % 3600 === 0) return { value: seconds / 3600, unit: 'hours' }
+      if (seconds > 0 && seconds % 60 === 0) return { value: seconds / 60, unit: 'minutes' }
+      if (seconds > 0 && seconds < 1) return { value: seconds * 1000, unit: 'milliseconds' }
+      return { value: Number.isFinite(seconds) && seconds >= 0 ? seconds : 1, unit: 'seconds' }
+    },
+
     selectSource(sourceName: string | null) {
       const nextSourceName = sourceName ?? ''
 

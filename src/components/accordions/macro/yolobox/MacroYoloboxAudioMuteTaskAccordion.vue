@@ -2,8 +2,11 @@
   <MacroTaskAccordionTemplate
     :item="item"
     :index="index"
-    icon="mdi-volume-off"
-    :title="$t('macro.yolobox.audioMute.title')"
+    :icon="!task.data.isSelected ? 'mdi-volume-off' : 'mdi-volume-high'"
+    :title="!task.data.isSelected
+      ? $t('macro.presets.yolobox.audioSource.mute')
+      : $t('macro.presets.yolobox.audioSource.unmute')"
+    :detail="yoloboxSourceTitle"
     export-prefix="macro_yolobox_set_audio_muted"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -19,16 +22,6 @@
           :label="$t('macro.yolobox.fields.audioSource')"
           variant="outlined"
           clearable
-        />
-      </v-col>
-      <v-col cols="12">
-        <v-select
-          v-model="task.data.muted"
-          :items="muteItems"
-          item-title="title"
-          item-value="value"
-          :label="$t('macro.yolobox.fields.action')"
-          variant="outlined"
         />
       </v-col>
     </v-row>
@@ -49,15 +42,16 @@ export default {
   },
   emits: ['remove', 'move-up', 'move-down'],
   computed: {
+    yoloboxSourceTitle(): string {
+      const id = String(this.task?.data?.id ?? '').trim()
+      if (!id) return ''
+      const match = this.audioSources.find((entry: any) => String(entry?.value ?? '') === id)
+      const title = String(match?.title ?? id)
+      return title
+    },
     ...mapState(useAppStore, ['getYoloboxData']),
     task(): any {
       return (this.item as any).task
-    },
-    muteItems(): Array<{ title: string; value: boolean }> {
-      return [
-        { title: String(this.$t('macro.yolobox.audioMute.mute')), value: true },
-        { title: String(this.$t('macro.yolobox.audioMute.unmute')), value: false },
-      ]
     },
     audioSources(): Array<{ title: string; value: string }> {
       return (this.getYoloboxData?.MixerList ?? []).map((source: any) => ({
@@ -68,10 +62,13 @@ export default {
   },
   created() {
     this.task.channel = 'yolobox'
-    this.task.method = 'set_audio_muted'
+    this.task.method = 'order_mixer_change'
     this.task.data = this.task.data && typeof this.task.data === 'object' ? this.task.data : {}
     this.task.data.id ??= ''
-    this.task.data.muted ??= true
+    if (this.task.data.isSelected === undefined) {
+      this.task.data.isSelected = this.task.data.muted === undefined ? false : !this.task.data.muted
+    }
+    delete this.task.data.muted
   },
 }
 </script>

@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-keyboard"
     :title="title"
+    :detail="data.hotkeyName || ''"
     export-prefix="macro_obs_trigger_hotkey"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"

@@ -5,6 +5,7 @@
     :index="index"
     icon="mdi-monitor-eye"
     :title="title"
+    :detail="selectedSceneTitle"
     export-prefix="macro_obs_switch_preview_scene"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
@@ -15,7 +16,7 @@
         <v-autocomplete
           v-model="data.sceneUuid"
           :items="sceneOptions"
-          item-:title="$t('macro.obs.switchPreviewScene.title')"
+          item-title="title"
           item-value="value"
           :label="$t('macro.obs.fields.scene')"
           prepend-inner-icon="mdi-view-dashboard"
@@ -55,6 +56,12 @@ export default {
   },
 
   computed: {
+    selectedSceneTitle(): string {
+      const value = String(this.data?.sceneUuid ?? '').trim()
+      if (!value) return ''
+      const match = Array.isArray((this as any).sceneOptions) ? (this as any).sceneOptions.find((entry: any) => String(entry?.value ?? '') === value) : undefined
+      return String(match?.title ?? value)
+    },
     task(): any {
       const task = (this.item as any).task
 

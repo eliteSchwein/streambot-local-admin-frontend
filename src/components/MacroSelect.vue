@@ -21,7 +21,7 @@
           icon="mdi-pencil"
           size="x-small"
           variant="text"
-          :disabled="disabled || loading || saving"
+          :disabled="disabled || loading"
           @mousedown.stop.prevent
           @click.stop.prevent="openEditMacro"
         />
@@ -35,53 +35,10 @@
       </template>
     </v-autocomplete>
 
-    <v-dialog v-model="createNameDialog" max-width="520">
-      <v-card color="grey-darken-4">
-        <v-toolbar flat density="comfortable">
-          <v-toolbar-title class="d-flex align-center">
-            <v-icon icon="mdi-plus" class="mr-2" />
-            Create macro
-          </v-toolbar-title>
-          <v-btn icon="mdi-close" variant="text" @click="createNameDialog = false" />
-        </v-toolbar>
-
-        <v-card-text>
-          <v-alert
-            v-if="editorError"
-            type="error"
-            color="red-darken-3"
-            density="comfortable"
-            class="mb-3"
-            :text="editorError"
-          />
-
-          <v-text-field
-            v-model="newMacroName"
-            label="Macro name"
-            density="comfortable"
-            variant="outlined"
-            autofocus
-            hide-details="auto"
-            @keydown.enter.prevent="createMacroAndOpenEditor"
-          />
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer />
-          <v-btn variant="text" @click="createNameDialog = false">Cancel</v-btn>
-          <v-btn
-            color="primary"
-            variant="tonal"
-            prepend-icon="mdi-plus"
-            :loading="saving"
-            :disabled="!normalizedNewMacroName"
-            @click="createMacroAndOpenEditor"
-          >
-            Create macro
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <MacroCreateDialog
+      v-model="createNameDialog"
+      @created="handleMacroCreated"
+    />
 
     <MacroEditorDialog
       ref="macroEditorDialog"
@@ -96,12 +53,14 @@
 import { useAppStore } from '@/stores/app'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import MacroEditorDialog from '@/components/dialogs/MacroEditorDialog.vue'
+import MacroCreateDialog from '@/components/dialogs/MacroCreateDialog.vue'
 
 export default {
   name: 'MacroSelect',
 
   components: {
     MacroEditorDialog,
+    MacroCreateDialog,
   },
 
   props: {
@@ -115,12 +74,10 @@ export default {
   data() {
     return {
       loading: false,
-      saving: false,
       editorDialog: false,
       createNameDialog: false,
       editorError: '',
       selectedMacroName: '',
-      newMacroName: '',
       localMacros: {} as Record<string, any>,
       menuOpen: false,
       hasLoadedMacros: false,
@@ -156,9 +113,6 @@ export default {
       return `${this.$t?.('macro.createFile')}`
     },
 
-    normalizedNewMacroName(): string {
-      return String(this.newMacroName ?? '').trim()
-    },
   },
 
   methods: {
@@ -266,33 +220,20 @@ export default {
     openCreateMacroNameDialog() {
       this.menuOpen = false
       this.editorError = ''
-      this.newMacroName = ''
       this.createNameDialog = true
     },
 
-    async createMacroAndOpenEditor() {
-      const name = this.normalizedNewMacroName
-      if (!name || this.saving) return
+    async handleMacroCreated(path: string) {
+      const fileName = String(path ?? '').split('/').pop() ?? ''
+      const name = fileName.replace(/\.ya?ml$/i, '')
+      if (!name) return
 
-      this.saving = true
-      this.editorError = ''
+      this.createNameDialog = false
+      this.$emit('update:modelValue', name)
+      this.selectedMacroName = name
 
-      try {
-        await this.requestMacroEndpoint('macro_edit', 'macro/edit', {
-          name,
-          content: this.defaultMacroYaml(name),
-        })
-
-        this.createNameDialog = false
-        this.$emit('update:modelValue', name)
-        this.selectedMacroName = name
-        await this.refreshMacros()
-        await this.openEditorDialog()
-      } catch (error: any) {
-        this.editorError = error?.message ?? 'create macro failed'
-      } finally {
-        this.saving = false
-      }
+      await this.refreshMacros()
+      await this.openEditorDialog()
     },
 
     async openEditMacro() {
@@ -318,18 +259,6 @@ export default {
       await this.refreshMacros()
     },
 
-    defaultMacroYaml(name: string) {
-      return `name: ${this.yamlScalar(name)}\ntasks: []\n`
-    },
-
-    yamlScalar(value: any) {
-      if (value === null || value === undefined) return 'null'
-      if (typeof value === 'boolean') return value ? 'true' : 'false'
-      if (typeof value === 'number') return Number.isFinite(value) ? String(value) : '0'
-      const stringValue = String(value)
-      if (!stringValue || /[:#\n\[\]{}]|^\s|\s$/.test(stringValue)) return JSON.stringify(stringValue)
-      return stringValue
-    },
   },
 }
 </script>

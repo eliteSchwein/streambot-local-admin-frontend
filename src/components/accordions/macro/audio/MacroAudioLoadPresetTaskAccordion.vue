@@ -4,6 +4,7 @@
     :index="index"
     icon="mdi-tune-variant"
     :title="$t('macro.audio.loadPresetTitle')"
+    :detail="task.data?.name || ''"
     export-prefix="macro_audio_load_preset"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
