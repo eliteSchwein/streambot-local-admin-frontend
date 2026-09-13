@@ -36,61 +36,27 @@
           :text="error || errorMessage"
         />
 
-        <v-row density="comfortable" class="mb-3 px-3">
-          <v-col cols="12" md="4">
-            <v-text-field
-              v-model="form.name"
-              :label="$t('dialogs.channelPointEditorDialog.name')"
-              density="comfortable"
-              variant="outlined"
-              hide-details
-            />
-          </v-col>
+        <div class="option-card-grid px-3 mb-4">
+          <v-card variant="tonal" class="option-card pa-4">
+            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.channelPointEditorDialog.general') }}</div>
+            <v-text-field v-model="form.name" :label="$t('dialogs.channelPointEditorDialog.name')" density="comfortable" variant="outlined" hide-details />
+          </v-card>
 
-          <v-col cols="12" md="2">
-            <v-switch
-              v-model="form.enable_default"
-              :label="$t('dialogs.channelPointEditorDialog.enableDefault')"
-              color="primary"
-              density="comfortable"
-              hide-details
-              inset
-            />
-          </v-col>
+          <v-card variant="tonal" class="option-card pa-4">
+            <div class="text-subtitle-2 mb-3">Options</div>
+            <v-row density="comfortable">
+              <v-col cols="12" sm="6"><v-switch v-model="form.enable_default" :label="$t('dialogs.channelPointEditorDialog.enableDefault')" color="primary" density="comfortable" hide-details inset /></v-col>
+              <v-col cols="12" sm="6"><v-switch v-model="form.auto_accept" :label="$t('dialogs.channelPointEditorDialog.autoAccept')" color="primary" density="comfortable" hide-details inset /></v-col>
+              <v-col cols="12" sm="6"><v-switch v-model="form.strip_emotes" :label="$t('dialogs.channelPointEditorDialog.stripEmotes')" color="primary" density="comfortable" hide-details inset /></v-col>
+              <v-col cols="12" sm="6"><v-switch v-model="form.input_required" :label="$t('dialogs.channelPointEditorDialog.inputRequired')" color="primary" density="comfortable" hide-details inset /></v-col>
+            </v-row>
+          </v-card>
 
-          <v-col cols="12" md="2">
-            <v-switch
-              v-model="form.auto_accept"
-              :label="$t('dialogs.channelPointEditorDialog.autoAccept')"
-              color="primary"
-              density="comfortable"
-              hide-details
-              inset
-            />
-          </v-col>
-
-          <v-col cols="12" md="2">
-            <v-switch
-              v-model="form.strip_emotes"
-              :label="$t('dialogs.channelPointEditorDialog.stripEmotes')"
-              color="primary"
-              density="comfortable"
-              hide-details
-              inset
-            />
-          </v-col>
-
-          <v-col cols="12" md="2">
-            <v-switch
-              v-model="form.input_required"
-              :label="$t('dialogs.channelPointEditorDialog.inputRequired')"
-              color="primary"
-              density="comfortable"
-              hide-details
-              inset
-            />
-          </v-col>
-        </v-row>
+          <v-card variant="tonal" class="option-card pa-4">
+            <div class="text-subtitle-2 mb-3">Interaction</div>
+            <v-switch v-model="form.bypass_interaction_queue" :label="$t('dialogs.channelPointEditorDialog.bypassInteractionQueue')" color="primary" density="comfortable" hide-details inset />
+          </v-card>
+        </div>
 
         <v-expansion-panels v-model="openPanels" variant="accordion">
           <v-expansion-panel value="asset">
@@ -179,6 +145,7 @@ export default {
         auto_accept: false,
         strip_emotes: false,
         input_required: false,
+        bypass_interaction_queue: false,
       },
       originalName: '',
       macroContent: '',
@@ -222,6 +189,7 @@ export default {
         auto_accept: this.form.auto_accept,
         strip_emotes: this.form.strip_emotes,
         input_required: this.form.input_required,
+        bypass_interaction_queue: this.form.bypass_interaction_queue,
         asset: generatedName,
         macro: generatedName,
       }
@@ -296,6 +264,7 @@ export default {
         auto_accept: point.auto_accept === true,
         strip_emotes: point.strip_emotes === true,
         input_required: point.input_required === true,
+        bypass_interaction_queue: point.bypass_interaction_queue === true,
       }
 
       this.macroContent = this.defaultMacroContent(`channel_point_${fileName}`)
@@ -362,6 +331,7 @@ export default {
         auto_accept: data.auto_accept === true,
         strip_emotes: data.strip_emotes === true,
         input_required: data.input_required === true,
+        bypass_interaction_queue: data.bypass_interaction_queue === true,
       }
 
       if (importedName) {
@@ -394,6 +364,7 @@ export default {
         auto_accept: this.form.auto_accept,
         strip_emotes: this.form.strip_emotes,
         input_required: this.form.input_required,
+        bypass_interaction_queue: this.form.bypass_interaction_queue,
         asset: (this.$refs.assetAccordion as any)?.getAssetPayload?.() ?? {},
         macroContent: (this.$refs.macroAccordion as any)?.getContent?.() || this.macroContent || this.defaultMacroContent(this.generatedConfigName),
       })
@@ -408,5 +379,33 @@ export default {
 
 .min-width-0 {
   min-width: 0;
+}
+
+.channel-point-settings {
+  width: 100%;
+  max-width: none;
+}
+
+.option-card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.option-card {
+  min-width: 0;
+  height: 100%;
+}
+
+@media (min-width: 960px) {
+  .option-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1920px) {
+  .option-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 </style>

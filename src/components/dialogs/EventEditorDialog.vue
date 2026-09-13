@@ -27,6 +27,17 @@
           :text="error || errorMessage"
         />
 
+        <div class="px-4 mb-3">
+          <v-switch
+            v-model="bypassInteractionQueue"
+            :label="$t('dialogs.eventEditorDialog.bypassInteractionQueue')"
+            color="primary"
+            density="comfortable"
+            hide-details
+            inset
+          />
+        </div>
+
         <v-expansion-panels v-model="openPanels" variant="accordion" @update:model-value="onPanelsChanged">
           <v-expansion-panel v-if="!isSystemEvent" value="asset">
             <v-expansion-panel-title>
@@ -129,6 +140,7 @@ export default {
       errorMessage: '',
       savingInternal: false,
       simulationDialog: false,
+      bypassInteractionQueue: false,
     }
   },
 
@@ -186,6 +198,7 @@ export default {
   methods: {
     async open() {
       this.errorMessage = ''
+      this.bypassInteractionQueue = this.eventEntry?.bypass_interaction_queue === true || this.eventEntry?.bypassInteractionQueue === true
       this.macroContent = this.defaultMacroContent(this.configName)
       this.applyPanelState()
       await this.$nextTick()
@@ -272,14 +285,31 @@ export default {
       this.simulationDialog = true
     },
 
+    withBypassInteractionQueue(content: string) {
+      const value = String(content ?? '')
+      const line = `bypass_interaction_queue: ${this.bypassInteractionQueue ? 'true' : 'false'}`
+
+      if (/^bypass_interaction_queue\s*:/m.test(value)) {
+        return value.replace(/^bypass_interaction_queue\s*:.*$/m, line)
+      }
+
+      if (/^name\s*:/m.test(value)) {
+        return value.replace(/^(name\s*:.*)$/m, `$1\n${line}`)
+      }
+
+      return `${line}\n${value}`
+    },
+
     save() {
       if (!this.canSave) return
+
+      const macroContent = (this.$refs.macroAccordion as any)?.getContent?.() || this.macroContent || this.defaultMacroContent(this.configName)
 
       this.$emit('save', {
         name: this.configName,
         skipAsset: this.isSystemEvent,
         asset: this.isSystemEvent ? undefined : ((this.$refs.assetAccordion as any)?.getAssetPayload?.() ?? {}),
-        macroContent: (this.$refs.macroAccordion as any)?.getContent?.() || this.macroContent || this.defaultMacroContent(this.configName),
+        macroContent: this.withBypassInteractionQueue(macroContent),
       })
     },
   },

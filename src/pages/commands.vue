@@ -488,6 +488,7 @@ export default {
       const commandContent = this.yamlDump({
         name,
         enabled: payload.enabled !== false,
+        bypass_interaction_queue: payload.bypass_interaction_queue === true,
         single_use: payload.single_use ?? 'none',
         user_list_mode: payload.user_list_mode ?? 'none',
         users: Array.isArray(payload.users) ? payload.users : [],

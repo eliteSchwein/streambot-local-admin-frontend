@@ -2147,7 +2147,9 @@
       "inputRequired": "Eingabe erforderlich",
       "asset": "Asset",
       "macro": "Makro",
-      "cancel": "Abbrechen"
+      "cancel": "Abbrechen",
+      "bypassInteractionQueue": "Interaktionswarteschlange umgehen",
+      "general": "Allgemein"
     },
     "connectDialog": {},
     "commandEditorDialog": {},
@@ -2161,7 +2163,9 @@
       "inputRequired": "Eingabe erforderlich",
       "asset": "Asset",
       "macro": "Makro",
-      "cancel": "Abbrechen"
+      "cancel": "Abbrechen",
+      "bypassInteractionQueue": "Interaktionswarteschlange umgehen",
+      "general": "Allgemein"
     },
     "eventEditorDialog": {
       "asset": "Asset",
@@ -2176,7 +2180,8 @@
       "title": "Ereignis bearbeiten",
       "editTitle": "Ereignis bearbeiten: {event}",
       "websocketDisconnected": "WebSocket ist nicht verbunden",
-      "invalidSimulationJson": "Ungültiges JSON in „{field}“"
+      "invalidSimulationJson": "Ungültiges JSON in „{field}“",
+      "bypassInteractionQueue": "Interaktionswarteschlange umgehen"
     },
     "commandCreateDialog": {
       "command": "Befehl",
@@ -2205,7 +2210,12 @@
       "userListNone": "Keine Liste",
       "userBlacklist": "Blacklist",
       "userWhitelist": "Whitelist",
-      "users": "Benutzer"
+      "users": "Benutzer",
+      "bypassInteractionQueue": "Interaktionswarteschlange umgehen",
+      "general": "Allgemein",
+      "cooldowns": "Cooldowns",
+      "behavior": "Verhalten",
+      "permissions": "Berechtigungen"
     },
     "fileDeleteConfirmDialog": {},
     "fileCopyDialog": {},

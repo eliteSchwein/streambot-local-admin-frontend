@@ -52,6 +52,7 @@ export default {
         aliases: this.toArray(command.aliases ?? command.alias),
         params: this.expandParams(command.params),
         enabled: command.enabled !== false,
+        bypass_interaction_queue: command.bypass_interaction_queue === true,
         single_use: ['user', 'global'].includes(command.single_use ?? command.singleUse)
           ? (command.single_use ?? command.singleUse)
           : 'none',

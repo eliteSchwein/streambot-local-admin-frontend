@@ -130,6 +130,7 @@ type EventEntryData = {
   macro?: boolean
   asset?: boolean
   configured?: boolean
+  bypass_interaction_queue?: boolean
   localeKey?: string
   channelLocaleKey?: string
   subchannelLocaleKey?: string
@@ -336,6 +337,7 @@ export default {
         macro: raw?.macro === true,
         asset: raw?.asset === true,
         configured: raw?.configured === true || raw?.macro === true || raw?.asset === true,
+        bypass_interaction_queue: raw?.bypass_interaction_queue === true || raw?.bypassInteractionQueue === true,
         localeKey: typeof raw?.localeKey === 'string' ? raw.localeKey : undefined,
         channelLocaleKey: typeof raw?.channelLocaleKey === 'string' ? raw.channelLocaleKey : undefined,
         subchannelLocaleKey: typeof raw?.subchannelLocaleKey === 'string' ? raw.subchannelLocaleKey : undefined,

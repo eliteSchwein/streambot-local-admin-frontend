@@ -410,6 +410,7 @@ export default {
           auto_accept: payload.auto_accept === true,
           strip_emotes: payload.strip_emotes === true,
           input_required: payload.input_required === true,
+          bypass_interaction_queue: payload.bypass_interaction_queue === true,
         }
 
         await this.requestChannelPointEndpoint('assets_edit', {
@@ -434,6 +435,7 @@ export default {
           auto_accept: channelPoint.auto_accept,
           strip_emotes: channelPoint.strip_emotes,
           input_required: channelPoint.input_required,
+          bypass_interaction_queue: channelPoint.bypass_interaction_queue,
           channel_point: channelPoint,
           content: this.channelPointToYaml(channelPoint),
         }, 30_000)
@@ -465,6 +467,7 @@ export default {
         `auto_accept: ${channelPoint.auto_accept === true ? 'true' : 'false'}`,
         `strip_emotes: ${channelPoint.strip_emotes === true ? 'true' : 'false'}`,
         `input_required: ${channelPoint.input_required === true ? 'true' : 'false'}`,
+        `bypass_interaction_queue: ${channelPoint.bypass_interaction_queue === true ? 'true' : 'false'}`,
         '',
       ].join('\n')
     },

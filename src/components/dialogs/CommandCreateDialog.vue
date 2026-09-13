@@ -22,82 +22,54 @@
       <v-card-text class="px-0 py-3">
         <v-alert v-if="errorMessage" type="error" color="red-darken-3" class="mb-3 mx-3" :text="errorMessage" />
 
-        <v-row density="comfortable" class="px-3">
-          <v-col cols="12" md="6">
-            <v-text-field v-model="form.name" :label="$t('dialogs.commandCreateDialog.command')" prefix="!" variant="outlined" density="comfortable" hide-details />
-          </v-col>
+        <div class="option-card-grid px-3 mb-4">
+          <v-card variant="tonal" class="option-card pa-4">
+            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.general') }}</div>
+            <v-row density="comfortable">
+              <v-col cols="12">
+                <v-text-field v-model="form.name" :label="$t('dialogs.commandCreateDialog.command')" prefix="!" variant="outlined" density="comfortable" hide-details />
+              </v-col>
+              <v-col cols="12">
+                <v-combobox v-model="form.aliases" :label="$t('dialogs.commandCreateDialog.aliases')" variant="outlined" density="comfortable" multiple chips closable-chips hide-details />
+              </v-col>
+            </v-row>
+          </v-card>
 
-          <v-col cols="12" md="6">
-            <v-combobox v-model="form.aliases" :label="$t('dialogs.commandCreateDialog.aliases')" variant="outlined" density="comfortable" multiple chips closable-chips hide-details />
-          </v-col>
-        </v-row>
+          <v-card variant="tonal" class="option-card pa-4">
+            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.cooldowns') }}</div>
+            <v-row density="comfortable">
+              <v-col cols="12" sm="6"><v-text-field v-model.number="form.userCooldown" :label="$t('dialogs.commandCreateDialog.userCooldown')" type="number" variant="outlined" density="comfortable" hide-details /></v-col>
+              <v-col cols="12" sm="6"><v-text-field v-model.number="form.globalCooldown" :label="$t('dialogs.commandCreateDialog.globalCooldown')" type="number" variant="outlined" density="comfortable" hide-details /></v-col>
+            </v-row>
+          </v-card>
 
-        <v-row density="comfortable" class="mt-3 px-3">
-          <v-col cols="12" md="6">
-            <v-text-field v-model.number="form.userCooldown" :label="$t('dialogs.commandCreateDialog.userCooldown')" type="number" variant="outlined" density="comfortable" hide-details />
-          </v-col>
+          <v-card variant="tonal" class="option-card pa-4">
+            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.behavior') }}</div>
+            <v-row density="comfortable">
+              <v-col cols="12" sm="6"><v-switch v-model="form.enabled" :label="$t('dialogs.commandCreateDialog.enabled')" color="primary" hide-details density="comfortable" inset /></v-col>
+              <v-col cols="12" sm="6"><v-switch v-model="form.bypass_interaction_queue" :label="$t('dialogs.commandCreateDialog.bypassInteractionQueue')" color="primary" hide-details density="comfortable" inset /></v-col>
+              <v-col cols="12"><v-select v-model="form.single_use" :items="singleUseOptions" :label="$t('dialogs.commandCreateDialog.singleUse')" variant="outlined" density="comfortable" hide-details /></v-col>
+            </v-row>
+          </v-card>
 
-          <v-col cols="12" md="6">
-            <v-text-field v-model.number="form.globalCooldown" :label="$t('dialogs.commandCreateDialog.globalCooldown')" type="number" variant="outlined" density="comfortable" hide-details />
-          </v-col>
-        </v-row>
+          <v-card variant="tonal" class="option-card pa-4">
+            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.permissions') }}</div>
+            <v-row density="comfortable">
+              <v-col cols="12" sm="6"><v-switch v-model="form.enforce_primary" :label="$t('dialogs.commandCreateDialog.primaryOnly')" color="primary" hide-details density="comfortable" inset /></v-col>
+              <v-col cols="12" sm="6"><v-switch v-model="form.requiresBroadcaster" :label="$t('dialogs.commandCreateDialog.broadcaster')" color="primary" hide-details density="comfortable" inset /></v-col>
+              <v-col cols="12" sm="6"><v-switch v-model="form.requiresMod" :label="$t('dialogs.commandCreateDialog.mod')" color="primary" hide-details density="comfortable" inset /></v-col>
+              <v-col cols="12" sm="6"><v-switch v-model="form.requiresVip" :label="$t('dialogs.commandCreateDialog.vip')" color="primary" density="comfortable" hide-details inset /></v-col>
+            </v-row>
+          </v-card>
 
-        <v-row density="comfortable" class="mt-3 px-3">
-          <v-col cols="12" md="3">
-            <v-switch
-              v-model="form.enabled"
-              :label="$t('dialogs.commandCreateDialog.enabled')"
-              color="primary"
-              hide-details
-              density="comfortable"
-            />
-          </v-col>
-
-          <v-col cols="12" md="3">
-            <v-select
-              v-model="form.single_use"
-              :items="singleUseOptions"
-              :label="$t('dialogs.commandCreateDialog.singleUse')"
-              variant="outlined"
-              density="comfortable"
-              hide-details
-            />
-          </v-col>
-
-          <v-col cols="12" md="3">
-            <v-select
-              v-model="form.user_list_mode"
-              :items="userListModeOptions"
-              :label="$t('dialogs.commandCreateDialog.userListMode')"
-              variant="outlined"
-              density="comfortable"
-              hide-details
-            />
-          </v-col>
-
-          <v-col cols="12" md="3">
-            <v-combobox
-              v-model="form.users"
-              :label="$t('dialogs.commandCreateDialog.users')"
-              :disabled="form.user_list_mode === 'none'"
-              variant="outlined"
-              density="comfortable"
-              multiple
-              chips
-              closable-chips
-              hide-details
-            />
-          </v-col>
-        </v-row>
-
-        <div class="d-flex flex-wrap ga-2 my-3 px-3">
-          <v-switch v-model="form.enforce_primary" :label="$t('dialogs.commandCreateDialog.primaryOnly')" color="primary" hide-details density="comfortable" />
-          <v-switch v-model="form.requiresBroadcaster" :label="$t('dialogs.commandCreateDialog.broadcaster')" color="primary" hide-details density="comfortable" />
-          <v-switch v-model="form.requiresMod" :label="$t('dialogs.commandCreateDialog.mod')" color="primary" hide-details density="comfortable" />
-          <v-switch v-model="form.requiresVip" :label="$t('dialogs.commandCreateDialog.vip')" color="primary" density="comfortable" hide-details />
+          <v-card variant="tonal" class="option-card pa-4">
+            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.userListMode') }}</div>
+            <v-select v-model="form.user_list_mode" :items="userListModeOptions" :label="$t('dialogs.commandCreateDialog.userListMode')" variant="outlined" density="comfortable" hide-details class="mb-3" />
+            <v-combobox v-if="form.user_list_mode !== 'none'" v-model="form.users" :label="$t('dialogs.commandCreateDialog.users')" variant="outlined" density="comfortable" multiple chips closable-chips hide-details />
+          </v-card>
         </div>
 
-        <v-card color="grey-darken-4" variant="flat" class="pa-3 mb-3">
+        <v-card color="grey-darken-4" variant="flat" class="dialog-section pa-3 mb-3">
           <div class="d-flex align-center justify-space-between mb-2">
             <div class="text-subtitle-2">{{ $t('dialogs.commandCreateDialog.params') }}</div>
             <v-btn size="small" prepend-icon="mdi-plus" variant="tonal" @click="addParam">{{ $t('dialogs.commandCreateDialog.addParam') }}</v-btn>
@@ -288,6 +260,7 @@ export default {
         aliases: [] as string[],
         params: [] as any[],
         enabled: true,
+        bypass_interaction_queue: false,
         single_use: 'none',
         user_list_mode: 'none',
         users: [] as string[],
@@ -317,6 +290,7 @@ export default {
           .map((user: any) => String(user ?? '').replace(/^@+/, '').trim())
           .filter(Boolean),
         enabled: value.enabled !== false,
+        bypass_interaction_queue: value.bypass_interaction_queue === true,
         single_use: ['user', 'global'].includes(value.single_use ?? value.singleUse)
           ? (value.single_use ?? value.singleUse)
           : 'none',
@@ -472,6 +446,7 @@ export default {
           params: this.expandImportedParams(command.params),
           userCooldown: command.userCooldown,
           globalCooldown: command.globalCooldown,
+          bypass_interaction_queue: command.bypass_interaction_queue === true,
           enforce_primary: command.enforce_primary === true || command.enforceSame === true,
           requiresBroadcaster: command.requiresBroadcaster === true,
           requiresMod: command.requiresMod === true,
@@ -553,5 +528,33 @@ export default {
 <style scoped>
 .min-width-0 {
   min-width: 0;
+}
+
+.dialog-section {
+  width: 100%;
+  max-width: none;
+}
+
+.option-card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.option-card {
+  min-width: 0;
+  height: 100%;
+}
+
+@media (min-width: 960px) {
+  .option-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1920px) {
+  .option-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 </style>
