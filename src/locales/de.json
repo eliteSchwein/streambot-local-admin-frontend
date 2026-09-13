@@ -2090,7 +2090,10 @@
     "cavaSettingValue": "Optionswert",
     "autoCompressUpload": "Beim Upload automatisch komprimieren",
     "noConfiguredTtsLocales": "Keine TTS-Locale konfiguriert. Wähle unten eine Stimme aus, um eine Locale hinzuzufügen und herunterzuladen.",
-    "configuredTtsLocales": "Konfigurierte TTS-Modelle"
+    "configuredTtsLocales": "Konfigurierte TTS-Modelle",
+    "touchDisplay": "Touch-Display",
+    "touchWallpaper": "Touch-Hintergrundbild",
+    "touchWallpaperHint": "Hintergrundbild der Touch-Oberfläche. Wähle ein Bild aus dem Medien-Asset-Ordner oder gib einen eigenen Pfad ein."
   },
   "components": {
     "storageCard": {},

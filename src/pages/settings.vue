@@ -79,6 +79,31 @@
             </v-card-text>
           </v-card>
 
+          <v-card color="grey-darken-4" elevation="0" class="mb-2">
+            <v-card-title class="d-flex align-center ga-2">
+              <v-icon icon="mdi-monitor-dashboard" />
+              <span>{{ $t('settings.touchDisplay') }}</span>
+            </v-card-title>
+
+            <v-card-text>
+              <v-combobox
+                v-model="form.touch_wallpaper"
+                :items="touchWallpaperItems"
+                :label="$t('settings.touchWallpaper')"
+                :hint="$t('settings.touchWallpaperHint')"
+                prepend-inner-icon="mdi-wallpaper"
+                variant="outlined"
+                density="comfortable"
+                clearable
+                persistent-hint
+                :loading="loadingTouchWallpapers"
+                :disabled="settingsLocked"
+                @focus="ensureTouchWallpaperItems"
+                @update:menu="handleTouchWallpaperMenu"
+              />
+            </v-card-text>
+          </v-card>
+
           <v-card color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
@@ -512,6 +537,7 @@ import ColorPickerField from '@/components/inputs/ColorPickerField.vue'
 
 type SettingsForm = {
   language: string
+  touch_wallpaper: string
   asset_tune: {
     codec: string
     auto_compress_upload: boolean
@@ -539,6 +565,7 @@ type SettingsForm = {
 
 const defaultForm = (): SettingsForm => ({
   language: 'en',
+  touch_wallpaper: '',
   asset_tune: {
     codec: 'vp9',
     auto_compress_upload: false,
@@ -582,6 +609,9 @@ export default {
       form: defaultForm(),
       voiceSearch: '',
       showVoicePicker: false,
+      touchWallpaperItems: [] as string[],
+      loadingTouchWallpapers: false,
+      touchWallpapersLoaded: false,
       newCavaTargetName: '',
       newCavaTargetBars: 63,
       newCavaTargetSettings: {} as Record<string, { key: string, value: string }>,
@@ -770,6 +800,7 @@ export default {
         ...defaults,
         ...settings,
         language: settings.language || defaults.language,
+        touch_wallpaper: String(settings.touch_wallpaper ?? defaults.touch_wallpaper),
         asset_tune: {
           ...defaults.asset_tune,
           ...assetTune,
@@ -911,6 +942,84 @@ export default {
       this.form.cava.targets[targetName] = target
     },
 
+    handleTouchWallpaperMenu(open: boolean) {
+      if (open) void this.ensureTouchWallpaperItems()
+    },
+
+    normalizeMediaPath(value: any): string {
+      return String(value ?? '')
+        .trim()
+        .replace(/\\/g, '/')
+        .replace(/^\/+/, '')
+        .replace(/\/{2,}/g, '/')
+    },
+
+    isWallpaperImage(path: string): boolean {
+      return /\.(?:avif|bmp|gif|jpe?g|png|webp)$/i.test(path)
+    },
+
+    async ensureTouchWallpaperItems() {
+      if (this.touchWallpapersLoaded || this.loadingTouchWallpapers) return
+
+      this.loadingTouchWallpapers = true
+
+      try {
+        const found = new Set<string>()
+        const visited = new Set<string>()
+
+        const walk = async (path = '', depth = 0): Promise<void> => {
+          const normalizedPath = this.normalizeMediaPath(path)
+          if (visited.has(normalizedPath) || depth > 8) return
+          visited.add(normalizedPath)
+
+          const response = await this.requestWebsocket('media_list', { path: normalizedPath }, 15_000)
+          const data = response?.params
+            ?? this.unwrapWebsocketResponse(response, 'media_list')
+            ?? response?.data
+            ?? response
+          const files = Array.isArray(data?.files)
+            ? data.files
+            : Array.isArray(data?.items)
+              ? data.items
+              : Array.isArray(data?.entries)
+                ? data.entries
+                : Array.isArray(data?.children)
+                  ? data.children
+                  : []
+
+          await Promise.all(files.map(async (entry: any) => {
+            const name = String(entry?.name ?? '').trim()
+            const entryPath = this.normalizeMediaPath(
+              entry?.path || [normalizedPath, name].filter(Boolean).join('/')
+            )
+
+            if (!entryPath) return
+
+            if (entry?.type === 'folder' || entry?.isDirectory === true) {
+              await walk(entryPath, depth + 1)
+              return
+            }
+
+            if (this.isWallpaperImage(entryPath)) {
+              found.add(`/${entryPath}`)
+            }
+          }))
+        }
+
+        await walk('')
+
+        const current = String(this.form.touch_wallpaper ?? '').trim()
+        if (current) found.add(current)
+
+        this.touchWallpaperItems = Array.from(found).sort((a, b) => a.localeCompare(b))
+        this.touchWallpapersLoaded = true
+      } catch (error) {
+        console.error('loading touch wallpaper suggestions failed', error)
+      } finally {
+        this.loadingTouchWallpapers = false
+      }
+    },
+
     requestWebsocket(method: string, params: Record<string, any> = {}, timeout = 8_000): Promise<any> {
       const client: any = getWebsocketClient()
 
@@ -986,6 +1095,7 @@ export default {
 
       return {
         language: String(this.form.language || defaults.language).trim().toLowerCase(),
+        touch_wallpaper: String(this.form.touch_wallpaper ?? '').trim(),
         asset_tune: {
           codec: String(this.form.asset_tune.codec || defaults.asset_tune.codec).trim().toLowerCase(),
           auto_compress_upload: Boolean(this.form.asset_tune.auto_compress_upload),
@@ -1045,6 +1155,8 @@ export default {
 
         delete previous.tts
         delete current.tts
+        delete previous.touch_wallpaper
+        delete current.touch_wallpaper
 
         return JSON.stringify(previous) !== JSON.stringify(current)
       } catch {
