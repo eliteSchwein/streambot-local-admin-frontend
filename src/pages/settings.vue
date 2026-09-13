@@ -98,8 +98,7 @@
                 persistent-hint
                 :loading="loadingTouchWallpapers"
                 :disabled="settingsLocked"
-                @focus="ensureTouchWallpaperItems"
-                @update:menu="handleTouchWallpaperMenu"
+                :menu-props="{ maxHeight: 360 }"
               />
             </v-card-text>
           </v-card>
@@ -745,6 +744,12 @@ export default {
     },
   },
 
+  mounted() {
+    // Prime wallpaper suggestions once in the background. The combobox then
+    // only filters the cached local list while the user types.
+    void this.ensureTouchWallpaperItems()
+  },
+
   beforeUnmount() {
     if (this.autoSaveTimer) {
       clearTimeout(this.autoSaveTimer)
@@ -942,10 +947,6 @@ export default {
       this.form.cava.targets[targetName] = target
     },
 
-    handleTouchWallpaperMenu(open: boolean) {
-      if (open) void this.ensureTouchWallpaperItems()
-    },
-
     normalizeMediaPath(value: any): string {
       return String(value ?? '')
         .trim()
@@ -958,6 +959,19 @@ export default {
       return /\.(?:avif|bmp|gif|jpe?g|png|webp)$/i.test(path)
     },
 
+    getMediaListEntries(response: any): any[] {
+      const data = response?.params
+        ?? this.unwrapWebsocketResponse(response, 'media_list')
+        ?? response?.data
+        ?? response
+
+      if (Array.isArray(data?.files)) return data.files
+      if (Array.isArray(data?.items)) return data.items
+      if (Array.isArray(data?.entries)) return data.entries
+      if (Array.isArray(data?.children)) return data.children
+      return []
+    },
+
     async ensureTouchWallpaperItems() {
       if (this.touchWallpapersLoaded || this.loadingTouchWallpapers) return
 
@@ -966,52 +980,47 @@ export default {
       try {
         const found = new Set<string>()
         const visited = new Set<string>()
-
-        const walk = async (path = '', depth = 0): Promise<void> => {
-          const normalizedPath = this.normalizeMediaPath(path)
-          if (visited.has(normalizedPath) || depth > 8) return
-          visited.add(normalizedPath)
-
-          const response = await this.requestWebsocket('media_list', { path: normalizedPath }, 15_000)
-          const data = response?.params
-            ?? this.unwrapWebsocketResponse(response, 'media_list')
-            ?? response?.data
-            ?? response
-          const files = Array.isArray(data?.files)
-            ? data.files
-            : Array.isArray(data?.items)
-              ? data.items
-              : Array.isArray(data?.entries)
-                ? data.entries
-                : Array.isArray(data?.children)
-                  ? data.children
-                  : []
-
-          await Promise.all(files.map(async (entry: any) => {
-            const name = String(entry?.name ?? '').trim()
-            const entryPath = this.normalizeMediaPath(
-              entry?.path || [normalizedPath, name].filter(Boolean).join('/')
-            )
-
-            if (!entryPath) return
-
-            if (entry?.type === 'folder' || entry?.isDirectory === true) {
-              await walk(entryPath, depth + 1)
-              return
-            }
-
-            if (this.isWallpaperImage(entryPath)) {
-              found.add(`/${entryPath}`)
-            }
-          }))
-        }
-
-        await walk('')
+        const pending: Array<{ path: string; depth: number }> = [{ path: '', depth: 0 }]
+        const maxDepth = 8
+        const workerCount = 4
 
         const current = String(this.form.touch_wallpaper ?? '').trim()
         if (current) found.add(current)
 
-        this.touchWallpaperItems = Array.from(found).sort((a, b) => a.localeCompare(b))
+        const worker = async () => {
+          while (pending.length) {
+            const next = pending.shift()
+            if (!next) return
+
+            const normalizedPath = this.normalizeMediaPath(next.path)
+            if (visited.has(normalizedPath) || next.depth > maxDepth) continue
+            visited.add(normalizedPath)
+
+            const response = await this.requestWebsocket('media_list', { path: normalizedPath }, 15_000)
+            const files = this.getMediaListEntries(response)
+
+            for (const entry of files) {
+              const name = String(entry?.name ?? '').trim()
+              const entryPath = this.normalizeMediaPath(
+                entry?.path || [normalizedPath, name].filter(Boolean).join('/')
+              )
+
+              if (!entryPath) continue
+
+              if (entry?.type === 'folder' || entry?.isDirectory === true) {
+                pending.push({ path: entryPath, depth: next.depth + 1 })
+              } else if (this.isWallpaperImage(entryPath)) {
+                found.add(`/${entryPath}`)
+              }
+            }
+          }
+        }
+
+        await Promise.all(Array.from({ length: workerCount }, () => worker()))
+
+        this.touchWallpaperItems = Array.from(found).sort((a, b) =>
+          a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true })
+        )
         this.touchWallpapersLoaded = true
       } catch (error) {
         console.error('loading touch wallpaper suggestions failed', error)
