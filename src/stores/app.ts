@@ -19,6 +19,7 @@ export const useAppStore = defineStore('app', {
     },
     games: [],
     alerts: [],
+    interactions: [],
     websocket: {
       connected: false,
       connecting: false
@@ -93,6 +94,7 @@ export const useAppStore = defineStore('app', {
     },
     getGames: (state) => state.games,
     getAlerts: (state) => state.alerts,
+    getInteractions: (state) => state.interactions,
     isWebsocketConnected: (state) => state.websocket.connected,
     isWebsocketConnecting: (state) => state.websocket.connecting,
     getCurrentGame: (state) => state.currentGame,
@@ -267,6 +269,30 @@ export const useAppStore = defineStore('app', {
     setAlerts(alerts: []) {
       this.alerts = alerts
       this.$patch(state => state.alerts = alerts)
+    },
+    setInteractions(interactions: any[]) {
+      const normalized = Array.isArray(interactions) ? interactions : []
+      this.interactions = normalized
+      this.$patch(state => state.interactions = normalized)
+    },
+    upsertInteraction(interaction: any) {
+      if (!interaction?.uuid) return
+
+      const index = this.interactions.findIndex((item: any) => item?.uuid === interaction.uuid)
+      if (index >= 0) {
+        this.interactions[index] = {
+          ...this.interactions[index],
+          ...interaction,
+        }
+      } else {
+        this.interactions.push(interaction)
+      }
+
+      this.$patch(state => state.interactions = [...this.interactions])
+    },
+    removeInteraction(uuid: string) {
+      this.interactions = this.interactions.filter((item: any) => item?.uuid !== uuid)
+      this.$patch(state => state.interactions = [...this.interactions])
     },
     setWebsocketConnected(connected: boolean) {
       this.websocket.connected = connected

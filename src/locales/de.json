@@ -2256,5 +2256,28 @@
     "upload": "Szenenwechsel hochladen",
     "search": "Szenenwechsel suchen",
     "noScenesFound": "Keine Szenenwechsel gefunden"
+  },
+  "interactions": {
+    "title": "Interaktionen",
+    "empty": "Es gibt derzeit keine Interaktionen.",
+    "cancel": "Interaktion abbrechen",
+    "duration": "Dauer: {duration}",
+    "eta": "Verbleibend: {duration}",
+    "pleaseWait": "Bitte warten…",
+    "alertCount": "Alarme: {count}",
+    "states": {
+      "queued": "Wartend",
+      "active": "Aktiv",
+      "finished": "Abgeschlossen",
+      "cancelled": "Abgebrochen",
+      "failed": "Fehlgeschlagen"
+    },
+    "sources": {
+      "command": "Befehl",
+      "event": "Ereignis",
+      "channel_point": "Kanalpunkt",
+      "api": "API",
+      "other": "Sonstige"
+    }
   }
 }

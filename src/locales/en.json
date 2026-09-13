@@ -2256,5 +2256,28 @@
     "upload": "Upload scene rotation",
     "search": "Search scene rotations",
     "noScenesFound": "No scene rotations found"
+  },
+  "interactions": {
+    "title": "Interactions",
+    "empty": "There are currently no interactions.",
+    "cancel": "Cancel interaction",
+    "duration": "Duration: {duration}",
+    "eta": "ETA: {duration}",
+    "pleaseWait": "Please wait…",
+    "alertCount": "Alerts: {count}",
+    "states": {
+      "queued": "Queued",
+      "active": "Active",
+      "finished": "Finished",
+      "cancelled": "Cancelled",
+      "failed": "Failed"
+    },
+    "sources": {
+      "command": "Command",
+      "event": "Event",
+      "channel_point": "Channel point",
+      "api": "API",
+      "other": "Other"
+    }
   }
 }

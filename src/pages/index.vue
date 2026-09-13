@@ -10,23 +10,7 @@
       <div class="dashboard-layout__left">
         <giveaway class="mt-5" />
 
-        <template v-if="getAlerts.length === 0">
-          <v-alert
-            class="mt-5"
-            type="info"
-            color="gray-darken-3"
-            :text="$t('dashboard.noAlerts')"
-          />
-        </template>
-        <template v-else>
-          <div class="mt-5">
-            <v-expansion-panels>
-              <template v-for="alert in getAlerts" :key="alert.id">
-                <activeAlert :alert="alert" />
-              </template>
-            </v-expansion-panels>
-          </div>
-        </template>
+        <InteractionQueue class="mt-5" />
 
         <template v-if="getAutoMacros.length === 0">
           <v-alert
@@ -57,14 +41,16 @@ import { mapState } from 'pinia'
 import { useAppStore } from '@/stores/app'
 import Giveaway from '@/components/Giveaway.vue'
 import MusicControls from "@/components/MusicControls.vue";
+import InteractionQueue from "@/components/InteractionQueue.vue";
 
 export default {
   components: {
     Giveaway,
     MusicControls,
+    InteractionQueue,
   },
   computed: {
-    ...mapState(useAppStore, ['getAlerts', 'getAutoMacros']),
+    ...mapState(useAppStore, ['getAutoMacros']),
   },
 }
 </script>

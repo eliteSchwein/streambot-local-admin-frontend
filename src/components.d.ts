@@ -51,6 +51,7 @@ declare module 'vue' {
     FilePreviewDialog: typeof import('./components/dialogs/FilePreviewDialog.vue')['default']
     Game: typeof import('./components/Game.vue')['default']
     Giveaway: typeof import('./components/Giveaway.vue')['default']
+    InteractionQueue: typeof import('./components/InteractionQueue.vue')['default']
     Macro: typeof import('./components/Macro.vue')['default']
     MacroAlertTaskAccordion: typeof import('./components/accordions/macro/alerts/MacroAlertTaskAccordion.vue')['default']
     MacroAnimationTaskAccordion: typeof import('./components/accordions/macro/animation/MacroAnimationTaskAccordion.vue')['default']
