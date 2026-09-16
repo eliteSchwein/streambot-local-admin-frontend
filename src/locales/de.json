@@ -1613,7 +1613,76 @@
         "error": "Fehler"
       }
     },
-    "ttsUsed": "Belegt durch TTS"
+    "ttsUsed": "Belegt durch TTS",
+    "maintenance": {
+      "title": "Backup, Wiederherstellung & Logs",
+      "backup": {
+        "title": "Backup",
+        "description": "Ein vollständiges Backup der Bot-Konfiguration und Daten herunterladen.",
+        "action": "Backup herunterladen"
+      },
+      "restore": {
+        "title": "Wiederherstellen",
+        "description": "Ein Backup-ZIP hochladen und genau auswählen, was wiederhergestellt werden soll.",
+        "action": "Backup wiederherstellen"
+      },
+      "log": {
+        "title": "System-Log",
+        "description": "Das aktuelle Backend-System-Log zur Diagnose herunterladen.",
+        "action": "Log herunterladen"
+      },
+      "restoreDialog": {
+        "title": "Backup wiederherstellen",
+        "warning": "Beim Wiederherstellen können die aktuelle Bot-Konfiguration und Dateien überschrieben werden.",
+        "description": "Wähle aus, welche Bereiche aus diesem Backup wiederhergestellt werden sollen.",
+        "noOptions": "Das Backend hat für dieses Backup keine wiederherstellbaren Bereiche gemeldet.",
+        "restore": "Auswahl wiederherstellen",
+        "selectAll": "Alles auswählen",
+        "selectNone": "Auswahl aufheben",
+        "selectedSummary": "{selected} von {total} Einträgen ausgewählt",
+        "categoryOnly": "Dieser Bereich wird als Einheit wiederhergestellt.",
+        "categories": {
+          "media": "Medien",
+          "assets": "Assets",
+          "compressedMedia": "Komprimierte Medien",
+          "macros": "Makros",
+          "commands": "Befehle",
+          "channelPoints": "Kanalpunkte",
+          "events": "Ereignisse",
+          "autoMacros": "Auto-Makros",
+          "rotatingScenes": "Szenenrotation",
+          "integrations": "Integrationen",
+          "settings": "Einstellungen",
+          "variables": "Variablen",
+          "overlays": "Overlays",
+          "music": "Musik",
+          "audioPresets": "Audio-Vorlagen",
+          "customization": "Anpassungen",
+          "audio": "Audio"
+        },
+        "searchItems": "Dateien durchsuchen…",
+        "noSearchResults": "Keine passenden Dateien",
+        "categoryDescriptions": {
+          "media": "Mediendateien für Alerts, Szenen und weitere Bot-Funktionen.",
+          "assets": "Asset-Konfigurationen und Metadaten.",
+          "compressedMedia": "Erzeugte komprimierte Versionen der Mediendateien.",
+          "macros": "Konfigurierte Makros und deren Aufgaben.",
+          "commands": "Konfigurationen der Chat-Befehle.",
+          "channelPoints": "Konfigurationen der Kanalpunkt-Belohnungen.",
+          "events": "Ereigniskonfigurationen und Aktionen.",
+          "autoMacros": "Konfigurationen der Auto-Makros.",
+          "rotatingScenes": "Konfigurationen der Szenenrotation.",
+          "integrations": "Konfiguration der Integrationen.",
+          "settings": "Bot-Einstellungen und Systemkonfiguration.",
+          "variables": "Gespeicherte Bot-Variablen.",
+          "overlays": "Overlay-Dateien und -Konfiguration.",
+          "music": "Musik-Konfiguration und Daten.",
+          "audioPresets": "Gespeicherte Audio-Vorlagen.",
+          "customization": "Dateien zur Anpassung von Streambot.",
+          "audio": "Audio-Konfiguration."
+        }
+      }
+    }
   },
   "common": {
     "cancel": "Abbrechen",

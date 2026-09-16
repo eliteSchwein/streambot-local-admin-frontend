@@ -31,6 +31,13 @@
         >
           <SpeedtestCard />
         </v-col>
+
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <SystemMaintenanceCard />
+        </v-col>
       </v-row>
     </v-container>
   </v-card>
@@ -40,6 +47,7 @@
 import StorageCard from '@/components/cards/StorageCard.vue'
 import UpdateCard from '@/components/cards/UpdateCard.vue'
 import SpeedtestCard from '@/components/cards/SpeedtestCard.vue'
+import SystemMaintenanceCard from '@/components/cards/SystemMaintenanceCard.vue'
 
 export default {
   name: 'SystemPage',
@@ -48,6 +56,7 @@ export default {
     StorageCard,
     UpdateCard,
     SpeedtestCard,
+    SystemMaintenanceCard,
   },
 }
 </script>

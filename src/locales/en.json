@@ -1613,7 +1613,76 @@
         "error": "Error"
       }
     },
-    "ttsUsed": "Used by TTS"
+    "ttsUsed": "Used by TTS",
+    "maintenance": {
+      "title": "Backup, restore & logs",
+      "backup": {
+        "title": "Backup",
+        "description": "Download a complete backup of the bot configuration and data.",
+        "action": "Download backup"
+      },
+      "restore": {
+        "title": "Restore",
+        "description": "Upload a backup ZIP and choose exactly what should be restored.",
+        "action": "Restore backup"
+      },
+      "log": {
+        "title": "System log",
+        "description": "Download the current backend system log for diagnostics.",
+        "action": "Download log"
+      },
+      "restoreDialog": {
+        "title": "Restore backup",
+        "warning": "Restoring selected data can overwrite the current bot configuration and files.",
+        "description": "Choose which parts of this backup should be restored.",
+        "noOptions": "The backend did not report any restorable items for this backup.",
+        "restore": "Restore selected",
+        "selectAll": "Select all",
+        "selectNone": "Select none",
+        "selectedSummary": "{selected} of {total} items selected",
+        "categoryOnly": "This category is restored as one unit.",
+        "categories": {
+          "media": "Media",
+          "assets": "Assets",
+          "compressedMedia": "Compressed media",
+          "macros": "Macros",
+          "commands": "Commands",
+          "channelPoints": "Channel Points",
+          "events": "Events",
+          "autoMacros": "Auto Macros",
+          "rotatingScenes": "Rotating Scenes",
+          "integrations": "Integrations",
+          "settings": "Settings",
+          "variables": "Variables",
+          "overlays": "Overlays",
+          "music": "Music",
+          "audioPresets": "Audio Presets",
+          "customization": "Customization",
+          "audio": "Audio"
+        },
+        "searchItems": "Search files…",
+        "noSearchResults": "No matching files",
+        "categoryDescriptions": {
+          "media": "Media files used by alerts, scenes and other bot features.",
+          "assets": "Asset configurations and metadata.",
+          "compressedMedia": "Generated compressed versions of media files.",
+          "macros": "Configured macros and their tasks.",
+          "commands": "Chat command configurations.",
+          "channelPoints": "Channel Point reward configurations.",
+          "events": "Event configurations and actions.",
+          "autoMacros": "Automatic macro configurations.",
+          "rotatingScenes": "Rotating scene configurations.",
+          "integrations": "Integration configuration.",
+          "settings": "Bot settings and system configuration.",
+          "variables": "Stored bot variables.",
+          "overlays": "Overlay files and configuration.",
+          "music": "Music configuration and data.",
+          "audioPresets": "Saved audio presets.",
+          "customization": "Streambot customization files.",
+          "audio": "Audio configuration."
+        }
+      }
+    }
   },
   "common": {
     "cancel": "Cancel",

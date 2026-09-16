@@ -71,6 +71,7 @@ export const useAppStore = defineStore('app', {
       finished: true,
     },
     updateManager: {},
+    restoreNotification: null as any,
     speedtest: {
       running: false,
       stage: 'idle',
@@ -134,6 +135,7 @@ export const useAppStore = defineStore('app', {
     getSettings: (state) => state.settings,
     getReloadUpdate: (state) => state.reloadUpdate,
     getUpdateManager: (state) => state.updateManager,
+    getRestoreNotification: (state) => state.restoreNotification,
     getSpeedtest: (state) => state.speedtest,
 
     hasObsEnabled: (state) => {
@@ -480,6 +482,16 @@ export const useAppStore = defineStore('app', {
     setUpdateManager(updateManager: any) {
       this.updateManager = updateManager ?? {}
       this.$patch(state => state.updateManager = this.updateManager)
+    },
+
+    setRestoreNotification(payload: any) {
+      this.restoreNotification = payload ?? null
+      this.$patch(state => state.restoreNotification = this.restoreNotification)
+    },
+
+    clearRestoreNotification() {
+      this.restoreNotification = null
+      this.$patch(state => state.restoreNotification = null)
     },
 
     setReloadUpdate(reloadUpdate: any) {

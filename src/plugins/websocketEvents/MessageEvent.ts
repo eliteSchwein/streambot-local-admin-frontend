@@ -43,6 +43,8 @@ import NotifyDynamicDataUpdateMessage
 import NotifySpeedtestMessage from "@/plugins/websocketEvents/websocketMessage/NotifySpeedtestMessage.ts";
 import NotifyInteractionQueueMessage from "@/plugins/websocketEvents/websocketMessage/NotifyInteractionQueueMessage.ts";
 import NotifyInteractionMessage from "@/plugins/websocketEvents/websocketMessage/NotifyInteractionMessage.ts";
+import NotifyRestoreMessage from "@/plugins/websocketEvents/websocketMessage/NotifyRestoreMessage.ts";
+import NotifyRestoreReadyMessage from "@/plugins/websocketEvents/websocketMessage/NotifyRestoreReadyMessage.ts";
 
 export default class MessageEvent extends BaseEvent {
   name = 'message'
@@ -96,5 +98,7 @@ export default class MessageEvent extends BaseEvent {
     await new NotifySpeedtestMessage(this.webSocketClient).handleMessage(data)
     await new NotifyInteractionQueueMessage(this.webSocketClient).handleMessage(data)
     await new NotifyInteractionMessage(this.webSocketClient).handleMessage(data)
+    await new NotifyRestoreMessage(this.webSocketClient).handleMessage(data)
+    await new NotifyRestoreReadyMessage(this.webSocketClient).handleMessage(data)
   }
 }
