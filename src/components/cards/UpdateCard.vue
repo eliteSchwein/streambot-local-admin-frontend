@@ -8,15 +8,30 @@
       <div class="text-subtitle-2 mb-3 d-flex align-center justify-space-between ga-2">
         <span>{{ $t('system.updates.title') }}</span>
 
-        <v-btn
-          icon="mdi-refresh"
-          size="small"
-          variant="text"
-          :loading="isChecking"
-          :disabled="isUpdating"
-          :title="$t('system.updates.refresh')"
-          @click="refresh"
-        />
+        <div class="d-flex align-center ga-2">
+          <v-btn
+            size="small"
+            color="primary"
+            variant="tonal"
+            prepend-icon="mdi-update"
+            :loading="updateAllRequested"
+            :disabled="updateAllRequested || isChecking || isUpdating || !hasAvailableUpdates"
+            :title="$t('system.updates.updateAll')"
+            @click="updateAll"
+          >
+            {{ $t('system.updates.updateAll') }}
+          </v-btn>
+
+          <v-btn
+            icon="mdi-refresh"
+            size="small"
+            variant="text"
+            :loading="isChecking"
+            :disabled="isUpdating || updateAllRequested"
+            :title="$t('system.updates.refresh')"
+            @click="refresh"
+          />
+        </div>
       </div>
 
       <div
@@ -149,6 +164,13 @@ type UpdateManager = {
 export default {
   name: 'UpdateCard',
 
+  data() {
+    return {
+      updateAllRequested: false,
+      updateAllStarted: false,
+    }
+  },
+
   computed: {
     appStore() {
       return useAppStore()
@@ -179,6 +201,10 @@ export default {
       return this.managers.some(manager => manager.updating)
     },
 
+    hasAvailableUpdates(): boolean {
+      return this.managers.some(manager => manager.update_available)
+    },
+
     backendUpdating(): boolean {
       return this.updateManager.backend?.updating === true
     },
@@ -188,8 +214,25 @@ export default {
     },
   },
 
+  watch: {
+    isUpdating(updating: boolean) {
+      if (!this.updateAllRequested) return
+
+      if (updating) {
+        this.updateAllStarted = true
+        return
+      }
+
+      if (this.updateAllStarted) {
+        this.updateAllRequested = false
+        this.updateAllStarted = false
+      }
+    },
+  },
+
   methods: {
     isManagerUpdateBlocked(manager: UpdateManager): boolean {
+      if (this.updateAllRequested) return true
       if (manager.checking || manager.updating) return true
 
       if (manager.name === 'backend') {
@@ -229,6 +272,14 @@ export default {
 
     update(name: string) {
       void getWebsocketClient()?.send('update', { name })
+    },
+
+    updateAll() {
+      if (this.updateAllRequested || this.isUpdating || !this.hasAvailableUpdates) return
+
+      this.updateAllRequested = true
+      this.updateAllStarted = false
+      void getWebsocketClient()?.send('update_all')
     },
 
     gitVersion(manager: UpdateManager): string {

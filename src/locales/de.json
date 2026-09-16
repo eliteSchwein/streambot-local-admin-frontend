@@ -1590,7 +1590,8 @@
       "noState": "Noch kein Update-Status verfügbar",
       "updating": "Wird aktualisiert...",
       "backendBlocked": "Das Backend-Update ist blockiert, bis diese Updates abgeschlossen sind: {managers}",
-      "blockedByBackend": "Blockiert, solange das Backend-Update läuft"
+      "blockedByBackend": "Blockiert, solange das Backend-Update läuft",
+      "updateAll": "Alle aktualisieren"
     },
     "storageLegend": {
       "category": "Kategorie",
