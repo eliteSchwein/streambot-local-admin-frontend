@@ -41,7 +41,7 @@ const localizedStage = computed(() => {
       <template v-if="showStartupStatus">
         <v-toolbar
           flat
-          density="compact"
+          density="comfortable"
           color="warning"
         >
           <v-toolbar-title class="d-flex align-center">
@@ -63,7 +63,7 @@ const localizedStage = computed(() => {
       <template v-else>
         <v-toolbar
           flat
-          density="compact"
+          density="comfortable"
           color="warning"
         >
           <v-toolbar-title class="d-flex align-center">

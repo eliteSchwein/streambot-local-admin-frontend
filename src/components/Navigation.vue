@@ -3,8 +3,6 @@
 import {mapActions, mapState} from "pinia";
 import {useAppStore} from "@/stores/app";
 import eventBus from "@/eventBus.js";
-import {sleep} from "@/helper/GeneralHelper.ts";
-import {getWebsocketClient} from "@/plugins/websocketInstance";
 
 export default {
   data () {
@@ -86,45 +84,12 @@ export default {
     },
   },
   methods: {
-    async restartService() {
-      await fetch(`${this.getRestApi}/api/system/restart`)
-    },
     async reloadBrowserSources() {
       await fetch(`${this.getRestApi}/api/obs/reload_browsers`)
     },
     showPowerMenu() {
       eventBus.$emit('dialog:show', 'power')
     },
-    reloadCommander() {
-      window.location.reload()
-    },
-    async updateBot() {
-      getWebsocketClient()?.send("update")
-
-      // wait until /api/status is NOT reachable (connection lost)
-      for (;;) {
-        try {
-          const r = await fetch(`${this.getRestApi}/api/status`, { cache: "no-store" })
-          if (!r.ok) break
-        } catch {
-          break
-        }
-        await sleep(500)
-      }
-
-      // wait until /api/status is reachable again (connection back)
-      for (;;) {
-        try {
-          const r = await fetch(`${this.getRestApi}/api/status`, { cache: "no-store" })
-          if (r.ok) break
-        } catch {
-          // still down
-        }
-        await sleep(500)
-      }
-
-      window.location.reload()
-    }
   }
 }
 </script>
@@ -265,42 +230,22 @@ export default {
     </v-btn>
 
     <v-btn
-      icon
-      text="test"
+      v-if="Object.keys(getObsAudioData).length > 0"
+      class="topbar-icon-button mr-1"
+      variant="text"
+      :title="$t('navigation.actions.reloadBrowserSources')"
+      @click="reloadBrowserSources"
     >
-      <v-icon icon="mdi-dots-vertical"></v-icon>
-      <v-menu activator="parent">
-        <v-list>
-          <v-list-item
-            :title="$t('navigation.actions.reloadPage')"
-            @click="reloadCommander"
-            prepend-icon="mdi-restart"
-          ></v-list-item>
-          <v-list-item
-            :title="$t('navigation.actions.restartBot')"
-            @click="restartService"
-            prepend-icon="mdi-robot"
-          ></v-list-item>
-          <template v-if="Object.keys(getObsAudioData).length > 0">
-            <v-list-item
-              :title="$t('navigation.actions.reloadBrowserSources')"
-              @click="reloadBrowserSources"
-              prepend-icon="mdi-application-outline"
-            ></v-list-item>
-          </template>
-          <v-divider></v-divider>
-          <v-list-item
-            :title="$t('navigation.actions.updateBot')"
-            to="/system"
-            prepend-icon="mdi-download"
-          ></v-list-item>
-          <v-list-item
-            :title="$t('navigation.actions.shutdownSystem')"
-            @click="showPowerMenu"
-            prepend-icon="mdi-power"
-          ></v-list-item>
-        </v-list>
-      </v-menu>
+      <v-icon icon="mdi-application-outline" />
+    </v-btn>
+
+    <v-btn
+      class="topbar-icon-button"
+      variant="text"
+      :title="$t('navigation.actions.power')"
+      @click="showPowerMenu"
+    >
+      <v-icon icon="mdi-power" size="26" />
     </v-btn>
 
     <template #extension>
@@ -482,5 +427,11 @@ export default {
   height: 36px;
   border-radius: 4px;
   background: rgb(var(--v-theme-grey-darken-4));
+}
+
+.topbar-icon-button {
+  min-width: 36px !important;
+  width: 36px;
+  padding-inline: 0 !important;
 }
 </style>

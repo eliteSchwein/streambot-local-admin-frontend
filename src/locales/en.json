@@ -13,7 +13,8 @@
       "restartBot": "Restart bot",
       "reloadBrowserSources": "Reload browser sources",
       "updateBot": "Update bot",
-      "shutdownSystem": "Shut down system"
+      "shutdownSystem": "Shut down system",
+      "power": "Power"
     },
     "sections": {
       "automation": "Automation",
@@ -1462,9 +1463,14 @@
   },
   "power": {
     "dialog": {
-      "title": "Shut down system?",
-      "reboot": "Reboot",
-      "shutdown": "Shutdown"
+      "title": "Power & restart",
+      "subtitle": "Restart the bot backend, reboot the device, or shut it down.",
+      "restartBackend": "Restart backend",
+      "restartBackendDescription": "Restart only the Streambot backend service. The operating system stays online.",
+      "reboot": "Reboot system",
+      "rebootDescription": "Restart the complete device and all Streambot services.",
+      "shutdown": "Shut down system",
+      "shutdownDescription": "Safely shut down the complete device."
     }
   },
   "connectDialog": {
@@ -1698,7 +1704,8 @@
     "copyUrl": "Copy URL",
     "disabled": "Disabled",
     "remove": "Remove",
-    "preset": "Preset"
+    "preset": "Preset",
+    "close": "Close"
   },
   "file": {
     "name": "Filename",
@@ -2015,7 +2022,8 @@
     "singleUseUser": "Single use / user",
     "singleUseGlobal": "Single use / global",
     "blacklist": "Blacklist",
-    "whitelist": "Whitelist"
+    "whitelist": "Whitelist",
+    "edit": "Edit command"
   },
   "integrations": {
     "wled": {
@@ -2198,7 +2206,7 @@
       "noMacrosSelectedYetAddAtLeastOneMacroToTrigger": "No macros selected yet. Add at least one macro to trigger.",
       "macroOrder": "Macro order",
       "createTitle": "Create auto macro",
-      "editTitle": "Edit {name}",
+      "editTitle": "Edit auto macro: {name}",
       "macroOrderHint": "Macros are triggered from top to bottom.",
       "moveUp": "Move up",
       "moveDown": "Move down",
@@ -2271,7 +2279,9 @@
     },
     "filePreviewDialog": {},
     "macroDeleteConfirmDialog": {},
-    "macroEditorDialog": {},
+    "macroEditorDialog": {
+      "editTitle": "Edit macro: {name}"
+    },
     "overlayEditorDialog": {},
     "powerDialog": {},
     "rotatingSceneDeleteConfirmDialog": {},
@@ -2282,7 +2292,9 @@
       "unit": "Unit",
       "addOBSScene": "Add OBS scene",
       "noScenesSelectedYetAddAtLeastOneOBSScene": "No scenes selected yet. Add at least one OBS scene.",
-      "sceneOrder": "Scene order"
+      "sceneOrder": "Scene order",
+      "createTitle": "Create rotating scene",
+      "editTitle": "Edit rotating scene: {name}"
     },
     "wledIntegrationDialog": {
       "desk": "desk"
@@ -2314,6 +2326,10 @@
       "general": "General",
       "options": "Options",
       "interaction": "Interaction"
+    },
+    "commandDialog": {
+      "createTitle": "Create command",
+      "editTitle": "Edit command: {name}"
     }
   },
   "fileManager": {

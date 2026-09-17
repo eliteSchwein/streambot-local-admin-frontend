@@ -6,7 +6,7 @@
     @update:model-value="handleDialogModelValueUpdate"
   >
     <v-card color="grey-darken-4" class="overlay-editor-dialog">
-      <v-toolbar flat density="compact">
+      <v-toolbar flat density="comfortable">
         <v-toolbar-title class="d-flex align-center min-width-0">
           <v-icon icon="mdi-application-edit-outline" class="mr-2" />
           <span class="text-truncate">{{ entry?.path || displayTitle }}</span>
@@ -14,7 +14,7 @@
 
         <v-switch
           class="overlay-editor-dialog__test-mode mr-2"
-          density="compact"
+          density="comfortable"
           color="primary"
           hide-details
           :label="$t('overlay.testMode')"
@@ -56,12 +56,12 @@
           v-if="errorMessage"
           type="error"
           color="red-darken-3"
-          density="compact"
+          density="comfortable"
           class="mb-3"
           :text="errorMessage"
         />
 
-        <v-row density="compact" class="overlay-editor-dialog__settings mb-3">
+        <v-row density="comfortable" class="overlay-editor-dialog__settings mb-3">
           <v-col cols="12" md="3">
             <v-text-field
               v-model.number="previewWidth"
@@ -69,7 +69,7 @@
               type="number"
               min="1"
               variant="outlined"
-              density="compact"
+              density="comfortable"
               hide-details
               @update:model-value="markPreviewCustom"
             />
@@ -82,7 +82,7 @@
               type="number"
               min="1"
               variant="outlined"
-              density="compact"
+              density="comfortable"
               hide-details
               @update:model-value="markPreviewCustom"
             />
@@ -96,7 +96,7 @@
               item-value="value"
               :label="displayPresetLabel"
               variant="outlined"
-              density="compact"
+              density="comfortable"
               hide-details
               @update:model-value="applyPreviewPreset"
             />
@@ -110,13 +110,13 @@
               item-value="value"
               :label="displayPreviewModeLabel"
               variant="outlined"
-              density="compact"
+              density="comfortable"
               hide-details
             />
           </v-col>
         </v-row>
 
-        <v-row density="compact" class="overlay-editor-dialog__workspace">
+        <v-row density="comfortable" class="overlay-editor-dialog__workspace">
           <v-col cols="12" lg="6" class="overlay-editor-dialog__pane">
             <v-card color="grey-darken-3" variant="flat" class="h-100 d-flex flex-column">
               <v-card-title class="py-2 d-flex align-center justify-space-between">
@@ -189,7 +189,7 @@
                 v-if="previewMode === 'raw' && hasTemplateTags"
                 type="warning"
                 color="amber-darken-4"
-                density="compact"
+                density="comfortable"
                 class="ma-3 mt-0"
                 :text="displayTemplateWarningLabel"
               />

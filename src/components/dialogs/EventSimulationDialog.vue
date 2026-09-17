@@ -5,7 +5,7 @@
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card color="grey-darken-4">
-      <v-toolbar density="compact" flat>
+      <v-toolbar density="comfortable" flat>
         <v-toolbar-title class="d-flex align-center min-width-0">
           <v-icon icon="mdi-play-circle-outline" class="mr-2" />
           <span class="text-truncate">

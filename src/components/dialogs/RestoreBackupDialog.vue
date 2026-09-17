@@ -7,7 +7,7 @@
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card class="restore-dialog d-flex flex-column">
-      <v-toolbar flat density="compact">
+      <v-toolbar flat density="comfortable">
         <v-toolbar-title class="d-flex align-center min-width-0">
           <v-icon icon="mdi-backup-restore" class="mr-2" />
           <span class="text-truncate">{{ $t('system.maintenance.restoreDialog.title') }}</span>
@@ -18,11 +18,11 @@
       <v-divider />
 
       <v-card-text class="restore-dialog__content pa-4">
-        <v-alert type="warning" variant="tonal" density="compact" class="mb-3">
+        <v-alert type="warning" variant="tonal" density="comfortable" class="mb-3">
           {{ $t('system.maintenance.restoreDialog.warning') }}
         </v-alert>
 
-        <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-3">
+        <v-alert v-if="error" type="error" variant="tonal" density="comfortable" class="mb-3">
           {{ error }}
         </v-alert>
 
@@ -72,7 +72,7 @@
                   :model-value="categoryState(category).checked"
                   :indeterminate="categoryState(category).indeterminate"
                   color="primary"
-                  density="compact"
+                  density="comfortable"
                   :disabled="loading || category.disabled"
                   @click.stop
                   @update:model-value="toggleCategory(category, $event)"
@@ -137,7 +137,7 @@
                   <v-text-field
                     :model-value="categorySearch(category.key)"
                     class="restore-dialog__search mb-2"
-                    density="compact"
+                    density="comfortable"
                     variant="outlined"
                     hide-details
                     clearable
@@ -159,7 +159,7 @@
                         <v-checkbox-btn
                           v-model="item.selected"
                           color="primary"
-                          density="compact"
+                          density="comfortable"
                           :disabled="loading || item.disabled"
                           @click.stop
                         />

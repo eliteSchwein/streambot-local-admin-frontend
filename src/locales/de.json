@@ -13,7 +13,8 @@
       "restartBot": "Bot neustarten",
       "reloadBrowserSources": "Browserquellen neu laden",
       "updateBot": "Bot aktualisieren",
-      "shutdownSystem": "System herunterfahren"
+      "shutdownSystem": "System herunterfahren",
+      "power": "Ein/Aus"
     },
     "sections": {
       "automation": "Automatisierung",
@@ -1462,9 +1463,14 @@
   },
   "power": {
     "dialog": {
-      "title": "System herunterfahren?",
-      "reboot": "Neustart",
-      "shutdown": "Herunterfahren"
+      "title": "Ein/Aus & Neustart",
+      "subtitle": "Bot-Backend neu starten, das Gerät neu starten oder herunterfahren.",
+      "restartBackend": "Backend neu starten",
+      "restartBackendDescription": "Startet nur den Streambot-Backend-Dienst neu. Das Betriebssystem bleibt aktiv.",
+      "reboot": "System neu starten",
+      "rebootDescription": "Startet das gesamte Gerät und alle Streambot-Dienste neu.",
+      "shutdown": "System herunterfahren",
+      "shutdownDescription": "Fährt das gesamte Gerät sicher herunter."
     }
   },
   "connectDialog": {
@@ -1698,7 +1704,8 @@
     "copyUrl": "URL kopieren",
     "disabled": "Deaktiviert",
     "remove": "Entfernen",
-    "preset": "Vorlage"
+    "preset": "Vorlage",
+    "close": "Schließen"
   },
   "file": {
     "name": "Dateiname",
@@ -2015,7 +2022,8 @@
     "singleUseUser": "Einmalig / Benutzer",
     "singleUseGlobal": "Einmalig / global",
     "blacklist": "Blacklist",
-    "whitelist": "Whitelist"
+    "whitelist": "Whitelist",
+    "edit": "Befehl bearbeiten"
   },
   "integrations": {
     "wled": {
@@ -2198,7 +2206,7 @@
       "noMacrosSelectedYetAddAtLeastOneMacroToTrigger": "Noch keine Makros ausgewählt. Füge mindestens ein Makro zum Auslösen hinzu.",
       "macroOrder": "Makro-Reihenfolge",
       "createTitle": "Auto-Makro erstellen",
-      "editTitle": "{name} bearbeiten",
+      "editTitle": "Auto-Makro bearbeiten: {name}",
       "macroOrderHint": "Makros werden von oben nach unten ausgelöst.",
       "moveUp": "Nach oben",
       "moveDown": "Nach unten",
@@ -2271,7 +2279,9 @@
     },
     "filePreviewDialog": {},
     "macroDeleteConfirmDialog": {},
-    "macroEditorDialog": {},
+    "macroEditorDialog": {
+      "editTitle": "Makro bearbeiten: {name}"
+    },
     "overlayEditorDialog": {},
     "powerDialog": {},
     "rotatingSceneDeleteConfirmDialog": {},
@@ -2282,7 +2292,9 @@
       "unit": "Einheit",
       "addOBSScene": "OBS-Szene hinzufügen",
       "noScenesSelectedYetAddAtLeastOneOBSScene": "Noch keine Szenen ausgewählt. Füge mindestens eine OBS-Szene hinzu.",
-      "sceneOrder": "Szenen-Reihenfolge"
+      "sceneOrder": "Szenen-Reihenfolge",
+      "createTitle": "Szenenrotation erstellen",
+      "editTitle": "Szenenrotation bearbeiten: {name}"
     },
     "wledIntegrationDialog": {
       "desk": "desk"
@@ -2314,6 +2326,10 @@
       "general": "Allgemein",
       "options": "Optionen",
       "interaction": "Interaktion"
+    },
+    "commandDialog": {
+      "createTitle": "Befehl erstellen",
+      "editTitle": "Befehl bearbeiten: {name}"
     }
   },
   "fileManager": {

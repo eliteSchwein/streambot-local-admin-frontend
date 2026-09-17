@@ -6,7 +6,7 @@
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card color="grey-darken-4">
-      <v-toolbar color="primary" flat density="compact">
+      <v-toolbar color="primary" flat density="comfortable">
         <v-toolbar-title>{{ $t('audio.presets.savePreset') }}</v-toolbar-title>
         <v-btn icon="mdi-close" @click="$emit('update:modelValue', false)" />
       </v-toolbar>
@@ -21,7 +21,7 @@
           autofocus
         />
 
-        <v-alert type="info" variant="tonal" density="compact">
+        <v-alert type="info" variant="tonal" density="comfortable">
           {{ $t('audio.presets.previewOnlyHint') }}
         </v-alert>
 
@@ -52,7 +52,7 @@
                   <div class="audio-preset-volume-check">
                     <v-checkbox-btn
                       :model-value="isInterfaceSelected(audioInterface)"
-                      density="compact"
+                      density="comfortable"
                       @update:model-value="setInterfaceSelected(audioInterface, Boolean($event))"
                     />
                   </div>
@@ -82,7 +82,7 @@
 
                   <v-btn
                     class="audio-preset-volume-mute"
-                    density="compact"
+                    density="comfortable"
                     elevation="0"
                     variant="text"
                     :disabled="!isInterfaceSelected(audioInterface)"
@@ -93,7 +93,7 @@
 
                   <v-btn
                     class="audio-preset-volume-minus"
-                    density="compact"
+                    density="comfortable"
                     elevation="0"
                     variant="text"
                     icon="mdi-minus"
@@ -114,7 +114,7 @@
 
                   <v-btn
                     class="audio-preset-volume-plus"
-                    density="compact"
+                    density="comfortable"
                     elevation="0"
                     variant="text"
                     icon="mdi-plus"
@@ -137,7 +137,7 @@
                   <div class="audio-preset-volume-check">
                     <v-checkbox-btn
                       :model-value="isPhysicalOutputSelected(output)"
-                      density="compact"
+                      density="comfortable"
                       @update:model-value="setPhysicalOutputSelected(output, Boolean($event))"
                     />
                   </div>
@@ -167,7 +167,7 @@
 
                   <v-btn
                     class="audio-preset-volume-mute"
-                    density="compact"
+                    density="comfortable"
                     elevation="0"
                     variant="text"
                     :disabled="!isPhysicalOutputSelected(output)"
@@ -178,7 +178,7 @@
 
                   <v-btn
                     class="audio-preset-volume-minus"
-                    density="compact"
+                    density="comfortable"
                     elevation="0"
                     variant="text"
                     icon="mdi-minus"
@@ -199,7 +199,7 @@
 
                   <v-btn
                     class="audio-preset-volume-plus"
-                    density="compact"
+                    density="comfortable"
                     elevation="0"
                     variant="text"
                     icon="mdi-plus"
@@ -280,7 +280,7 @@
           v-if="!hasSelection"
           type="warning"
           variant="tonal"
-          density="compact"
+          density="comfortable"
         >
           {{ $t('audio.presets.emptyWarning') }}
         </v-alert>

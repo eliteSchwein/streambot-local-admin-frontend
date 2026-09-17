@@ -6,7 +6,7 @@
     @update:model-value="handleModelValueUpdate"
   >
     <v-card color="grey-darken-4" class="overlay-customization-dialog">
-      <v-toolbar flat density="compact">
+      <v-toolbar flat density="comfortable">
         <v-toolbar-title class="d-flex align-center">
           <v-icon icon="mdi-palette-outline" class="mr-2" />
           {{ $t('overlay.customization.title') }}
@@ -43,7 +43,7 @@
           v-if="errorMessage"
           type="error"
           color="red-darken-3"
-          density="compact"
+          density="comfortable"
           closable
           class="ma-3 mb-0"
           :text="errorMessage"
@@ -53,7 +53,7 @@
         <v-alert
           v-if="successMessage"
           type="success"
-          density="compact"
+          density="comfortable"
           closable
           class="ma-3 mb-0"
           :text="successMessage"
@@ -77,7 +77,7 @@
                 </div>
 
                 <v-list
-                  density="compact"
+                  density="comfortable"
                   bg-color="transparent"
                   class="overlay-customization-dialog__styles-list"
                 >
@@ -262,7 +262,7 @@
                         </v-expansion-panel-title>
 
                         <v-expansion-panel-text>
-                          <v-table density="compact" class="overlay-customization-dialog__font-table">
+                          <v-table density="comfortable" class="overlay-customization-dialog__font-table">
                             <thead>
                             <tr>
                               <th>{{ $t('file.name') }}</th>

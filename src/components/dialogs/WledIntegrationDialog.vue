@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialogVisible" max-width="520">
     <v-card color="grey-darken-4">
-      <v-toolbar flat density="compact">
+      <v-toolbar flat density="comfortable">
         <v-toolbar-title class="d-flex align-center">
           {{ $t('integrations.wled.add')}}
         </v-toolbar-title>

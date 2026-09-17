@@ -891,7 +891,7 @@ export default {
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card color="grey-darken-4">
-      <v-toolbar density="compact" flat>
+      <v-toolbar density="comfortable" flat>
         <v-toolbar-title class="d-flex align-center">{{
             title
           }}

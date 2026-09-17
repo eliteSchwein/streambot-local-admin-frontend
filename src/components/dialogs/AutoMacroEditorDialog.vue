@@ -149,7 +149,7 @@
                   :text="$t('dialogs.autoMacroEditorDialog.noMacrosSelectedYetAddAtLeastOneMacroToTrigger')"
                 />
 
-                <v-list v-else bg-color="transparent" density="compact" class="pa-0">
+                <v-list v-else bg-color="transparent" density="comfortable" class="pa-0">
                   <v-list-item
                     v-for="(macro, index) in visualAutoMacro.macros"
                     :key="`${macro}-${index}`"

@@ -1,29 +1,68 @@
 <script lang="ts">
 import eventBus from "@/eventBus";
+import { mapState } from "pinia";
+import { useAppStore } from "@/stores/app";
 import { getWebsocketClient } from "@/plugins/websocketInstance";
 
 export default {
+  data () {
+    return {
+      show: false,
+      activeAction: null as null | 'backend' | 'reboot' | 'shutdown',
+    }
+  },
+
+  computed: {
+    ...mapState(useAppStore, ['getRestApi']),
+    busy(): boolean {
+      return this.activeAction !== null
+    },
+  },
+
   mounted(): any {
     eventBus.$on('dialog:show', (target: string) => {
-      if(target === 'power') {
+      if (target === 'power') {
+        this.activeAction = null
         this.show = true
       }
     })
   },
-  data () {
-    return {
-      show: false
-    }
-  },
+
   methods: {
+    closeDialog() {
+      if (this.busy) return
+      this.show = false
+    },
+
     sendPowerCommand(target: 'reboot' | 'halt') {
       getWebsocketClient()?.send('halt_system', { target })
     },
-    async rebootSystem() {
-      this.sendPowerCommand('reboot')
+
+    async restartBackend() {
+      if (this.busy) return
+      this.activeAction = 'backend'
+
+      try {
+        await fetch(`${this.getRestApi}/api/system/restart`)
+        this.show = false
+      } catch (error) {
+        console.error('backend restart failed', error)
+        this.activeAction = null
+      }
     },
-    async shutdownSystem() {
+
+    rebootSystem() {
+      if (this.busy) return
+      this.activeAction = 'reboot'
+      this.sendPowerCommand('reboot')
+      this.show = false
+    },
+
+    shutdownSystem() {
+      if (this.busy) return
+      this.activeAction = 'shutdown'
       this.sendPowerCommand('halt')
+      this.show = false
     },
   }
 }
@@ -31,51 +70,162 @@ export default {
 
 <template>
   <v-dialog
-    width="500"
-    :model-value="show"
-    persistent
+    v-model="show"
+    width="720"
+    max-width="calc(100vw - 16px)"
+    scrollable
   >
-    <v-card
-      v-if="show">
-      <v-toolbar
-        flat
-        density="compact"
-      >
-        <v-toolbar-title class="d-flex align-center">
-          {{ $t('power.dialog.title') }}
+    <v-card>
+      <v-toolbar flat density="comfortable">
+        <v-toolbar-title class="d-flex align-center min-width-0">
+          <v-icon icon="mdi-power" class="mr-2" />
+          <span class="text-truncate">{{ $t('power.dialog.title') }}</span>
         </v-toolbar-title>
-        <v-btn icon="mdi-close" @click="show = false"></v-btn>
+
+        <v-btn
+          icon
+          variant="text"
+          :disabled="busy"
+          :title="$t('common.close')"
+          @click="closeDialog"
+        >
+          <v-icon icon="mdi-close" />
+        </v-btn>
       </v-toolbar>
-      <v-card-text>
-        <v-row>
-          <v-col>
-            <v-btn
-              prepend-icon="mdi-reload"
-              variant="outlined"
-              color="warning"
-              width="100%"
-              @click="rebootSystem()"
-            >
-              {{ $t('power.dialog.reboot') }}
-            </v-btn>
+
+      <v-divider />
+
+      <v-card-text class="px-3 py-3">
+        <div class="text-body-2 text-medium-emphasis mb-4">
+          {{ $t('power.dialog.subtitle') }}
+        </div>
+
+        <v-row dense>
+          <v-col cols="12" md="4">
+            <v-card variant="outlined" class="power-action-card h-100">
+              <v-card-text class="d-flex flex-column h-100 pa-3">
+                <div class="d-flex align-center ga-3 mb-3">
+                  <v-icon icon="mdi-robot-outline" color="primary" size="28" />
+                  <div class="text-subtitle-1 font-weight-medium">
+                    {{ $t('power.dialog.restartBackend') }}
+                  </div>
+                </div>
+
+                <div class="text-body-2 text-medium-emphasis flex-grow-1 mb-4">
+                  {{ $t('power.dialog.restartBackendDescription') }}
+                </div>
+
+                <v-btn
+                  block
+                  class="power-action-button"
+                  color="primary"
+                  variant="tonal"
+                  :loading="activeAction === 'backend'"
+                  :disabled="busy && activeAction !== 'backend'"
+                  @click="restartBackend"
+                >
+                  <v-icon icon="mdi-restart" class="mr-2" />
+                  {{ $t('power.dialog.restartBackend') }}
+                </v-btn>
+              </v-card-text>
+            </v-card>
           </v-col>
-          <v-col>
-            <v-btn
-              prepend-icon="mdi-power"
-              variant="outlined"
-              color="red"
-              width="100%"
-              @click="shutdownSystem()"
-            >
-              {{ $t('power.dialog.shutdown') }}
-            </v-btn>
+
+          <v-col cols="12" md="4">
+            <v-card variant="outlined" class="power-action-card h-100">
+              <v-card-text class="d-flex flex-column h-100 pa-3">
+                <div class="d-flex align-center ga-3 mb-3">
+                  <v-icon icon="mdi-restart" color="warning" size="28" />
+                  <div class="text-subtitle-1 font-weight-medium">
+                    {{ $t('power.dialog.reboot') }}
+                  </div>
+                </div>
+
+                <div class="text-body-2 text-medium-emphasis flex-grow-1 mb-4">
+                  {{ $t('power.dialog.rebootDescription') }}
+                </div>
+
+                <v-btn
+                  block
+                  class="power-action-button"
+                  color="warning"
+                  variant="tonal"
+                  :disabled="busy"
+                  @click="rebootSystem"
+                >
+                  <v-icon icon="mdi-restart" class="mr-2" />
+                  {{ $t('power.dialog.reboot') }}
+                </v-btn>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12" md="4">
+            <v-card variant="outlined" class="power-action-card h-100">
+              <v-card-text class="d-flex flex-column h-100 pa-3">
+                <div class="d-flex align-center ga-3 mb-3">
+                  <v-icon icon="mdi-power" color="error" size="28" />
+                  <div class="text-subtitle-1 font-weight-medium">
+                    {{ $t('power.dialog.shutdown') }}
+                  </div>
+                </div>
+
+                <div class="text-body-2 text-medium-emphasis flex-grow-1 mb-4">
+                  {{ $t('power.dialog.shutdownDescription') }}
+                </div>
+
+                <v-btn
+                  block
+                  class="power-action-button"
+                  color="error"
+                  variant="tonal"
+                  :disabled="busy"
+                  @click="shutdownSystem"
+                >
+                  <v-icon icon="mdi-power" class="mr-2" />
+                  {{ $t('power.dialog.shutdown') }}
+                </v-btn>
+              </v-card-text>
+            </v-card>
           </v-col>
         </v-row>
       </v-card-text>
+
+      <v-divider />
+
+      <v-card-actions>
+        <v-spacer />
+        <v-btn
+          variant="text"
+          :disabled="busy"
+          @click="closeDialog"
+        >
+          <v-icon icon="mdi-close" class="mr-2" />
+          {{ $t('common.close') }}
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <style scoped lang="scss">
+.power-action-card {
+  border-color: rgba(var(--v-border-color), var(--v-border-opacity));
+}
 
+.power-action-button {
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  padding-inline: 12px !important;
+}
+
+.power-action-button :deep(.v-btn__content) {
+  height: 42px;
+  white-space: nowrap;
+}
+
+.min-width-0 {
+  min-width: 0;
+}
 </style>

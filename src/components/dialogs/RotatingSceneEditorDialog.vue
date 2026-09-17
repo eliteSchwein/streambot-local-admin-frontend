@@ -146,7 +146,7 @@
                   :text="$t('dialogs.rotatingSceneEditorDialog.noScenesSelectedYetAddAtLeastOneOBSScene')"
                 />
 
-                <v-list v-else bg-color="transparent" density="compact" class="pa-0">
+                <v-list v-else bg-color="transparent" density="comfortable" class="pa-0">
                   <v-list-item
                     v-for="(scene, index) in visualRotatingScene.scenes"
                     :key="`${scene.sceneUuid}-${index}`"
@@ -309,7 +309,9 @@ export default {
     },
 
     title(): string {
-      return this.name ? `Edit ${this.name}` : 'Create rotating scene'
+      return this.name
+        ? this.$t('dialogs.rotatingSceneEditorDialog.editTitle', { name: this.name })
+        : this.$t('dialogs.rotatingSceneEditorDialog.createTitle')
     },
 
     intervalMinutes(): number {

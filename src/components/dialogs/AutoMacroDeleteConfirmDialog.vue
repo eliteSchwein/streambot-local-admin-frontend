@@ -5,7 +5,7 @@
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card color="grey-darken-4">
-      <v-toolbar color="warning" flat density="compact">
+      <v-toolbar color="warning" flat density="comfortable">
         <v-toolbar-title class="d-flex align-center">
           {{ $t('autoMacro.deleteConfirmTitle') }}
         </v-toolbar-title>

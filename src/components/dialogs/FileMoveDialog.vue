@@ -5,7 +5,7 @@
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card color="grey-darken-4">
-      <v-toolbar flat density="compact">
+      <v-toolbar flat density="comfortable">
         <v-toolbar-title class="d-flex align-center">
           {{ title }}
         </v-toolbar-title>
@@ -60,7 +60,7 @@
               v-model="createFolderName"
               :label="createFolderLabel"
               variant="outlined"
-              density="compact"
+              density="comfortable"
               hide-details
               :disabled="explorerLoading || createFolderLoading"
               @keyup.enter="createFolder"
@@ -85,14 +85,14 @@
               v-if="explorerError"
               type="error"
               color="red-darken-3"
-              density="compact"
+              density="comfortable"
               class="ma-3"
               :text="explorerError"
             />
 
             <v-list
               v-else
-              density="compact"
+              density="comfortable"
               bg-color="transparent"
               class="file-folder-explorer__list"
             >

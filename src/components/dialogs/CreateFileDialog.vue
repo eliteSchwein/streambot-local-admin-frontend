@@ -16,7 +16,7 @@
           :label="nameLabel || $t('file.name')"
           :suffix="extensionSuffix"
           variant="outlined"
-          density="compact"
+          density="comfortable"
           hide-details="auto"
           class="mb-3"
           autofocus
@@ -29,7 +29,7 @@
           :items="presetItems"
           :label="presetLabel || $t('common.preset')"
           variant="outlined"
-          density="compact"
+          density="comfortable"
           hide-details="auto"
           class="mb-3"
         />
@@ -38,7 +38,7 @@
           v-else-if="normalizedPresetFolder"
           type="info"
           color="grey-darken-3"
-          density="compact"
+          density="comfortable"
           variant="tonal"
           :text="noPresetsLabel || $t('file.noPresetsFound')"
         />

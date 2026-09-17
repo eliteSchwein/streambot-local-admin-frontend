@@ -75,15 +75,15 @@
             <v-btn size="small" prepend-icon="mdi-plus" variant="tonal" @click="addParam">{{ $t('dialogs.commandCreateDialog.addParam') }}</v-btn>
           </div>
 
-          <v-alert v-if="safeParams.length === 0" type="info" density="compact" variant="tonal" :text="$t('dialogs.commandCreateDialog.noParamsConfigured')" />
+          <v-alert v-if="safeParams.length === 0" type="info" density="comfortable" variant="tonal" :text="$t('dialogs.commandCreateDialog.noParamsConfigured')" />
 
-          <v-row v-for="(param, index) in safeParams" :key="index" density="compact" class="align-center mb-1">
+          <v-row v-for="(param, index) in safeParams" :key="index" density="comfortable" class="align-center mb-1">
             <v-col cols="12" md="3">
-              <v-text-field v-model="param.name" :label="$t('dialogs.commandCreateDialog.name')" variant="outlined" density="compact" hide-details />
+              <v-text-field v-model="param.name" :label="$t('dialogs.commandCreateDialog.name')" variant="outlined" density="comfortable" hide-details />
             </v-col>
 
             <v-col cols="12" md="3">
-              <v-select v-model="param.type" :items="paramTypes" :label="$t('dialogs.commandCreateDialog.type')" variant="outlined" density="compact" hide-details />
+              <v-select v-model="param.type" :items="paramTypes" :label="$t('dialogs.commandCreateDialog.type')" variant="outlined" density="comfortable" hide-details />
             </v-col>
 
             <v-col cols="12" md="4">
@@ -92,13 +92,13 @@
                 v-model="param.subcommandNames"
                 :label="$t('dialogs.commandCreateDialog.subcommands')"
                 variant="outlined"
-                density="compact"
+                density="comfortable"
                 multiple
                 chips
                 closable-chips
                 hide-details
               />
-              <v-switch v-else v-model="param.required" :label="$t('dialogs.commandCreateDialog.required')" color="primary" density="compact" hide-details />
+              <v-switch v-else v-model="param.required" :label="$t('dialogs.commandCreateDialog.required')" color="primary" density="comfortable" hide-details />
             </v-col>
 
             <v-col cols="12" md="2" class="text-right">
@@ -217,8 +217,8 @@ export default {
     title(): string {
       const name = this.commandEntry?.name ?? this.commandEntry?.command?.name
       return this.isEditing
-        ? (name ? `${this.$t('commands.edit')}: !${name}` : this.$t('commands.edit'))
-        : this.$t('commands.create')
+        ? this.$t('dialogs.commandDialog.editTitle', { name: name ? `!${name}` : '' })
+        : this.$t('dialogs.commandDialog.createTitle')
     },
 
     singleUseOptions() {

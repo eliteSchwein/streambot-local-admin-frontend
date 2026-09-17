@@ -9,7 +9,7 @@
       <v-toolbar flat density="comfortable">
         <v-toolbar-title class="d-flex align-center min-width-0">
           <v-icon icon="mdi-pencil" class="mr-2" />
-          <span class="text-truncate">{{ name }}</span>
+          <span class="text-truncate">{{ $t('dialogs.macroEditorDialog.editTitle', { name }) }}</span>
         </v-toolbar-title>
 
         <v-switch
