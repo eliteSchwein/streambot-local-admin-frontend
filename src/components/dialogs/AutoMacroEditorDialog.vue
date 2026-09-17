@@ -73,7 +73,8 @@
                 :label="$t('dialogs.autoMacroEditorDialog.name')"
                 density="comfortable"
                 variant="outlined"
-                hide-details
+                hide-details="auto"
+                :error-messages="shouldCheckName && nameExists ? [$t('common.nameAlreadyExists')] : []"
               />
             </v-col>
 
@@ -234,7 +235,7 @@
           variant="tonal"
           prepend-icon="mdi-content-save"
           :loading="saving"
-          :disabled="!visualAutoMacro.name || loadingFile || saving || hasVisualErrors"
+          :disabled="!visualAutoMacro.name || loadingFile || saving || hasVisualErrors || (shouldCheckName && (nameChecking || nameExists))"
           @click="saveAutoMacro"
         >
           {{ $t('common.save') }}
@@ -259,6 +260,7 @@ import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import YamlImportExportButtons from '@/components/YamlImportExportButtons.vue'
 import MacroSelect from '@/components/MacroSelect.vue'
 import MacroEditorDialog from '@/components/dialogs/MacroEditorDialog.vue'
+import { checkNameExists } from '@/helper/NameExistsHelper'
 
 type VisualAutoMacro = {
   name: string
@@ -306,6 +308,10 @@ export default {
       saving: false,
       errorMessage: '',
       hasVisualErrors: false,
+      nameChecking: false,
+      nameExists: false,
+      nameCheckTimer: null as ReturnType<typeof setTimeout> | null,
+      nameCheckToken: 0,
       editorOptions: {
         automaticLayout: true,
         minimap: { enabled: false },
@@ -324,6 +330,12 @@ export default {
       return this.name
         ? this.$t('dialogs.autoMacroEditorDialog.editTitle', { name: this.name })
         : this.$t('dialogs.autoMacroEditorDialog.createTitle')
+    },
+
+    shouldCheckName(): boolean {
+      const current = String(this.visualAutoMacro.name ?? '').trim()
+      const original = String(this.name ?? '').trim()
+      return Boolean(current) && (!original || current !== original)
     },
 
     macroOptions(): string[] {
@@ -355,7 +367,39 @@ export default {
     },
   },
 
+  watch: {
+    'visualAutoMacro.name'() {
+      this.scheduleNameCheck()
+    },
+  },
+
   methods: {
+    scheduleNameCheck() {
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      const value = String(this.visualAutoMacro.name ?? '').trim()
+      const token = ++this.nameCheckToken
+      this.nameExists = false
+      if (!value || !this.shouldCheckName) { this.nameChecking = false; return }
+      this.nameChecking = true
+      this.nameCheckTimer = setTimeout(async () => {
+        try {
+          const exists = await checkNameExists('auto_macro_exists', value)
+          if (token === this.nameCheckToken && value === String(this.visualAutoMacro.name ?? '').trim()) this.nameExists = exists
+        } catch {
+          if (token === this.nameCheckToken) this.nameExists = false
+        } finally { if (token === this.nameCheckToken) this.nameChecking = false }
+      }, 300)
+    },
+
+    async ensureNameAvailable() {
+      if (!this.shouldCheckName) return true
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      this.nameChecking = true
+      try {
+        this.nameExists = await checkNameExists('auto_macro_exists', String(this.visualAutoMacro.name ?? '').trim())
+        return !this.nameExists
+      } finally { this.nameChecking = false }
+    },
     open() {
       return this.loadAutoMacro()
     },
@@ -436,6 +480,7 @@ export default {
 
     async saveAutoMacro() {
       if (!this.visualAutoMacro.name) return
+      if (!(await this.ensureNameAvailable())) return
 
       this.saving = true
       this.errorMessage = ''

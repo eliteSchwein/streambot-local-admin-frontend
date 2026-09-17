@@ -27,10 +27,20 @@
             <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.general') }}</div>
             <v-row density="comfortable">
               <v-col cols="12">
-                <v-text-field v-model="form.name" :label="$t('dialogs.commandCreateDialog.command')" prefix="!" variant="outlined" density="comfortable" hide-details />
+                <v-text-field v-model="form.name" :label="$t('dialogs.commandCreateDialog.command')" prefix="!" variant="outlined" density="comfortable" hide-details="auto" :error-messages="nameExists ? [$t('common.commandNameAlreadyExists', { command: nameExistsCommand ? `!${nameExistsCommand}` : `!${normalizedName}` })] : []" />
               </v-col>
               <v-col cols="12">
-                <v-combobox v-model="form.aliases" :label="$t('dialogs.commandCreateDialog.aliases')" variant="outlined" density="comfortable" multiple chips closable-chips hide-details />
+                <v-combobox
+                  v-model="form.aliases"
+                  :label="$t('dialogs.commandCreateDialog.aliases')"
+                  variant="outlined"
+                  density="comfortable"
+                  multiple
+                  chips
+                  closable-chips
+                  hide-details="auto"
+                  :error-messages="aliasExistsNames.length ? aliasExistsNames.map(alias => $t('common.commandAliasAlreadyExists', { alias: `!${alias}`, command: aliasExistsCommands[alias] ? `!${aliasExistsCommands[alias]}` : `!${normalizedName}` })) : []"
+                />
               </v-col>
             </v-row>
           </v-card>
@@ -182,6 +192,7 @@ import CommandMacroAccordion from '@/components/accordions/CommandMacroAccordion
 import YamlImportExportButtons from '@/components/YamlImportExportButtons.vue'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import { useAppStore } from '@/stores/app'
+import { checkNameExistsResult } from '@/helper/NameExistsHelper'
 
 export default {
   name: 'CommandDialog',
@@ -205,6 +216,16 @@ export default {
       paramTypes: ['string', 'number', 'user', 'subcommand', 'all'],
       macroContent: '',
       savingInternal: false,
+      nameChecking: false,
+      nameExists: false,
+      nameExistsCommand: null as string | null,
+      aliasChecking: false,
+      aliasExistsNames: [] as string[],
+      aliasExistsCommands: {} as Record<string, string | null>,
+      originalName: '',
+      originalAliases: [] as string[],
+      nameCheckTimer: null as ReturnType<typeof setTimeout> | null,
+      nameCheckToken: 0,
       form: this.defaultForm(),
     }
   },
@@ -249,6 +270,14 @@ export default {
       return this.normalizeName((this.form as any).name)
     },
 
+    normalizedAliases(): string[] {
+      return Array.from(new Set(
+        this.toArray((this.form as any).aliases)
+          .map((alias: any) => String(alias ?? '').trim().replace(/^!+/, ''))
+          .filter(Boolean),
+      ))
+    },
+
     generatedAssetName(): string {
       return this.normalizedName ? `command_${this.normalizedName}` : 'command_'
     },
@@ -265,15 +294,160 @@ export default {
       return this.buildExportPayload()
     },
 
+    originalNormalizedName(): string {
+      return this.normalizeName(this.originalName)
+    },
+
+    nameChanged(): boolean {
+      return this.isEditing && this.normalizedName !== this.originalNormalizedName
+    },
+
+    aliasesToValidate(): string[] {
+      if (!this.isEditing) return this.normalizedAliases
+      const original = new Set(this.originalAliases)
+      return this.normalizedAliases.filter(alias => !original.has(alias))
+    },
+
     canSave(): boolean {
+      const nameAvailable = !this.nameChecking && !this.nameExists
       return this.normalizedName.length > 0 && !this.loading
         && !this.savingInternal
+        && nameAvailable
+        && !this.aliasChecking
+        && this.aliasExistsNames.length === 0
+    },
+  },
+
+  watch: {
+    normalizedName() {
+      this.scheduleNameCheck()
+    },
+    normalizedAliases: {
+      deep: true,
+      handler() {
+        this.scheduleNameCheck()
+      },
+    },
+    isEditing(value: boolean) {
+      if (value) {
+        this.nameChecking = false
+        this.aliasChecking = false
+        this.nameExists = false
+        this.nameExistsCommand = null
+        this.aliasExistsNames = []
+        this.aliasExistsCommands = {}
+      } else {
+        this.scheduleNameCheck()
+      }
     },
   },
 
   methods: {
+    scheduleNameCheck() {
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+
+      const name = (!this.isEditing || this.nameChanged) ? this.normalizedName : ''
+      const commandName = this.normalizedName
+      const aliases = [...this.aliasesToValidate]
+      const token = ++this.nameCheckToken
+
+      this.nameExists = false
+      this.nameExistsCommand = null
+      this.aliasExistsNames = []
+      this.aliasExistsCommands = {}
+
+      if (!name && aliases.length === 0) {
+        this.nameChecking = false
+        this.aliasChecking = false
+        return
+      }
+
+      this.nameChecking = Boolean(name)
+      this.aliasChecking = aliases.length > 0
+
+      this.nameCheckTimer = setTimeout(async () => {
+        try {
+          const [nameResult, aliasChecks] = await Promise.all([
+            name ? checkNameExistsResult('commands_exists', name) : Promise.resolve({ exists: false, name }),
+            Promise.all(aliases.map(async (alias) => {
+              if (alias === commandName) {
+                return { alias, exists: true, command_name: commandName }
+              }
+              const result = await checkNameExistsResult('commands_exists', alias)
+              return { alias, exists: result.exists, command_name: result.command_name ?? null }
+            })),
+          ])
+
+          if (token !== this.nameCheckToken) return
+          if (name && name !== this.normalizedName) return
+          if (JSON.stringify(aliases) !== JSON.stringify(this.aliasesToValidate)) return
+
+          this.nameExists = nameResult.exists
+          this.nameExistsCommand = nameResult.command_name ?? null
+          this.aliasExistsNames = aliasChecks.filter(item => item.exists).map(item => item.alias)
+          this.aliasExistsCommands = Object.fromEntries(
+            aliasChecks.filter(item => item.exists).map(item => [item.alias, item.command_name ?? null]),
+          )
+        } catch {
+          if (token === this.nameCheckToken) {
+            this.nameExists = false
+            this.nameExistsCommand = null
+            this.aliasExistsNames = []
+            this.aliasExistsCommands = {}
+          }
+        } finally {
+          if (token === this.nameCheckToken) {
+            this.nameChecking = false
+            this.aliasChecking = false
+          }
+        }
+      }, 300)
+    },
+
+    async ensureNameAvailable() {
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+
+      const name = (!this.isEditing || this.nameChanged) ? this.normalizedName : ''
+      const commandName = this.normalizedName
+      const aliases = [...this.aliasesToValidate]
+      this.nameChecking = Boolean(name)
+      this.aliasChecking = aliases.length > 0
+
+      try {
+        const [nameResult, aliasChecks] = await Promise.all([
+          name ? checkNameExistsResult('commands_exists', name) : Promise.resolve({ exists: false, name }),
+          Promise.all(aliases.map(async (alias) => {
+            if (alias === commandName) {
+              return { alias, exists: true, command_name: commandName }
+            }
+            const result = await checkNameExistsResult('commands_exists', alias)
+            return { alias, exists: result.exists, command_name: result.command_name ?? null }
+          })),
+        ])
+
+        this.nameExists = nameResult.exists
+        this.nameExistsCommand = nameResult.command_name ?? null
+        this.aliasExistsNames = aliasChecks.filter(item => item.exists).map(item => item.alias)
+        this.aliasExistsCommands = Object.fromEntries(
+          aliasChecks.filter(item => item.exists).map(item => [item.alias, item.command_name ?? null]),
+        )
+        return !this.nameExists && this.aliasExistsNames.length === 0
+      } finally {
+        this.nameChecking = false
+        this.aliasChecking = false
+      }
+    },
+
     async open() {
       this.errorMessage = ''
+      this.nameExists = false
+      this.nameExistsCommand = null
+      this.aliasExistsNames = []
+      this.aliasExistsCommands = {}
+      this.originalName = ''
+      this.originalAliases = []
+      this.nameChecking = false
+      this.aliasChecking = false
       this.form = this.defaultForm()
       this.macroContent = ''
 
@@ -286,6 +460,7 @@ export default {
 
       const command = this.commandEntry?.command ?? {}
       const name = this.commandEntry?.name ?? command.name ?? ''
+      this.originalName = String(name ?? '')
       const generatedName = `command_${String(name).replace(/^command_/, '')}`
       const assetName = command.asset || generatedName
       const macroName = command.macro || generatedName
@@ -306,6 +481,7 @@ export default {
         requiresMod: command.requiresMod === true,
         requiresVip: command.requiresVip === true,
       }
+      this.originalAliases = [...this.normalizedAliases]
 
       await this.$nextTick()
       await Promise.all([
@@ -515,7 +691,7 @@ export default {
       return {
         ...this.form,
         name: this.normalizedName,
-        aliases: this.toArray((this.form as any).aliases),
+        aliases: this.normalizedAliases,
         params: this.normalizeParams(),
         asset: this.generatedAssetName,
         macro: this.generatedMacroName,
@@ -601,6 +777,7 @@ export default {
 
     async save() {
       if (!this.canSave) return
+      if (!(await this.ensureNameAvailable())) return
 
       this.errorMessage = ''
       this.savingInternal = true

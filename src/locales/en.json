@@ -1707,7 +1707,11 @@
     "disabled": "Disabled",
     "remove": "Remove",
     "preset": "Preset",
-    "close": "Close"
+    "close": "Close",
+    "nameAlreadyExists": "Name already exists",
+    "aliasAlreadyExists": "One or more aliases are already in use: {aliases}",
+    "commandNameAlreadyExists": "Name is already used by command {command}",
+    "commandAliasAlreadyExists": "Alias {alias} is already used by command {command}"
   },
   "file": {
     "name": "Filename",

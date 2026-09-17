@@ -39,7 +39,7 @@
         <div class="option-card-grid px-3 mb-4">
           <v-card variant="tonal" class="option-card pa-4">
             <div class="text-subtitle-2 mb-3">{{ $t('dialogs.channelPointDialog.general') }}</div>
-            <v-text-field v-model="form.name" :label="$t('dialogs.channelPointDialog.name')" density="comfortable" variant="outlined" hide-details />
+            <v-text-field v-model="form.name" :label="$t('dialogs.channelPointDialog.name')" density="comfortable" variant="outlined" hide-details="auto" :error-messages="!isEditing && nameExists ? [$t('common.nameAlreadyExists')] : []" />
           </v-card>
 
           <v-card variant="tonal" class="option-card pa-4">
@@ -127,6 +127,7 @@
 <script lang="ts">
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import { useAppStore } from '@/stores/app'
+import { checkNameExists } from '@/helper/NameExistsHelper'
 import ChannelPointAssetAccordion from '@/components/accordions/ChannelPointAssetAccordion.vue'
 import ChannelPointMacroAccordion from '@/components/accordions/ChannelPointMacroAccordion.vue'
 import YamlImportExportButtons from '@/components/YamlImportExportButtons.vue'
@@ -166,6 +167,10 @@ export default {
       errorMessage: '',
       savingInternal: false,
       initializingInternal: false,
+      nameChecking: false,
+      nameExists: false,
+      nameCheckTimer: null as ReturnType<typeof setTimeout> | null,
+      nameCheckToken: 0,
     }
   },
 
@@ -190,7 +195,7 @@ export default {
     },
 
     canSave(): boolean {
-      return String(this.form.name ?? '').trim().length > 0 && this.normalizedName.length > 0 && !this.loading && !this.initializingInternal && !this.savingInternal
+      return String(this.form.name ?? '').trim().length > 0 && this.normalizedName.length > 0 && !this.loading && !this.initializingInternal && !this.savingInternal && (this.isEditing || (!this.nameChecking && !this.nameExists))
     },
 
     exportFilename(): string {
@@ -216,7 +221,46 @@ export default {
     },
   },
 
+  watch: {
+    normalizedName() {
+      if (!this.isEditing) this.scheduleNameCheck()
+    },
+    isEditing(value: boolean) {
+      if (value) { this.nameChecking = false; this.nameExists = false }
+      else this.scheduleNameCheck()
+    },
+  },
+
   methods: {
+    scheduleNameCheck() {
+      if (this.isEditing) return
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      const name = this.normalizedName
+      const token = ++this.nameCheckToken
+      this.nameExists = false
+      if (!name) { this.nameChecking = false; return }
+      this.nameChecking = true
+      this.nameCheckTimer = setTimeout(async () => {
+        try {
+          const exists = await checkNameExists('channel_points_exists', name)
+          if (token === this.nameCheckToken && name === this.normalizedName) this.nameExists = exists
+        } catch {
+          if (token === this.nameCheckToken) this.nameExists = false
+        } finally {
+          if (token === this.nameCheckToken) this.nameChecking = false
+        }
+      }, 300)
+    },
+
+    async ensureNameAvailable() {
+      if (this.isEditing) return true
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      this.nameChecking = true
+      try {
+        this.nameExists = await checkNameExists('channel_points_exists', this.normalizedName)
+        return !this.nameExists
+      } finally { this.nameChecking = false }
+    },
     async open() {
       this.initializingInternal = true
       this.errorMessage = ''
@@ -374,8 +418,9 @@ export default {
       this.errorMessage = error?.message ?? String(error ?? 'Failed to import YAML')
     },
 
-    save() {
+    async save() {
       if (!this.canSave) return
+      if (!(await this.ensureNameAvailable())) return
 
       this.$emit('save', {
         name: this.normalizedName,

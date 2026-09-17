@@ -33,6 +33,7 @@
           variant="outlined"
           density="comfortable"
           hide-details="auto"
+          :error-messages="nameExists ? [$t('common.nameAlreadyExists')] : []"
           autofocus
           class="mb-3"
           @keydown.enter.prevent="createMacro"
@@ -86,6 +87,7 @@
 
 <script lang="ts">
 import { getWebsocketClient } from '@/plugins/websocketInstance'
+import { checkNameExists } from '@/helper/NameExistsHelper'
 
 const presetFiles = import.meta.glob('../../presets/macros/*.{yaml,yml}', {
   query: '?raw',
@@ -108,6 +110,10 @@ export default {
       selectedPreset: '',
       loading: false,
       errorMessage: '',
+      nameChecking: false,
+      nameExists: false,
+      nameCheckTimer: null as ReturnType<typeof setTimeout> | null,
+      nameCheckToken: 0,
     }
   },
 
@@ -133,7 +139,7 @@ export default {
     },
 
     canCreate(): boolean {
-      return Boolean(this.normalizedName) && Boolean(this.selectedPreset) && !this.loading
+      return Boolean(this.normalizedName) && Boolean(this.selectedPreset) && !this.loading && !this.nameChecking && !this.nameExists
     },
 
     targetPath(): string {
@@ -145,6 +151,9 @@ export default {
     modelValue(value: boolean) {
       if (value) this.prepareDialog()
     },
+    normalizedName() {
+      this.scheduleNameCheck()
+    },
   },
 
   mounted() {
@@ -152,6 +161,41 @@ export default {
   },
 
   methods: {
+    scheduleNameCheck() {
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      const name = this.normalizedName
+      const token = ++this.nameCheckToken
+      this.nameExists = false
+      if (!name) {
+        this.nameChecking = false
+        return
+      }
+      this.nameChecking = true
+      this.nameCheckTimer = setTimeout(async () => {
+        try {
+          const exists = await checkNameExists('macro_exists', name)
+          if (token === this.nameCheckToken && name === this.normalizedName) this.nameExists = exists
+        } catch {
+          if (token === this.nameCheckToken) this.nameExists = false
+        } finally {
+          if (token === this.nameCheckToken) this.nameChecking = false
+        }
+      }, 300)
+    },
+
+    async ensureNameAvailable() {
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      const name = this.normalizedName
+      if (!name) return false
+      this.nameChecking = true
+      try {
+        this.nameExists = await checkNameExists('macro_exists', name)
+        return !this.nameExists
+      } finally {
+        this.nameChecking = false
+      }
+    },
+
     prepareDialog() {
       this.errorMessage = ''
 
@@ -165,6 +209,10 @@ export default {
       this.name = ''
       this.errorMessage = ''
       this.loading = false
+      this.nameChecking = false
+      this.nameExists = false
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      this.nameCheckTimer = null
     },
 
     async requestWebsocket(method: string, params: Record<string, any> = {}, timeout = 10_000): Promise<any> {
@@ -190,6 +238,7 @@ export default {
 
     async createMacro() {
       if (!this.canCreate) return
+      if (!(await this.ensureNameAvailable())) return
 
       this.loading = true
       this.errorMessage = ''

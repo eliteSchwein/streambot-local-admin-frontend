@@ -74,7 +74,8 @@
                   :label="$t('macro.name')"
                   density="comfortable"
                   variant="outlined"
-                  hide-details
+                  hide-details="auto"
+                  :error-messages="nameChanged && nameExists ? [$t('common.nameAlreadyExists')] : []"
                 />
               </v-col>
             </v-row>
@@ -101,7 +102,7 @@
           variant="tonal"
           prepend-icon="mdi-content-save"
           :loading="saving"
-          :disabled="!name || loadingFile || saving || hasVisualErrors"
+          :disabled="!name || !visualMacro.name || loadingFile || saving || hasVisualErrors || (nameChanged && (nameChecking || nameExists))"
           @click="saveMacro"
         >
           {{ $t('common.save') }}
@@ -116,6 +117,7 @@ import { getWebsocketClient } from '@/plugins/websocketInstance'
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import MacroTaskList from '@/components/MacroTaskList.vue'
 import YamlImportExportButtons from '@/components/YamlImportExportButtons.vue'
+import { checkNameExists } from '@/helper/NameExistsHelper'
 
 type VisualTask = {
   id: string
@@ -165,6 +167,10 @@ export default {
       saving: false,
       errorMessage: '',
       hasVisualErrors: false,
+      nameChecking: false,
+      nameExists: false,
+      nameCheckTimer: null as ReturnType<typeof setTimeout> | null,
+      nameCheckToken: 0,
       editorOptions: {
         automaticLayout: true,
         minimap: { enabled: false },
@@ -176,7 +182,59 @@ export default {
     }
   },
 
+  computed: {
+    nameChanged(): boolean {
+      const current = String(this.visualMacro.name ?? '').trim()
+      const original = String(this.name ?? '').trim()
+      return Boolean(current) && current !== original
+    },
+  },
+
+  watch: {
+    'visualMacro.name'() {
+      this.scheduleNameCheck()
+    },
+  },
+
   methods: {
+    scheduleNameCheck() {
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      const value = String(this.visualMacro.name ?? '').trim()
+      const token = ++this.nameCheckToken
+      this.nameExists = false
+
+      if (!value || !this.nameChanged) {
+        this.nameChecking = false
+        return
+      }
+
+      this.nameChecking = true
+      this.nameCheckTimer = setTimeout(async () => {
+        try {
+          const exists = await checkNameExists('macro_exists', value)
+          if (token === this.nameCheckToken && value === String(this.visualMacro.name ?? '').trim()) {
+            this.nameExists = exists
+          }
+        } catch {
+          if (token === this.nameCheckToken) this.nameExists = false
+        } finally {
+          if (token === this.nameCheckToken) this.nameChecking = false
+        }
+      }, 300)
+    },
+
+    async ensureNameAvailable() {
+      if (!this.nameChanged) return true
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      this.nameChecking = true
+      try {
+        this.nameExists = await checkNameExists('macro_exists', String(this.visualMacro.name ?? '').trim())
+        return !this.nameExists
+      } finally {
+        this.nameChecking = false
+      }
+    },
+
     open() {
       return this.loadMacro()
     },
@@ -232,7 +290,8 @@ export default {
     },
 
     async saveMacro() {
-      if (!this.name) return
+      if (!this.name || !this.visualMacro.name) return
+      if (!(await this.ensureNameAvailable())) return
 
       this.saving = true
       this.errorMessage = ''

@@ -1707,7 +1707,11 @@
     "disabled": "Deaktiviert",
     "remove": "Entfernen",
     "preset": "Vorlage",
-    "close": "Schließen"
+    "close": "Schließen",
+    "nameAlreadyExists": "Name ist bereits vergeben",
+    "aliasAlreadyExists": "Ein oder mehrere Aliase sind bereits vergeben: {aliases}",
+    "commandNameAlreadyExists": "Name wird bereits vom Befehl {command} verwendet",
+    "commandAliasAlreadyExists": "Alias {alias} wird bereits vom Befehl {command} verwendet"
   },
   "file": {
     "name": "Dateiname",

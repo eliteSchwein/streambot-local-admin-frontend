@@ -73,7 +73,8 @@
                 :label="$t('dialogs.rotatingSceneEditorDialog.name')"
                 density="comfortable"
                 variant="outlined"
-                hide-details
+                hide-details="auto"
+                :error-messages="shouldCheckName && nameExists ? [$t('common.nameAlreadyExists')] : []"
               />
             </v-col>
 
@@ -225,7 +226,7 @@
           variant="tonal"
           prepend-icon="mdi-content-save"
           :loading="saving"
-          :disabled="!visualRotatingScene.name || loadingFile || saving || hasVisualErrors"
+          :disabled="!visualRotatingScene.name || loadingFile || saving || hasVisualErrors || (shouldCheckName && (nameChecking || nameExists))"
           @click="saveRotatingScene"
         >
           {{ $t('common.save') }}
@@ -240,6 +241,7 @@ import { useAppStore } from '@/stores/app'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import YamlImportExportButtons from '@/components/YamlImportExportButtons.vue'
+import { checkNameExists } from '@/helper/NameExistsHelper'
 
 type VisualRotatingSceneItem = {
   sceneUuid: string
@@ -292,6 +294,10 @@ export default {
       saving: false,
       errorMessage: '',
       hasVisualErrors: false,
+      nameChecking: false,
+      nameExists: false,
+      nameCheckTimer: null as ReturnType<typeof setTimeout> | null,
+      nameCheckToken: 0,
       editorOptions: {
         automaticLayout: true,
         minimap: { enabled: false },
@@ -314,6 +320,12 @@ export default {
         : this.$t('dialogs.rotatingSceneEditorDialog.createTitle')
     },
 
+    shouldCheckName(): boolean {
+      const current = String(this.visualRotatingScene.name ?? '').trim()
+      const original = String(this.name ?? '').trim()
+      return Boolean(current) && (!original || current !== original)
+    },
+
     intervalMinutes(): number {
       const interval = Number(this.visualRotatingScene.interval || 1)
       if (this.intervalUnit === 'hours') return interval * 60
@@ -331,6 +343,9 @@ export default {
   },
 
   watch: {
+    'visualRotatingScene.name'() {
+      this.scheduleNameCheck()
+    },
     obsSceneData: {
       handler() {
         this.migrateVisualScenesToSceneUuid()
@@ -340,6 +355,33 @@ export default {
   },
 
   methods: {
+    scheduleNameCheck() {
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      const value = String(this.visualRotatingScene.name ?? '').trim()
+      const token = ++this.nameCheckToken
+      this.nameExists = false
+      if (!value || !this.shouldCheckName) { this.nameChecking = false; return }
+      this.nameChecking = true
+      this.nameCheckTimer = setTimeout(async () => {
+        try {
+          const exists = await checkNameExists('rotating_scene_exists', value)
+          if (token === this.nameCheckToken && value === String(this.visualRotatingScene.name ?? '').trim()) this.nameExists = exists
+        } catch {
+          if (token === this.nameCheckToken) this.nameExists = false
+        } finally { if (token === this.nameCheckToken) this.nameChecking = false }
+      }, 300)
+    },
+
+    async ensureNameAvailable() {
+      if (!this.shouldCheckName) return true
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      this.nameChecking = true
+      try {
+        this.nameExists = await checkNameExists('rotating_scene_exists', String(this.visualRotatingScene.name ?? '').trim())
+        return !this.nameExists
+      } finally { this.nameChecking = false }
+    },
+
     getSceneOptions(obsSceneData: any): any[] {
       const result: any[] = []
       const seen = new Set<string>()
@@ -522,6 +564,7 @@ export default {
 
     async saveRotatingScene() {
       if (!this.visualRotatingScene.name) return
+      if (!(await this.ensureNameAvailable())) return
 
       this.saving = true
       this.errorMessage = ''

@@ -1,5 +1,6 @@
 <script lang="ts">
 import {useAppStore} from '@/stores/app'
+import { checkNameExists } from '@/helper/NameExistsHelper'
 import {getWebsocketClient} from '@/plugins/websocketInstance.ts'
 import YamlImportExportButtons from '@/components/YamlImportExportButtons.vue'
 import MacroWledControlEditor from '@/components/MacroWledControlEditor.vue'
@@ -119,6 +120,10 @@ export default {
       wledEffectsByLamp: {} as Record<string, Array<{ title: string; value: number }>>,
       pendingWledControlIndex: null as number | null,
       importError: "",
+      nameChecking: false,
+      nameExists: false,
+      nameCheckTimer: null as ReturnType<typeof setTimeout> | null,
+      nameCheckToken: 0,
     };
   },
 
@@ -151,7 +156,7 @@ export default {
     },
 
     canSave(): boolean {
-      return this.form.name.trim().length > 0 && !this.loading;
+      return this.form.name.trim().length > 0 && !this.loading && (Boolean(this.assetName) || (!this.nameChecking && !this.nameExists));
     },
 
     alertChannelOptions(): string[] {
@@ -209,7 +214,41 @@ export default {
     },
   },
 
+  watch: {
+    'form.name'() {
+      if (!this.assetName) this.scheduleNameCheck()
+    },
+  },
+
   methods: {
+    scheduleNameCheck() {
+      if (this.assetName) return
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      const value = String(this.form.name ?? '').trim()
+      const token = ++this.nameCheckToken
+      this.nameExists = false
+      if (!value) { this.nameChecking = false; return }
+      this.nameChecking = true
+      this.nameCheckTimer = setTimeout(async () => {
+        try {
+          const exists = await checkNameExists('assets_exists', value)
+          if (token === this.nameCheckToken && value === String(this.form.name ?? '').trim()) this.nameExists = exists
+        } catch {
+          if (token === this.nameCheckToken) this.nameExists = false
+        } finally { if (token === this.nameCheckToken) this.nameChecking = false }
+      }, 300)
+    },
+
+    async ensureNameAvailable() {
+      if (this.assetName) return true
+      if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
+      this.nameChecking = true
+      try {
+        this.nameExists = await checkNameExists('assets_exists', String(this.form.name ?? '').trim())
+        return !this.nameExists
+      } finally { this.nameChecking = false }
+    },
+
     requestWebsocket(method: string, params: Record<string, any> = {}, timeout = 15_000): Promise<any> {
       const client = getWebsocketClient();
 
@@ -865,8 +904,9 @@ export default {
       return asset;
     },
 
-    submit() {
+    async submit() {
       if (!this.canSave) return;
+      if (!(await this.ensureNameAvailable())) return;
       const name = this.form.name.trim();
 
       this.$emit("save", {
@@ -931,6 +971,7 @@ export default {
                   v-model="form.name"
                   :disabled="Boolean(assetName) || loading"
                   :label="$t('assets.name')"
+                  :error-messages="!assetName && nameExists ? [$t('common.nameAlreadyExists')] : []"
                   hide-details="auto"
                   prepend-inner-icon="mdi-palette"
                   variant="outlined"
