@@ -1464,13 +1464,15 @@
   "power": {
     "dialog": {
       "title": "Power & restart",
-      "subtitle": "Restart the bot backend, reboot the device, or shut it down.",
+      "subtitle": "Restart services, reload OBS browser sources, reboot the device, or shut it down.",
       "restartBackend": "Restart backend",
       "restartBackendDescription": "Restart only the Streambot backend service. The operating system stays online.",
       "reboot": "Reboot system",
       "rebootDescription": "Restart the complete device and all Streambot services.",
       "shutdown": "Shut down system",
-      "shutdownDescription": "Safely shut down the complete device."
+      "shutdownDescription": "Safely shut down the complete device.",
+      "reloadBrowserSources": "Reload browser sources",
+      "reloadBrowserSourcesDescription": "Reload all OBS browser sources without restarting OBS or the backend."
     }
   },
   "connectDialog": {

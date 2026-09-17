@@ -84,9 +84,6 @@ export default {
     },
   },
   methods: {
-    async reloadBrowserSources() {
-      await fetch(`${this.getRestApi}/api/obs/reload_browsers`)
-    },
     showPowerMenu() {
       eventBus.$emit('dialog:show', 'power')
     },
@@ -227,16 +224,6 @@ export default {
     >
       <v-icon icon="mdi-shield" color="error"></v-icon>
       <p class="text-error ml-2">{{ $t('navigation.status.shield') }}</p>
-    </v-btn>
-
-    <v-btn
-      v-if="Object.keys(getObsAudioData).length > 0"
-      class="topbar-icon-button mr-1"
-      variant="text"
-      :title="$t('navigation.actions.reloadBrowserSources')"
-      @click="reloadBrowserSources"
-    >
-      <v-icon icon="mdi-application-outline" />
     </v-btn>
 
     <v-btn

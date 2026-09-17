@@ -1464,13 +1464,15 @@
   "power": {
     "dialog": {
       "title": "Ein/Aus & Neustart",
-      "subtitle": "Bot-Backend neu starten, das Gerät neu starten oder herunterfahren.",
+      "subtitle": "Dienste neu starten, OBS-Browserquellen neu laden oder das Gerät neu starten bzw. herunterfahren.",
       "restartBackend": "Backend neu starten",
       "restartBackendDescription": "Startet nur den Streambot-Backend-Dienst neu. Das Betriebssystem bleibt aktiv.",
       "reboot": "System neu starten",
       "rebootDescription": "Startet das gesamte Gerät und alle Streambot-Dienste neu.",
       "shutdown": "System herunterfahren",
-      "shutdownDescription": "Fährt das gesamte Gerät sicher herunter."
+      "shutdownDescription": "Fährt das gesamte Gerät sicher herunter.",
+      "reloadBrowserSources": "Browserquellen neu laden",
+      "reloadBrowserSourcesDescription": "Lädt alle OBS-Browserquellen neu, ohne OBS oder das Backend neu zu starten."
     }
   },
   "connectDialog": {

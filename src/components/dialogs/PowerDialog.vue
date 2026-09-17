@@ -8,14 +8,17 @@ export default {
   data () {
     return {
       show: false,
-      activeAction: null as null | 'backend' | 'reboot' | 'shutdown',
+      activeAction: null as null | 'backend' | 'browsers' | 'reboot' | 'shutdown',
     }
   },
 
   computed: {
-    ...mapState(useAppStore, ['getRestApi']),
+    ...mapState(useAppStore, ['getRestApi', 'getObsAudioData']),
     busy(): boolean {
       return this.activeAction !== null
+    },
+    powerActionColumnSize(): number {
+      return Object.keys(this.getObsAudioData ?? {}).length > 0 ? 6 : 4
     },
   },
 
@@ -51,6 +54,20 @@ export default {
       }
     },
 
+    async reloadBrowserSources() {
+      if (this.busy) return
+      this.activeAction = 'browsers'
+
+      try {
+        const response = await fetch(`${this.getRestApi}/api/obs/reload_browsers`)
+        if (!response.ok) throw new Error(`reload failed (${response.status})`)
+        this.activeAction = null
+      } catch (error) {
+        console.error('browser source reload failed', error)
+        this.activeAction = null
+      }
+    },
+
     rebootSystem() {
       if (this.busy) return
       this.activeAction = 'reboot'
@@ -71,7 +88,7 @@ export default {
 <template>
   <v-dialog
     v-model="show"
-    width="720"
+    width="820"
     max-width="calc(100vw - 16px)"
     scrollable
   >
@@ -101,7 +118,7 @@ export default {
         </div>
 
         <v-row dense>
-          <v-col cols="12" md="4">
+          <v-col cols="12" :md="powerActionColumnSize">
             <v-card variant="outlined" class="power-action-card h-100">
               <v-card-text class="d-flex flex-column h-100 pa-3">
                 <div class="d-flex align-center ga-3 mb-3">
@@ -131,7 +148,37 @@ export default {
             </v-card>
           </v-col>
 
-          <v-col cols="12" md="4">
+          <v-col v-if="Object.keys(getObsAudioData ?? {}).length > 0" cols="12" :md="powerActionColumnSize">
+            <v-card variant="outlined" class="power-action-card h-100">
+              <v-card-text class="d-flex flex-column h-100 pa-3">
+                <div class="d-flex align-center ga-3 mb-3">
+                  <v-icon icon="mdi-application-outline" color="info" size="28" />
+                  <div class="text-subtitle-1 font-weight-medium">
+                    {{ $t('power.dialog.reloadBrowserSources') }}
+                  </div>
+                </div>
+
+                <div class="text-body-2 text-medium-emphasis flex-grow-1 mb-4">
+                  {{ $t('power.dialog.reloadBrowserSourcesDescription') }}
+                </div>
+
+                <v-btn
+                  block
+                  class="power-action-button"
+                  color="info"
+                  variant="tonal"
+                  :loading="activeAction === 'browsers'"
+                  :disabled="busy && activeAction !== 'browsers'"
+                  @click="reloadBrowserSources"
+                >
+                  <v-icon icon="mdi-refresh" class="mr-2" />
+                  {{ $t('power.dialog.reloadBrowserSources') }}
+                </v-btn>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12" :md="powerActionColumnSize">
             <v-card variant="outlined" class="power-action-card h-100">
               <v-card-text class="d-flex flex-column h-100 pa-3">
                 <div class="d-flex align-center ga-3 mb-3">
@@ -160,7 +207,7 @@ export default {
             </v-card>
           </v-col>
 
-          <v-col cols="12" md="4">
+          <v-col cols="12" :md="powerActionColumnSize">
             <v-card variant="outlined" class="power-action-card h-100">
               <v-card-text class="d-flex flex-column h-100 pa-3">
                 <div class="d-flex align-center ga-3 mb-3">
