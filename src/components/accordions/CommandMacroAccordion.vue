@@ -1,5 +1,13 @@
 <template>
-  <ChannelPointMacroAccordion ref="inner" :name="name" :initial-content="currentContent" :disable-macro-read="disableMacroRead" />
+  <ChannelPointMacroAccordion
+    ref="inner"
+    :name="name"
+    :initial-content="currentContent"
+    :disable-macro-read="disableMacroRead"
+    template-context="command"
+    :template-name="sourceName || name"
+    :template-macro="name"
+  />
 </template>
 
 <script lang="ts">
@@ -8,7 +16,7 @@ import ChannelPointMacroAccordion from '@/components/accordions/ChannelPointMacr
 export default {
   name: 'CommandMacroAccordion',
   components: { ChannelPointMacroAccordion },
-  props: { name: { type: String, default: '' }, initialContent: { type: String, default: '' }, disableMacroRead: { type: Boolean, default: false } },
+  props: { name: { type: String, default: '' }, sourceName: { type: String, default: '' }, initialContent: { type: String, default: '' }, disableMacroRead: { type: Boolean, default: false } },
   data() { return { currentContent: this.initialContent, pendingContent: null as string | null } },
   watch: { initialContent(value: string) { this.currentContent = value || ''; this.applyPendingContent() } },
   mounted() { this.applyPendingContent() },

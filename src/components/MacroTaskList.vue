@@ -1,5 +1,14 @@
 <template>
-  <div class="macro-task-list" :class="{ 'macro-task-list--nested': nested }">
+  <div
+    class="macro-task-list"
+    :class="{ 'macro-task-list--nested': nested }"
+    @input.capture="onTemplateVariableInput"
+    @focusin.capture="onTemplateVariableFocus"
+    @focusout.capture="onTemplateVariableBlur"
+    @click.capture="onTemplateVariableFocus"
+    @keyup.capture="onTemplateVariableCursorChange"
+    @keydown.capture="onTemplateVariableKeydown"
+  >
     <v-expansion-panels v-if="items.length" variant="accordion" multiple>
       <component
         :is="componentFor(item)"
@@ -47,12 +56,35 @@
       :presets="availablePresets"
       @select="addPreset"
     />
+
+    <Teleport to="body">
+      <div
+        v-if="templateVariableOpen && templateVariableSuggestions.length"
+        class="macro-task-list__template-variable-menu"
+        :style="templateVariableMenuStyle"
+        @mousedown.prevent
+      >
+        <button
+          v-for="(suggestion, suggestionIndex) in templateVariableSuggestions"
+          :key="suggestion.path"
+          type="button"
+          class="macro-task-list__template-variable-option"
+          :class="{ 'macro-task-list__template-variable-option--active': suggestionIndex === templateVariableSelectedIndex }"
+          @mouseenter="templateVariableSelectedIndex = suggestionIndex"
+          @mousedown.prevent="applyTemplateVariable(suggestion)"
+        >
+          <span class="macro-task-list__template-variable-expression">{{ suggestion.expression }}</span>
+          <span class="macro-task-list__template-variable-meta">{{ suggestion.type }}</span>
+        </button>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script lang="ts">
 import { mapState } from 'pinia'
 import { useAppStore } from '@/stores/app'
+import { getWebsocketClient } from '@/plugins/websocketInstance'
 import * as macroTaskModule from '@/components/accordions/macro'
 import { buildMacroTaskPresets, findMacroTaskPreset } from '@/components/accordions/macro/preset-registry'
 import MacroTaskAddDialog from '@/components/dialogs/MacroTaskAddDialog.vue'
@@ -100,6 +132,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    templateContext: {
+      type: String,
+      default: 'macro',
+    },
+    templateName: {
+      type: String,
+      default: '',
+    },
+    templateMacro: {
+      type: String,
+      default: '',
+    },
   },
 
   watch: {
@@ -109,6 +153,15 @@ export default {
       handler() {
         this.ensureItemIds(this.items as any[])
       },
+    },
+    templateContext() {
+      this.scheduleTemplateVariableReload()
+    },
+    templateName() {
+      this.scheduleTemplateVariableReload()
+    },
+    templateMacro() {
+      this.scheduleTemplateVariableReload()
     },
   },
 
@@ -139,10 +192,379 @@ export default {
   data() {
     return {
       addTaskDialogOpen: false,
+      templateVariableEntries: [] as any[],
+      templateVariableOpen: false,
+      templateVariableSuggestions: [] as any[],
+      templateVariableSelectedIndex: 0,
+      templateVariableActiveInput: null as HTMLInputElement | HTMLTextAreaElement | null,
+      templateVariableRange: null as { start: number, end: number, query: string } | null,
+      templateVariableMenuStyle: {} as Record<string, string>,
+      templateVariableReloadTimer: null as ReturnType<typeof setTimeout> | null,
+      templateVariableLoadToken: 0,
+      templateVariableLoading: false,
     }
   },
 
+  mounted() {
+    if (this.depth === 0) this.loadTemplateVariables()
+  },
+
+  beforeUnmount() {
+    if (this.templateVariableReloadTimer) clearTimeout(this.templateVariableReloadTimer)
+  },
+
   methods: {
+    scheduleTemplateVariableReload() {
+      if (this.depth !== 0) return
+      if (this.templateVariableReloadTimer) clearTimeout(this.templateVariableReloadTimer)
+      this.templateVariableReloadTimer = setTimeout(() => this.loadTemplateVariables(), 120)
+    },
+
+    async requestTemplateVariables(payload: Record<string, any>) {
+      const client = getWebsocketClient()
+      if (!client) throw new Error('WebSocket client unavailable')
+
+      const response = await client.request('macro_template_variables', payload, 8_000)
+      let data: any = response?.params ?? response
+
+      // Keep this compatible with both the current BaseApi websocket response
+      // (payload directly in params) and older/wrapped result shapes.
+      if (data && typeof data === 'object' && Object.prototype.hasOwnProperty.call(data, 'result_macro_template_variables')) {
+        data = data.result_macro_template_variables
+      }
+      if (data?.data && typeof data.data === 'object' && !Array.isArray(data.data)) {
+        data = data.data
+      }
+
+      return data
+    },
+
+    async loadTemplateVariables() {
+      if (this.depth !== 0) return
+
+      const token = ++this.templateVariableLoadToken
+      this.templateVariableLoading = true
+      const context = String(this.templateContext || 'macro').trim() || 'macro'
+      const name = String(this.templateName || '').trim()
+      const macro = String(this.templateMacro || name).trim()
+
+      try {
+        let response: any
+        try {
+          response = await this.requestTemplateVariables({ context, name, macro })
+          if (response?.error) throw new Error(response.error)
+        } catch (error) {
+          if (context === 'macro') throw error
+          response = await this.requestTemplateVariables({ context: 'macro', name: macro || name, macro: macro || name })
+          if (response?.error) throw new Error(response.error)
+        }
+
+        if (token !== this.templateVariableLoadToken) return
+        const contextPrefixes = this.templateVariableContextPrefixes(response)
+        this.templateVariableEntries = Array.isArray(response?.paths)
+          ? response.paths
+              .filter((entry: any) => entry && typeof entry.path === 'string' && entry.path.trim())
+              .map((entry: any) => {
+                const path = String(entry.path).trim()
+                return {
+                  ...entry,
+                  path,
+                  expression: String(entry.expression || `\${${path}}`),
+                  source: this.templateVariableMatchesContext(path, contextPrefixes)
+                    ? 'context'
+                    : entry?.source,
+                }
+              })
+          : []
+
+        if (this.templateVariableActiveInput && document.activeElement === this.templateVariableActiveInput) {
+          this.updateTemplateVariableSuggestions(this.templateVariableActiveInput)
+        }
+      } catch (error) {
+        if (token === this.templateVariableLoadToken) {
+          this.templateVariableEntries = []
+          console.warn('Failed to load macro template variables', error)
+        }
+      } finally {
+        if (token === this.templateVariableLoadToken) this.templateVariableLoading = false
+      }
+    },
+
+    templateTextControl(target: EventTarget | null): HTMLInputElement | HTMLTextAreaElement | null {
+      if (target instanceof HTMLTextAreaElement) return target
+      if (!(target instanceof HTMLInputElement)) return null
+      const type = String(target.type || 'text').toLowerCase()
+      return ['text', 'search', 'url', 'email', 'tel', 'password'].includes(type) ? target : null
+    },
+
+    templateVariableContextPrefixes(response: any) {
+      const prefixes = new Set<string>()
+      const payload = response?.payload
+
+      if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+        for (const key of Object.keys(payload)) {
+          const normalized = String(key).trim()
+          if (normalized) prefixes.add(normalized)
+        }
+      }
+
+      const context = String(response?.context || this.templateContext || '').trim().toLowerCase()
+      const name = String(response?.name || this.templateName || '').trim()
+      if (name) {
+        if (context === 'command') prefixes.add(`commands.${name}`)
+        if (context === 'channel_point') prefixes.add(`channel_points.${name}`)
+        if (context === 'auto_macro') prefixes.add(`auto_macros.${name}`)
+        if (context === 'timer') prefixes.add(`timers.${name}`)
+      }
+
+      return Array.from(prefixes)
+    },
+
+    templateVariableMatchesContext(path: string, prefixes: string[]) {
+      return prefixes.some((prefix: string) => path === prefix || path.startsWith(`${prefix}.`))
+    },
+
+    currentMacroGeneratedTemplateVariables() {
+      const entries = new Map<string, any>()
+
+      const add = (path: unknown, type = 'variable') => {
+        const normalized = String(path ?? '').trim()
+        if (!normalized || /[\s{}$]/.test(normalized)) return
+        if (!entries.has(normalized)) {
+          entries.set(normalized, {
+            path: normalized,
+            expression: `\${${normalized}}`,
+            type,
+            source: 'current_macro',
+          })
+        }
+      }
+
+      const visit = (items: any[]) => {
+        for (const item of items ?? []) {
+          const task = item?.task ?? {}
+          const data = task?.data ?? {}
+          const channel = String(task?.channel ?? '')
+          const method = String(task?.method ?? '')
+
+          if (data.result_variable) {
+            let type = 'variable'
+            if (channel === 'ollama') type = 'string'
+            else if (channel === 'media' && method === 'ffmpeg') type = 'string'
+            add(data.result_variable, type)
+          }
+
+          if (channel === 'variable' && ['set', 'local_set'].includes(method)) {
+            add(data.key)
+          }
+
+          if (channel === 'function' && method === 'random') {
+            add(data.key, 'number')
+          }
+
+          if (channel === 'function' && method === 'strip_emojis') {
+            add(data.key, 'string')
+          }
+
+          if (channel === 'file' && method === 'read_folder') {
+            add(data.key, 'array')
+          }
+
+          if (channel === 'loop' && method === 'for') {
+            add(data.key, 'number')
+          }
+
+          if (channel === 'twitch' && data.variable) {
+            add(data.variable, 'object')
+            if (method === 'clip') add(`${String(data.variable).trim()}.url`, 'string')
+          }
+
+          if (Array.isArray(item?.children)) visit(item.children)
+          if (Array.isArray(item?.branches)) {
+            for (const branch of item.branches) {
+              if (Array.isArray(branch?.children)) visit(branch.children)
+            }
+          }
+          if (Array.isArray(item?.cases)) {
+            for (const switchCase of item.cases) {
+              if (Array.isArray(switchCase?.children)) visit(switchCase.children)
+            }
+          }
+        }
+      }
+
+      visit(this.items as any[])
+      return Array.from(entries.values())
+    },
+
+    templateVariableEntriesWithCurrentMacro() {
+      const merged = new Map<string, any>()
+
+      // Prefer locally generated variables so the list immediately reflects edits in
+      // the macro without waiting for another backend request.
+      for (const entry of this.currentMacroGeneratedTemplateVariables()) {
+        merged.set(String(entry.path), entry)
+      }
+      for (const entry of this.templateVariableEntries as any[]) {
+        const path = String(entry?.path ?? '').trim()
+        if (path && !merged.has(path)) merged.set(path, entry)
+      }
+
+      return Array.from(merged.values())
+    },
+
+    findTemplateVariableRange(input: HTMLInputElement | HTMLTextAreaElement) {
+      const value = String(input.value ?? '')
+      const cursor = input.selectionStart ?? value.length
+      const before = value.slice(0, cursor)
+      const start = before.lastIndexOf('${')
+      if (start < 0) return null
+      if (before.lastIndexOf('}') > start) return null
+
+      const query = before.slice(start + 2)
+      if (/[\s{}$]/.test(query)) return null
+
+      const nextOpen = value.indexOf('${', cursor)
+      const closingBrace = value.indexOf('}', cursor)
+      let end = cursor
+
+      if (closingBrace >= cursor && (nextOpen < 0 || closingBrace < nextOpen)) {
+        end = closingBrace + 1
+      } else {
+        while (end < value.length && /[A-Za-z0-9_.-]/.test(value[end])) end += 1
+      }
+
+      return { start, end, query }
+    },
+
+    updateTemplateVariableSuggestions(input: HTMLInputElement | HTMLTextAreaElement) {
+      if (this.depth !== 0) return
+
+      const range = this.findTemplateVariableRange(input)
+      if (!range) {
+        this.closeTemplateVariableAutocomplete()
+        return
+      }
+
+      this.templateVariableActiveInput = input
+      this.templateVariableRange = range
+
+      // If the user reaches `${` before the initial request completed (or after a
+      // reconnect), request the entries here as well. loadTemplateVariables()
+      // refreshes the suggestions for the still-focused input when it finishes.
+      if (!this.templateVariableEntries.length && !this.templateVariableLoading) {
+        void this.loadTemplateVariables()
+      }
+
+      const query = range.query.toLowerCase()
+      const ranked = this.templateVariableEntriesWithCurrentMacro()
+        // The backend already returns its variables in the desired context-aware order.
+        // Keep that order intact and only put variables generated by the currently
+        // edited macro in front of it. Filtering must never re-sort the backend list.
+        .filter((entry: any) => {
+          if (!query) return true
+          return String(entry?.path || '').toLowerCase().includes(query)
+        })
+        .slice(0, 12)
+
+      this.templateVariableSuggestions = ranked
+      this.templateVariableSelectedIndex = 0
+      this.templateVariableOpen = ranked.length > 0
+
+      if (this.templateVariableOpen) {
+        const rect = input.getBoundingClientRect()
+        const width = Math.min(Math.max(rect.width, 320), 620)
+        const estimatedHeight = Math.min(260, this.templateVariableSuggestions.length * 34 + 16)
+        const availableBelow = Math.max(0, window.innerHeight - rect.bottom - 8)
+        const availableAbove = Math.max(0, rect.top - 8)
+        const showAbove = availableBelow < Math.min(estimatedHeight, 180) && availableAbove > availableBelow
+        const maxHeight = Math.max(120, Math.min(260, showAbove ? availableAbove - 4 : availableBelow - 4 || availableBelow))
+        const left = Math.min(rect.left, Math.max(8, window.innerWidth - width - 8))
+        const top = showAbove
+          ? Math.max(8, rect.top - maxHeight - 4)
+          : Math.min(rect.bottom + 4, Math.max(8, window.innerHeight - maxHeight - 8))
+
+        this.templateVariableMenuStyle = {
+          position: 'fixed',
+          left: `${left}px`,
+          top: `${top}px`,
+          width: `${width}px`,
+          maxHeight: `${maxHeight}px`,
+        }
+      }
+    },
+
+    onTemplateVariableInput(event: Event) {
+      const input = this.templateTextControl(event.target)
+      if (input) this.updateTemplateVariableSuggestions(input)
+    },
+
+    onTemplateVariableFocus(event: Event) {
+      const input = this.templateTextControl(event.target)
+      if (input) this.updateTemplateVariableSuggestions(input)
+    },
+
+    onTemplateVariableBlur() {
+      setTimeout(() => {
+        if (document.activeElement !== this.templateVariableActiveInput) {
+          this.closeTemplateVariableAutocomplete()
+        }
+      }, 0)
+    },
+
+    onTemplateVariableCursorChange(event: KeyboardEvent) {
+      if (['ArrowUp', 'ArrowDown', 'Enter', 'Tab', 'Escape'].includes(event.key)) return
+      const input = this.templateTextControl(event.target)
+      if (input) this.updateTemplateVariableSuggestions(input)
+    },
+
+    onTemplateVariableKeydown(event: KeyboardEvent) {
+      if (!this.templateVariableOpen || !this.templateVariableSuggestions.length) return
+      const input = this.templateTextControl(event.target)
+      if (!input || input !== this.templateVariableActiveInput) return
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        event.stopPropagation()
+        this.templateVariableSelectedIndex = (this.templateVariableSelectedIndex + 1) % this.templateVariableSuggestions.length
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        event.stopPropagation()
+        this.templateVariableSelectedIndex = (this.templateVariableSelectedIndex - 1 + this.templateVariableSuggestions.length) % this.templateVariableSuggestions.length
+      } else if (event.key === 'Enter' || event.key === 'Tab') {
+        event.preventDefault()
+        event.stopPropagation()
+        this.applyTemplateVariable(this.templateVariableSuggestions[this.templateVariableSelectedIndex])
+      } else if (event.key === 'Escape') {
+        event.preventDefault()
+        event.stopPropagation()
+        this.closeTemplateVariableAutocomplete()
+      }
+    },
+
+    applyTemplateVariable(suggestion: any) {
+      const input = this.templateVariableActiveInput
+      const range = this.templateVariableRange
+      if (!input || !range || !suggestion?.path) return
+
+      const expression = String(suggestion.expression || `\${${String(suggestion.path)}}`)
+      const value = String(input.value ?? '')
+      const nextValue = value.slice(0, range.start) + expression + value.slice(range.end)
+      const nextCursor = range.start + expression.length
+
+      input.value = nextValue
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      input.focus()
+      input.setSelectionRange(nextCursor, nextCursor)
+      this.closeTemplateVariableAutocomplete()
+    },
+
+    closeTemplateVariableAutocomplete() {
+      this.templateVariableOpen = false
+      this.templateVariableSuggestions = []
+      this.templateVariableSelectedIndex = 0
+      this.templateVariableRange = null
+    },
     presetMetaFor(item: any) {
       return findMacroTaskPreset(item)
     },
@@ -593,5 +1015,51 @@ export default {
   border-left: 2px solid rgba(var(--v-theme-primary), .45);
   padding-left: 12px;
   margin-left: 4px;
+}
+
+.macro-task-list__template-variable-menu {
+  z-index: 10000;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid rgba(var(--v-theme-on-surface), .18);
+  border-radius: 6px;
+  background: rgb(var(--v-theme-surface));
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .42);
+}
+
+.macro-task-list__template-variable-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 34px;
+  padding: 5px 9px;
+  border: 0;
+  border-radius: 4px;
+  color: rgb(var(--v-theme-on-surface));
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.macro-task-list__template-variable-option:hover,
+.macro-task-list__template-variable-option--active {
+  background: rgba(var(--v-theme-primary), .16);
+}
+
+.macro-task-list__template-variable-expression {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: monospace;
+}
+
+.macro-task-list__template-variable-meta {
+  flex: 0 0 auto;
+  color: rgba(var(--v-theme-on-surface), .58);
+  font-size: .72rem;
 }
 </style>

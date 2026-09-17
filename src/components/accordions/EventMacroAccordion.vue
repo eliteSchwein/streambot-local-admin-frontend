@@ -4,6 +4,9 @@
     :name="name"
     :initial-content="currentContent"
     :disable-macro-read="disableMacroRead"
+    template-context="event"
+    :template-name="name"
+    :template-macro="name"
   />
 </template>
 

@@ -90,6 +90,9 @@
                 ref="macroAccordion"
                 :name="generatedConfigName"
                 :initial-content="macroContent"
+                template-context="channel_point"
+                :template-name="generatedConfigName"
+                :template-macro="generatedConfigName"
                 :auto-load="false"
               />
             </v-expansion-panel-text>

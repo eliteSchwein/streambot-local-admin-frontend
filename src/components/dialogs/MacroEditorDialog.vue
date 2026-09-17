@@ -80,7 +80,12 @@
               </v-col>
             </v-row>
 
-            <MacroTaskList :items="visualMacro.items" />
+            <MacroTaskList
+              :items="visualMacro.items"
+              template-context="macro"
+              :template-name="visualMacro.name || name"
+              :template-macro="visualMacro.name || name"
+            />
           </div>
         </v-card>
       </v-card-text>

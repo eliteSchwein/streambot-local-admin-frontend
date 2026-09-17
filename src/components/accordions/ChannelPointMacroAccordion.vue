@@ -63,7 +63,12 @@
             </v-col>
           </v-row>
 
-          <MacroTaskList :items="visualMacro.items" />
+          <MacroTaskList
+            :items="visualMacro.items"
+            :template-context="templateContext"
+            :template-name="templateName || name"
+            :template-macro="templateMacro || name"
+          />
         </div>
       </template>
     </v-card>
@@ -107,6 +112,9 @@ export default {
     initialContent: { type: String, default: '' },
     disableMacroRead: { type: Boolean, default: false },
     autoLoad: { type: Boolean, default: true },
+    templateContext: { type: String, default: 'channel_point' },
+    templateName: { type: String, default: '' },
+    templateMacro: { type: String, default: '' },
   },
 
   data() {

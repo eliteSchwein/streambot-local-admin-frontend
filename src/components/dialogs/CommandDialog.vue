@@ -152,6 +152,7 @@
               <CommandMacroAccordion
                 ref="macroAccordion"
                 :name="generatedMacroName"
+                :source-name="normalizedName"
                 :initial-content="macroContent"
                 disable-macro-read
               />
