@@ -614,6 +614,12 @@ export default {
         return functionComponentsByMethod[item?.task?.method] ?? 'MacroFunctionTaskAccordion'
       }
 
+      if (item?.task?.channel === 'websocket' && item?.task?.method === 'notify_toggle_element') {
+        return item?.task?.data?.action === 'disable'
+          ? 'MacroWebsocketDisableElementTaskAccordion'
+          : 'MacroWebsocketEnableElementTaskAccordion'
+      }
+
       if (item?.task?.channel === 'ollama' && item?.task?.method === 'chat') {
         return 'MacroOllamaChatTaskAccordion'
       }

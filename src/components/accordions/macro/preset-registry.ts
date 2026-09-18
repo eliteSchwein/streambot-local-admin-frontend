@@ -80,7 +80,23 @@ export function buildMacroTaskPresets(): MacroTaskPresetNode[] {
     children.push(leaf)
   }
 
-  return roots
+  const visibilityKey = 'macro.presets.expert.visibility.title'
+  const systemKey = 'macro.presets.system.title'
+  const expertKey = 'macro.presets.expert.title'
+
+  const visibility = roots.find((item) => item.titleKey === visibilityKey)
+  const expert = roots.find((item) => item.titleKey === expertKey)
+  const orderedRoots = roots.filter((item) => item.titleKey !== visibilityKey && item.titleKey !== expertKey)
+
+  if (visibility) {
+    const systemIndex = orderedRoots.findIndex((item) => item.titleKey === systemKey)
+    if (systemIndex >= 0) orderedRoots.splice(systemIndex, 0, visibility)
+    else orderedRoots.push(visibility)
+  }
+
+  if (expert) orderedRoots.push(expert)
+
+  return orderedRoots
 }
 
 

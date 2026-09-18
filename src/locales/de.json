@@ -879,7 +879,12 @@
         "theme": {
           "title": "Theme"
         },
-        "dumpVariables": "Variablen dumpen"
+        "dumpVariables": "Variablen dumpen",
+        "visibility": {
+          "title": "Sichtbarkeit",
+          "show": "Element anzeigen",
+          "hide": "Element ausblenden"
+        }
       },
       "parallel": "Parallele Aufgaben",
       "theme": {
@@ -1244,6 +1249,12 @@
       "websocket": {},
       "wledCustom": {
         "title": "WLED-Steuerung"
+      },
+      "websocketVisibility": {
+        "showElement": "Element anzeigen",
+        "hideElement": "Element ausblenden",
+        "target": "Ziel",
+        "targetHint": "Vorhandenes Ziel auswählen oder ein neues eingeben."
       }
     },
     "cleanup": {
