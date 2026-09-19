@@ -310,6 +310,110 @@
 
           <v-card color="grey-darken-4" elevation="0" class="mt-2">
             <v-card-title class="d-flex align-center ga-2">
+              <v-icon icon="mdi-gift-outline" />
+              <span>{{ $t('settings.giveaway') }}</span>
+            </v-card-title>
+
+            <v-card-text>
+              <v-row density="compact">
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="form.giveaway.giveawayCommand"
+                    :disabled="settingsLocked"
+                    :loading="giveawayCommandChecking"
+                    :label="$t('settings.giveawayCommand')"
+                    :hint="$t('settings.giveawayCommandHint')"
+                    :error-messages="giveawayCommandErrors"
+                    prefix="!"
+                    variant="outlined"
+                    density="comfortable"
+                    persistent-hint
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model.number="form.giveaway.progress_interval_seconds"
+                    :disabled="settingsLocked"
+                    :label="$t('settings.giveawayProgressInterval')"
+                    :hint="$t('settings.giveawayProgressIntervalHint')"
+                    type="number"
+                    min="0"
+                    step="1"
+                    suffix="s"
+                    variant="outlined"
+                    density="comfortable"
+                    persistent-hint
+                  />
+                </v-col>
+
+                <v-col cols="12">
+                  <v-divider class="my-1" />
+                  <div class="text-subtitle-2 mt-3 mb-1">{{ $t('settings.giveawayRequirements') }}</div>
+                  <div class="text-caption text-grey-lighten-1 mb-2">{{ $t('settings.giveawayRequirementsHint') }}</div>
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-switch
+                    v-model="form.giveaway.require_follower"
+                    :disabled="settingsLocked"
+                    :label="$t('settings.giveawayRequireFollower')"
+                    color="primary"
+                    hide-details
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model.number="form.giveaway.minimum_follow_seconds"
+                    :disabled="settingsLocked"
+                    :label="$t('settings.giveawayMinimumFollowTime')"
+                    :hint="$t('settings.giveawayMinimumFollowTimeHint')"
+                    type="number"
+                    min="0"
+                    step="1"
+                    suffix="s"
+                    variant="outlined"
+                    density="comfortable"
+                    persistent-hint
+                  />
+                </v-col>
+
+                <v-col cols="12" sm="4">
+                  <v-switch
+                    v-model="form.giveaway.require_subscriber"
+                    :disabled="settingsLocked"
+                    :label="$t('settings.giveawayRequireSubscriber')"
+                    color="primary"
+                    hide-details
+                  />
+                </v-col>
+
+                <v-col cols="12" sm="4">
+                  <v-switch
+                    v-model="form.giveaway.require_vip"
+                    :disabled="settingsLocked"
+                    :label="$t('settings.giveawayRequireVip')"
+                    color="primary"
+                    hide-details
+                  />
+                </v-col>
+
+                <v-col cols="12" sm="4">
+                  <v-switch
+                    v-model="form.giveaway.require_moderator"
+                    :disabled="settingsLocked"
+                    :label="$t('settings.giveawayRequireModerator')"
+                    color="primary"
+                    hide-details
+                  />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+
+          <v-card color="grey-darken-4" elevation="0" class="mt-2">
+            <v-card-title class="d-flex align-center ga-2">
               <v-icon icon="mdi-chart-bar" />
               <span>{{ $t('settings.cava') }}</span>
             </v-card-title>
@@ -533,6 +637,7 @@ import { mapState } from 'pinia'
 import { useAppStore } from '@/stores/app'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import ColorPickerField from '@/components/inputs/ColorPickerField.vue'
+import { checkNameExistsResult } from '@/helper/NameExistsHelper'
 
 type SettingsForm = {
   language: string
@@ -549,6 +654,15 @@ type SettingsForm = {
   }
   theme: {
     default_color: string
+  }
+  giveaway: {
+    giveawayCommand: string
+    progress_interval_seconds: number
+    require_follower: boolean
+    minimum_follow_seconds: number
+    require_subscriber: boolean
+    require_vip: boolean
+    require_moderator: boolean
   }
   cava: {
     bars: number
@@ -577,6 +691,15 @@ const defaultForm = (): SettingsForm => ({
   },
   theme: {
     default_color: 'ff9800',
+  },
+  giveaway: {
+    giveawayCommand: 'ticket',
+    progress_interval_seconds: 60,
+    require_follower: false,
+    minimum_follow_seconds: 0,
+    require_subscriber: false,
+    require_vip: false,
+    require_moderator: false,
   },
   cava: {
     bars: 36,
@@ -611,6 +734,11 @@ export default {
       touchWallpaperItems: [] as string[],
       loadingTouchWallpapers: false,
       touchWallpapersLoaded: false,
+      giveawayCommandCheckTimer: undefined as ReturnType<typeof setTimeout> | undefined,
+      giveawayCommandChecking: false,
+      giveawayCommandExists: false,
+      giveawayCommandConflictName: '',
+      savedGiveawayCommand: 'ticket',
       newCavaTargetName: '',
       newCavaTargetBars: 63,
       newCavaTargetSettings: {} as Record<string, { key: string, value: string }>,
@@ -642,6 +770,15 @@ export default {
 
     normalizedDefaultColorPreview(): string {
       return `#${(this as any).normalizeHexColor((this as any).form?.theme?.default_color || 'ff9800')}`
+    },
+
+    giveawayCommandErrors(): string[] {
+      const command = (this as any).normalizeGiveawayCommand((this as any).form?.giveaway?.giveawayCommand)
+      if (!command) return [String((this as any).$t('settings.giveawayCommandRequired'))]
+      if (!(this as any).giveawayCommandExists) return []
+
+      const owner = String((this as any).giveawayCommandConflictName || command)
+      return [String((this as any).$t('settings.giveawayCommandExists', { command: owner }))]
     },
 
     normalizedVoicesByLanguage(): Record<string, string[]> {
@@ -715,10 +852,16 @@ export default {
       },
     },
 
+    'form.giveaway.giveawayCommand'(value: string) {
+      if (this.syncingFromStore) return
+      this.scheduleGiveawayCommandValidation(value)
+    },
+
     form: {
       deep: true,
       handler() {
         if (this.syncingFromStore || this.settingsLocked) return
+        if (this.giveawayCommandChecking || this.giveawayCommandExists || !this.normalizeGiveawayCommand(this.form.giveaway.giveawayCommand)) return
 
         const snapshot = this.getFormSnapshot()
         if (snapshot === this.lastSavedSnapshot) return
@@ -754,9 +897,59 @@ export default {
     if (this.autoSaveTimer) {
       clearTimeout(this.autoSaveTimer)
     }
+    if (this.giveawayCommandCheckTimer) {
+      clearTimeout(this.giveawayCommandCheckTimer)
+    }
   },
 
   methods: {
+    normalizeGiveawayCommand(value: any): string {
+      return String(value ?? '').trim().replace(/^!+/, '').toLowerCase()
+    },
+
+    scheduleGiveawayCommandValidation(value: any) {
+      if (this.giveawayCommandCheckTimer) clearTimeout(this.giveawayCommandCheckTimer)
+      this.giveawayCommandExists = false
+      this.giveawayCommandConflictName = ''
+
+      const command = this.normalizeGiveawayCommand(value)
+      if (!command || command === this.savedGiveawayCommand) return
+
+      this.giveawayCommandCheckTimer = setTimeout(() => {
+        this.giveawayCommandCheckTimer = undefined
+        void this.validateGiveawayCommand(command)
+      }, 220)
+    },
+
+    async validateGiveawayCommand(value: any = this.form.giveaway.giveawayCommand): Promise<boolean> {
+      const command = this.normalizeGiveawayCommand(value)
+      if (!command) {
+        this.giveawayCommandExists = false
+        this.giveawayCommandConflictName = ''
+        return false
+      }
+
+      if (command === this.savedGiveawayCommand) {
+        this.giveawayCommandExists = false
+        this.giveawayCommandConflictName = ''
+        return true
+      }
+
+      this.giveawayCommandChecking = true
+      try {
+        const result = await checkNameExistsResult('commands_exists', command)
+        if (command !== this.normalizeGiveawayCommand(this.form.giveaway.giveawayCommand)) return false
+        this.giveawayCommandExists = result.exists === true
+        this.giveawayCommandConflictName = String(result.command_name ?? result.name ?? command)
+        return !this.giveawayCommandExists
+      } catch (error: any) {
+        console.warn('giveaway command validation failed', error)
+        this.errorMessage = error?.message || String(this.$t('settings.giveawayCommandCheckFailed'))
+        return false
+      } finally {
+        this.giveawayCommandChecking = false
+      }
+    },
 
     isVoiceSelected(locale: string, voice: string): boolean {
       const configured = this.form.tts.voices?.[locale]
@@ -799,7 +992,13 @@ export default {
       const assetTune = settings.asset_tune || {}
       const tts = settings.tts || {}
       const theme = settings.theme || {}
+      const giveaway = settings.giveaway || {}
+      const { command: legacyGiveawayCommand, ...giveawaySettings } = giveaway
       const cava = settings.cava || {}
+
+      this.savedGiveawayCommand = this.normalizeGiveawayCommand(giveaway.giveawayCommand ?? legacyGiveawayCommand ?? defaults.giveaway.giveawayCommand)
+      this.giveawayCommandExists = false
+      this.giveawayCommandConflictName = ''
 
       this.form = {
         ...defaults,
@@ -829,6 +1028,17 @@ export default {
           ...defaults.theme,
           ...theme,
           default_color: this.normalizeHexColor(theme.default_color || defaults.theme.default_color),
+        },
+        giveaway: {
+          ...defaults.giveaway,
+          ...giveawaySettings,
+          giveawayCommand: this.normalizeGiveawayCommand(giveaway.giveawayCommand ?? legacyGiveawayCommand ?? defaults.giveaway.giveawayCommand),
+          progress_interval_seconds: Math.max(0, Math.floor(this.normalizeNumber(giveaway.progress_interval_seconds, defaults.giveaway.progress_interval_seconds))),
+          require_follower: giveaway.require_follower === true,
+          minimum_follow_seconds: Math.max(0, Math.floor(this.normalizeNumber(giveaway.minimum_follow_seconds, defaults.giveaway.minimum_follow_seconds))),
+          require_subscriber: giveaway.require_subscriber === true,
+          require_vip: giveaway.require_vip === true,
+          require_moderator: giveaway.require_moderator === true,
         },
         cava: {
           ...defaults.cava,
@@ -1127,6 +1337,15 @@ export default {
         theme: {
           default_color: this.normalizeHexColor(this.form.theme.default_color || defaults.theme.default_color),
         },
+        giveaway: {
+          giveawayCommand: this.normalizeGiveawayCommand(this.form.giveaway.giveawayCommand) || defaults.giveaway.giveawayCommand,
+          progress_interval_seconds: Math.max(0, Math.floor(this.normalizeNumber(this.form.giveaway.progress_interval_seconds, defaults.giveaway.progress_interval_seconds))),
+          require_follower: Boolean(this.form.giveaway.require_follower),
+          minimum_follow_seconds: Math.max(0, Math.floor(this.normalizeNumber(this.form.giveaway.minimum_follow_seconds, defaults.giveaway.minimum_follow_seconds))),
+          require_subscriber: Boolean(this.form.giveaway.require_subscriber),
+          require_vip: Boolean(this.form.giveaway.require_vip),
+          require_moderator: Boolean(this.form.giveaway.require_moderator),
+        },
         cava: {
           ...defaults.cava,
           ...this.form.cava,
@@ -1174,6 +1393,9 @@ export default {
     },
 
     async saveSettings() {
+      const commandValid = await this.validateGiveawayCommand()
+      if (!commandValid) return
+
       this.saving = true
       this.showThemeColorPicker = false
       this.errorMessage = ''
@@ -1191,6 +1413,9 @@ export default {
         }
 
         this.lastSavedSnapshot = this.getFormSnapshot()
+        this.savedGiveawayCommand = this.normalizeGiveawayCommand(settings.giveaway.giveawayCommand)
+        this.giveawayCommandExists = false
+        this.giveawayCommandConflictName = ''
 
         if (!waitForReload) {
           this.waitingForReload = false

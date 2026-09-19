@@ -1398,7 +1398,15 @@
     "name": "Name",
     "contentLabel": "What is being raffled?",
     "durationLabel": "Duration",
-    "create": "Create"
+    "create": "Create",
+    "remaining": "Remaining",
+    "searchParticipant": "Search username",
+    "noParticipantsFound": "No matching participants",
+    "cancelDialog": {
+      "title": "Cancel giveaway?",
+      "text": "Do you really want to cancel the active giveaway? The current participants will be discarded.",
+      "confirm": "Cancel giveaway"
+    }
   },
   "alerts": {
     "activeAlert": {
@@ -2009,7 +2017,9 @@
       "event_obs_profile_changed": "Profile changed",
       "event_obs_scene_collection_changed": "Scene collection changed",
       "event_yolobox_connected": "YoloBox connected",
-      "event_yolobox_disconnected": "YoloBox disconnected"
+      "event_yolobox_disconnected": "YoloBox disconnected",
+      "event_giveaway_progress": "Giveaway progress",
+      "event_giveaway_register": "Giveaway entry registered"
     },
     "simulation": {
       "fields": {
@@ -2049,7 +2059,21 @@
         "giftRedeemedMonth": "Gift redeemed month",
         "originalGiftDuration": "Original gift duration",
         "originalGifterId": "Original gifter ID",
-        "originalGifterDisplayName": "Original gifter display name"
+        "originalGifterDisplayName": "Original gifter display name",
+        "content": "Giveaway content",
+        "durationSeconds": "Duration (seconds)",
+        "durationMinutes": "Duration (minutes)",
+        "endsAt": "Ends at",
+        "totalEntries": "Total entries",
+        "command": "Giveaway command",
+        "remainingSeconds": "Remaining seconds",
+        "totalSeconds": "Total seconds",
+        "userId": "User ID",
+        "userName": "Username",
+        "reason": "Reason",
+        "winnerId": "Winner ID",
+        "winnerName": "Winner username",
+        "winnerDisplayName": "Winner display name"
       },
       "connectionName": "OBS connection",
       "connected": "Connected",
@@ -2071,7 +2095,15 @@
       "inputMuted": "Input muted",
       "profileName": "Profile name",
       "sceneCollectionName": "Scene collection name",
-      "device": "Device"
+      "device": "Device",
+      "options": {
+        "giveawayReason": {
+          "finished": "Finished",
+          "cancelled": "Cancelled",
+          "restarted": "Restarted",
+          "cleanup": "Cleanup"
+        }
+      }
     }
   },
   "commands": {
@@ -2237,7 +2269,23 @@
     "configuredTtsLocales": "Configured TTS models",
     "touchDisplay": "Touch display",
     "touchWallpaper": "Touch wallpaper",
-    "touchWallpaperHint": "Wallpaper used by the touch interface. Select an image from the media asset folder or enter a custom path."
+    "touchWallpaperHint": "Wallpaper used by the touch interface. Select an image from the media asset folder or enter a custom path.",
+    "giveaway": "Giveaway",
+    "giveawayCommand": "Entry command",
+    "giveawayCommandHint": "Command viewers use to enter the giveaway. It must not conflict with another command or alias.",
+    "giveawayCommandRequired": "The giveaway command is required.",
+    "giveawayCommandExists": "This command is already used by !{command}.",
+    "giveawayProgressInterval": "Progress event interval",
+    "giveawayProgressIntervalHint": "Seconds between giveaway progress events. Set to 0 to disable progress events.",
+    "giveawayRequirements": "Entry requirements",
+    "giveawayRequirementsHint": "All enabled requirements must be met. The broadcaster is exempt.",
+    "giveawayRequireFollower": "Follower required",
+    "giveawayMinimumFollowTime": "Minimum follow time",
+    "giveawayMinimumFollowTimeHint": "Minimum follow duration in seconds. A value above 0 also requires the viewer to follow.",
+    "giveawayRequireSubscriber": "Subscriber required",
+    "giveawayRequireVip": "VIP required",
+    "giveawayRequireModerator": "Moderator required",
+    "giveawayCommandCheckFailed": "Could not validate the giveaway command."
   },
   "components": {
     "storageCard": {},

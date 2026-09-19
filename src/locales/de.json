@@ -1398,7 +1398,15 @@
     "name": "Name",
     "contentLabel": "Was wird verlost?",
     "durationLabel": "Dauer",
-    "create": "Erstellen"
+    "create": "Erstellen",
+    "remaining": "Verbleibend",
+    "searchParticipant": "Benutzername suchen",
+    "noParticipantsFound": "Keine passenden Teilnehmer",
+    "cancelDialog": {
+      "title": "Giveaway abbrechen?",
+      "text": "Möchtest du das aktive Giveaway wirklich abbrechen? Die aktuellen Teilnehmer werden verworfen.",
+      "confirm": "Giveaway abbrechen"
+    }
   },
   "alerts": {
     "activeAlert": {
@@ -2009,7 +2017,9 @@
       "event_obs_profile_changed": "Profil geändert",
       "event_obs_scene_collection_changed": "Szenensammlung geändert",
       "event_yolobox_connected": "YoloBox verbunden",
-      "event_yolobox_disconnected": "YoloBox getrennt"
+      "event_yolobox_disconnected": "YoloBox getrennt",
+      "event_giveaway_progress": "Gewinnspiel-Fortschritt",
+      "event_giveaway_register": "Gewinnspiel-Teilnahme registriert"
     },
     "simulation": {
       "fields": {
@@ -2049,7 +2059,21 @@
         "giftRedeemedMonth": "Monat der Geschenk-Einlösung",
         "originalGiftDuration": "Ursprüngliche Geschenkdauer",
         "originalGifterId": "ID des ursprünglichen Schenkers",
-        "originalGifterDisplayName": "Anzeigename des ursprünglichen Schenkers"
+        "originalGifterDisplayName": "Anzeigename des ursprünglichen Schenkers",
+        "content": "Gewinnspiel-Inhalt",
+        "durationSeconds": "Dauer (Sekunden)",
+        "durationMinutes": "Dauer (Minuten)",
+        "endsAt": "Endet um",
+        "totalEntries": "Teilnahmen gesamt",
+        "command": "Gewinnspiel-Befehl",
+        "remainingSeconds": "Verbleibende Sekunden",
+        "totalSeconds": "Sekunden gesamt",
+        "userId": "Benutzer-ID",
+        "userName": "Benutzername",
+        "reason": "Grund",
+        "winnerId": "Gewinner-ID",
+        "winnerName": "Gewinner-Benutzername",
+        "winnerDisplayName": "Gewinner-Anzeigename"
       },
       "connectionName": "OBS-Verbindung",
       "connected": "Verbunden",
@@ -2071,7 +2095,15 @@
       "inputMuted": "Eingang stummgeschaltet",
       "profileName": "Profilname",
       "sceneCollectionName": "Name der Szenensammlung",
-      "device": "Gerät"
+      "device": "Gerät",
+      "options": {
+        "giveawayReason": {
+          "finished": "Beendet",
+          "cancelled": "Abgebrochen",
+          "restarted": "Neu gestartet",
+          "cleanup": "Bereinigung"
+        }
+      }
     }
   },
   "commands": {
@@ -2237,7 +2269,23 @@
     "configuredTtsLocales": "Konfigurierte TTS-Modelle",
     "touchDisplay": "Touch-Display",
     "touchWallpaper": "Touch-Hintergrundbild",
-    "touchWallpaperHint": "Hintergrundbild der Touch-Oberfläche. Wähle ein Bild aus dem Medien-Asset-Ordner oder gib einen eigenen Pfad ein."
+    "touchWallpaperHint": "Hintergrundbild der Touch-Oberfläche. Wähle ein Bild aus dem Medien-Asset-Ordner oder gib einen eigenen Pfad ein.",
+    "giveaway": "Gewinnspiel",
+    "giveawayCommand": "Teilnahmebefehl",
+    "giveawayCommandHint": "Befehl, mit dem Zuschauer am Gewinnspiel teilnehmen. Er darf nicht mit einem anderen Befehl oder Alias kollidieren.",
+    "giveawayCommandRequired": "Der Gewinnspiel-Befehl wird benötigt.",
+    "giveawayCommandExists": "Dieser Befehl wird bereits von !{command} verwendet.",
+    "giveawayProgressInterval": "Intervall für Fortschrittsereignisse",
+    "giveawayProgressIntervalHint": "Sekunden zwischen Gewinnspiel-Fortschrittsereignissen. 0 deaktiviert die Fortschrittsereignisse.",
+    "giveawayRequirements": "Teilnahmebedingungen",
+    "giveawayRequirementsHint": "Alle aktivierten Bedingungen müssen erfüllt sein. Der Broadcaster ist ausgenommen.",
+    "giveawayRequireFollower": "Follower erforderlich",
+    "giveawayMinimumFollowTime": "Mindest-Followzeit",
+    "giveawayMinimumFollowTimeHint": "Mindestdauer des Follows in Sekunden. Ein Wert über 0 setzt ebenfalls einen Follow voraus.",
+    "giveawayRequireSubscriber": "Abonnent erforderlich",
+    "giveawayRequireVip": "VIP erforderlich",
+    "giveawayRequireModerator": "Moderator erforderlich",
+    "giveawayCommandCheckFailed": "Der Gewinnspiel-Befehl konnte nicht geprüft werden."
   },
   "components": {
     "storageCard": {},

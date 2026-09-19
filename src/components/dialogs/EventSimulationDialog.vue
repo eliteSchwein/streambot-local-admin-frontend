@@ -270,7 +270,18 @@ export default {
         return field.optionsByValue[sourceValue] ?? []
       }
 
-      return field.options ?? []
+      if (field.options?.length) return field.options
+
+      if (this.configName === 'event_giveaway_end' && field.name === 'reason') {
+        return ['finished', 'cancelled', 'restarted', 'cleanup'].map(value => ({
+          title: String((this as any).$te?.(`events.simulation.options.giveawayReason.${value}`)
+            ? (this as any).$t(`events.simulation.options.giveawayReason.${value}`)
+            : value),
+          value,
+        }))
+      }
+
+      return []
     },
 
     onSimulationSelectChanged(field: SimulationField) {
