@@ -1921,7 +1921,9 @@
       "system": "System",
       "music": "Musik",
       "giveaway": "Gewinnspiel",
-      "audio": "Audio"
+      "audio": "Audio",
+      "obs": "OBS",
+      "yolobox": "YoloBox"
     },
     "items": {
       "event_system_poweron": "System eingeschaltet",
@@ -1981,7 +1983,28 @@
       "event_twitch_sub": "Abonnement",
       "event_twitch_subgift": "Geschenk-Abonnement",
       "event_twitch_user_update": "Benutzer aktualisiert",
-      "event_twitch_vip_add": "VIP hinzugefügt"
+      "event_twitch_vip_add": "VIP hinzugefügt",
+      "event_obs_connected": "OBS verbunden",
+      "event_obs_disconnected": "OBS getrennt",
+      "event_obs_scene_changed": "Programmszene geändert",
+      "event_obs_recording_started": "Aufnahme gestartet",
+      "event_obs_recording_stopped": "Aufnahme gestoppt",
+      "event_obs_streaming_started": "Streaming gestartet",
+      "event_obs_streaming_stopped": "Streaming gestoppt",
+      "event_obs_replay_buffer_started": "Replay-Puffer gestartet",
+      "event_obs_replay_buffer_stopped": "Replay-Puffer gestoppt",
+      "event_obs_virtual_camera_started": "Virtuelle Kamera gestartet",
+      "event_obs_virtual_camera_stopped": "Virtuelle Kamera gestoppt",
+      "event_obs_studio_mode_enabled": "Studio-Modus aktiviert",
+      "event_obs_studio_mode_disabled": "Studio-Modus deaktiviert",
+      "event_obs_scene_item_enabled": "Szenenelement aktiviert",
+      "event_obs_scene_item_disabled": "Szenenelement deaktiviert",
+      "event_obs_input_muted": "Audioeingang stummgeschaltet",
+      "event_obs_input_unmuted": "Audioeingang-Stummschaltung aufgehoben",
+      "event_obs_profile_changed": "Profil geändert",
+      "event_obs_scene_collection_changed": "Szenensammlung geändert",
+      "event_yolobox_connected": "YoloBox verbunden",
+      "event_yolobox_disconnected": "YoloBox getrennt"
     },
     "simulation": {
       "fields": {
@@ -2022,7 +2045,28 @@
         "originalGiftDuration": "Ursprüngliche Geschenkdauer",
         "originalGifterId": "ID des ursprünglichen Schenkers",
         "originalGifterDisplayName": "Anzeigename des ursprünglichen Schenkers"
-      }
+      },
+      "connectionName": "OBS-Verbindung",
+      "connected": "Verbunden",
+      "reason": "Trennungsgrund",
+      "errorCode": "Fehlercode",
+      "errorMessage": "Fehlermeldung",
+      "sceneName": "Szenenname",
+      "sceneUuid": "Szenen-UUID",
+      "outputActive": "Ausgabe aktiv",
+      "outputState": "Ausgabestatus",
+      "outputPath": "Ausgabepfad",
+      "studioModeEnabled": "Studio-Modus aktiviert",
+      "sceneItemId": "Szenenelement-ID",
+      "sceneItemEnabled": "Szenenelement aktiviert",
+      "sourceName": "Quellenname",
+      "sourceUuid": "Quellen-UUID",
+      "inputName": "Eingangsname",
+      "inputUuid": "Eingangs-UUID",
+      "inputMuted": "Eingang stummgeschaltet",
+      "profileName": "Profilname",
+      "sceneCollectionName": "Name der Szenensammlung",
+      "device": "Gerät"
     }
   },
   "commands": {

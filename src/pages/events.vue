@@ -34,7 +34,7 @@
           <v-expansion-panel-title>
             <div class="d-flex align-center ga-2 min-width-0 w-100">
               <v-icon :icon="channelIcon(channelGroup.name)" />
-              <span class="text-truncate text-capitalize">{{ channelGroup.name }}</span>
+              <span class="text-truncate">{{ channelLabel(channelGroup.name) }}</span>
               <v-chip size="x-small" variant="tonal">{{ channelGroup.count }}</v-chip>
             </div>
           </v-expansion-panel-title>
@@ -401,12 +401,28 @@ export default {
       return `name: ${name}\napis: []\ntasks: []\n`
     },
 
+    channelLabel(channel: string) {
+      const localeKey = `events.channels.${channel}`
+
+      if ((this as any).$te?.(localeKey)) {
+        return String((this as any).$t(localeKey))
+      }
+
+      return String(channel || '')
+        .split('_')
+        .filter(Boolean)
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ')
+    },
+
     channelIcon(channel: string) {
       if (channel === 'twitch') return 'mdi-twitch'
       if (channel === 'system') return 'mdi-power'
       if (channel === 'music') return 'mdi-music'
       if (channel === 'giveaway') return 'mdi-gift'
       if (channel === 'audio') return 'mdi-volume-high'
+      if (channel === 'obs') return 'mdi-video-outline'
+      if (channel === 'yolobox') return 'mdi-video-wireless-outline'
       return 'mdi-lightning-bolt'
     },
   },

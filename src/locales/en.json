@@ -1921,7 +1921,9 @@
       "system": "System",
       "music": "Music",
       "giveaway": "Giveaway",
-      "audio": "Audio"
+      "audio": "Audio",
+      "obs": "OBS",
+      "yolobox": "YoloBox"
     },
     "items": {
       "event_system_poweron": "System power on",
@@ -1981,7 +1983,28 @@
       "event_twitch_sub": "Subscription",
       "event_twitch_subgift": "Gift subscription",
       "event_twitch_user_update": "User updated",
-      "event_twitch_vip_add": "VIP added"
+      "event_twitch_vip_add": "VIP added",
+      "event_obs_connected": "OBS connected",
+      "event_obs_disconnected": "OBS disconnected",
+      "event_obs_scene_changed": "Program scene changed",
+      "event_obs_recording_started": "Recording started",
+      "event_obs_recording_stopped": "Recording stopped",
+      "event_obs_streaming_started": "Streaming started",
+      "event_obs_streaming_stopped": "Streaming stopped",
+      "event_obs_replay_buffer_started": "Replay buffer started",
+      "event_obs_replay_buffer_stopped": "Replay buffer stopped",
+      "event_obs_virtual_camera_started": "Virtual camera started",
+      "event_obs_virtual_camera_stopped": "Virtual camera stopped",
+      "event_obs_studio_mode_enabled": "Studio mode enabled",
+      "event_obs_studio_mode_disabled": "Studio mode disabled",
+      "event_obs_scene_item_enabled": "Scene item enabled",
+      "event_obs_scene_item_disabled": "Scene item disabled",
+      "event_obs_input_muted": "Input muted",
+      "event_obs_input_unmuted": "Input unmuted",
+      "event_obs_profile_changed": "Profile changed",
+      "event_obs_scene_collection_changed": "Scene collection changed",
+      "event_yolobox_connected": "YoloBox connected",
+      "event_yolobox_disconnected": "YoloBox disconnected"
     },
     "simulation": {
       "fields": {
@@ -2022,7 +2045,28 @@
         "originalGiftDuration": "Original gift duration",
         "originalGifterId": "Original gifter ID",
         "originalGifterDisplayName": "Original gifter display name"
-      }
+      },
+      "connectionName": "OBS connection",
+      "connected": "Connected",
+      "reason": "Disconnect reason",
+      "errorCode": "Error code",
+      "errorMessage": "Error message",
+      "sceneName": "Scene name",
+      "sceneUuid": "Scene UUID",
+      "outputActive": "Output active",
+      "outputState": "Output state",
+      "outputPath": "Output path",
+      "studioModeEnabled": "Studio mode enabled",
+      "sceneItemId": "Scene item ID",
+      "sceneItemEnabled": "Scene item enabled",
+      "sourceName": "Source name",
+      "sourceUuid": "Source UUID",
+      "inputName": "Input name",
+      "inputUuid": "Input UUID",
+      "inputMuted": "Input muted",
+      "profileName": "Profile name",
+      "sceneCollectionName": "Scene collection name",
+      "device": "Device"
     }
   },
   "commands": {

@@ -256,6 +256,11 @@ export default {
         return String((this as any).$t(field.localeKey))
       }
 
+      const fallbackKey = `events.simulation.fields.${field.name}`
+      if ((this as any).$te?.(fallbackKey)) {
+        return String((this as any).$t(fallbackKey))
+      }
+
       return field.name
     },
 
