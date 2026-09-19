@@ -11,11 +11,14 @@
     @move-down="$emit('move-down')"
   >
     <template #default="{ data }">
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="4">
         <v-text-field v-model="data.user" :label="$t('macro.function.fields.user')" density="compact" variant="outlined" hide-details />
       </v-col>
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="5">
         <v-text-field v-model="data.content" :label="$t('macro.function.fields.message')" density="compact" variant="outlined" hide-details />
+      </v-col>
+      <v-col cols="12" md="3">
+        <MacroFunctionAccountSelect v-model="data.account" />
       </v-col>
     </template>
   </MacroFunctionBaseTaskAccordion>
@@ -23,12 +26,14 @@
 
 <script lang="ts">
 import MacroFunctionBaseTaskAccordion from './MacroFunctionBaseTaskAccordion.vue'
+import MacroFunctionAccountSelect from './MacroFunctionAccountSelect.vue'
 
 export default {
   name: 'MacroFunctionSendDmTaskAccordion',
 
   components: {
     MacroFunctionBaseTaskAccordion,
+    MacroFunctionAccountSelect,
   },
 
   props: {
@@ -64,6 +69,9 @@ export default {
     task.channel = 'function'
     task.method = 'send_dm'
     if (!task.data || typeof task.data !== 'object') task.data = {}
+
+    const account = String(task.data.account ?? '').trim().toLowerCase()
+    task.data.account = account === 'streamer' || account === 'control' ? 'streamer' : 'message'
   },
 }
 </script>

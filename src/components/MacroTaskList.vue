@@ -144,6 +144,10 @@ export default {
       type: String,
       default: '',
     },
+    templateExtraVariables: {
+      type: Array,
+      default: () => [],
+    },
   },
 
   watch: {
@@ -404,6 +408,13 @@ export default {
       // the macro without waiting for another backend request.
       for (const entry of this.currentMacroGeneratedTemplateVariables()) {
         merged.set(String(entry.path), entry)
+      }
+      // Context-specific variables supplied by the editor (for example unsaved
+      // command parameters) come before the backend list, while preserving the
+      // backend's own ordering for everything it returned.
+      for (const entry of this.templateExtraVariables as any[]) {
+        const path = String(entry?.path ?? '').trim()
+        if (path && !merged.has(path)) merged.set(path, entry)
       }
       for (const entry of this.templateVariableEntries as any[]) {
         const path = String(entry?.path ?? '').trim()

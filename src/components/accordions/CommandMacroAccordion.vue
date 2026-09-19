@@ -7,6 +7,7 @@
     template-context="command"
     :template-name="sourceName || name"
     :template-macro="name"
+    :template-extra-variables="commandTemplateVariables"
   />
 </template>
 
@@ -16,8 +17,46 @@ import ChannelPointMacroAccordion from '@/components/accordions/ChannelPointMacr
 export default {
   name: 'CommandMacroAccordion',
   components: { ChannelPointMacroAccordion },
-  props: { name: { type: String, default: '' }, sourceName: { type: String, default: '' }, initialContent: { type: String, default: '' }, disableMacroRead: { type: Boolean, default: false } },
+  props: {
+    name: { type: String, default: '' },
+    sourceName: { type: String, default: '' },
+    initialContent: { type: String, default: '' },
+    disableMacroRead: { type: Boolean, default: false },
+    commandParams: { type: Array, default: () => [] },
+  },
   data() { return { currentContent: this.initialContent, pendingContent: null as string | null } },
+  computed: {
+    commandTemplateVariables(): any[] {
+      const entries: any[] = []
+      const seen = new Set<string>()
+
+      const add = (path: string, type: string) => {
+        const normalized = String(path ?? '').trim()
+        if (!normalized || seen.has(normalized)) return
+        seen.add(normalized)
+        entries.push({
+          path: normalized,
+          expression: `\${${normalized}}`,
+          type,
+          source: 'command_param',
+        })
+      }
+
+      for (const param of this.commandParams as any[]) {
+        const name = String(param?.name ?? '').trim()
+        if (!name || /[\s{}$]/.test(name)) continue
+
+        const type = String(param?.type ?? 'string') === 'number' ? 'number' : 'string'
+        // Runtime command payload exposes configured parameters both below params
+        // and directly at the root. Keep params.* first because it is the explicit
+        // command-parameter namespace.
+        add(`params.${name}`, type)
+        add(name, type)
+      }
+
+      return entries
+    },
+  },
   watch: { initialContent(value: string) { this.currentContent = value || ''; this.applyPendingContent() } },
   mounted() { this.applyPendingContent() },
   methods: {

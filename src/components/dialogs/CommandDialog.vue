@@ -154,6 +154,7 @@
                 :name="generatedMacroName"
                 :source-name="normalizedName"
                 :initial-content="macroContent"
+                :command-params="safeParams"
                 disable-macro-read
               />
             </v-expansion-panel-text>

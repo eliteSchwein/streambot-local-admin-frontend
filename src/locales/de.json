@@ -185,7 +185,8 @@
         "text": "Text",
         "eventId": "Ereignis-ID",
         "autoMacroName": "Auto-Makro-Name",
-        "locale": "Locale"
+        "locale": "Locale",
+        "account": "Konto"
       },
       "announce": {
         "title": "Ankündigen"
@@ -241,6 +242,10 @@
         "title": "Variablen dumpen",
         "info": "Speichert alle aktuellen Makro-Variablen formatiert als dumped_variables.json im Asset-Medien-Root, damit die Datei einfach heruntergeladen werden kann. Eine vorhandene Datei wird überschrieben.",
         "openDump": "Dump öffnen"
+      },
+      "accounts": {
+        "message": "Nachrichtenkonto",
+        "streamer": "Streamer-Konto"
       }
     },
     "music": {

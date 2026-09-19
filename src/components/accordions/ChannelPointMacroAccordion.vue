@@ -68,6 +68,7 @@
             :template-context="templateContext"
             :template-name="templateName || name"
             :template-macro="templateMacro || name"
+            :template-extra-variables="templateExtraVariables"
           />
         </div>
       </template>
@@ -115,6 +116,7 @@ export default {
     templateContext: { type: String, default: 'channel_point' },
     templateName: { type: String, default: '' },
     templateMacro: { type: String, default: '' },
+    templateExtraVariables: { type: Array, default: () => [] },
   },
 
   data() {

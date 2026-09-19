@@ -89,6 +89,7 @@ declare module 'vue' {
     MacroEndMacroTaskAccordion: typeof import('./components/accordions/macro/flow/MacroEndMacroTaskAccordion.vue')['default']
     MacroFfmpegTaskAccordion: typeof import('./components/accordions/macro/media/MacroFfmpegTaskAccordion.vue')['default']
     MacroFileTaskAccordion: typeof import('./components/accordions/macro/file/MacroFileTaskAccordion.vue')['default']
+    MacroFunctionAccountSelect: typeof import('./components/accordions/macro/functions/MacroFunctionAccountSelect.vue')['default']
     MacroFunctionAnnounceTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionAnnounceTaskAccordion.vue')['default']
     MacroFunctionBaseTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionBaseTaskAccordion.vue')['default']
     MacroFunctionDumpVariablesTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionDumpVariablesTaskAccordion.vue')['default']

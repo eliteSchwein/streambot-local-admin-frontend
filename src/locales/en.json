@@ -185,7 +185,8 @@
         "text": "Text",
         "eventId": "Event ID",
         "autoMacroName": "Auto macro name",
-        "locale": "Locale"
+        "locale": "Locale",
+        "account": "Account"
       },
       "announce": {
         "title": "Announce"
@@ -241,6 +242,10 @@
         "title": "Dump variables",
         "info": "Saves all current macro variables as pretty-printed JSON to dumped_variables.json in the asset media root so it can be downloaded easily. An existing file is overwritten.",
         "openDump": "Open dump"
+      },
+      "accounts": {
+        "message": "Message account",
+        "streamer": "Streamer account"
       }
     },
     "music": {

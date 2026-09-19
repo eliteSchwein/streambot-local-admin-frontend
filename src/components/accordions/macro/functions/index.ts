@@ -35,7 +35,7 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
     titleKey: "macro.presets.message.sendDm",
     icon: "mdi-message-lock-outline",
     order: 19,
-    create: () => ({ type: 'task', task: { channel: 'function', method: 'send_dm', data: { user: '', content: '' } } }),
+    create: () => ({ type: 'task', task: { channel: 'function', method: 'send_dm', data: { user: '', content: '', account: 'message' } } }),
   },
   {
     path: [
@@ -44,7 +44,7 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
     titleKey: "macro.presets.message.chatMessage",
     icon: "mdi-message-text-outline",
     order: 20,
-    create: () => ({ type: 'task', task: { channel: 'function', method: 'send_message', data: { content: '' } } }),
+    create: () => ({ type: 'task', task: { channel: 'function', method: 'send_message', data: { content: '', account: 'message' } } }),
   },
   {
     path: [

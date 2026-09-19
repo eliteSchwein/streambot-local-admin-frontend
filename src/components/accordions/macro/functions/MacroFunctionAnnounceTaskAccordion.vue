@@ -11,7 +11,7 @@
     @move-down="$emit('move-down')"
   >
     <template #default="{ data }">
-      <v-col cols="12" md="8">
+      <v-col cols="12" md="6">
         <v-text-field
           v-model="data.content"
           :label="$t('macro.function.fields.message')"
@@ -21,7 +21,7 @@
         />
       </v-col>
 
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="3">
         <v-select
           v-model="data.color"
           :items="colors"
@@ -31,18 +31,24 @@
           hide-details
         />
       </v-col>
+
+      <v-col cols="12" md="3">
+        <MacroFunctionAccountSelect v-model="data.account" />
+      </v-col>
     </template>
   </MacroFunctionBaseTaskAccordion>
 </template>
 
 <script lang="ts">
 import MacroFunctionBaseTaskAccordion from './MacroFunctionBaseTaskAccordion.vue'
+import MacroFunctionAccountSelect from './MacroFunctionAccountSelect.vue'
 
 export default {
   name: 'MacroFunctionAnnounceTaskAccordion',
 
   components: {
     MacroFunctionBaseTaskAccordion,
+    MacroFunctionAccountSelect,
   },
 
   props: {
@@ -89,6 +95,9 @@ export default {
     if (!task.data.color) {
       task.data.color = 'primary'
     }
+
+    const account = String(task.data.account ?? '').trim().toLowerCase()
+    task.data.account = account === 'streamer' || account === 'control' ? 'streamer' : 'message'
   },
 }
 </script>
