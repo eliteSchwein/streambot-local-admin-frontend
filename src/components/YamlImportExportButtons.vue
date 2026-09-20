@@ -3,7 +3,8 @@
     <v-btn
       variant="text"
       prepend-icon="mdi-export"
-      :disabled="disabled"
+      :disabled="disabled || exporting"
+      :loading="exporting"
       @click="exportYaml"
     >
       {{ $t('components.yamlImportExport.export') }}
@@ -39,23 +40,46 @@ export default {
     disabled: { type: Boolean, default: false },
     exportData: { type: [Object, Array], default: null },
     exportContent: { type: String, default: '' },
+    exportResolver: { type: Function, default: null },
   },
 
   emits: ['import', 'error'],
 
+  data() {
+    return {
+      exporting: false,
+    }
+  },
+
   methods: {
-    exportYaml() {
-      const content = this.exportContent || YAML.stringify(this.exportData ?? {})
+    async exportYaml() {
+      this.exporting = true
 
-      const blob = new Blob([content], { type: 'text/yaml;charset=utf-8' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
+      try {
+        let content = this.exportContent
 
-      link.href = url
-      link.download = this.filename
-      link.click()
+        if (!content) {
+          const data = this.exportResolver
+            ? await this.exportResolver()
+            : (this.exportData ?? {})
 
-      URL.revokeObjectURL(url)
+          content = YAML.stringify(data, { lineWidth: 0 })
+        }
+
+        const blob = new Blob([content], { type: 'text/yaml;charset=utf-8' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+
+        link.href = url
+        link.download = this.filename
+        link.click()
+
+        URL.revokeObjectURL(url)
+      } catch (error: any) {
+        this.$emit('error', error)
+      } finally {
+        this.exporting = false
+      }
     },
 
     openImport() {

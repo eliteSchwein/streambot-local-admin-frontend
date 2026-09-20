@@ -12,6 +12,15 @@
           <span class="text-truncate">{{ title }}</span>
         </v-toolbar-title>
 
+        <YamlImportExportButtons
+          class="mr-2"
+          :filename="exportFilename"
+          :disabled="loading || savingInternal"
+          :export-resolver="buildEventExportBundle"
+          @import="importEventBundle"
+          @error="handleImportError"
+        />
+
         <v-btn icon="mdi-close" variant="text" @click="$emit('update:modelValue', false)" />
       </v-toolbar>
 
@@ -125,6 +134,8 @@ import { getWebsocketClient } from '@/plugins/websocketInstance'
 import EventAssetAccordion from '@/components/accordions/EventAssetAccordion.vue'
 import EventMacroAccordion from '@/components/accordions/EventMacroAccordion.vue'
 import EventSimulationDialog from '@/components/dialogs/EventSimulationDialog.vue'
+import YamlImportExportButtons from '@/components/YamlImportExportButtons.vue'
+import YAML from 'yaml'
 
 
 export default {
@@ -134,6 +145,7 @@ export default {
     EventAssetAccordion,
     EventMacroAccordion,
     EventSimulationDialog,
+    YamlImportExportButtons,
   },
 
   props: {
@@ -180,6 +192,10 @@ export default {
       return this.configName
         ? String((this as any).$t('dialogs.eventEditorDialog.editTitle', { event: this.eventDisplayName }))
         : String((this as any).$t('dialogs.eventEditorDialog.title'))
+    },
+
+    exportFilename(): string {
+      return `${this.configName || 'event'}.yaml`
     },
 
     canSave(): boolean {
@@ -290,6 +306,122 @@ export default {
 
     defaultMacroContent(name: string) {
       return `name: ${name}\ntasks: []\n`
+    },
+
+    normalizeImportedMacroContent(content: any): string {
+      let document: any
+
+      if (typeof content === 'string') {
+        try {
+          document = YAML.parse(content)
+        } catch {
+          return String(content ?? '')
+        }
+      } else if (content && typeof content === 'object' && !Array.isArray(content)) {
+        document = content
+      } else {
+        return this.defaultMacroContent(this.configName)
+      }
+
+      if (!document || typeof document !== 'object' || Array.isArray(document)) {
+        return this.defaultMacroContent(this.configName)
+      }
+
+      // Imports are configuration copies. They must never rename the event target.
+      document.name = this.configName
+      return YAML.stringify(document, { lineWidth: 0 })
+    },
+
+    currentMacroContent(): string {
+      const content = (this.$refs.macroAccordion as any)?.getContent?.()
+        || this.macroContent
+        || this.defaultMacroContent(this.configName)
+
+      return this.withBypassInteractionQueue(this.normalizeImportedMacroContent(content))
+    },
+
+    async buildEventExportBundle() {
+      const macroContent = this.currentMacroContent()
+      const assetContent = this.isSystemEvent
+        ? undefined
+        : ((this.$refs.assetAccordion as any)?.getAssetPayload?.() ?? {})
+
+      return {
+        streambot_export: {
+          version: 1,
+          kind: 'event',
+        },
+        config: {
+          name: this.configName,
+          bypass_interaction_queue: this.bypassInteractionQueue,
+        },
+        ...(this.isSystemEvent
+          ? {}
+          : {
+              asset: {
+                name: this.configName,
+                content: assetContent,
+              },
+            }),
+        macro: {
+          name: this.configName,
+          content: macroContent,
+        },
+      }
+    },
+
+    async importEventBundle(payload: any) {
+      this.errorMessage = ''
+
+      try {
+        const data = payload?.data ?? {}
+        if (!data || typeof data !== 'object' || Array.isArray(data)) {
+          throw new Error('Imported YAML must be an object')
+        }
+
+        const config = data?.config && typeof data.config === 'object' && !Array.isArray(data.config)
+          ? data.config
+          : {}
+
+        let macroSource: any = data?.macro?.content
+
+        // Also accept a normal standalone macro export.
+        if (macroSource === undefined && (Array.isArray(data?.tasks) || data?.name)) {
+          macroSource = data
+        }
+
+        if (macroSource !== undefined) {
+          const macroContent = this.normalizeImportedMacroContent(macroSource)
+          this.macroContent = macroContent
+
+          try {
+            const macroData = YAML.parse(macroContent)
+            if (typeof macroData?.bypass_interaction_queue === 'boolean') {
+              this.bypassInteractionQueue = macroData.bypass_interaction_queue
+            }
+          } catch {
+            // The macro editor will surface malformed content if necessary.
+          }
+
+          await this.$nextTick()
+          ;(this.$refs.macroAccordion as any)?.setContent?.(macroContent, this.configName)
+        }
+
+        if (typeof config?.bypass_interaction_queue === 'boolean') {
+          this.bypassInteractionQueue = config.bypass_interaction_queue
+        }
+
+        if (!this.isSystemEvent && data?.asset?.content && typeof data.asset.content === 'object') {
+          await this.$nextTick()
+          await (this.$refs.assetAccordion as any)?.setAsset?.(data.asset.content)
+        }
+      } catch (error: any) {
+        this.errorMessage = error?.message ?? String(error ?? 'event import failed')
+      }
+    },
+
+    handleImportError(error: any) {
+      this.errorMessage = error?.message ?? String(error ?? 'event import failed')
     },
 
     openSimulationDialog() {

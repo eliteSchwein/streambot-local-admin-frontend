@@ -18,7 +18,7 @@
           class="mr-2"
           :filename="exportFilename"
           :disabled="loading || initializingInternal || savingInternal"
-          :export-data="exportPayload"
+          :export-data="buildExportPayload()"
           @import="importChannelPoint"
           @error="handleImportError"
         />
@@ -206,7 +206,20 @@ export default {
       return `channel_point_${name}.yaml`
     },
 
-    exportPayload(): Record<string, any> {
+  },
+
+  watch: {
+    normalizedName() {
+      if (!this.isEditing) this.scheduleNameCheck()
+    },
+    isEditing(value: boolean) {
+      if (value) { this.nameChecking = false; this.nameExists = false }
+      else this.scheduleNameCheck()
+    },
+  },
+
+  methods: {
+    buildConfigPayload() {
       const normalizedName = this.normalizedName || this.normalizeName(this.form.name)
       const generatedName = normalizedName ? `channel_point_${normalizedName}` : 'channel_point_'
 
@@ -222,19 +235,35 @@ export default {
         macro: generatedName,
       }
     },
-  },
 
-  watch: {
-    normalizedName() {
-      if (!this.isEditing) this.scheduleNameCheck()
-    },
-    isEditing(value: boolean) {
-      if (value) { this.nameChecking = false; this.nameExists = false }
-      else this.scheduleNameCheck()
-    },
-  },
+    buildExportPayload() {
+      const config = this.buildConfigPayload()
+      const macroContent =
+        (this.$refs.macroAccordion as any)?.getContent?.()
+        || this.macroContent
+        || this.defaultMacroContent(this.generatedConfigName)
 
-  methods: {
+      return {
+        streambot_export: {
+          version: 1,
+          kind: 'channel_point',
+        },
+        config: {
+          name: config.name,
+          path: `${config.name || 'channel_point'}.yaml`,
+          content: config,
+        },
+        asset: {
+          name: this.generatedConfigName,
+          content: (this.$refs.assetAccordion as any)?.getAssetPayload?.() ?? {},
+        },
+        macro: {
+          name: this.generatedConfigName,
+          content: macroContent,
+        },
+      }
+    },
+
     scheduleNameCheck() {
       if (this.isEditing) return
       if (this.nameCheckTimer) clearTimeout(this.nameCheckTimer)
@@ -389,31 +418,50 @@ export default {
         return
       }
 
-      const importedLabel = String(data.label ?? data.name ?? '').trim()
-      const importedName = this.normalizeName(data.name ?? data.asset ?? data.macro ?? importedLabel)
+      const config =
+        data?.config?.content && typeof data.config.content === 'object'
+          ? data.config.content
+          : data
+
+      const currentLabel = String(this.form.name ?? '').trim()
+      const importedLabel = String(config.label ?? config.name ?? '').trim()
+      const importedName = this.normalizeName(
+        data?.config?.name ?? config.name ?? config.asset ?? config.macro ?? importedLabel,
+      )
 
       this.form = {
-        name: importedLabel || importedName,
-        enable_default: data.enable_default === true,
-        auto_accept: data.auto_accept === true,
-        strip_emotes: data.strip_emotes === true,
-        input_required: data.input_required === true,
-        bypass_interaction_queue: data.bypass_interaction_queue === true,
-      }
-
-      if (importedName) {
-        this.originalName = importedName
+        name: currentLabel,
+        enable_default: config.enable_default === true,
+        auto_accept: config.auto_accept === true,
+        strip_emotes: config.strip_emotes === true,
+        input_required: config.input_required === true,
+        bypass_interaction_queue: config.bypass_interaction_queue === true,
       }
 
       this.errorMessage = ''
 
       await this.$nextTick()
 
-      if (importedName) {
-        await this.loadExistingGeneratedFiles()
+      const bundledAsset = data?.asset?.content
+      const bundledMacro = data?.macro?.content
+
+      if (bundledAsset && typeof bundledAsset === 'object') {
+        ;(this.$refs.assetAccordion as any)?.setAsset?.(bundledAsset)
+      } else if (this.normalizedName) {
+        await this.loadExistingAsset()
       } else {
         ;(this.$refs.assetAccordion as any)?.setAsset?.({ channel: 'general', duration: 5 })
-        ;(this.$refs.macroAccordion as any)?.setContent?.(this.defaultMacroContent(this.generatedConfigName), this.generatedConfigName)
+      }
+
+      if (typeof bundledMacro === 'string' && bundledMacro.trim()) {
+        this.macroContent = bundledMacro
+        ;(this.$refs.macroAccordion as any)?.setContent?.(bundledMacro, this.generatedConfigName)
+      } else if (this.normalizedName) {
+        await this.loadExistingMacro()
+      } else {
+        const fallbackMacro = this.defaultMacroContent(this.generatedConfigName)
+        this.macroContent = fallbackMacro
+        ;(this.$refs.macroAccordion as any)?.setContent?.(fallbackMacro, this.generatedConfigName)
       }
     },
 

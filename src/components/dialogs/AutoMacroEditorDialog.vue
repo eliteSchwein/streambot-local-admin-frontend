@@ -26,8 +26,8 @@
         <YamlImportExportButtons
           class="mr-2"
           :filename="`${visualAutoMacro.name || name || 'auto_macro'}.yaml`"
-          :export-content="rawMode ? content : ''"
-          :export-data="rawMode ? null : exportAutoMacroData()"
+          :export-content="''"
+          :export-resolver="buildAutoMacroExportBundle"
           :disabled="loadingFile || saving"
           @import="importAutoMacroYaml"
           @error="errorMessage = $event?.message ?? $t('dialogs.autoMacroEditorDialog.errors.importFailed')"
@@ -304,6 +304,7 @@ export default {
       consumedMacroSelection: '',
       macroEditorOpen: false,
       editingMacroName: '',
+      importedMacroDependencies: {} as Record<string, string>,
       loadingFile: false,
       saving: false,
       errorMessage: '',
@@ -478,6 +479,71 @@ export default {
       this.parseContentToVisual()
     },
 
+    async readMacroContent(name: string): Promise<string> {
+      const cleanName = String(name ?? '').trim()
+      if (!cleanName) return ''
+
+      try {
+        const response = await this.requestWebsocket('macro_read', {
+          name: cleanName,
+          path: `${cleanName}.yaml`,
+          file: `${cleanName}.yaml`,
+        })
+        const data = this.unwrapResponse(response, 'macro_read')
+        return String(data?.content ?? '')
+      } catch {
+        return ''
+      }
+    },
+
+    async buildAutoMacroExportBundle() {
+      if (!this.rawMode) this.syncVisualToContent()
+
+      const config = this.rawMode
+        ? (this.yamlLoad(this.content) ?? this.exportAutoMacroData())
+        : this.exportAutoMacroData()
+
+      const macros: Record<string, string> = {}
+      const names = Array.isArray(config?.macros) ? config.macros : []
+
+      await Promise.all(names.map(async (name: any) => {
+        const macroName = String(name ?? '').trim()
+        if (!macroName || macros[macroName]) return
+
+        const content = await this.readMacroContent(macroName)
+        if (content) macros[macroName] = content
+      }))
+
+      return {
+        streambot_export: {
+          version: 1,
+          kind: 'auto_macro',
+        },
+        config: {
+          name: String(config?.name ?? this.visualAutoMacro.name ?? ''),
+          content: config,
+        },
+        macros,
+      }
+    },
+
+    async saveImportedMacroDependencies() {
+      for (const [name, content] of Object.entries(this.importedMacroDependencies ?? {})) {
+        if (!name || !content) continue
+
+        const response = await this.requestWebsocket('macro_edit', {
+          name,
+          path: `${name}.yaml`,
+          file: `${name}.yaml`,
+          content,
+        })
+        const data = this.unwrapResponse(response, 'macro_edit')
+        if (data?.error) throw new Error(data.error)
+      }
+
+      this.importedMacroDependencies = {}
+    },
+
     async saveAutoMacro() {
       if (!this.visualAutoMacro.name) return
       if (!(await this.ensureNameAvailable())) return
@@ -496,6 +562,7 @@ export default {
           content: this.content,
         })
 
+        await this.saveImportedMacroDependencies()
         this.$emit('saved', data)
       } catch (error: any) {
         this.errorMessage = error?.message ?? this.$t('dialogs.autoMacroEditorDialog.errors.saveFailed')
@@ -557,12 +624,28 @@ export default {
 
     importAutoMacroYaml(payload: any) {
       try {
-        const imported = this.yamlLoad(String(payload?.content ?? '')) ?? {}
-        if (!imported || typeof imported !== 'object' || Array.isArray(imported)) {
+        const parsed = this.yamlLoad(String(payload?.content ?? '')) ?? {}
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
           throw new Error(this.$t('dialogs.autoMacroEditorDialog.errors.invalidYaml'))
         }
 
-        this.content = this.yamlDump(imported)
+        const imported =
+          parsed?.config?.content && typeof parsed.config.content === 'object'
+            ? parsed.config.content
+            : parsed
+
+        this.importedMacroDependencies =
+          parsed?.macros && typeof parsed.macros === 'object' && !Array.isArray(parsed.macros)
+            ? { ...parsed.macros }
+            : {}
+
+        const currentName = String(this.visualAutoMacro.name || this.name || '').trim()
+        const normalizedImport = {
+          ...imported,
+          name: currentName,
+        }
+
+        this.content = this.yamlDump(normalizedImport)
         this.parseContentToVisual()
         this.rawMode = false
       } catch (error: any) {

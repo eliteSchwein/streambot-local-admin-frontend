@@ -66,7 +66,7 @@
             <input
               ref="restoreInput"
               type="file"
-              accept=".zip,application/zip"
+              accept=".tar.zst,.tzst,.tar,.tar.gz,.tgz,.tar.xz,.txz,.tar.bz2,.tbz2,.tbz,.zip,application/zstd,application/x-zstd,application/x-tar,application/gzip,application/x-xz,application/x-bzip2,application/zip"
               class="d-none"
               @change="restoreFileSelected"
             >
@@ -280,7 +280,7 @@ export default {
       try {
         await this.downloadFile(
           `${this.restApi}/api/system/backup`,
-          `streambot-backup-${this.timestamp()}.zip`
+          `streambot-backup-${this.timestamp()}.tar.zst`
         )
       } catch (error: any) {
         this.errorMessage = error?.message ?? String(error)

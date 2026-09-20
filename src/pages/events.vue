@@ -174,8 +174,9 @@ export default {
     ...mapState(useAppStore, ['getEvents']),
 
     eventList(): EventEntryData[] {
+      // The backend owns the event ordering. Keep it intact so channel/event
+      // groups appear exactly in the order returned by the event index.
       return this.normalizeEvents(this.getEvents)
-        .sort((a, b) => a.configName.localeCompare(b.configName))
     },
 
     totalEvents(): number {
@@ -209,17 +210,15 @@ export default {
       return [...channels.entries()].map(([name, subchannels]) => {
         const groups = [...subchannels.entries()].map(([subchannelName, events]) => ({
           name: subchannelName,
-          events: events.sort((a, b) => a.configName.localeCompare(b.configName)),
+          events,
         }))
 
         const realSubchannels = groups
           .filter((group) => group.name && group.name !== name)
-          .sort((a, b) => a.name.localeCompare(b.name))
 
         const directEvents = groups
           .filter((group) => !group.name || group.name === name)
           .flatMap((group) => group.events)
-          .sort((a, b) => a.configName.localeCompare(b.configName))
 
         return {
           name,
@@ -228,7 +227,7 @@ export default {
           subchannels: realSubchannels,
           hasSubchannels: realSubchannels.length > 0,
         }
-      }).sort((a, b) => a.name.localeCompare(b.name))
+      })
     },
   },
 

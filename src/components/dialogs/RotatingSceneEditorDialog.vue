@@ -678,7 +678,13 @@ export default {
           throw new Error('invalid rotating scene yaml')
         }
 
-        this.content = this.yamlDump(imported)
+        const currentName = String(this.visualRotatingScene.name || this.name || '').trim()
+        const normalizedImport = {
+          ...imported,
+          name: currentName,
+        }
+
+        this.content = this.yamlDump(normalizedImport)
         this.parseContentToVisual()
         this.rawMode = false
       } catch (error: any) {

@@ -120,6 +120,7 @@ export default {
       wledEffectsByLamp: {} as Record<string, Array<{ title: string; value: number }>>,
       pendingWledControlIndex: null as number | null,
       importError: "",
+      importedMacroDependencies: {} as Record<string, string>,
       nameChecking: false,
       nameExists: false,
       nameCheckTimer: null as ReturnType<typeof setTimeout> | null,
@@ -624,17 +625,93 @@ export default {
       this.wledColorMenus = form.wled.map(() => false);
     },
 
+    async readMacroContent(name: string): Promise<string> {
+      const cleanName = String(name ?? "").trim();
+      if (!cleanName) return "";
+
+      try {
+        const response = await this.requestWebsocket("macro_read", {
+          name: cleanName,
+          path: `${cleanName}.yaml`,
+          file: `${cleanName}.yaml`,
+        });
+        const data = this.unwrapWebsocketResponse(response, "macro_read");
+        return String(data?.content ?? "");
+      } catch {
+        return "";
+      }
+    },
+
+    async buildAssetExportBundle() {
+      const asset = this.buildAssetPayload();
+      const macroNames = [
+        ...this.toStringArray(asset.start_macros),
+        ...this.toStringArray(asset.idle_macros),
+        ...this.toStringArray(asset.end_macros),
+      ].filter((name, index, all) => name && all.indexOf(name) === index);
+
+      const macros: Record<string, string> = {};
+
+      await Promise.all(macroNames.map(async (name) => {
+        const content = await this.readMacroContent(name);
+        if (content) macros[name] = content;
+      }));
+
+      return {
+        streambot_export: {
+          version: 1,
+          kind: "asset",
+        },
+        config: {
+          name: this.form.name || this.assetName || "",
+          content: asset,
+        },
+        macros,
+      };
+    },
+
+    async saveImportedMacroDependencies() {
+      for (const [name, content] of Object.entries(this.importedMacroDependencies ?? {})) {
+        if (!name || !content) continue;
+
+        const response = await this.requestWebsocket("macro_edit", {
+          name,
+          path: `${name}.yaml`,
+          file: `${name}.yaml`,
+          content,
+        });
+        const data = this.unwrapWebsocketResponse(response, "macro_edit");
+        if (data?.error) throw new Error(data.error);
+      }
+
+      this.importedMacroDependencies = {};
+    },
+
     importAssetYaml(payload: any) {
       const parsed = payload?.data ?? {};
-      const asset = parsed?.content ?? parsed?.asset ?? parsed;
+      const asset =
+        parsed?.config?.content ??
+        parsed?.content ??
+        parsed?.asset ??
+        parsed;
+
+      this.importedMacroDependencies =
+        parsed?.macros && typeof parsed.macros === "object" && !Array.isArray(parsed.macros)
+          ? { ...parsed.macros }
+          : {};
 
       if (!asset || typeof asset !== "object" || Array.isArray(asset)) {
         this.importError = "invalid asset yaml";
         return;
       }
 
+      const currentName = String(this.form.name || this.assetName || "").trim();
+
       this.importError = "";
-      this.setAsset(asset);
+      this.setAsset({
+        ...asset,
+        name: currentName,
+      });
     },
 
     resetForm() {
@@ -909,16 +986,22 @@ export default {
       if (!(await this.ensureNameAvailable())) return;
       const name = this.form.name.trim();
 
-      this.$emit("save", {
-        name,
-        path: `${
-          name
-            .replace(/[\\/]+/g, "_")
-            .replace(/[^a-zA-Z0-9_.-]+/g, "_")
-            .replace(/^\.+/, "") || "asset"
-        }.yaml`,
-        asset: this.buildAssetPayload(),
-      });
+      try {
+        await this.saveImportedMacroDependencies();
+
+        this.$emit("save", {
+          name,
+          path: `${
+            name
+              .replace(/[\\/]+/g, "_")
+              .replace(/[^a-zA-Z0-9_.-]+/g, "_")
+              .replace(/^\.+/, "") || "asset"
+          }.yaml`,
+          asset: this.buildAssetPayload(),
+        });
+      } catch (error: any) {
+        this.importError = error?.message ?? String(error ?? "failed to restore related macros");
+      }
     },
   },
 };
@@ -940,7 +1023,7 @@ export default {
         <YamlImportExportButtons
           class="mr-2"
           :filename="`${form.name || assetName || 'asset'}.yaml`"
-          :export-data="buildAssetPayload()"
+          :export-resolver="buildAssetExportBundle"
           :disabled="loading"
           @import="importAssetYaml"
           @error="importError = $event?.message ?? $t('assets.importFailed')"

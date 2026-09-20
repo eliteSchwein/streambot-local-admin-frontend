@@ -1650,12 +1650,12 @@
       "title": "Backup, restore & logs",
       "backup": {
         "title": "Backup",
-        "description": "Download a complete backup of the bot configuration and data.",
+        "description": "Download a complete .tar.zst backup of the bot configuration and data.",
         "action": "Download backup"
       },
       "restore": {
         "title": "Restore",
-        "description": "Upload a backup ZIP and choose exactly what should be restored.",
+        "description": "Upload a Streambot backup archive and choose exactly what should be restored.",
         "action": "Restore backup"
       },
       "log": {
@@ -2019,7 +2019,7 @@
       "event_yolobox_connected": "YoloBox connected",
       "event_yolobox_disconnected": "YoloBox disconnected",
       "event_giveaway_progress": "Giveaway progress",
-      "event_giveaway_register": "Giveaway entry registered"
+      "event_giveaway_register": "Giveaway entry"
     },
     "simulation": {
       "fields": {

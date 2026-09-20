@@ -33,7 +33,7 @@ export default {
 
   methods: {
     exportTask() {
-      const yaml = YAML.stringify(this.task)
+      const yaml = YAML.stringify(this.task, { lineWidth: 0 })
       const blob = new Blob([yaml], { type: 'text/yaml;charset=utf-8' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')

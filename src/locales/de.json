@@ -1650,12 +1650,12 @@
       "title": "Backup, Wiederherstellung & Logs",
       "backup": {
         "title": "Backup",
-        "description": "Ein vollständiges Backup der Bot-Konfiguration und Daten herunterladen.",
+        "description": "Lade ein vollständiges .tar.zst-Backup der Bot-Konfiguration und Daten herunter.",
         "action": "Backup herunterladen"
       },
       "restore": {
         "title": "Wiederherstellen",
-        "description": "Ein Backup-ZIP hochladen und genau auswählen, was wiederhergestellt werden soll.",
+        "description": "Lade ein Streambot-Backup-Archiv hoch und wähle genau aus, was wiederhergestellt werden soll.",
         "action": "Backup wiederherstellen"
       },
       "log": {
@@ -2019,7 +2019,7 @@
       "event_yolobox_connected": "YoloBox verbunden",
       "event_yolobox_disconnected": "YoloBox getrennt",
       "event_giveaway_progress": "Gewinnspiel-Fortschritt",
-      "event_giveaway_register": "Gewinnspiel-Teilnahme registriert"
+      "event_giveaway_register": "Gewinnspiel-Teilnahme"
     },
     "simulation": {
       "fields": {

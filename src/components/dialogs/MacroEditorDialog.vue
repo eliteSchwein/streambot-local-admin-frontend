@@ -123,6 +123,7 @@ import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import MacroTaskList from '@/components/MacroTaskList.vue'
 import YamlImportExportButtons from '@/components/YamlImportExportButtons.vue'
 import { checkNameExists } from '@/helper/NameExistsHelper'
+import YAML from 'yaml'
 
 type VisualTask = {
   id: string
@@ -168,6 +169,7 @@ export default {
         name: '',
         items: [] as VisualTask[],
       },
+      macroDocument: {} as Record<string, any>,
       loadingFile: false,
       saving: false,
       errorMessage: '',
@@ -324,12 +326,14 @@ export default {
 
     parseContentToVisual() {
       try {
-        const parsed: any = this.yamlLoad(this.content) ?? {}
-        const tasks = Array.isArray(parsed.tasks) ? parsed.tasks : []
+        const parsed: any = YAML.parse(this.content) ?? {}
+        const normalized = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}
+        this.macroDocument = this.cloneTask(normalized)
+        const tasks = Array.isArray(normalized.tasks) ? normalized.tasks : []
         const result = this.parseTaskRange(tasks, 0, [])
 
         this.visualMacro = {
-          name: parsed.name ?? this.name,
+          name: normalized.name ?? this.name,
           items: result.items,
         }
 
@@ -507,21 +511,28 @@ export default {
 
     exportMacroData() {
       return {
-        name: this.name,
+        ...(this.macroDocument ?? {}),
+        name: this.visualMacro.name || this.name,
         tasks: this.flattenVisualTasks(this.visualMacro.items),
       }
     },
 
     importMacroYaml(payload: any) {
       try {
-        const imported = this.yamlLoad(String(payload?.content ?? '')) ?? {}
+        const imported = YAML.parse(String(payload?.content ?? '')) ?? {}
 
         if (!imported || typeof imported !== 'object' || Array.isArray(imported)) {
           throw new Error(this.$t('macro.errors.invalidYaml'))
         }
 
-        imported.name = this.name
-        this.content = this.yamlDump(imported)
+        const currentName = String(this.visualMacro.name || this.name || '').trim()
+        const normalizedImport = {
+          ...imported,
+          name: currentName || imported.name,
+        }
+
+        this.macroDocument = this.cloneTask(normalizedImport)
+        this.content = YAML.stringify(normalizedImport, { lineWidth: 0 })
         this.parseContentToVisual()
         this.rawMode = false
       } catch (error: any) {
@@ -530,12 +541,9 @@ export default {
     },
 
     syncVisualToContent() {
-      const macro = {
-        name: this.name,
-        tasks: this.flattenVisualTasks(this.visualMacro.items),
-      }
-
-      this.content = this.yamlDump(macro)
+      const macro = this.exportMacroData()
+      this.macroDocument = this.cloneTask(macro)
+      this.content = YAML.stringify(macro, { lineWidth: 0 })
     },
 
     flattenVisualTasks(items: VisualTask[]): any[] {

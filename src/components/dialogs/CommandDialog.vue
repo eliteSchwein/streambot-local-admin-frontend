@@ -702,25 +702,54 @@ export default {
 
     buildExportPayload() {
       const command = this.buildCommandPayload()
+      const path = this.isEditing && this.commandEntry?.file
+        ? this.commandEntry.file
+        : (command.name ? `command_${command.name}.yaml` : 'command.yaml')
+      const assetPayload = this.getAssetPayload()
+      const macroContent = this.getMacroContent()
 
       return {
+        streambot_export: {
+          version: 1,
+          kind: 'command',
+        },
+        config: {
+          name: command.name,
+          path,
+          content: command,
+        },
+        asset: {
+          name: this.generatedAssetName,
+          content: assetPayload,
+        },
+        macro: {
+          name: this.generatedMacroName,
+          content: macroContent,
+        },
+
+        // Legacy aliases for older admin imports.
         name: command.name,
-        path: this.isEditing && this.commandEntry?.file ? this.commandEntry.file : (command.name ? `command_${command.name}.yaml` : 'command.yaml'),
+        path,
         command,
-        assetPayload: this.getAssetPayload(),
-        macroContent: this.getMacroContent(),
+        assetPayload,
+        macroContent,
       }
     },
 
     importCommand(payload: any) {
       try {
         const data = payload?.data ?? payload ?? {}
-        const command = data.command && typeof data.command === 'object' ? data.command : data
-        const importedName = data.name ?? command.name ?? ''
-        const macroName = command.macro || `command_${this.normalizeName(importedName)}`
+        const command =
+          data?.config?.content && typeof data.config.content === 'object'
+            ? data.config.content
+            : (data.command && typeof data.command === 'object' ? data.command : data)
+        const currentName = String(this.form.name ?? '').trim()
+        const importedName = data?.config?.name ?? data.name ?? command.name ?? ''
+        const normalizedTargetName = this.normalizeName(currentName)
+        const macroName = normalizedTargetName ? `command_${normalizedTargetName}` : (data?.macro?.name || command.macro || '')
 
         this.setForm({
-          name: importedName,
+          name: currentName,
           aliases: command.aliases ?? command.alias,
           params: this.expandImportedParams(command.params),
           userCooldown: command.userCooldown,
@@ -733,17 +762,17 @@ export default {
         })
 
         this.setMacroContent(
-          String(data.macroContent ?? data.macro?.content ?? this.defaultMacroContent(macroName)),
+          String(data?.macro?.content ?? data.macroContent ?? this.defaultMacroContent(macroName)),
           macroName,
         )
 
         this.$nextTick(async () => {
-          const importedAssetPayload = data.assetPayload ?? data.asset?.content
+          const importedAssetPayload = data?.asset?.content ?? data.assetPayload
 
           if (importedAssetPayload && typeof importedAssetPayload === 'object') {
             ;(this.$refs.assetAccordion as any)?.setAsset?.(importedAssetPayload)
           } else {
-            await this.loadAsset(command.asset || this.generatedAssetName)
+            await this.loadAsset(this.generatedAssetName)
           }
         })
 
