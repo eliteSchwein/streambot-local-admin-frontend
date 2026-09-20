@@ -1832,7 +1832,13 @@
       "fontDeleted": "Schriftart gelöscht.",
       "downloadCustomCss": "custom.css herunterladen",
       "downloadFontCss": "fonts.css herunterladen",
-      "scssSupportNote": "Hier wird auch SCSS-Syntax unterstützt. Normales CSS funktioniert wie gewohnt."
+      "scssSupportNote": "Hier wird auch SCSS-Syntax unterstützt. Normales CSS funktioniert wie gewohnt.",
+      "createStyleTitle": "Style-Datei erstellen",
+      "createStyle": "Erstellen",
+      "createStyleHint": "Gib einen Dateinamen mit .css oder .scss am Ende ein.",
+      "createStyleNameRequired": "Ein Dateiname ist erforderlich.",
+      "createStyleInvalidExtension": "Der Dateiname muss mit .css oder .scss enden.",
+      "createStyleAlreadyExists": "Eine Style-Datei mit diesem Namen existiert bereits."
     }
   },
   "media": {

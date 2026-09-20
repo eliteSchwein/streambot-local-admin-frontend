@@ -32,6 +32,7 @@ declare module 'vue' {
     CommandMacroAccordion: typeof import('./components/accordions/CommandMacroAccordion.vue')['default']
     ConnectDialog: typeof import('./components/dialogs/ConnectDialog.vue')['default']
     CopyButton: typeof import('./components/CopyButton.vue')['default']
+    CreateCustomStyleDialog: typeof import('./components/dialogs/CreateCustomStyleDialog.vue')['default']
     CreateFileDialog: typeof import('./components/dialogs/CreateFileDialog.vue')['default']
     CurrentGame: typeof import('./components/CurrentGame.vue')['default']
     EventAssetAccordion: typeof import('./components/accordions/EventAssetAccordion.vue')['default']

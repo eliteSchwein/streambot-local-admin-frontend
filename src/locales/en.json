@@ -1832,7 +1832,13 @@
       "fontDeleted": "Font deleted.",
       "downloadCustomCss": "Download custom.css",
       "downloadFontCss": "Download fonts.css",
-      "scssSupportNote": "SCSS syntax is supported here. Plain CSS works as usual."
+      "scssSupportNote": "SCSS syntax is supported here. Plain CSS works as usual.",
+      "createStyleTitle": "Create style file",
+      "createStyle": "Create",
+      "createStyleHint": "Enter a file name ending in .css or .scss.",
+      "createStyleNameRequired": "A file name is required.",
+      "createStyleInvalidExtension": "The file name must end in .css or .scss.",
+      "createStyleAlreadyExists": "A style file with this name already exists."
     }
   },
   "media": {

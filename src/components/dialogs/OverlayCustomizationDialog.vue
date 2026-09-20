@@ -72,7 +72,7 @@
                     variant="text"
                     size="small"
                     :title="$t('overlay.customization.newStyleFile')"
-                    @click="createStyle"
+                    @click="createStyleDialog = true"
                   />
                 </div>
 
@@ -405,11 +405,17 @@
         </v-window>
       </v-card-text>
     </v-card>
+
+    <CreateCustomStyleDialog
+      v-model="createStyleDialog"
+      @create="createStyle"
+    />
   </v-dialog>
 </template>
 
 <script lang="ts">
 import {mapState} from 'pinia'
+import CreateCustomStyleDialog from '@/components/dialogs/CreateCustomStyleDialog.vue'
 import {getWebsocketClient} from '@/plugins/websocketInstance'
 import {useAppStore} from '@/stores/app'
 import {VueMonacoEditor} from '@guolao/vue-monaco-editor'
@@ -449,6 +455,7 @@ export default {
 
   components: {
     VueMonacoEditor,
+    CreateCustomStyleDialog,
   },
 
   props: {
@@ -473,6 +480,7 @@ export default {
       generatedFontCss: '',
       styleFiles: [] as CustomStyleEntry[],
       selectedStyle: null as CustomStyleEntry | null,
+      createStyleDialog: false,
     }
   },
 
@@ -645,13 +653,9 @@ export default {
       }
     },
 
-    async createStyle() {
-      const fileName = window.prompt(
-        this.$t('overlay.customization.newStyleFilePrompt') as string,
-        'custom.scss',
-      )
-
-      if (!fileName) return
+    async createStyle(fileName: string) {
+      const normalizedFileName = String(fileName ?? '').trim()
+      if (!normalizedFileName) return
 
       this.saving = true
       this.errorMessage = ''
@@ -659,12 +663,16 @@ export default {
 
       try {
         const data = await this.requestWebsocket('overlay_custom_style_save', {
-          path: fileName,
+          path: normalizedFileName,
           content: '',
         })
 
         this.styleFiles = Array.isArray(data?.files) ? data.files : this.styleFiles
-        const created = data?.file ?? this.styleFiles.find((style: CustomStyleEntry) => style.path === fileName)
+        const created = data?.file ?? this.styleFiles.find(
+          (style: CustomStyleEntry) => style.path === normalizedFileName,
+        )
+
+        this.createStyleDialog = false
 
         if (created) {
           await this.selectStyle(created)
