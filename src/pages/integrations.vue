@@ -88,6 +88,68 @@
           <v-card class="integration-card" color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
+                <v-icon icon="mdi-steam" />
+                <span>Steam</span>
+              </div>
+
+              <v-chip
+                size="x-small"
+                :color="steamHasApiKey ? 'success' : 'warning'"
+                variant="tonal"
+              >
+                {{ steamHasApiKey ? $t('integrations.ui.status.configured') : $t('integrations.ui.status.missing') }}
+              </v-chip>
+            </v-card-title>
+
+            <v-card-text class="pt-2">
+              <div class="text-body-2 text-medium-emphasis mb-4">
+                {{ $t('integrations.ui.steam.description') }}
+              </div>
+
+              <v-text-field
+                v-model="steamApiKey"
+                :label="$t('integrations.ui.steam.apiKey')"
+                :placeholder="steamHasApiKey ? $t('integrations.ui.steam.apiKeyConfigured') : ''"
+                type="password"
+                autocomplete="new-password"
+                variant="outlined"
+                density="compact"
+                hide-details
+                :disabled="reloadInProgress || loading.steam"
+                @keydown.enter="saveSteamApiKey"
+              />
+
+              <div class="d-flex ga-2 mt-4">
+                <v-btn
+                  color="primary"
+                  variant="flat"
+                  prepend-icon="mdi-content-save-outline"
+                  :loading="loading.steam"
+                  :disabled="reloadInProgress || loading.steam || !steamApiKey.trim()"
+                  @click="saveSteamApiKey"
+                >
+                  {{ $t('common.save') }}
+                </v-btn>
+
+                <v-btn
+                  v-if="steamHasApiKey"
+                  color="error"
+                  variant="text"
+                  prepend-icon="mdi-delete-outline"
+                  :disabled="reloadInProgress || loading.steam"
+                  @click="clearSteamApiKey"
+                >
+                  {{ $t('integrations.ui.steam.clear') }}
+                </v-btn>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" lg="6">
+          <v-card class="integration-card" color="grey-darken-4" elevation="0">
+            <v-card-title class="d-flex align-center justify-space-between">
+              <div class="d-flex align-center ga-2">
                 <v-icon icon="mdi-led-strip-variant" />
                 <span>WLED</span>
               </div>
@@ -911,6 +973,7 @@ export default {
       ollamaExternalProviderOverride: null as 'ollama' | 'openai' | null,
       ollamaExternalUrlOverride: null as string | null,
       ollamaExternalApiKey: '',
+      steamApiKey: '',
 
       loading: {
         wledAdd: false,
@@ -924,6 +987,7 @@ export default {
         ollamaExternal: false,
         neopixelSave: false,
         neopixelRemove: '',
+        steam: false,
       },
 
     }
@@ -1084,6 +1148,10 @@ export default {
       )
     },
 
+    steamHasApiKey(): boolean {
+      return Boolean(this.integrations?.steam?.has_api_key)
+    },
+
     twitchStatus(): { control: boolean; message: boolean } {
       return {
         control: Boolean(this.integrations?.twitch?.control),
@@ -1113,6 +1181,33 @@ export default {
       } catch (error) {
         this.showError(error instanceof Error ? error.message : String(error))
         return false
+      }
+    },
+
+    async saveSteamApiKey() {
+      const apiKey = this.steamApiKey.trim()
+      if (!apiKey) return
+
+      this.loading.steam = true
+      try {
+        const sent = await this.sendWebsocket('integrations_steam_api_key', {
+          api_key: apiKey,
+        })
+        if (sent) this.steamApiKey = ''
+      } finally {
+        this.loading.steam = false
+      }
+    },
+
+    async clearSteamApiKey() {
+      this.loading.steam = true
+      try {
+        const sent = await this.sendWebsocket('integrations_steam_api_key', {
+          api_key: '',
+        })
+        if (sent) this.steamApiKey = ''
+      } finally {
+        this.loading.steam = false
       }
     },
 

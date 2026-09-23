@@ -67,6 +67,11 @@ export const useAppStore = defineStore('app', {
     storage: {},
     integrations: {},
     settings: {},
+    categoryLibrary: {
+      enabled: false,
+      active_category_id: null,
+      categories: [],
+    },
     reloadUpdate: {
       finished: true,
     },
@@ -133,6 +138,7 @@ export const useAppStore = defineStore('app', {
     getStorage: (state) => state.storage,
     getIntegrations: (state) => state.integrations,
     getSettings: (state) => state.settings,
+    getCategoryLibrary: (state) => state.categoryLibrary,
     getReloadUpdate: (state) => state.reloadUpdate,
     getUpdateManager: (state) => state.updateManager,
     getRestoreNotification: (state) => state.restoreNotification,
@@ -474,9 +480,41 @@ export const useAppStore = defineStore('app', {
       this.settings = nextSettings
       this.$patch(state => state.settings = nextSettings)
 
+      const categoryLibraryEnabled = nextSettings?.category_library?.enabled
+      if (typeof categoryLibraryEnabled === 'boolean') {
+        this.categoryLibrary = {
+          ...this.categoryLibrary,
+          enabled: categoryLibraryEnabled,
+        }
+        this.$patch(state => state.categoryLibrary = this.categoryLibrary)
+      }
+
       if(typeof nextSettings.language === 'string') {
         setI18nLanguage(nextSettings.language)
       }
+    },
+
+    setCategoryLibrary(categoryLibrary: any) {
+      const snapshotEnabled = categoryLibrary?.enabled
+      const nestedEnabled = categoryLibrary?.settings?.enabled
+      const settingsEnabled = this.settings?.category_library?.enabled
+
+      const enabled =
+        typeof snapshotEnabled === 'boolean'
+          ? snapshotEnabled
+          : typeof nestedEnabled === 'boolean'
+            ? nestedEnabled
+            : typeof settingsEnabled === 'boolean'
+              ? settingsEnabled
+              : false
+
+      this.categoryLibrary = {
+        ...categoryLibrary,
+        enabled,
+        active_category_id: categoryLibrary?.active_category_id ?? null,
+        categories: Array.isArray(categoryLibrary?.categories) ? categoryLibrary.categories : [],
+      }
+      this.$patch(state => state.categoryLibrary = this.categoryLibrary)
     },
 
     setUpdateManager(updateManager: any) {

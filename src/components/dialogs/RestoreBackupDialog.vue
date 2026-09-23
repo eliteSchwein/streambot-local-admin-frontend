@@ -565,6 +565,7 @@ export default {
         channel_points: 'channelPoints', channelpoints: 'channelPoints', events: 'events', event: 'events',
         auto_macros: 'autoMacros', automacros: 'autoMacros', rotating_scenes: 'rotatingScenes', rotatingscenes: 'rotatingScenes', rotating_scene: 'rotatingScenes',
         integrations: 'integrations', settings: 'settings', streambot_settings: 'settings', variables: 'variables',
+        category_library: 'categoryLibrary', categorylibrary: 'categoryLibrary', categories: 'categoryLibrary',
         overlays: 'overlays', overlay: 'overlays', music: 'music',
         streambot_audio_presets: 'audioPresets', audio_presets: 'audioPresets',
         streambot_customization: 'customization', customization: 'customization',
@@ -584,6 +585,7 @@ export default {
       if (normalized.includes('channel')) return 'mdi-star-circle-outline'
       if (normalized.includes('event')) return 'mdi-lightning-bolt-outline'
       if (normalized.includes('rotating')) return 'mdi-rotate-3d-variant'
+      if (normalized.includes('category_library') || normalized === 'categorylibrary' || normalized === 'categories') return 'mdi-gamepad-variant-outline'
       if (normalized.includes('integration')) return 'mdi-connection'
       if (normalized.includes('setting')) return 'mdi-cog-outline'
       if (normalized.includes('variable')) return 'mdi-variable'

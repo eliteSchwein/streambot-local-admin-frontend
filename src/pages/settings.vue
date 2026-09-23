@@ -246,6 +246,113 @@
         </v-col>
 
         <v-col cols="12" md="6" lg="8">
+          <v-card color="grey-darken-4" elevation="0" class="mb-2">
+            <v-card-title class="d-flex align-center justify-space-between">
+              <div class="d-flex align-center ga-2">
+                <v-icon icon="mdi-gamepad-variant-outline" />
+                <span>{{ $t('settings.categoryLibrary.title') }}</span>
+              </div>
+
+              <v-switch
+                v-model="form.category_library.enabled"
+                color="primary"
+                density="compact"
+                hide-details
+                :disabled="settingsLocked"
+              />
+            </v-card-title>
+
+            <v-card-text class="pt-2">
+              <div class="text-body-2 text-medium-emphasis mb-3">
+                {{ $t('settings.categoryLibrary.description') }}
+              </div>
+
+              <v-row density="compact">
+                <v-col cols="12" md="6">
+                  <v-switch
+                    v-model="form.category_library.auto_create"
+                    :label="$t('settings.categoryLibrary.autoCreate')"
+                    color="primary"
+                    hide-details
+                    :disabled="settingsLocked || !form.category_library.enabled"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-switch
+                    v-model="form.category_library.fetch_cover"
+                    :label="$t('settings.categoryLibrary.fetchCover')"
+                    color="primary"
+                    hide-details
+                    :disabled="settingsLocked || !form.category_library.enabled"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-switch
+                    v-model="form.category_library.fetch_steam_wallpaper"
+                    :label="$t('settings.categoryLibrary.fetchSteamWallpaper')"
+                    color="primary"
+                    hide-details
+                    :disabled="settingsLocked || !form.category_library.enabled"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-switch
+                    v-model="form.category_library.auto_theme_color"
+                    :label="$t('settings.categoryLibrary.autoThemeColor')"
+                    color="primary"
+                    hide-details
+                    :disabled="settingsLocked || !form.category_library.enabled"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-switch
+                    v-model="form.category_library.apply_theme_color"
+                    :label="$t('settings.categoryLibrary.applyThemeColor')"
+                    color="primary"
+                    hide-details
+                    :disabled="settingsLocked || !form.category_library.enabled"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-switch
+                    v-model="form.category_library.apply_media"
+                    :label="$t('settings.categoryLibrary.applyMedia')"
+                    color="primary"
+                    hide-details
+                    :disabled="settingsLocked || !form.category_library.enabled"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-switch
+                    v-model="form.category_library.apply_custom_css"
+                    :label="$t('settings.categoryLibrary.applyCustomCss')"
+                    color="primary"
+                    hide-details
+                    :disabled="settingsLocked || !form.category_library.enabled"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-switch
+                    v-model="form.category_library.apply_obs_filters"
+                    :label="$t('settings.categoryLibrary.applyObsFilters')"
+                    color="primary"
+                    hide-details
+                    :disabled="settingsLocked || !form.category_library.enabled"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-switch
+                    v-model="form.category_library.apply_channel_points"
+                    :label="$t('settings.categoryLibrary.applyChannelPoints')"
+                    color="primary"
+                    hide-details
+                    :disabled="settingsLocked || !form.category_library.enabled"
+                  />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+
           <v-card color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center ga-2">
               <v-icon icon="mdi-tune" />
@@ -655,6 +762,18 @@ type SettingsForm = {
   theme: {
     default_color: string
   }
+  category_library: {
+    enabled: boolean
+    auto_create: boolean
+    fetch_cover: boolean
+    fetch_steam_wallpaper: boolean
+    auto_theme_color: boolean
+    apply_theme_color: boolean
+    apply_media: boolean
+    apply_custom_css: boolean
+    apply_obs_filters: boolean
+    apply_channel_points: boolean
+  }
   giveaway: {
     giveawayCommand: string
     progress_interval_seconds: number
@@ -691,6 +810,18 @@ const defaultForm = (): SettingsForm => ({
   },
   theme: {
     default_color: 'ff9800',
+  },
+  category_library: {
+    enabled: false,
+    auto_create: true,
+    fetch_cover: true,
+    fetch_steam_wallpaper: true,
+    auto_theme_color: true,
+    apply_theme_color: true,
+    apply_media: true,
+    apply_custom_css: true,
+    apply_obs_filters: true,
+    apply_channel_points: true,
   },
   giveaway: {
     giveawayCommand: 'ticket',
@@ -992,6 +1123,7 @@ export default {
       const assetTune = settings.asset_tune || {}
       const tts = settings.tts || {}
       const theme = settings.theme || {}
+      const categoryLibrary = settings.category_library || {}
       const giveaway = settings.giveaway || {}
       const { command: legacyGiveawayCommand, ...giveawaySettings } = giveaway
       const cava = settings.cava || {}
@@ -1028,6 +1160,20 @@ export default {
           ...defaults.theme,
           ...theme,
           default_color: this.normalizeHexColor(theme.default_color || defaults.theme.default_color),
+        },
+        category_library: {
+          ...defaults.category_library,
+          ...categoryLibrary,
+          enabled: categoryLibrary.enabled === true,
+          auto_create: categoryLibrary.auto_create !== false,
+          fetch_cover: categoryLibrary.fetch_cover !== false,
+          fetch_steam_wallpaper: categoryLibrary.fetch_steam_wallpaper !== false,
+          auto_theme_color: categoryLibrary.auto_theme_color !== false,
+          apply_theme_color: categoryLibrary.apply_theme_color !== false,
+          apply_media: categoryLibrary.apply_media !== false,
+          apply_custom_css: categoryLibrary.apply_custom_css !== false,
+          apply_obs_filters: categoryLibrary.apply_obs_filters !== false,
+          apply_channel_points: categoryLibrary.apply_channel_points !== false,
         },
         giveaway: {
           ...defaults.giveaway,
@@ -1336,6 +1482,18 @@ export default {
         },
         theme: {
           default_color: this.normalizeHexColor(this.form.theme.default_color || defaults.theme.default_color),
+        },
+        category_library: {
+          enabled: Boolean(this.form.category_library.enabled),
+          auto_create: Boolean(this.form.category_library.auto_create),
+          fetch_cover: Boolean(this.form.category_library.fetch_cover),
+          fetch_steam_wallpaper: Boolean(this.form.category_library.fetch_steam_wallpaper),
+          auto_theme_color: Boolean(this.form.category_library.auto_theme_color),
+          apply_theme_color: Boolean(this.form.category_library.apply_theme_color),
+          apply_media: Boolean(this.form.category_library.apply_media),
+          apply_custom_css: Boolean(this.form.category_library.apply_custom_css),
+          apply_obs_filters: Boolean(this.form.category_library.apply_obs_filters),
+          apply_channel_points: Boolean(this.form.category_library.apply_channel_points),
         },
         giveaway: {
           giveawayCommand: this.normalizeGiveawayCommand(this.form.giveaway.giveawayCommand) || defaults.giveaway.giveawayCommand,

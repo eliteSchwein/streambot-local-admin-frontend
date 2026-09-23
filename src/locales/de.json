@@ -35,7 +35,6 @@
       "config": "Config LEGACY",
       "connections": "Verbindungen",
       "recovery": "Wiederherstellung",
-      "gameScene": "Spielszene",
       "variables": "Variablen",
       "obs": "OBS",
       "media": "Medien",
@@ -46,7 +45,8 @@
       "automacros": "Auto-Makros",
       "rotatingscene": "Szenenwechsel",
       "settings": "Einstellungen",
-      "system": "System"
+      "system": "System",
+      "categories": "Kategorien"
     },
     "routes": {
       "dashboard": "Dashboard",
@@ -58,7 +58,6 @@
       "yolobox": "YoloBox",
       "connections": "Verbindungen",
       "recovery": "Wiederherstellung",
-      "gameScene": "Spielszene",
       "media": "Medien",
       "system": "System"
     }
@@ -1464,7 +1463,6 @@
       "id": "ID",
       "activeScene": "Aktive Szene",
       "empty": "Keine Szenen erkannt",
-      "addSource": "Quelle zur Website hinzufügen",
       "mainCanvas": "Haupt-Canvas",
       "switchTo": "Wechseln zu",
       "filters": "Filter",
@@ -1472,7 +1470,11 @@
       "disable": "Deaktivieren",
       "enabled": "Aktiviert",
       "disabled": "Deaktiviert",
-      "canvas": "Canvas"
+      "canvas": "Canvas",
+      "addToCategory": "Zur Kategorie hinzufügen",
+      "addToCategoryHint": "Wähle die Kategorie, der die OBS-Quelle „{source}“ mit ihren aktuell bekannten Filtern/Transformationen hinzugefügt werden soll.",
+      "category": "Kategorie",
+      "searchCategory": "Kategorie suchen…"
     },
     "audioMixer": {
       "title": "OBS-Audiomixer",
@@ -1573,10 +1575,6 @@
     },
     "interface": "Audio-Schnittstelle",
     "physicalOutputs": "Physische Ausgänge"
-  },
-  "gameScene": {
-    "saveScene": "Szene speichern",
-    "reloadScene": "Szene neu laden"
   },
   "currentGame": {
     "title": "Aktuell aktives Spiel",
@@ -1690,7 +1688,8 @@
           "music": "Musik",
           "audioPresets": "Audio-Vorlagen",
           "customization": "Anpassungen",
-          "audio": "Audio"
+          "audio": "Audio",
+          "categoryLibrary": "Kategorienbibliothek"
         },
         "searchItems": "Dateien durchsuchen…",
         "noSearchResults": "Keine passenden Dateien",
@@ -1711,7 +1710,8 @@
           "music": "Musik-Konfiguration und Daten.",
           "audioPresets": "Gespeicherte Audio-Vorlagen.",
           "customization": "Dateien zur Anpassung von Streambot.",
-          "audio": "Audio-Konfiguration."
+          "audio": "Audio-Konfiguration.",
+          "categoryLibrary": "Gespeicherte Twitch-Kategorien, Medienzuweisungen, Theme-Farben, CSS und Daten der Kategorienbibliothek."
         }
       }
     }
@@ -2144,7 +2144,8 @@
         "disabled": "Deaktiviert",
         "connected": "Verbunden",
         "offline": "Offline",
-        "none": "keiner"
+        "none": "keiner",
+        "configured": "Konfiguriert"
       },
       "fields": {
         "name": "Name",
@@ -2230,6 +2231,12 @@
           "ollama": "Externes Ollama",
           "openai": "OpenAI-kompatible API"
         }
+      },
+      "steam": {
+        "description": "Steam wird von der Kategorienbibliothek verwendet, um das passende Spiel zu finden und ein Wallpaper herunterzuladen.",
+        "apiKey": "Steam Web-API-Key",
+        "apiKeyConfigured": "API-Key ist konfiguriert",
+        "clear": "API-Key entfernen"
       }
     }
   },
@@ -2291,7 +2298,20 @@
     "giveawayRequireSubscriber": "Abonnent erforderlich",
     "giveawayRequireVip": "VIP erforderlich",
     "giveawayRequireModerator": "Moderator erforderlich",
-    "giveawayCommandCheckFailed": "Der Gewinnspiel-Befehl konnte nicht geprüft werden."
+    "giveawayCommandCheckFailed": "Der Gewinnspiel-Befehl konnte nicht geprüft werden.",
+    "categoryLibrary": {
+      "title": "Kategorienbibliothek",
+      "description": "Verwalte automatisch Metadaten, Medien, Theme-Farben und CSS pro Twitch-Kategorie.",
+      "autoCreate": "Kategorien automatisch erstellen",
+      "fetchCover": "Twitch-/IGDB-Cover abrufen",
+      "fetchSteamWallpaper": "Steam-Wallpaper abrufen",
+      "autoThemeColor": "Theme-Farbe automatisch ermitteln",
+      "applyThemeColor": "Kategorie-Theme-Farbe anwenden",
+      "applyMedia": "Kategorie-Medien anwenden",
+      "applyCustomCss": "Kategorie-CSS anwenden",
+      "applyObsFilters": "Kategorie-OBS-Filter anwenden",
+      "applyChannelPoints": "Kategorie-Kanalpunkte anwenden"
+    }
   },
   "components": {
     "storageCard": {},
@@ -2488,5 +2508,117 @@
       "api": "API",
       "other": "Sonstige"
     }
+  },
+  "categoryLibrary": {
+    "title": "Kategorienbibliothek",
+    "search": "Kategorien suchen",
+    "empty": "Noch keine Kategorien gespeichert. Sie werden beim Wechsel der Twitch-Kategorie automatisch erstellt.",
+    "disabledHint": "Die Kategorienbibliothek ist derzeit deaktiviert. Aktiviere sie in den Einstellungen, damit Twitch-Kategoriewechsel verarbeitet werden.",
+    "active": "Aktiv",
+    "activate": "Aktivieren",
+    "refresh": "Metadaten aktualisieren",
+    "steamWallpaper": "Steam-Wallpaper",
+    "media": "Medien",
+    "fallback": "Medien-Fallback",
+    "deleteTitle": "Kategorie löschen?",
+    "deleteText": "Möchtest du „{name}“ wirklich aus der Kategorienbibliothek löschen?",
+    "orientation": {
+      "any": "Beliebig",
+      "horizontal": "Horizontal",
+      "vertical": "Vertikal"
+    },
+    "editor": {
+      "title": "Kategorie bearbeiten",
+      "general": "Allgemein",
+      "name": "Kategoriename",
+      "twitchId": "Twitch-Kategorie-ID",
+      "steamAppId": "Steam-App-ID",
+      "steamAppIdHint": "Optional. Leer lassen, damit das Backend automatisch nach dem Spielnamen sucht.",
+      "themeColor": "Theme-Farbe",
+      "mediaFallback": "Als Medien-Fallback verwenden",
+      "mediaFallbackHint": "Hat die aktive Kategorie keine eigenen Medien, werden die benutzerdefinierten Medien dieser Kategorie verwendet. Es kann nur einen Fallback geben.",
+      "customMedia": "Benutzerdefinierte Medien",
+      "mediaPath": "Mediendatei",
+      "orientation": "Ausrichtung",
+      "target": "Ziel",
+      "targetPlaceholder": "background",
+      "autoplay": "Autoplay",
+      "loop": "Wiederholen",
+      "muted": "Stumm",
+      "noCustomMedia": "Keine benutzerdefinierten Medien konfiguriert. Das Steam-Wallpaper kann trotzdem automatisch verwendet werden.",
+      "addMedia": "Medium hinzufügen",
+      "customCss": "Benutzerdefiniertes CSS",
+      "customCssHint": "CSS, das an Overlays gesendet wird, sobald diese Kategorie aktiv wird.",
+      "generatedMedia": "Generierte Medien",
+      "cover": "Twitch-/IGDB-Cover",
+      "steamWallpaper": "Steam-Wallpaper",
+      "notFetched": "Noch nicht verfügbar",
+      "info": "Informationen",
+      "created": "Erstellt",
+      "updated": "Aktualisiert",
+      "mediaSlotsHint": "Wähle für jede globale Definition eine Mediendatei. Die Kategorie speichert nur den Definitionsnamen und den kategoriespezifischen Dateipfad.",
+      "clearMedia": "Medium aus dieser Definition entfernen",
+      "noMediaSlots": "Es gibt noch keine Medien-Definitionen. Erstelle sie in der Kategorienübersicht.",
+      "uploadMedia": "Medium hochladen",
+      "compress": "Komprimieren",
+      "noMediaSelected": "Kein Medium ausgewählt",
+      "wallpaper": "Wallpaper",
+      "wallpaperPath": "Benutzerdefiniertes Wallpaper",
+      "wallpaperHint": "Wähle ein Bild oder Video aus dem Medienspeicher oder lade es direkt hoch. Leeren, um wieder das automatisch geladene Steam-Wallpaper zu verwenden.",
+      "uploadWallpaper": "Wallpaper hochladen",
+      "useAutomaticWallpaper": "Automatisches Wallpaper verwenden",
+      "automaticWallpaper": "Kein benutzerdefiniertes Wallpaper ausgewählt. Falls vorhanden, wird das automatisch geladene Steam-Wallpaper verwendet.",
+      "obsFilters": "OBS-Filter",
+      "obsFiltersHint": "Beim Speichern werden nur Quellen, Filter und Source|Transform-Einträge übernommen, die in der Fallback-Kategorie definiert sind. Andere aktuell in OBS vorhandene Filter werden nicht hinzugefügt.",
+      "useCurrentObsFilters": "Aktuelle OBS-Filter übernehmen",
+      "clearObsFilters": "Filter leeren",
+      "obsFiltersJson": "OBS-Filter-Konfiguration",
+      "obsFiltersJsonHint": "Erweitert: Source-/Filter-Zuordnung als JSON bearbeiten. „Aktuelle OBS-Filter übernehmen“ kopiert den aktuell geladenen Source-Filter-Stand.",
+      "obsFiltersObjectRequired": "OBS-Filter müssen ein JSON-Objekt sein.",
+      "obsFiltersInvalid": "Das OBS-Filter-JSON ist ungültig.",
+      "availableObsSources": "Verfügbare OBS-Quellen",
+      "noObsFilters": "Für diese Kategorie ist noch kein OBS-Filter-Stand gespeichert.",
+      "noSourceFilters": "Für diese Quelle sind keine Filter gespeichert.",
+      "advancedObsFilters": "Erweitertes JSON",
+      "emptyFilterConfig": "Keine Einstellungen",
+      "saveCurrentObsState": "Aktuelle OBS-Filter & Transformationen speichern",
+      "noFallbackSourcesFound": "Keine der Source-UUIDs aus dem Fallback ist aktuell in OBS vorhanden.",
+      "noMatchingFallbackFilters": "Keine OBS-Quelle bzw. kein Filter aus der Fallback-Kategorie passt aktuell zum Live-OBS-Stand.",
+      "channelPoints": "Kanalpunkte",
+      "channelPointsHint": "Lege fest, welche lokal konfigurierten Twitch-Kanalpunkte für diese Kategorie aktiviert oder blockiert werden. Standardmäßig aktivierte Kanalpunkte bleiben aktiv, solange sie nicht ausdrücklich blockiert werden.",
+      "enabledChannelPoints": "Für diese Kategorie aktivieren",
+      "enabledChannelPointsHint": "Zusätzliche Belohnungen, die bei dieser Kategorie aktiviert werden.",
+      "blockedChannelPoints": "Für diese Kategorie blockieren",
+      "blockedChannelPointsHint": "Deaktiviert diese Belohnungen immer, auch wenn sie standardmäßig aktiviert sind.",
+      "defaultEnabled": "Standard",
+      "channelPointConflict": "Blockiert hat immer Vorrang. Diese Belohnungen stehen in beiden Listen: {names}",
+      "tabs": {
+        "general": "Übersicht",
+        "media": "Medien",
+        "channelPoints": "Kanalpunkte",
+        "obs": "OBS & CSS"
+      }
+    },
+    "columns": {
+      "category": "Kategorie",
+      "media": "Medien",
+      "features": "Merkmale",
+      "updated": "Aktualisiert"
+    },
+    "mediaSlots": {
+      "button": "Medien-Definitionen",
+      "title": "Kategorie-Medien-Definitionen",
+      "description": "Definiere hier wiederverwendbare Medien-Slots. Ein Slot beschreibt, wie das Medium angezeigt wird; der eigentliche Dateipfad wird pro Kategorie separat gewählt.",
+      "name": "Name",
+      "namePlaceholder": "horizontal",
+      "target": "Ziel",
+      "targetPlaceholder": "horizontal",
+      "orientation": "Ausrichtung",
+      "empty": "Keine Medien-Definitionen konfiguriert.",
+      "add": "Definition hinzufügen",
+      "nameRequired": "Jede Medien-Definition benötigt einen Namen.",
+      "nameDuplicate": "Die Namen der Medien-Definitionen müssen eindeutig sein."
+    },
+    "wallpaper": "Wallpaper"
   }
 }

@@ -59,6 +59,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/categories': RouteRecordInfo<
+      '/categories',
+      '/categories',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/channelPoints': RouteRecordInfo<
       '/channelPoints',
       '/channelPoints',
@@ -90,13 +97,6 @@ declare module 'vue-router/auto-routes' {
     '/games': RouteRecordInfo<
       '/games',
       '/games',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/gameScene': RouteRecordInfo<
-      '/gameScene',
-      '/gameScene',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -230,6 +230,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/categories.vue': {
+      routes:
+        | '/categories'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/channelPoints.vue': {
       routes:
         | '/channelPoints'
@@ -265,14 +273,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/games.vue': {
       routes:
         | '/games'
-      views:
-        | never
-      pathParamNames:
-        | never
-    }
-    'src/pages/gameScene.vue': {
-      routes:
-        | '/gameScene'
       views:
         | never
       pathParamNames:

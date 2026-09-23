@@ -35,7 +35,6 @@
       "config": "Config LEGACY",
       "connections": "Connections",
       "recovery": "Recovery",
-      "gameScene": "Game scene",
       "variables": "Variables",
       "obs": "OBS",
       "media": "Media",
@@ -46,7 +45,8 @@
       "automacros": "Auto Macros",
       "rotatingscene": "Scene Rotation",
       "settings": "Settings",
-      "system": "System"
+      "system": "System",
+      "categories": "Categories"
     },
     "routes": {
       "dashboard": "Dashboard",
@@ -58,7 +58,6 @@
       "yolobox": "YoloBox",
       "connections": "Connections",
       "recovery": "Recovery",
-      "gameScene": "Game scene",
       "media": "Media",
       "system": "System"
     }
@@ -1464,7 +1463,6 @@
       "id": "ID",
       "activeScene": "Active Scene",
       "empty": "No Scenes detected",
-      "addSource": "Add Source to Website",
       "mainCanvas": "Main Canvas",
       "switchTo": "Switch to",
       "filters": "Filters",
@@ -1472,7 +1470,11 @@
       "disable": "Disable",
       "enabled": "Enabled",
       "disabled": "Disabled",
-      "canvas": "Canvas"
+      "canvas": "Canvas",
+      "addToCategory": "Add to category",
+      "addToCategoryHint": "Choose the category that should receive the OBS source “{source}” and its currently known filters/transforms.",
+      "category": "Category",
+      "searchCategory": "Search category…"
     },
     "audioMixer": {
       "title": "OBS Audio Mixer",
@@ -1573,10 +1575,6 @@
     },
     "interface": "Audio interface",
     "physicalOutputs": "Physical outputs"
-  },
-  "gameScene": {
-    "saveScene": "Save Scene",
-    "reloadScene": "Reload Scene"
   },
   "currentGame": {
     "title": "Currently Active Game",
@@ -1690,7 +1688,8 @@
           "music": "Music",
           "audioPresets": "Audio Presets",
           "customization": "Customization",
-          "audio": "Audio"
+          "audio": "Audio",
+          "categoryLibrary": "Category Library"
         },
         "searchItems": "Search files…",
         "noSearchResults": "No matching files",
@@ -1711,7 +1710,8 @@
           "music": "Music configuration and data.",
           "audioPresets": "Saved audio presets.",
           "customization": "Streambot customization files.",
-          "audio": "Audio configuration."
+          "audio": "Audio configuration.",
+          "categoryLibrary": "Stored Twitch category metadata, media assignments, theme colors, CSS and category-library data."
         }
       }
     }
@@ -2144,7 +2144,8 @@
         "disabled": "Disabled",
         "connected": "Connected",
         "offline": "Offline",
-        "none": "none"
+        "none": "none",
+        "configured": "Configured"
       },
       "fields": {
         "name": "Name",
@@ -2230,6 +2231,12 @@
           "ollama": "External Ollama",
           "openai": "OpenAI-compatible API"
         }
+      },
+      "steam": {
+        "description": "Steam is used by the category library to find a matching game and download a wallpaper.",
+        "apiKey": "Steam Web API key",
+        "apiKeyConfigured": "API key is configured",
+        "clear": "Remove API key"
       }
     }
   },
@@ -2291,7 +2298,20 @@
     "giveawayRequireSubscriber": "Subscriber required",
     "giveawayRequireVip": "VIP required",
     "giveawayRequireModerator": "Moderator required",
-    "giveawayCommandCheckFailed": "Could not validate the giveaway command."
+    "giveawayCommandCheckFailed": "Could not validate the giveaway command.",
+    "categoryLibrary": {
+      "title": "Category library",
+      "description": "Automatically keep metadata, media, theme colors and CSS per Twitch category.",
+      "autoCreate": "Automatically create categories",
+      "fetchCover": "Fetch Twitch / IGDB cover",
+      "fetchSteamWallpaper": "Fetch Steam wallpaper",
+      "autoThemeColor": "Extract theme color automatically",
+      "applyThemeColor": "Apply category theme color",
+      "applyMedia": "Apply category media",
+      "applyCustomCss": "Apply category CSS",
+      "applyObsFilters": "Apply category OBS filters",
+      "applyChannelPoints": "Apply category channel points"
+    }
   },
   "components": {
     "storageCard": {},
@@ -2488,5 +2508,117 @@
       "api": "API",
       "other": "Other"
     }
+  },
+  "categoryLibrary": {
+    "title": "Category Library",
+    "search": "Search categories",
+    "empty": "No categories are stored yet. They will be created when the Twitch category changes.",
+    "disabledHint": "The category library is currently disabled. Enable it in Settings to react to Twitch category changes.",
+    "active": "Active",
+    "activate": "Activate",
+    "refresh": "Refresh metadata",
+    "steamWallpaper": "Steam wallpaper",
+    "media": "media",
+    "fallback": "Media fallback",
+    "deleteTitle": "Delete category?",
+    "deleteText": "Do you really want to delete “{name}” from the category library?",
+    "orientation": {
+      "any": "Any",
+      "horizontal": "Horizontal",
+      "vertical": "Vertical"
+    },
+    "editor": {
+      "title": "Edit category",
+      "general": "General",
+      "name": "Category name",
+      "twitchId": "Twitch category ID",
+      "steamAppId": "Steam App ID",
+      "steamAppIdHint": "Optional. Leave empty to let the backend match the game name automatically.",
+      "themeColor": "Theme color",
+      "mediaFallback": "Use as media fallback",
+      "mediaFallbackHint": "If the active category has no custom media, this category's custom media is used instead. Only one category can be the fallback.",
+      "customMedia": "Custom media",
+      "mediaPath": "Media file",
+      "orientation": "Orientation",
+      "target": "Target",
+      "targetPlaceholder": "background",
+      "autoplay": "Autoplay",
+      "loop": "Loop",
+      "muted": "Muted",
+      "noCustomMedia": "No custom media configured. The Steam wallpaper can still be used automatically.",
+      "addMedia": "Add media",
+      "customCss": "Custom CSS",
+      "customCssHint": "CSS sent to overlays whenever this category becomes active.",
+      "generatedMedia": "Generated media",
+      "cover": "Twitch / IGDB cover",
+      "steamWallpaper": "Steam wallpaper",
+      "notFetched": "Not available yet",
+      "info": "Information",
+      "created": "Created",
+      "updated": "Updated",
+      "mediaSlotsHint": "Choose a media file for each global definition. Categories only store the definition name and the category-specific file path.",
+      "clearMedia": "Remove media from this definition",
+      "noMediaSlots": "No media definitions exist yet. Create them from the Category Library overview.",
+      "uploadMedia": "Upload media",
+      "compress": "Compress",
+      "noMediaSelected": "No media selected",
+      "wallpaper": "Wallpaper",
+      "wallpaperPath": "Custom wallpaper",
+      "wallpaperHint": "Choose an image or video from media storage, or upload one directly. Clear it to use the automatically fetched Steam wallpaper.",
+      "uploadWallpaper": "Upload wallpaper",
+      "useAutomaticWallpaper": "Use automatic wallpaper",
+      "automaticWallpaper": "No custom wallpaper selected. The automatically fetched Steam wallpaper is used when available.",
+      "obsFilters": "OBS filters",
+      "obsFiltersHint": "Saving only captures sources, filters and Source|Transform entries that exist in the fallback category. Nothing else from the current OBS state is added.",
+      "useCurrentObsFilters": "Use current OBS filters",
+      "clearObsFilters": "Clear filters",
+      "obsFiltersJson": "OBS filter configuration",
+      "obsFiltersJsonHint": "Advanced: edit the source/filter map as JSON. “Use current OBS filters” copies the currently loaded source-filter state.",
+      "obsFiltersObjectRequired": "OBS filters must be a JSON object.",
+      "obsFiltersInvalid": "The OBS filter JSON is invalid.",
+      "availableObsSources": "Available OBS sources",
+      "noObsFilters": "No OBS filter state is stored for this category.",
+      "noSourceFilters": "No filters are stored for this source.",
+      "advancedObsFilters": "Advanced JSON",
+      "emptyFilterConfig": "No settings",
+      "saveCurrentObsState": "Save current OBS filters & transforms",
+      "noFallbackSourcesFound": "None of the fallback source UUIDs are currently present in OBS.",
+      "noMatchingFallbackFilters": "None of the fallback category's OBS sources/filters currently match the live OBS state.",
+      "channelPoints": "Channel points",
+      "channelPointsHint": "Choose which locally configured Twitch channel points are enabled or blocked for this category. Channel points with “enable by default” stay enabled unless they are explicitly blocked.",
+      "enabledChannelPoints": "Enable for this category",
+      "enabledChannelPointsHint": "Additional rewards enabled when this category is active.",
+      "blockedChannelPoints": "Block for this category",
+      "blockedChannelPointsHint": "Always disables these rewards for this category, including rewards enabled by default.",
+      "defaultEnabled": "Default",
+      "channelPointConflict": "Blocked always wins. These rewards are in both lists: {names}",
+      "tabs": {
+        "general": "Overview",
+        "media": "Media",
+        "channelPoints": "Channel Points",
+        "obs": "OBS & CSS"
+      }
+    },
+    "columns": {
+      "category": "Category",
+      "media": "Media",
+      "features": "Features",
+      "updated": "Updated"
+    },
+    "mediaSlots": {
+      "button": "Media definitions",
+      "title": "Category media definitions",
+      "description": "Define reusable media slots here. A slot describes how media is displayed; the actual file path is selected separately for each category.",
+      "name": "Name",
+      "namePlaceholder": "horizontal",
+      "target": "Target",
+      "targetPlaceholder": "horizontal",
+      "orientation": "Orientation",
+      "empty": "No media definitions configured.",
+      "add": "Add definition",
+      "nameRequired": "Every media definition needs a name.",
+      "nameDuplicate": "Media definition names must be unique."
+    },
+    "wallpaper": "Wallpaper"
   }
 }

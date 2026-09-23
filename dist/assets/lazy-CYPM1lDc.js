@@ -1,0 +1,1 @@
+import{_ as e,er as t,nr as n,zn as r}from"./dimensions-D8YTwhOL.js";var i=e({eager:Boolean},`lazy`);function a(e,i){let a=t(!1),o=n(()=>a.value||e.eager||i.value);r(i,()=>a.value=!0);function s(){e.eager||(a.value=!1)}return{isBooted:a,hasContent:o,onAfterLeave:s}}export{a as n,i as t};

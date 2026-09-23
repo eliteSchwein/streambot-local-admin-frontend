@@ -149,4 +149,45 @@ onBeforeUnmount(() => {
 html {
   overflow: hidden;
 }
+
+/* Keep all Vuetify dialog toolbars visually identical. */
+.v-dialog .v-toolbar {
+  height: 56px !important;
+  min-height: 56px !important;
+  max-height: 56px !important;
+}
+
+.v-dialog .v-toolbar__content {
+  height: 56px !important;
+  min-height: 56px !important;
+  max-height: 56px !important;
+  align-items: center !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.v-dialog .v-toolbar-title {
+  height: 56px !important;
+  min-height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0;
+}
+
+.v-dialog .v-toolbar-title__placeholder {
+  width: 100%;
+  height: 56px !important;
+  min-height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0;
+  line-height: 1.2 !important;
+}
+
+/* Font metrics make toolbar text look slightly high even when its box is centered. */
+.v-dialog .v-toolbar-title__placeholder > span {
+  display: inline-flex;
+  align-items: center;
+  transform: translateY(1px);
+}
 </style>

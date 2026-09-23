@@ -45,6 +45,8 @@ import NotifyInteractionQueueMessage from "@/plugins/websocketEvents/websocketMe
 import NotifyInteractionMessage from "@/plugins/websocketEvents/websocketMessage/NotifyInteractionMessage.ts";
 import NotifyRestoreMessage from "@/plugins/websocketEvents/websocketMessage/NotifyRestoreMessage.ts";
 import NotifyRestoreReadyMessage from "@/plugins/websocketEvents/websocketMessage/NotifyRestoreReadyMessage.ts";
+import NotifyCategoryLibraryUpdateMessage
+  from "@/plugins/websocketEvents/websocketMessage/NotifyCategoryLibraryUpdateMessage.ts";
 
 export default class MessageEvent extends BaseEvent {
   name = 'message'
@@ -100,5 +102,6 @@ export default class MessageEvent extends BaseEvent {
     await new NotifyInteractionMessage(this.webSocketClient).handleMessage(data)
     await new NotifyRestoreMessage(this.webSocketClient).handleMessage(data)
     await new NotifyRestoreReadyMessage(this.webSocketClient).handleMessage(data)
+    await new NotifyCategoryLibraryUpdateMessage(this.webSocketClient).handleMessage(data)
   }
 }

@@ -69,10 +69,10 @@ export default {
         yolobox: 'yolobox',
         connections: 'connections',
         recovery: 'recovery',
-        gameScene: 'gameScene',
         obs: 'obs',
         system: 'system',
-        settings: 'settings'
+        settings: 'settings',
+        categories: 'categories'
       };
 
       const titleKey = titleMap[firstPathPart] || firstPathPart;
@@ -322,6 +322,11 @@ export default {
       <v-divider></v-divider>
       <v-list-subheader>{{ $t('navigation.sections.streamingServices') }}</v-list-subheader>
       <v-list-item
+        prepend-icon="mdi-gamepad-variant-outline"
+        :title="$t('navigation.tabs.categories')"
+        color=""
+        to="/categories"></v-list-item>
+      <v-list-item
         v-if="hasObsEnabled"
         prepend-icon="mdi-video-box"
         :title="$t('navigation.tabs.obs')"
@@ -372,13 +377,6 @@ export default {
         color=""
         to="/recovery"></v-list-item>
       -->
-      <v-divider></v-divider>
-      <v-list-subheader>{{ $t('navigation.sections.schw31nZone') }}</v-list-subheader>
-      <v-list-item
-        prepend-icon="mdi-controller"
-        :title="$t('navigation.tabs.gameScene')"
-        color=""
-        to="/gameScene"></v-list-item>
     </v-list>
   </v-navigation-drawer>
 
