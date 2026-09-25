@@ -1571,10 +1571,37 @@
       "interfaces": "Audio-Schnittstellen",
       "physicalOutputs": "Physische Ausgänge",
       "selectPhysicalOutputs": "Physische Ausgänge auswählen",
-      "previewOnlyHint": "Lautstärke und Stummschaltung hier ändern nur den gespeicherten Vorlage-Wert. Die laufende Audioausgabe wird nicht verändert."
+      "previewOnlyHint": "Lautstärke und Stummschaltung hier ändern nur den gespeicherten Vorlage-Wert. Die laufende Audioausgabe wird nicht verändert.",
+      "virtualCables": "{count} virtuelle Kabel"
     },
     "interface": "Audio-Schnittstelle",
-    "physicalOutputs": "Physische Ausgänge"
+    "physicalOutputs": "Physische Ausgänge",
+    "overlayCableName": "Streambot Overlay Cable",
+    "virtualCable": "Virtuelles Kabel",
+    "overlayStream": "Overlay-Audiostream",
+    "virtualCableStream": "Overlay-Audiostream",
+    "virtualCables": {
+      "title": "Virtuelle Audiokabel",
+      "description": "Erstelle virtuelle Overlay-Audioausgänge und lege genau fest, welche Streambot-Audiokanäle in jedes Kabel geroutet werden.",
+      "add": "Kabel hinzufügen",
+      "empty": "Es sind keine virtuellen Audiokabel konfiguriert.",
+      "unnamed": "Unbenanntes Kabel",
+      "id": "Kabel-ID",
+      "idHint": "Stabile interne ID. Das Backend erzeugt daraus den PipeWire-Ausgang.",
+      "idRequired": "Eine Kabel-ID ist erforderlich.",
+      "idDuplicate": "Kabel-IDs müssen eindeutig sein.",
+      "name": "Anzeigename",
+      "channels": "Zugewiesene Audiokanäle",
+      "channelsHint": "Nur diese Streambot-Audiointerfaces werden in dieses Kabel geroutet.",
+      "channelsShort": "Kanäle",
+      "outputName": "PipeWire-Ausgang",
+      "managedByCableSettings": "Das Routing virtueller Audiokabel wird direkt in der Audiomatrix konfiguriert.",
+      "virtualOutput": "Virtuelles Kabel",
+      "websocketUnavailable": "WebSocket ist nicht verbunden.",
+      "saveFailed": "Virtuelle Audiokabel konnten nicht gespeichert werden.",
+      "dialogDescription": "Erstelle, benenne, aktiviere oder entferne virtuelle Audiokabel. Die Audiokanäle werden direkt in der normalen Audiomatrix darauf geroutet.",
+      "manage": "Virtuelle Kabel"
+    }
   },
   "currentGame": {
     "title": "Aktuell aktives Spiel",

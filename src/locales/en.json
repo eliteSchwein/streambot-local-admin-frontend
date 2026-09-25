@@ -1571,10 +1571,37 @@
       "interfaces": "Audio interfaces",
       "physicalOutputs": "Physical outputs",
       "selectPhysicalOutputs": "Select physical outputs",
-      "previewOnlyHint": "Volume and mute changes here only change the value saved in the preset. Live audio output is not changed."
+      "previewOnlyHint": "Volume and mute changes here only change the value saved in the preset. Live audio output is not changed.",
+      "virtualCables": "{count} virtual cables"
     },
     "interface": "Audio interface",
-    "physicalOutputs": "Physical outputs"
+    "physicalOutputs": "Physical outputs",
+    "overlayCableName": "Streambot Overlay Cable",
+    "virtualCable": "Virtual cable",
+    "overlayStream": "Overlay audio stream",
+    "virtualCableStream": "Overlay audio stream",
+    "virtualCables": {
+      "title": "Virtual audio cables",
+      "description": "Create virtual overlay audio outputs and choose exactly which Streambot audio channels are routed into each one.",
+      "add": "Add cable",
+      "empty": "No virtual audio cables are configured.",
+      "unnamed": "Unnamed cable",
+      "id": "Cable ID",
+      "idHint": "Stable internal ID. The backend creates the PipeWire output from this value.",
+      "idRequired": "A cable ID is required.",
+      "idDuplicate": "Cable IDs must be unique.",
+      "name": "Display name",
+      "channels": "Assigned audio channels",
+      "channelsHint": "Only these Streambot audio interfaces are routed into this cable.",
+      "channelsShort": "channels",
+      "outputName": "PipeWire output",
+      "managedByCableSettings": "Virtual cable routing is configured directly in the audio matrix.",
+      "virtualOutput": "Virtual cable",
+      "websocketUnavailable": "WebSocket is not connected.",
+      "saveFailed": "Failed to save virtual audio cable settings.",
+      "dialogDescription": "Create, rename, enable or remove virtual audio cables. Route audio channels to them directly in the normal audio matrix.",
+      "manage": "Virtual cables"
+    }
   },
   "currentGame": {
     "title": "Currently Active Game",

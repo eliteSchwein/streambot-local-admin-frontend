@@ -283,7 +283,34 @@ export default {
   },
 
   computed: {
-    ...mapState(useAppStore, ['getRestApi', 'getTestMode']),
+    ...mapState(useAppStore, ['getRestApi', 'getTestMode', 'getSettings']),
+
+    virtualAudioCableSuggestions(): Array<{ id: string; name: string; enabled: boolean }> {
+      const raw = this.getSettings?.virtual_audio_cables ?? []
+      const cables = Array.isArray(raw)
+        ? raw
+        : Object.entries(raw ?? {}).map(([id, cable]: [string, any]) => ({
+            id,
+            ...(cable && typeof cable === 'object' ? cable : {}),
+          }))
+
+      return cables
+        .map((cable: any) => ({
+          id: String(cable?.id ?? '').trim(),
+          name: String(cable?.name ?? cable?.id ?? '').trim(),
+          enabled: cable?.enabled !== false,
+        }))
+        .filter((cable: any) => cable.id)
+        .sort((a: any, b: any) => {
+          if (a.enabled !== b.enabled) return a.enabled ? -1 : 1
+
+          return a.name.localeCompare(
+            b.name,
+            undefined,
+            { sensitivity: 'base', numeric: true },
+          )
+        })
+    },
 
     displayTitle(): string {
       return this.title || this.$t('overlay.editor')
@@ -670,6 +697,34 @@ export default {
             endLineNumber: position.lineNumber,
             endColumn: position.column,
           })
+
+          const virtualCableMatch = textUntilPosition.match(
+            /\bdata-audio-cable=(["'])([^"']*)$/i,
+          )
+
+          if (virtualCableMatch) {
+            const currentValue = virtualCableMatch[2] || ''
+            const startColumn = position.column - currentValue.length
+
+            return {
+              suggestions: this.virtualAudioCableSuggestions.map((cable: any) => ({
+                label: `${cable.name} (${cable.id})`,
+                kind: this.monacoInstance.languages.CompletionItemKind.Value,
+                insertText: cable.id,
+                detail: cable.enabled
+                  ? `Virtual audio cable · ${cable.name}`
+                  : `Virtual audio cable · ${cable.name} · disabled`,
+                filterText: `${cable.id} ${cable.name}`,
+                sortText: `${cable.enabled ? '0' : '1'}_${cable.name}_${cable.id}`,
+                range: {
+                  startLineNumber: position.lineNumber,
+                  endLineNumber: position.lineNumber,
+                  startColumn,
+                  endColumn: position.column,
+                },
+              })),
+            }
+          }
 
           const templateMatch = textUntilPosition.match(/<template\b[^>]*\bpath=(["'])([^"']*)$/i)
           if (templateMatch) {

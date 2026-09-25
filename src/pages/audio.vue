@@ -6,6 +6,16 @@
           <span>{{ $t('audio.title') }}</span>
 
           <div class="d-flex align-center ga-2 flex-grow-1 justify-end preset-toolbar">
+            <v-btn
+              prepend-icon="mdi-access-point-network"
+              color="secondary"
+              variant="tonal"
+              size="small"
+              @click="virtualCableDialogOpen = true"
+            >
+              {{ $t('audio.virtualCables.manage') }}
+            </v-btn>
+
             <v-autocomplete
               v-model="selectedPreset"
               :items="audioPresetList"
@@ -138,7 +148,19 @@
                   class="text-center"
                 >
                   <v-checkbox-btn
-                    v-if="isPipewireSink(device)"
+                    v-if="isVirtualAudioOutput(output) && isPipewireSink(device)"
+                    :model-value="virtualCableHasChannel(output, String(key))"
+                    :loading="isVirtualCableMappingSaving(output, String(key))"
+                    density="compact"
+                    class="justify-center"
+                    @update:modelValue="toggleVirtualCableChannel(
+                      output,
+                      String(key),
+                      Boolean($event),
+                    )"
+                  />
+                  <v-checkbox-btn
+                    v-else-if="isPipewireSink(device)"
                     :model-value="isSinkLinked(device, output, String(key))"
                     density="compact"
                     class="justify-center"
@@ -164,6 +186,21 @@
                   </div>
                   <div class="text-caption text-medium-emphasis">
                     {{ formatPercent(getOutputVolumeValue(output)) }} | {{ outputNumberLabel(output) }}
+                  </div>
+                  <div
+                    v-if="isVirtualAudioOutput(output)"
+                    class="d-flex align-center ga-1 mt-1 flex-wrap"
+                  >
+                    <v-chip
+                      size="x-small"
+                      color="secondary"
+                      variant="tonal"
+                    >
+                      {{ $t('audio.virtualCables.virtualOutput') }}
+                    </v-chip>
+                    <span class="text-caption text-medium-emphasis">
+                      {{ virtualCableOutputLabel(output) }}
+                    </span>
                   </div>
                 </td>
 
@@ -255,6 +292,7 @@
           </div>
         </v-card-text>
       </v-card>
+
     </v-col>
 
     <v-col v-if="yoloboxAudioEnabled" cols="12" lg="4" class="yolobox-audio-panel">
@@ -279,6 +317,14 @@
     :loading="presetDeleting"
     @confirm="confirmDeletePreset"
   />
+
+  <VirtualAudioCableSettingsDialog
+    v-model="virtualCableDialogOpen"
+    :settings="getSettings"
+    :saving="virtualCableSaving"
+    :error-message="virtualCableError"
+    @save="saveVirtualAudioCables"
+  />
 </template>
 
 
@@ -289,6 +335,7 @@ import { useAppStore } from '@/stores/app'
 import AudioPresetSaveDialog from '@/components/dialogs/AudioPresetSaveDialog.vue'
 import AudioPresetDeleteConfirmDialog from '@/components/dialogs/AudioPresetDeleteConfirmDialog.vue'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
+import VirtualAudioCableSettingsDialog from '@/components/dialogs/VirtualAudioCableSettingsDialog.vue'
 import YoloboxAudio from "@/components/yolobox/YoloboxAudio.vue";
 
 type AudioOutput = Record<string, any>
@@ -297,6 +344,7 @@ export default {
   components: {
     AudioPresetSaveDialog,
     AudioPresetDeleteConfirmDialog,
+    VirtualAudioCableSettingsDialog,
     YoloboxAudio,
   },
 
@@ -315,15 +363,24 @@ export default {
       presetVolumeTracks: [] as string[],
       presetSaveAllMappings: true,
       presetMappings: {} as Record<string, string[]>,
+      virtualCableDialogOpen: false,
+      virtualCableSaving: false,
+      virtualCableError: '',
+      virtualCableMappingSaving: {} as Record<string, boolean>,
     }
   },
 
   computed: {
+    appStore() {
+      return useAppStore()
+    },
+
     ...mapState(useAppStore, [
       'getAudioData',
       'getAudioOutput',
       'getAudioOutputs',
       'getAudioPresets',
+      'getSettings',
       'getParsedBackendConfig',
       'getYoloboxData',
     ]),
@@ -469,6 +526,14 @@ export default {
         parts.push(
           String(this.$t('audio.presets.mappingTracks', {
             count: Object.keys(preset.outputs).length,
+          })),
+        )
+      }
+
+      if (Array.isArray(preset?.virtual_audio_cables)) {
+        parts.push(
+          String(this.$t('audio.presets.virtualCables', {
+            count: preset.virtual_audio_cables.length,
           })),
         )
       }
@@ -677,6 +742,151 @@ export default {
         output: outputName,
         muted,
       })
+    },
+
+    isVirtualAudioOutput(output: AudioOutput): boolean {
+      return output?.virtual_audio_cable === true ||
+        Boolean(output?.virtual_audio_cable_id)
+    },
+
+    virtualCableHasChannel(output: AudioOutput, audioInterface: string): boolean {
+      const channels = Array.isArray(output?.virtual_audio_cable_channels)
+        ? output.virtual_audio_cable_channels.map(String)
+        : []
+
+      return channels.includes(String(audioInterface))
+    },
+
+    virtualCableOutputLabel(output: AudioOutput): string {
+      return String(
+        output?.virtual_audio_cable_name ??
+        output?.virtual_audio_cable_id ??
+        output?.description ??
+        output?.name ??
+        ''
+      )
+    },
+
+    virtualCableSettings(): any[] {
+      const cables = this.getSettings?.virtual_audio_cables ?? []
+      return Array.isArray(cables)
+        ? JSON.parse(JSON.stringify(cables))
+        : Object.entries(cables ?? {}).map(([id, cable]: [string, any]) => ({
+            id,
+            ...(cable && typeof cable === 'object' ? cable : {}),
+          }))
+    },
+
+    async persistVirtualAudioCables(cables: any[]) {
+      const client: any = getWebsocketClient()
+      if (!client?.request) {
+        throw new Error(String(this.$t('audio.virtualCables.websocketUnavailable')))
+      }
+
+      const settings = JSON.parse(JSON.stringify(this.getSettings ?? {}))
+      settings.virtual_audio_cables = cables.map((cable: any) => ({
+        id: String(cable?.id ?? '').trim(),
+        name: String(cable?.name ?? '').trim(),
+        enabled: cable?.enabled !== false,
+        channels: Array.from(new Set(
+          (Array.isArray(cable?.channels) ? cable.channels : [])
+            .map((channel: any) => String(channel).trim())
+            .filter(Boolean),
+        )),
+      }))
+
+      const response = await client.request('settings_save', settings, 20_000)
+      const params = response?.params ?? response
+      const saved =
+        params?.result_settings_save ??
+        params?.settings ??
+        params?.data ??
+        params
+
+      if (saved?.error) throw new Error(saved.error)
+
+      const effective = saved && typeof saved === 'object'
+        ? saved
+        : settings
+
+      this.appStore.setSettings(effective)
+      return effective
+    },
+
+    async saveVirtualAudioCables(cables: any[]) {
+      if (this.virtualCableSaving) return
+
+      this.virtualCableSaving = true
+      this.virtualCableError = ''
+
+      try {
+        await this.persistVirtualAudioCables(cables)
+        this.virtualCableDialogOpen = false
+      } catch (error: any) {
+        this.virtualCableError =
+          error?.message ??
+          String(this.$t('audio.virtualCables.saveFailed'))
+      } finally {
+        this.virtualCableSaving = false
+      }
+    },
+
+    virtualCableMappingKey(output: AudioOutput, audioInterface: string): string {
+      return `${String(output?.virtual_audio_cable_id ?? this.outputIdentifier(output))}:${audioInterface}`
+    },
+
+    isVirtualCableMappingSaving(output: AudioOutput, audioInterface: string): boolean {
+      return Boolean(this.virtualCableMappingSaving[
+        this.virtualCableMappingKey(output, audioInterface)
+      ])
+    },
+
+    async toggleVirtualCableChannel(
+      output: AudioOutput,
+      audioInterface: string,
+      linked: boolean,
+    ) {
+      const cableId = String(output?.virtual_audio_cable_id ?? '').trim()
+      if (!cableId) return
+
+      const key = this.virtualCableMappingKey(output, audioInterface)
+      if (this.virtualCableMappingSaving[key]) return
+
+      const cables = this.virtualCableSettings()
+      const cable = cables.find(
+        (entry: any) => String(entry?.id ?? '').trim() === cableId
+      )
+      if (!cable) return
+
+      const channels = new Set(
+        (Array.isArray(cable.channels) ? cable.channels : [])
+          .map((channel: any) => String(channel).trim())
+          .filter(Boolean)
+      )
+
+      if (linked) channels.add(audioInterface)
+      else channels.delete(audioInterface)
+
+      cable.channels = [...channels]
+
+      // Optimistic update so the regular matrix reacts immediately.
+      const previousChannels = Array.isArray(output?.virtual_audio_cable_channels)
+        ? [...output.virtual_audio_cable_channels]
+        : []
+      output.virtual_audio_cable_channels = [...channels]
+      this.virtualCableMappingSaving[key] = true
+      this.clearSelectedPreset()
+
+      try {
+        await this.persistVirtualAudioCables(cables)
+      } catch (error: any) {
+        output.virtual_audio_cable_channels = previousChannels
+        this.virtualCableError =
+          error?.message ??
+          String(this.$t('audio.virtualCables.saveFailed'))
+      } finally {
+        this.virtualCableMappingSaving[key] = false
+      }
     },
 
     isPipewireSink(device: any): boolean {

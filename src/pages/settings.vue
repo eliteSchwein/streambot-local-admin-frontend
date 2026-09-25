@@ -762,6 +762,12 @@ type SettingsForm = {
   theme: {
     default_color: string
   }
+  virtual_audio_cables: Array<{
+    id: string
+    name: string
+    enabled: boolean
+    channels: string[]
+  }>
   category_library: {
     enabled: boolean
     auto_create: boolean
@@ -811,6 +817,7 @@ const defaultForm = (): SettingsForm => ({
   theme: {
     default_color: 'ff9800',
   },
+  virtual_audio_cables: [],
   category_library: {
     enabled: false,
     auto_create: true,
@@ -1123,6 +1130,18 @@ export default {
       const assetTune = settings.asset_tune || {}
       const tts = settings.tts || {}
       const theme = settings.theme || {}
+      const virtualAudioCablesRaw =
+        settings.virtual_audio_cables ??
+        settings.virtualAudioCables ??
+        settings.audio?.virtual_cables ??
+        settings.audio?.virtualAudioCables ??
+        []
+      const virtualAudioCables = Array.isArray(virtualAudioCablesRaw)
+        ? virtualAudioCablesRaw
+        : Object.entries(virtualAudioCablesRaw || {}).map(([id, cable]: [string, any]) => ({
+            id,
+            ...(cable && typeof cable === 'object' ? cable : {}),
+          }))
       const categoryLibrary = settings.category_library || {}
       const giveaway = settings.giveaway || {}
       const { command: legacyGiveawayCommand, ...giveawaySettings } = giveaway
@@ -1161,6 +1180,22 @@ export default {
           ...theme,
           default_color: this.normalizeHexColor(theme.default_color || defaults.theme.default_color),
         },
+        virtual_audio_cables: virtualAudioCables
+          .map((cable: any, index: number) => {
+            const id = String(cable?.id ?? cable?.name ?? `overlay-${index + 1}`).trim()
+            const name = String(cable?.name ?? id).trim() || id
+            const channels = Array.isArray(cable?.channels) ? cable.channels : []
+
+            return {
+              id,
+              name,
+              enabled: cable?.enabled !== false,
+              channels: channels
+                .map((channel: any) => String(channel).trim())
+                .filter(Boolean),
+            }
+          })
+          .filter((cable: any) => cable.id),
         category_library: {
           ...defaults.category_library,
           ...categoryLibrary,
@@ -1483,6 +1518,22 @@ export default {
         theme: {
           default_color: this.normalizeHexColor(this.form.theme.default_color || defaults.theme.default_color),
         },
+        virtual_audio_cables: (this.form.virtual_audio_cables ?? [])
+          .map((cable: any, index: number) => ({
+            id: String(cable?.id ?? `overlay-${index + 1}`)
+              .trim()
+              .toLowerCase()
+              .replace(/[^a-z0-9_-]+/g, '-')
+              .replace(/^-+|-+$/g, ''),
+            name: String(cable?.name ?? cable?.id ?? '').trim(),
+            enabled: cable?.enabled !== false,
+            channels: Array.from(new Set(
+              (Array.isArray(cable?.channels) ? cable.channels : [])
+                .map((channel: any) => String(channel).trim())
+                .filter(Boolean),
+            )),
+          }))
+          .filter((cable: any) => cable.id),
         category_library: {
           enabled: Boolean(this.form.category_library.enabled),
           auto_create: Boolean(this.form.category_library.auto_create),
@@ -1543,6 +1594,8 @@ export default {
         delete current.tts
         delete previous.touch_wallpaper
         delete current.touch_wallpaper
+        delete previous.virtual_audio_cables
+        delete current.virtual_audio_cables
 
         return JSON.stringify(previous) !== JSON.stringify(current)
       } catch {
