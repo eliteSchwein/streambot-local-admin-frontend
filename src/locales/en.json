@@ -559,7 +559,7 @@
         "stopClipsEarly": "Stop clips early",
         "showInformationOverlay": "Show information overlay",
         "showTimer": "Show timer",
-        "resultHint": "Stores the generated URL and channel.",
+        "resultHint": "Stores the first played clip, including its Twitch clip metadata, channel, playback mode and selection mode.",
         "modes": {
           "random": "Random",
           "top": "Top"
@@ -574,7 +574,14 @@
         "enableTitle": "Enable random clips",
         "disableTitle": "Disable random clips",
         "disableInfo": "Stops the currently active random clip player.",
-        "primaryChannelTitle": "Primary channel"
+        "primaryChannelTitle": "Primary channel",
+        "nativeInfo": "Clips are fetched directly from Twitch and played by Streambot. No third-party clip service is used.",
+        "playbackMode": "Playback",
+        "selectionMode": "Clip selection",
+        "playbackModes": {
+          "rotate": "Keep rotating clips",
+          "single": "Play one clip"
+        }
       },
       "streamMarker": {
         "title": "Create stream marker"

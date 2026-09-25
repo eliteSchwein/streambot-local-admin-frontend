@@ -16,7 +16,7 @@
       density="comfortable"
       class="mb-4"
     >
-      <i18n-t keypath="macro.twitch.randomClip.serviceInfo" tag="span"><template #service><strong>streamgood.gg</strong></template></i18n-t>
+      {{ $t('macro.twitch.randomClip.nativeInfo') }}
     </v-alert>
 
     <v-row>
@@ -31,16 +31,25 @@
         />
       </v-col>
 
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="4">
+        <v-select
+          v-model="task.data.playback_mode"
+          :items="playbackModeItems"
+          variant="outlined"
+          :label="$t('macro.twitch.randomClip.playbackMode')"
+        />
+      </v-col>
+
+      <v-col cols="12" md="4">
         <v-select
           v-model="task.data.mode"
           :items="modeItems"
           variant="outlined"
-          :label="$t('macro.twitch.fields.mode')"
+          :label="$t('macro.twitch.randomClip.selectionMode')"
         />
       </v-col>
 
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="4">
         <v-select
           v-model.number="task.data.recent_clips"
           :items="recentClipItems"
@@ -140,9 +149,28 @@ export default {
       return (this.item as any).task
     },
     randomClipTitleDetail(): string {
-      const channel = String(this.task.data?.channel ?? '').trim() || String(this.$t('macro.twitch.randomClip.primaryChannelTitle'))
-      const mode = this.modeItems.find(item => item.value === this.task.data?.mode)?.title ?? String(this.task.data?.mode ?? '')
-      return `${channel} · ${mode}`
+      const channel = String(this.task.data?.channel ?? '').trim() ||
+        String(this.$t('macro.twitch.randomClip.primaryChannelTitle'))
+      const playbackMode = this.playbackModeItems
+        .find(item => item.value === this.task.data?.playback_mode)?.title ??
+        String(this.task.data?.playback_mode ?? '')
+      const selectionMode = this.modeItems
+        .find(item => item.value === this.task.data?.mode)?.title ??
+        String(this.task.data?.mode ?? '')
+
+      return `${channel} · ${playbackMode} · ${selectionMode}`
+    },
+    playbackModeItems(): Array<{ title: string; value: string }> {
+      return [
+        {
+          title: String(this.$t('macro.twitch.randomClip.playbackModes.rotate')),
+          value: 'rotate',
+        },
+        {
+          title: String(this.$t('macro.twitch.randomClip.playbackModes.single')),
+          value: 'single',
+        },
+      ]
     },
     modeItems(): Array<{ title: string; value: string }> {
       return [
@@ -168,6 +196,7 @@ export default {
       : {}
 
     this.task.data.channel ??= ''
+    this.task.data.playback_mode ??= 'rotate'
     this.task.data.mode ??= 'random'
     this.task.data.recent_clips ??= 0
     this.task.data.max_length ??= 60

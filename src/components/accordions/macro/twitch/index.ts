@@ -51,6 +51,7 @@ export const twitchMacroTaskPresets: MacroTaskPresetRegistration[] = [
                     method: 'enable_random_clip',
                     data: {
                       channel: '',
+                      playback_mode: 'rotate',
                       mode: 'random',
                       recent_clips: 0,
                       max_length: 60,

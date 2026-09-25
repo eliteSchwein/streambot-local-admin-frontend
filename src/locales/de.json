@@ -559,7 +559,7 @@
         "stopClipsEarly": "Clips frühzeitig beenden",
         "showInformationOverlay": "Informations-Overlay anzeigen",
         "showTimer": "Timer anzeigen",
-        "resultHint": "Speichert die generierte URL und den Kanal.",
+        "resultHint": "Speichert den zuerst abgespielten Clip inklusive Twitch-Clip-Metadaten, Kanal, Wiedergabemodus und Auswahlmodus.",
         "modes": {
           "random": "Zufällig",
           "top": "Top"
@@ -574,7 +574,14 @@
         "enableTitle": "Zufällige Clips aktivieren",
         "disableTitle": "Zufällige Clips deaktivieren",
         "disableInfo": "Stoppt den aktuell aktiven Zufallsclip-Player.",
-        "primaryChannelTitle": "Primärer Kanal"
+        "primaryChannelTitle": "Primärer Kanal",
+        "nativeInfo": "Clips werden direkt von Twitch geladen und von Streambot abgespielt. Es wird kein externer Clip-Dienst verwendet.",
+        "playbackMode": "Wiedergabe",
+        "selectionMode": "Clip-Auswahl",
+        "playbackModes": {
+          "rotate": "Clips fortlaufend wechseln",
+          "single": "Einen Clip abspielen"
+        }
       },
       "streamMarker": {
         "title": "Stream-Marker erstellen"
