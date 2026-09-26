@@ -384,6 +384,30 @@ export const useAppStore = defineStore('app', {
 
       this.$patch(state => state.settings = this.settings)
     },
+    setObsSceneDataForConnection(connection: any, sceneData: any) {
+      const name = String(connection ?? 'default').trim() || 'default'
+      const entries = Array.isArray(sceneData)
+        ? sceneData
+        : (sceneData == null ? [] : [sceneData])
+
+      const nextByConnection = {
+        ...(this.obsSceneDataByConnection ?? {}),
+        [name]: entries,
+      }
+
+      this.obsSceneDataByConnection = nextByConnection
+
+      // The legacy field represents the primary/default OBS only. Keeping it
+      // that way avoids leaking one OBS instance into another old editor.
+      if (name === 'default') {
+        this.obsSceneData = entries
+      }
+
+      this.$patch(state => {
+        state.obsSceneDataByConnection = nextByConnection
+        if (name === 'default') state.obsSceneData = entries
+      })
+    },
     setObsSceneData(obsSceneData: any) {
       const nextByConnection: Record<string, any[]> = {}
 
@@ -406,6 +430,8 @@ export const useAppStore = defineStore('app', {
             add(connection, value)
           }
         } else {
+          Object.assign(nextByConnection, this.obsSceneDataByConnection ?? {})
+          nextByConnection.default = []
           add('default', obsSceneData)
         }
       } else if (obsSceneData && typeof obsSceneData === 'object') {
@@ -425,15 +451,18 @@ export const useAppStore = defineStore('app', {
           if (looksLikeConnectionMap) {
             for (const [name, value] of entries) add(name, value)
           } else {
+            Object.assign(nextByConnection, this.obsSceneDataByConnection ?? {})
+            nextByConnection.default = []
             add('default', obsSceneData)
           }
         }
       } else {
-        add('default', [])
+        Object.assign(nextByConnection, this.obsSceneDataByConnection ?? {})
+        nextByConnection.default = []
       }
 
       this.obsSceneDataByConnection = nextByConnection
-      this.obsSceneData = Object.values(nextByConnection).flat()
+      this.obsSceneData = nextByConnection.default ?? this.obsSceneData ?? []
 
       this.$patch(state => {
         state.obsSceneDataByConnection = nextByConnection
@@ -480,6 +509,27 @@ export const useAppStore = defineStore('app', {
       this.yoloboxData = yoloboxData
       this.$patch(state => state.yoloboxData = yoloboxData)
     },
+    setObsAudioDataForConnection(connection: any, audioData: any) {
+      const name = String(connection ?? 'default').trim() || 'default'
+      const value = audioData ?? {}
+
+      const nextByConnection = {
+        ...(this.obsAudioDataByConnection ?? {}),
+        [name]: value,
+      }
+
+      this.obsAudioDataByConnection = nextByConnection
+
+      // As with scenes, the legacy field remains the default OBS snapshot.
+      if (name === 'default') {
+        this.obsAudioData = value
+      }
+
+      this.$patch(state => {
+        state.obsAudioDataByConnection = nextByConnection
+        if (name === 'default') state.obsAudioData = value
+      })
+    },
     setObsAudioData(obsAudioData: any) {
       const nextByConnection: Record<string, any> = {}
 
@@ -518,26 +568,19 @@ export const useAppStore = defineStore('app', {
           if (looksLikeConnectionMap) {
             for (const [name, value] of entries) add(name, value)
           } else {
-            // Legacy payload: a single map of OBS inputs.
+            // Legacy payload belongs to the primary/default OBS. Do not erase
+            // named secondary indexes when it updates.
+            Object.assign(nextByConnection, this.obsAudioDataByConnection ?? {})
             add('default', obsAudioData)
           }
         }
       } else {
+        Object.assign(nextByConnection, this.obsAudioDataByConnection ?? {})
         add('default', {})
       }
 
       this.obsAudioDataByConnection = nextByConnection
-
-      // Keep the legacy getter useful for old editors by exposing all indexed inputs.
-      const merged: Record<string, any> = {}
-      for (const [connection, value] of Object.entries(nextByConnection)) {
-        if (value && typeof value === 'object' && !Array.isArray(value)) {
-          Object.assign(merged, value)
-        } else {
-          merged[connection] = value
-        }
-      }
-      this.obsAudioData = merged
+      this.obsAudioData = nextByConnection.default ?? this.obsAudioData ?? {}
 
       this.$patch(state => {
         state.obsAudioDataByConnection = nextByConnection

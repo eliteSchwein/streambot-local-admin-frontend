@@ -32,16 +32,6 @@
           <v-chip size="small" variant="tonal">
             {{ getCanvasScenes(selectedCanvas).length }}
           </v-chip>
-
-          <v-chip
-            v-if="activeCategory"
-            size="small"
-            color="secondary"
-            variant="tonal"
-            prepend-icon="mdi-gamepad-variant-outline"
-          >
-            {{ activeCategory.name }}
-          </v-chip>
         </div>
       </v-card-title>
 
@@ -136,22 +126,7 @@
                   </v-expansion-panel-title>
 
                   <v-expansion-panel-text class="pa-0">
-                    <div class="d-flex align-center justify-space-between flex-wrap ga-2 pa-3">
-                      <div class="d-flex flex-wrap ga-2">
-                        
-
-                        <v-btn
-                          v-if="categoryOptions.length"
-                          prepend-icon="mdi-gamepad-variant-outline"
-                          variant="tonal"
-                          color="secondary"
-                          :loading="isAddingToCategory(obsItem, obsScene, selectedCanvas)"
-                          @click="openAddToCategory(obsItem, obsScene, selectedCanvas)"
-                        >
-                          {{ $t('obs.settings.addToCategory') }}
-                        </v-btn>
-                      </div>
-
+                    <div class="d-flex align-center justify-end flex-wrap ga-2 pa-3">
                       <v-btn
                         :prepend-icon="isSourceEnabled(obsItem) ? 'mdi-eye-off' : 'mdi-eye'"
                         variant="text"
@@ -203,26 +178,7 @@
                         </v-expansion-panel-title>
 
                         <v-expansion-panel-text class="pa-0">
-                          <div class="d-flex align-center justify-space-between flex-wrap ga-2 pa-3">
-                            <div class="d-flex flex-wrap ga-2">
-                              
-
-                              <v-btn
-                                v-if="categoryOptions.length"
-                                prepend-icon="mdi-gamepad-variant-outline"
-                                variant="tonal"
-                                color="secondary"
-                                :loading="isAddingToCategory(childEntry.item, obsScene, selectedCanvas)"
-                                @click.stop="openAddToCategory(
-                                  childEntry.item,
-                                  obsScene,
-                                  selectedCanvas,
-                                )"
-                              >
-                                {{ $t('obs.settings.addToCategory') }}
-                              </v-btn>
-                            </div>
-
+                          <div class="d-flex align-center justify-end flex-wrap ga-2 pa-3">
                             <v-btn
                               :prepend-icon="isSourceEnabled(childEntry.item) ? 'mdi-eye-off' : 'mdi-eye'"
                               variant="text"
@@ -355,27 +311,11 @@
     </v-card>
   </div>
 
-
-
-  <ObsCategoryPickerDialog
-    v-model="addToCategoryDialog"
-    v-model:selected-category-id="selectedCategoryId"
-    :categories="categoryOptions"
-    :source-name="pendingCategorySource?.source?.name ?? ''"
-    :loading="addingCategoryDialog"
-    @confirm="confirmAddToCategory"
-  />
-
 </template>
 <script lang="ts">
 import { getWebsocketClient } from '@/plugins/websocketInstance'
-import { useAppStore } from '@/stores/app'
-import ObsCategoryPickerDialog from '@/components/dialogs/ObsCategoryPickerDialog.vue'
 
 export default {
-  components: {
-    ObsCategoryPickerDialog,
-  },
 
   props: {
     connection: {
@@ -402,11 +342,6 @@ export default {
 
   data() {
     return {
-      addingCategorySources: {} as Record<string, boolean>,
-      addToCategoryDialog: false,
-      addingCategoryDialog: false,
-      selectedCategoryId: '',
-      pendingCategorySource: null as any,
       expandedScenes: [] as string[],
       expandedSources: [] as string[],
       expandedChildSources: [] as string[],
@@ -417,40 +352,6 @@ export default {
   },
 
   computed: {
-    appStore() {
-      return useAppStore()
-    },
-
-    categoryLibrary(): any {
-      return (this.appStore as any).getCategoryLibrary ?? {}
-    },
-
-    activeCategory(): any | null {
-      const activeId = String(this.categoryLibrary?.active_category_id ?? '')
-      if (!activeId) return null
-
-      return (this.categoryLibrary?.categories ?? [])
-        .find((category: any) => String(category?.category_id ?? '') === activeId) ?? null
-    },
-
-    categoryOptions(): Array<{ title: string; value: string; isFallback: boolean }> {
-      return (this.categoryLibrary?.categories ?? [])
-        .map((category: any) => ({
-          title: String(category?.name ?? category?.category_id ?? ''),
-          value: String(category?.category_id ?? ''),
-          isFallback: category?.use_as_media_fallback === true,
-        }))
-        .filter((category: any) => category.value)
-        .sort((a: any, b: any) => {
-          if (a.isFallback !== b.isFallback) return a.isFallback ? -1 : 1
-
-          return a.title.localeCompare(
-            b.title,
-            undefined,
-            { sensitivity: 'base', numeric: true },
-          )
-        })
-    },
 
     canvases(): any[] {
       const rawScenes = Array.isArray(this.scenes) ? this.scenes as any[] : []
@@ -777,132 +678,6 @@ export default {
         filterName,
         filterEnabled: enabled,
       })
-    },
-
-    getKnownSourceCategoryData(source: any): any {
-      const result: Record<string, any> = {
-        name: String(source?.name ?? source?.sourceName ?? source?.uuid ?? ''),
-        obs_id: this.connection,
-        filters: {},
-      }
-
-      for (const filter of this.getFilters(source)) {
-        const name = this.getFilterName(filter)
-        if (!name) continue
-
-        result.filters[name] = {
-          index: Number(filter?.filterIndex ?? filter?.index ?? 0),
-          config: filter?.filterSettings ?? filter?.settings ?? filter?.config ?? {},
-        }
-      }
-
-      const transform = source?.transform ?? source?.sceneItemTransform
-      if (transform && typeof transform === 'object') {
-        result.filters['Source|Transform'] = {
-          index: 0,
-          config: transform,
-        }
-      }
-
-      return result
-    },
-
-    isAddingToCategory(source: any, scene: any = null, canvas: any = null): boolean {
-      return Boolean(this.addingCategorySources[this.getSourceKey(source, scene, canvas)])
-    },
-
-    async saveCategory(category: any) {
-      const client: any = getWebsocketClient()
-      if (!client?.request) throw new Error('websocket is not connected')
-
-      const response = await client.request('category_library_save', {
-        category,
-      }, 20_000)
-
-      const params = response?.params ?? response
-      const data = params?.result_category_library_save ?? params?.data ?? params
-      if (data?.error) throw new Error(data.error)
-      return data
-    },
-
-    openAddToCategory(source: any, scene: any = null, canvas: any = null) {
-      this.pendingCategorySource = { source, scene, canvas }
-
-      const fallbackCategory = (this.categoryLibrary?.categories ?? [])
-        .find((category: any) => category?.use_as_media_fallback === true)
-
-      this.selectedCategoryId = String(
-        fallbackCategory?.category_id ??
-        this.activeCategory?.category_id ??
-        this.categoryOptions[0]?.value ??
-        '',
-      )
-
-      this.addToCategoryDialog = true
-    },
-
-    closeAddToCategory() {
-      if (this.addingCategoryDialog) return
-      this.addToCategoryDialog = false
-      this.pendingCategorySource = null
-      this.selectedCategoryId = ''
-    },
-
-    async confirmAddToCategory(categoryId: string = this.selectedCategoryId) {
-      const pending = this.pendingCategorySource
-      if (!pending || !categoryId || this.addingCategoryDialog) return
-
-      this.selectedCategoryId = String(categoryId)
-
-      const category = (this.categoryLibrary?.categories ?? [])
-        .find((entry: any) => String(entry?.category_id ?? '') === String(categoryId))
-
-      if (!category) return
-
-      this.addingCategoryDialog = true
-
-      try {
-        await this.addSourceToCategory(
-          pending.source,
-          pending.scene,
-          pending.canvas,
-          category,
-        )
-        this.closeAddToCategory()
-      } finally {
-        this.addingCategoryDialog = false
-        this.addToCategoryDialog = false
-        this.pendingCategorySource = null
-        this.selectedCategoryId = ''
-      }
-    },
-
-    async addSourceToCategory(
-      source: any,
-      scene: any = null,
-      canvas: any = null,
-      targetCategory: any = null,
-    ) {
-      const category = targetCategory ?? this.activeCategory
-      const uuid = String(source?.uuid ?? source?.sourceUuid ?? '').trim()
-      if (!category || !uuid) return
-
-      const key = this.getSourceKey(source, scene, canvas)
-      this.addingCategorySources[key] = true
-
-      try {
-        const updated = JSON.parse(JSON.stringify(category))
-        updated.obs_filters = {
-          ...(updated.obs_filters ?? {}),
-          [uuid]: this.getKnownSourceCategoryData(source),
-        }
-
-        await this.saveCategory(updated)
-      } catch (error) {
-        console.warn(error)
-      } finally {
-        this.addingCategorySources[key] = false
-      }
     },
   },
 }

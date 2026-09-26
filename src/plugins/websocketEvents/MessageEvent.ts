@@ -10,6 +10,7 @@ import NotifySceneMessage from "@/plugins/websocketEvents/websocketMessage/Notif
 import NotifyConnectionMessage from "@/plugins/websocketEvents/websocketMessage/NotifyConnectionMessage.ts";
 import NotifyConfigUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyConfigUpdateMessage.ts";
 import NotifyObsSceneUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyObsSceneUpdateMessage.ts";
+import NotifyObsSceneUpdateNamedMessage from "@/plugins/websocketEvents/websocketMessage/NotifyObsSceneUpdateNamedMessage.ts";
 import NotifyTestMode from "@/plugins/websocketEvents/websocketMessage/NotifyTestMode.ts";
 import NotifyPowerButtonMessage from "@/plugins/websocketEvents/websocketMessage/NotifyPowerButtonMessage.ts";
 import NotifyVoiceListUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyVoiceListUpdateMessage.ts";
@@ -19,6 +20,7 @@ import NotifyVariableUpdateMessage from "@/plugins/websocketEvents/websocketMess
 import NotifyGiveawayUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyGiveawayUpdateMessage.ts";
 import NotifyYoloboxUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyYoloboxUpdateMessage.ts";
 import NotifyObsAudioUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyObsAudioUpdateMessage.ts";
+import NotifyObsAudioUpdateNamedMessage from "@/plugins/websocketEvents/websocketMessage/NotifyObsAudioUpdateNamedMessage.ts";
 import NotifyAssetsUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyAssetsUpdateMessage.ts";
 import NotifyDisconnectMessage from "@/plugins/websocketEvents/websocketMessage/NotifyDisconnectMessage.ts";
 import NotifyMusicUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyMusicUpdateMessage.ts";
@@ -71,6 +73,7 @@ export default class MessageEvent extends BaseEvent {
     await new NotifyConnectionMessage(this.webSocketClient).handleMessage(data)
     await new NotifyConfigUpdateMessage(this.webSocketClient).handleMessage(data)
     await new NotifyObsSceneUpdateMessage(this.webSocketClient).handleMessage(data)
+    await new NotifyObsSceneUpdateNamedMessage(this.webSocketClient).handleMessage(data)
     await new NotifyTestMode(this.webSocketClient).handleMessage(data)
     await new NotifyPowerButtonMessage(this.webSocketClient).handleMessage(data)
     await new NotifyVoiceListUpdateMessage(this.webSocketClient).handleMessage(data)
@@ -80,6 +83,7 @@ export default class MessageEvent extends BaseEvent {
     await new NotifyGiveawayUpdateMessage(this.webSocketClient).handleMessage(data)
     await new NotifyYoloboxUpdateMessage(this.webSocketClient).handleMessage(data)
     await new NotifyObsAudioUpdateMessage(this.webSocketClient).handleMessage(data)
+    await new NotifyObsAudioUpdateNamedMessage(this.webSocketClient).handleMessage(data)
     await new NotifyAssetsUpdateMessage(this.webSocketClient).handleMessage(data)
     await new NotifyMusicUpdateMessage(this.webSocketClient).handleMessage(data)
 
