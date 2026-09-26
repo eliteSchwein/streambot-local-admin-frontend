@@ -42,7 +42,7 @@
 <script lang="ts">
 import { useAppStore } from '@/stores/app'
 import MacroTaskAccordionTemplate from '../MacroTaskAccordionTemplate.vue'
-import { getInputNames } from './obsTaskHelpers'
+import { getInputNames, getObsSceneDataForTask, getObsAudioDataForTask } from './obsTaskHelpers'
 
 export default {
   name: 'MacroObsSetInputVolumeTaskAccordion',
@@ -74,7 +74,7 @@ export default {
     },
 
     inputOptions(): string[] {
-      return getInputNames(this.appStore.getObsSceneData, this.appStore.getObsAudioData)
+      return getInputNames(getObsSceneDataForTask(this.appStore, this.item), getObsAudioDataForTask(this.appStore, this.item))
     },
   },
 

@@ -1,6 +1,44 @@
 import { useAppStore } from '@/stores/app'
 
 
+
+export function getObsTaskConnection(itemOrTask: any): string {
+  const task = itemOrTask?.task ?? itemOrTask ?? {}
+  return String(task?.data?.connection ?? 'default').trim() || 'default'
+}
+
+export function getObsSceneDataForTask(store: any, itemOrTask: any): any[] {
+  const connection = getObsTaskConnection(itemOrTask)
+  const byConnection = store?.getObsSceneDataByConnection ?? store?.obsSceneDataByConnection ?? {}
+
+  if (Object.prototype.hasOwnProperty.call(byConnection, connection)) {
+    return asArray(byConnection[connection])
+  }
+
+  // Compatibility with older backends that only publish one global OBS index.
+  if (Object.keys(byConnection).length === 0) {
+    return asArray(store?.getObsSceneData ?? store?.obsSceneData)
+  }
+
+  return []
+}
+
+export function getObsAudioDataForTask(store: any, itemOrTask: any): any {
+  const connection = getObsTaskConnection(itemOrTask)
+  const byConnection = store?.getObsAudioDataByConnection ?? store?.obsAudioDataByConnection ?? {}
+
+  if (Object.prototype.hasOwnProperty.call(byConnection, connection)) {
+    return byConnection[connection] ?? {}
+  }
+
+  // Compatibility with older backends that only publish one global OBS index.
+  if (Object.keys(byConnection).length === 0) {
+    return store?.getObsAudioData ?? store?.obsAudioData ?? {}
+  }
+
+  return {}
+}
+
 export function cloneObsValue<T>(value: T): T {
   if (value === undefined || value === null) return value
 
@@ -316,12 +354,12 @@ export function obsStoreMixin() {
 
       obsSceneData(): any[] {
         const store = (this as any).appStore
-        return asArray(store?.getObsSceneData ?? store?.obsSceneData)
+        return getObsSceneDataForTask(store, (this as any).item)
       },
 
       obsAudioData(): any {
         const store = (this as any).appStore
-        return store?.getObsAudioData ?? store?.obsAudioData ?? {}
+        return getObsAudioDataForTask(store, (this as any).item)
       },
 
       sceneOptions(): any[] {

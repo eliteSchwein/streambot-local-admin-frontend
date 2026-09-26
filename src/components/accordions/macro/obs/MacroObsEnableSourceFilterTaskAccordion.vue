@@ -47,7 +47,7 @@
 <script lang="ts">
 import { useAppStore } from '@/stores/app'
 import MacroTaskAccordionTemplate from '../MacroTaskAccordionTemplate.vue'
-import { getFilterNames, getInputNames } from './obsTaskHelpers'
+import { getFilterNames, getInputNames, getObsSceneDataForTask, getObsAudioDataForTask } from './obsTaskHelpers'
 
 export default {
   name: 'MacroObsEnableSourceFilterTaskAccordion',
@@ -92,11 +92,11 @@ export default {
     },
 
     sourceOptions(): string[] {
-      return getInputNames(this.appStore.getObsSceneData, this.appStore.getObsAudioData)
+      return getInputNames(getObsSceneDataForTask(this.appStore, this.item), getObsAudioDataForTask(this.appStore, this.item))
     },
 
     filterOptions(): string[] {
-      return getFilterNames(this.appStore.getObsSceneData, this.task.data.sourceName)
+      return getFilterNames(getObsSceneDataForTask(this.appStore, this.item), this.task.data.sourceName)
     },
   },
 

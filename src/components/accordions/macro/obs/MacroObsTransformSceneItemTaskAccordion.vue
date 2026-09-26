@@ -96,7 +96,7 @@
 <script lang="ts">
 import { useAppStore } from '@/stores/app'
 import MacroTaskAccordionTemplate from '../MacroTaskAccordionTemplate.vue'
-import { getSceneItemOptions, getSceneNames } from './obsTaskHelpers'
+import { getSceneItemOptions, getSceneNames, getObsSceneDataForTask } from './obsTaskHelpers'
 
 export default {
   name: 'MacroObsTransformSceneItemTaskAccordion',
@@ -138,11 +138,11 @@ export default {
     },
 
     sceneOptions(): string[] {
-      return getSceneNames(this.appStore.getObsSceneData)
+      return getSceneNames(getObsSceneDataForTask(this.appStore, this.item))
     },
 
     sceneItemOptions(): any[] {
-      return getSceneItemOptions(this.appStore.getObsSceneData, this.data.sceneName)
+      return getSceneItemOptions(getObsSceneDataForTask(this.appStore, this.item), this.data.sceneName)
     },
   },
 

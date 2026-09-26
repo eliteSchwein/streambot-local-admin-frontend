@@ -62,7 +62,7 @@
 <script lang="ts">
 import { useAppStore } from '@/stores/app'
 import MacroTaskAccordionTemplate from '../MacroTaskAccordionTemplate.vue'
-import { getSceneItemOptions, getSceneOptions, migrateSceneNameToSceneUuid } from './obsTaskHelpers'
+import { getSceneItemOptions, getSceneOptions, migrateSceneNameToSceneUuid, getObsSceneDataForTask } from './obsTaskHelpers'
 
 export default {
   name: 'MacroObsToggleSceneItemTaskAccordion',
@@ -106,7 +106,7 @@ export default {
       if (task.data.sceneItemId === undefined) task.data.sceneItemId = null
       if (task.data.sceneItemEnabled === undefined) task.data.sceneItemEnabled = true
 
-      migrateSceneNameToSceneUuid(task.data, this.appStore.getObsSceneData)
+      migrateSceneNameToSceneUuid(task.data, getObsSceneDataForTask(this.appStore, this.item))
 
       return task
     },
@@ -116,18 +116,18 @@ export default {
     },
 
     sceneOptions(): any[] {
-      return getSceneOptions(this.appStore.getObsSceneData)
+      return getSceneOptions(getObsSceneDataForTask(this.appStore, this.item))
     },
 
     sceneItemOptions(): any[] {
-      return getSceneItemOptions(this.appStore.getObsSceneData, this.data.sceneUuid)
+      return getSceneItemOptions(getObsSceneDataForTask(this.appStore, this.item), this.data.sceneUuid)
     },
   },
 
   watch: {
-    'appStore.getObsSceneData': {
+    'appStore.getObsSceneDataByConnection': {
       handler() {
-        migrateSceneNameToSceneUuid(this.data, this.appStore.getObsSceneData)
+        migrateSceneNameToSceneUuid(this.data, getObsSceneDataForTask(this.appStore, this.item))
       },
       deep: true,
     },

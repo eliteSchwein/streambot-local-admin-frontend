@@ -33,7 +33,7 @@
 <script lang="ts">
 import { useAppStore } from '@/stores/app'
 import MacroTaskAccordionTemplate from '../MacroTaskAccordionTemplate.vue'
-import { getSceneOptions, migrateSceneNameToSceneUuid } from './obsTaskHelpers'
+import { getSceneOptions, migrateSceneNameToSceneUuid, getObsSceneDataForTask } from './obsTaskHelpers'
 
 export default {
   name: 'MacroObsSwitchSceneTaskAccordion',
@@ -71,7 +71,7 @@ export default {
 
       if (task.data.sceneUuid === undefined) task.data.sceneUuid = ''
 
-      migrateSceneNameToSceneUuid(task.data, this.appStore.getObsSceneData)
+      migrateSceneNameToSceneUuid(task.data, getObsSceneDataForTask(this.appStore, this.item))
 
       return task
     },
@@ -85,14 +85,14 @@ export default {
     },
 
     sceneOptions(): any[] {
-      return getSceneOptions(this.appStore.getObsSceneData)
+      return getSceneOptions(getObsSceneDataForTask(this.appStore, this.item))
     },
   },
 
   watch: {
-    'appStore.getObsSceneData': {
+    'appStore.getObsSceneDataByConnection': {
       handler() {
-        migrateSceneNameToSceneUuid(this.data, this.appStore.getObsSceneData)
+        migrateSceneNameToSceneUuid(this.data, getObsSceneDataForTask(this.appStore, this.item))
       },
       deep: true,
     },

@@ -219,6 +219,8 @@ import {
   getFilterNames,
   getFilterSettings,
   getInputNames,
+  getObsSceneDataForTask,
+  getObsAudioDataForTask,
 } from './obsTaskHelpers'
 
 type TransitionSide = 'start' | 'end'
@@ -326,11 +328,11 @@ export default {
     },
 
     obsSceneData(): any[] {
-      return this.appStore.getObsSceneData ?? []
+      return getObsSceneDataForTask(this.appStore, this.item) ?? []
     },
 
     sourceOptions(): string[] {
-      return getInputNames(this.obsSceneData, this.appStore.getObsAudioData)
+      return getInputNames(this.obsSceneData, getObsAudioDataForTask(this.appStore, this.item))
     },
 
     filterOptions(): string[] {

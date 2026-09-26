@@ -1,4 +1,18 @@
 <template>
+  <div>
+    <div v-if="connectionNames.length > 1" class="px-3 pt-3">
+      <v-select
+        v-model="selectedConnection"
+        class="obs-instance-select"
+        :items="connectionNames"
+        label="OBS connection"
+        prepend-inner-icon="mdi-connection"
+        variant="outlined"
+        density="comfortable"
+        hide-details
+      />
+    </div>
+
   <v-row class="obs-page-layout ma-0 pa-0" density="comfortable" no-gutters>
 
     <v-col cols="12" lg="6" class="obs-page-panel">
@@ -15,6 +29,7 @@
       />
     </v-col>
   </v-row>
+  </div>
 </template>
 
 <script lang="ts">
@@ -46,8 +61,12 @@ export default {
     connectionNames(): string[] {
       const names = new Set<string>()
 
-      Object.keys(this.getObsSceneDataByConnection ?? {}).forEach(name => names.add(name))
-      Object.keys(this.getObsAudioDataByConnection ?? {}).forEach(name => names.add(name))
+      Object.entries(this.getObsSceneDataByConnection ?? {}).forEach(([name, data]: [string, any]) => {
+        if(Array.isArray(data) && data.length > 0) names.add(name)
+      })
+      Object.entries(this.getObsAudioDataByConnection ?? {}).forEach(([name, data]: [string, any]) => {
+        if(data && typeof data === 'object' && Object.keys(data).length > 0) names.add(name)
+      })
 
       if(names.size === 0 && (this.getObsSceneData?.length || Object.keys(this.getObsAudioData ?? {}).length)) {
         names.add('default')
@@ -57,11 +76,15 @@ export default {
     },
 
     selectedAudioData(): Record<string, any> {
-      return this.getObsAudioDataByConnection?.[this.selectedConnection] ?? this.getObsAudioData ?? {}
+      return this.getObsAudioDataByConnection?.[this.selectedConnection]
+        ?? (this.selectedConnection === 'default' ? this.getObsAudioData : {})
+        ?? {}
     },
 
     selectedSceneData(): any[] {
-      return this.getObsSceneDataByConnection?.[this.selectedConnection] ?? this.getObsSceneData ?? []
+      return this.getObsSceneDataByConnection?.[this.selectedConnection]
+        ?? (this.selectedConnection === 'default' ? this.getObsSceneData : [])
+        ?? []
     },
   },
 

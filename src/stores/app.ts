@@ -44,6 +44,7 @@ export const useAppStore = defineStore('app', {
     backendConfig: '',
     parsedBackendConfig: {},
     obsSceneData: [],
+    obsSceneDataByConnection: {} as Record<string, any[]>,
     testMode: false,
     voices: {},
     macros: {},
@@ -55,6 +56,7 @@ export const useAppStore = defineStore('app', {
     giveaway: {},
     yoloboxData: {},
     obsAudioData: {},
+    obsAudioDataByConnection: {} as Record<string, any>,
     musicData: {},
     musicCavaData: {},
     musicPlaylist: {
@@ -114,6 +116,11 @@ export const useAppStore = defineStore('app', {
     getBackendConfig: (state) => state.backendConfig,
     getParsedBackendConfig: (state) => state.parsedBackendConfig,
     getObsSceneData: (state) => state.obsSceneData,
+    getObsSceneDataByConnection: (state) => state.obsSceneDataByConnection,
+    getObsSceneDataForConnection: (state) => (connection = 'default') => {
+      const name = String(connection || 'default')
+      return state.obsSceneDataByConnection[name] ?? (name === 'default' ? state.obsSceneData : [])
+    },
     getTestMode: (state) => state.testMode,
     getVoices: (state) => state.voices,
     getMacros: (state) => state.macros,
@@ -125,6 +132,11 @@ export const useAppStore = defineStore('app', {
     getGiveaway: (state) => state.giveaway,
     getYoloboxData: (state) => state.yoloboxData,
     getObsAudioData: (state) => state.obsAudioData,
+    getObsAudioDataByConnection: (state) => state.obsAudioDataByConnection,
+    getObsAudioDataForConnection: (state) => (connection = 'default') => {
+      const name = String(connection || 'default')
+      return state.obsAudioDataByConnection[name] ?? (name === 'default' ? state.obsAudioData : {})
+    },
     getAssets: (state) => state.assets,
     getWledConfigs: (state) => state.wledConfigs,
     getStatus: (state) => state.status,
@@ -372,9 +384,61 @@ export const useAppStore = defineStore('app', {
 
       this.$patch(state => state.settings = this.settings)
     },
-    setObsSceneData(obsSceneData: []) {
-      this.obsSceneData = obsSceneData
-      this.$patch(state => state.obsSceneData = obsSceneData)
+    setObsSceneData(obsSceneData: any) {
+      const nextByConnection: Record<string, any[]> = {}
+
+      const add = (connection: any, value: any) => {
+        const name = String(connection ?? 'default').trim() || 'default'
+        const entries = Array.isArray(value) ? value : (value == null ? [] : [value])
+        nextByConnection[name] = [...(nextByConnection[name] ?? []), ...entries]
+      }
+
+      if (Array.isArray(obsSceneData)) {
+        const hasConnectionMetadata = obsSceneData.some((entry: any) =>
+          entry && typeof entry === 'object' && (entry.obs_id ?? entry.obsId ?? entry.connection)
+        )
+
+        if (hasConnectionMetadata) {
+          for (const entry of obsSceneData) {
+            const connection = entry?.obs_id ?? entry?.obsId ?? entry?.connection ?? 'default'
+            // Keep the canvas/root object intact. It may carry canvas metadata in addition to scenes.
+            const value = entry?.data ?? entry
+            add(connection, value)
+          }
+        } else {
+          add('default', obsSceneData)
+        }
+      } else if (obsSceneData && typeof obsSceneData === 'object') {
+        const connection = obsSceneData.obs_id ?? obsSceneData.obsId ?? obsSceneData.connection
+        const wrappedData = obsSceneData.data
+
+        if (connection !== undefined) {
+          Object.assign(nextByConnection, this.obsSceneDataByConnection ?? {})
+          // Keep scene/canvas metadata intact unless the backend explicitly wraps it in `data`.
+          add(connection, wrappedData ?? obsSceneData)
+        } else if (obsSceneData.connections && typeof obsSceneData.connections === 'object') {
+          for (const [name, value] of Object.entries(obsSceneData.connections)) add(name, value)
+        } else {
+          const entries = Object.entries(obsSceneData)
+          const looksLikeConnectionMap = entries.length > 0 && entries.every(([, value]) => Array.isArray(value))
+
+          if (looksLikeConnectionMap) {
+            for (const [name, value] of entries) add(name, value)
+          } else {
+            add('default', obsSceneData)
+          }
+        }
+      } else {
+        add('default', [])
+      }
+
+      this.obsSceneDataByConnection = nextByConnection
+      this.obsSceneData = Object.values(nextByConnection).flat()
+
+      this.$patch(state => {
+        state.obsSceneDataByConnection = nextByConnection
+        state.obsSceneData = this.obsSceneData
+      })
     },
     setTestMode(testMode: boolean) {
       this.testMode = testMode
@@ -416,9 +480,69 @@ export const useAppStore = defineStore('app', {
       this.yoloboxData = yoloboxData
       this.$patch(state => state.yoloboxData = yoloboxData)
     },
-    setObsAudioData(obsAudioData: {}) {
-      this.obsAudioData = obsAudioData
-      this.$patch(state => state.obsAudioData = obsAudioData)
+    setObsAudioData(obsAudioData: any) {
+      const nextByConnection: Record<string, any> = {}
+
+      const add = (connection: any, value: any) => {
+        const name = String(connection ?? 'default').trim() || 'default'
+        nextByConnection[name] = value ?? {}
+      }
+
+      if (Array.isArray(obsAudioData)) {
+        const grouped: Record<string, any[]> = {}
+        for (const entry of obsAudioData) {
+          const name = String(entry?.obs_id ?? entry?.obsId ?? entry?.connection ?? 'default').trim() || 'default'
+          const value = entry?.audio ?? entry?.inputs ?? entry?.data ?? entry
+          grouped[name] = [...(grouped[name] ?? []), value]
+        }
+        for (const [name, value] of Object.entries(grouped)) add(name, value)
+      } else if (obsAudioData && typeof obsAudioData === 'object') {
+        const connection = obsAudioData.obs_id ?? obsAudioData.obsId ?? obsAudioData.connection
+        const wrappedData = obsAudioData.audio ?? obsAudioData.inputs ?? obsAudioData.data
+
+        if (connection !== undefined && wrappedData !== undefined) {
+          Object.assign(nextByConnection, this.obsAudioDataByConnection ?? {})
+          add(connection, wrappedData)
+        } else if (obsAudioData.connections && typeof obsAudioData.connections === 'object') {
+          for (const [name, value] of Object.entries(obsAudioData.connections)) add(name, value)
+        } else {
+          const entries = Object.entries(obsAudioData)
+          const indexedSceneConnections = new Set(Object.keys(this.obsSceneDataByConnection ?? {}))
+          const looksLikeConnectionMap = entries.length > 0
+            && entries.every(([name, value]) =>
+              indexedSceneConnections.has(name)
+              && value !== null
+              && typeof value === 'object'
+            )
+
+          if (looksLikeConnectionMap) {
+            for (const [name, value] of entries) add(name, value)
+          } else {
+            // Legacy payload: a single map of OBS inputs.
+            add('default', obsAudioData)
+          }
+        }
+      } else {
+        add('default', {})
+      }
+
+      this.obsAudioDataByConnection = nextByConnection
+
+      // Keep the legacy getter useful for old editors by exposing all indexed inputs.
+      const merged: Record<string, any> = {}
+      for (const [connection, value] of Object.entries(nextByConnection)) {
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          Object.assign(merged, value)
+        } else {
+          merged[connection] = value
+        }
+      }
+      this.obsAudioData = merged
+
+      this.$patch(state => {
+        state.obsAudioDataByConnection = nextByConnection
+        state.obsAudioData = this.obsAudioData
+      })
     },
     setAssets(assets: any) {
       this.assets = assets

@@ -134,6 +134,9 @@ export default {
     obsConnectionOptions(): string[] {
       const names = new Set<string>(['default'])
 
+      Object.keys(this.appStore.getObsSceneDataByConnection ?? {}).forEach(name => names.add(name))
+      Object.keys(this.appStore.getObsAudioDataByConnection ?? {}).forEach(name => names.add(name))
+
       const integrations: any =
         this.appStore.getIntegrations
         ?? this.appStore.integrations
