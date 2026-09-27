@@ -70,6 +70,9 @@
         <v-tab value="channel-points" prepend-icon="mdi-star-circle-outline">
           {{ $t('categoryLibrary.editor.tabs.channelPoints') }}
         </v-tab>
+        <v-tab value="macros" prepend-icon="mdi-playlist-play">
+          {{ $t('categoryLibrary.editor.tabs.macros') }}
+        </v-tab>
         <v-tab value="obs" prepend-icon="mdi-filter-cog-outline">
           {{ $t('categoryLibrary.editor.tabs.obs') }}
         </v-tab>
@@ -533,6 +536,93 @@
             </div>
           </v-window-item>
 
+          <v-window-item value="macros">
+            <div class="category-editor-page">
+              <v-card color="grey-darken-3" variant="flat">
+                <v-card-title class="text-subtitle-1 d-flex align-center ga-2">
+                  <v-icon icon="mdi-playlist-play" />
+                  {{ $t('categoryLibrary.editor.macros') }}
+                </v-card-title>
+
+                <v-card-text>
+                  <div class="text-body-2 text-medium-emphasis mb-4">
+                    {{ $t('categoryLibrary.editor.macrosHint') }}
+                  </div>
+
+                  <v-row density="comfortable">
+                    <v-col cols="12" xl="6">
+                      <v-card color="grey-darken-4" variant="flat" class="pa-4 h-100">
+                        <v-autocomplete
+                          v-model="form.active_macros"
+                          :items="macroOptions"
+                          :label="$t('categoryLibrary.editor.activeMacros')"
+                          :hint="$t('categoryLibrary.editor.activeMacrosHint')"
+                          persistent-hint
+                          multiple
+                          chips
+                          closable-chips
+                          clearable
+                          variant="outlined"
+                          density="compact"
+                        >
+                          <template #prepend-item>
+                            <v-list-item
+                              prepend-icon="mdi-plus"
+                              @click="openCreateMacroDialog('active')"
+                            >
+                              <v-list-item-title>{{ $t('macro.createFile') }}</v-list-item-title>
+                            </v-list-item>
+                            <v-divider class="my-1" />
+                          </template>
+
+                          <template #chip="{ props, item }">
+                            <v-chip v-bind="props" color="success" variant="tonal">
+                              {{ item.title }}
+                            </v-chip>
+                          </template>
+                        </v-autocomplete>
+                      </v-card>
+                    </v-col>
+
+                    <v-col cols="12" xl="6">
+                      <v-card color="grey-darken-4" variant="flat" class="pa-4 h-100">
+                        <v-autocomplete
+                          v-model="form.inactive_macros"
+                          :items="macroOptions"
+                          :label="$t('categoryLibrary.editor.inactiveMacros')"
+                          :hint="$t('categoryLibrary.editor.inactiveMacrosHint')"
+                          persistent-hint
+                          multiple
+                          chips
+                          closable-chips
+                          clearable
+                          variant="outlined"
+                          density="compact"
+                        >
+                          <template #prepend-item>
+                            <v-list-item
+                              prepend-icon="mdi-plus"
+                              @click="openCreateMacroDialog('inactive')"
+                            >
+                              <v-list-item-title>{{ $t('macro.createFile') }}</v-list-item-title>
+                            </v-list-item>
+                            <v-divider class="my-1" />
+                          </template>
+
+                          <template #chip="{ props, item }">
+                            <v-chip v-bind="props" color="secondary" variant="tonal">
+                              {{ item.title }}
+                            </v-chip>
+                          </template>
+                        </v-autocomplete>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </div>
+          </v-window-item>
+
           <v-window-item value="obs">
             <div class="category-editor-page">
               <v-row density="comfortable">
@@ -759,12 +849,27 @@
       />
     </v-card>
   </v-dialog>
+
+  <MacroCreateDialog
+    v-model="createMacroDialog"
+    @created="handleMacroCreated"
+  />
+
+  <MacroEditorDialog
+    ref="createdMacroEditorDialog"
+    v-model="createdMacroEditorOpen"
+    :name="createdMacroName"
+    @saved="handleCreatedMacroSaved"
+  />
 </template>
 
 <script lang="ts">
 import AssetPreview from '@/components/AssetPreview.vue'
 import ColorPickerField from '@/components/inputs/ColorPickerField.vue'
+import MacroCreateDialog from '@/components/dialogs/MacroCreateDialog.vue'
+import MacroEditorDialog from '@/components/dialogs/MacroEditorDialog.vue'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
+import { useAppStore } from '@/stores/app'
 
 
 export default {
@@ -773,6 +878,8 @@ export default {
   components: {
     AssetPreview,
     ColorPickerField,
+    MacroCreateDialog,
+    MacroEditorDialog,
   },
 
   props: {
@@ -792,6 +899,7 @@ export default {
 
   data() {
     return {
+      appStore: useAppStore(),
       errorMessage: '',
       loadingMedia: false,
       mediaLoaded: false,
@@ -801,6 +909,10 @@ export default {
       obsFiltersJson: '{}',
       obsFiltersError: '',
       activeTab: 'general',
+      createMacroDialog: false,
+      createMacroTarget: '' as 'active' | 'inactive' | '',
+      createdMacroEditorOpen: false,
+      createdMacroName: '',
       form: this.emptyForm(),
     }
   },
@@ -821,6 +933,17 @@ export default {
 
     obsFilterCount(): number {
       return Object.keys(this.form.obs_filters ?? {}).length
+    },
+
+    macroOptions(): string[] {
+      const macros: any = this.appStore.getMacros ?? {}
+      const names = Array.isArray(macros)
+        ? macros.map((item: any) => typeof item === 'string' ? item : item?.name)
+        : Object.keys(macros)
+
+      return Array.from(new Set(
+        names.map((name: any) => String(name ?? '').trim()).filter(Boolean),
+      )).sort((a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }))
     },
 
     currentObsSourceCount(): number {
@@ -879,6 +1002,43 @@ export default {
   },
 
   methods: {
+    openCreateMacroDialog(target: 'active' | 'inactive') {
+      this.createMacroTarget = target
+      this.createMacroDialog = true
+    },
+
+    async handleMacroCreated(path: string) {
+      const fileName = String(path ?? '').split('/').pop() ?? ''
+      const name = fileName.replace(/\.ya?ml$/i, '').trim()
+      if (!name) return
+
+      const target = this.createMacroTarget
+      this.createMacroDialog = false
+      this.createdMacroName = name
+
+      if (target === 'active') {
+        this.form.active_macros = Array.from(new Set([...(this.form.active_macros ?? []), name]))
+      } else if (target === 'inactive') {
+        this.form.inactive_macros = Array.from(new Set([...(this.form.inactive_macros ?? []), name]))
+      }
+
+      // Keep the new macro visible immediately; the regular websocket macro update
+      // will replace this placeholder with the full macro data shortly afterwards.
+      const currentMacros: any = this.appStore.getMacros ?? {}
+      if (!Array.isArray(currentMacros) && !Object.prototype.hasOwnProperty.call(currentMacros, name)) {
+        this.appStore.setMacros({ ...currentMacros, [name]: { file: path } })
+      }
+
+      this.createdMacroEditorOpen = true
+      await this.$nextTick()
+      await (this.$refs.createdMacroEditorDialog as any)?.open?.()
+    },
+
+    handleCreatedMacroSaved() {
+      this.createdMacroEditorOpen = false
+      this.createMacroTarget = ''
+    },
+
     emptyForm() {
       return {
         category_id: '',
@@ -893,6 +1053,8 @@ export default {
         obs_filters: {} as Record<string, any>,
         channel_points: [] as string[],
         blocked_channel_points: [] as string[],
+        active_macros: [] as string[],
+        inactive_macros: [] as string[],
         custom_media: [] as Array<{ name: string; path: string }>,
         use_as_media_fallback: false,
         created_at: '',
@@ -925,6 +1087,12 @@ export default {
               .map((point: any) => String(typeof point === 'string' ? point : point?.name ?? point?.label ?? '').trim())
               .filter(Boolean)
           : [],
+        active_macros: this.normalizeMacroList(
+          value?.active_macros ?? value?.activate_macros ?? value?.on_active_macros,
+        ),
+        inactive_macros: this.normalizeMacroList(
+          value?.inactive_macros ?? value?.deactivate_macros ?? value?.on_inactive_macros,
+        ),
         custom_media: Array.isArray(value?.custom_media)
           ? value.custom_media
               .map((media: any) => {
@@ -939,6 +1107,13 @@ export default {
         use_as_media_fallback: value?.use_as_media_fallback === true,
       }
       this.obsFiltersJson = JSON.stringify(this.form.obs_filters ?? {}, null, 2)
+    },
+
+    normalizeMacroList(value: any): string[] {
+      if (!Array.isArray(value)) return []
+      return Array.from(new Set(
+        value.map((macro: any) => String(typeof macro === 'string' ? macro : macro?.name ?? '').trim()).filter(Boolean),
+      ))
     },
 
     filterSummary(filter: any): string {
@@ -1297,6 +1472,12 @@ export default {
         )),
         blocked_channel_points: Array.from(new Set(
           (this.form.blocked_channel_points ?? []).map((name: string) => String(name).trim()).filter(Boolean),
+        )),
+        active_macros: Array.from(new Set(
+          (this.form.active_macros ?? []).map((name: string) => String(name).trim()).filter(Boolean),
+        )),
+        inactive_macros: Array.from(new Set(
+          (this.form.inactive_macros ?? []).map((name: string) => String(name).trim()).filter(Boolean),
         )),
         custom_media: this.form.custom_media
           .map((media: any) => ({

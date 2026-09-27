@@ -2639,8 +2639,15 @@
         "general": "Overview",
         "media": "Media",
         "channelPoints": "Channel Points",
-        "obs": "OBS & CSS"
-      }
+        "obs": "OBS & CSS",
+        "macros": "Macros"
+      },
+      "macros": "Category macros",
+      "macrosHint": "Run one or more macros automatically when this category becomes active or inactive.",
+      "activeMacros": "Run when category becomes active",
+      "activeMacrosHint": "These macros run after this category becomes active.",
+      "inactiveMacros": "Run when category becomes inactive",
+      "inactiveMacrosHint": "These macros run when switching away from this category."
     },
     "columns": {
       "category": "Category",

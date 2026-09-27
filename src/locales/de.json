@@ -2639,8 +2639,15 @@
         "general": "Übersicht",
         "media": "Medien",
         "channelPoints": "Kanalpunkte",
-        "obs": "OBS & CSS"
-      }
+        "obs": "OBS & CSS",
+        "macros": "Makros"
+      },
+      "macros": "Kategorie-Makros",
+      "macrosHint": "Führe automatisch ein oder mehrere Makros aus, wenn diese Kategorie aktiv bzw. inaktiv wird.",
+      "activeMacros": "Beim Aktivieren ausführen",
+      "activeMacrosHint": "Diese Makros werden ausgeführt, nachdem diese Kategorie aktiv geworden ist.",
+      "inactiveMacros": "Beim Deaktivieren ausführen",
+      "inactiveMacrosHint": "Diese Makros werden beim Wechsel von dieser Kategorie ausgeführt."
     },
     "columns": {
       "category": "Kategorie",
