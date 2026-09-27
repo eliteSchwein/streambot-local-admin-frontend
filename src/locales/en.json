@@ -193,6 +193,11 @@
       "random": {
         "title": "Random number"
       },
+      "randomColor": {
+        "title": "Random color",
+        "variablePlaceholder": "random_color",
+        "hint": "Stores a random uppercase HEX color such as #A1B2C3 in this variable."
+      },
       "sendDm": {
         "title": "Send DM"
       },
@@ -697,7 +702,11 @@
           "title": "Sleep"
         }
       },
+      "randomGroup": {
+        "title": "Random"
+      },
       "random": "Random number",
+      "randomColor": "Random color",
       "fileReadAssetFolder": "File: read asset folder",
       "channelPoint": {
         "title": "Channel point",

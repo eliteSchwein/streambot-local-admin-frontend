@@ -366,6 +366,10 @@ export default {
             add(data.key, 'number')
           }
 
+          if (channel === 'function' && method === 'random_color') {
+            add(data.key, 'string')
+          }
+
           if (channel === 'function' && method === 'strip_emojis') {
             add(data.key, 'string')
           }
@@ -613,6 +617,7 @@ export default {
           dump_variables: 'MacroFunctionDumpVariablesTaskAccordion',
           parallel: 'MacroFunctionParallelTaskAccordion',
           random: 'MacroFunctionRandomTaskAccordion',
+          random_color: 'MacroFunctionRandomColorTaskAccordion',
           send_dm: 'MacroFunctionSendDmTaskAccordion',
           send_message: 'MacroFunctionSendMessageTaskAccordion',
           sleep: 'MacroFunctionSleepTaskAccordion',

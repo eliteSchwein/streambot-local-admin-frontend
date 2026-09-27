@@ -193,6 +193,11 @@
       "random": {
         "title": "Zufallszahl"
       },
+      "randomColor": {
+        "title": "Zufallsfarbe",
+        "variablePlaceholder": "random_color",
+        "hint": "Speichert eine zufällige HEX-Farbe in Großbuchstaben wie #A1B2C3 in dieser Variable."
+      },
       "sendDm": {
         "title": "DM senden"
       },
@@ -697,7 +702,11 @@
           "title": "Pause"
         }
       },
+      "randomGroup": {
+        "title": "Zufall"
+      },
       "random": "Zufallszahl",
+      "randomColor": "Zufallsfarbe",
       "fileReadAssetFolder": "Datei: Asset-Ordner lesen",
       "channelPoint": {
         "title": "Kanalpunkt",

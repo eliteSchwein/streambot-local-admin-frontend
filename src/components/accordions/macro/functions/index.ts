@@ -3,6 +3,7 @@ export { default as MacroFunctionBaseTaskAccordion } from './MacroFunctionBaseTa
 export { default as MacroFunctionDumpVariablesTaskAccordion } from './MacroFunctionDumpVariablesTaskAccordion.vue'
 export { default as MacroFunctionParallelTaskAccordion } from './MacroFunctionParallelTaskAccordion.vue'
 export { default as MacroFunctionRandomTaskAccordion } from './MacroFunctionRandomTaskAccordion.vue'
+export { default as MacroFunctionRandomColorTaskAccordion } from './MacroFunctionRandomColorTaskAccordion.vue'
 export { default as MacroFunctionSendDmTaskAccordion } from './MacroFunctionSendDmTaskAccordion.vue'
 export { default as MacroFunctionSendMessageTaskAccordion } from './MacroFunctionSendMessageTaskAccordion.vue'
 export { default as MacroFunctionSleepTaskAccordion } from './MacroFunctionSleepTaskAccordion.vue'
@@ -109,10 +110,22 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
     create: () => ({ type: 'task', task: { channel: 'function', method: 'sleep', data: { time: 300000 } } }),
   },
   {
+    path: [
+      { titleKey: "macro.presets.randomGroup.title", icon: "mdi-dice-multiple-outline" },
+    ],
     titleKey: "macro.presets.random",
-    icon: "mdi-dice-multiple-outline",
+    icon: "mdi-numeric",
     order: 32,
     create: () => ({ type: 'task', task: { channel: 'function', method: 'random', data: { key: '', min: 0, max: 100 } } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.randomGroup.title", icon: "mdi-dice-multiple-outline" },
+    ],
+    titleKey: "macro.presets.randomColor",
+    icon: "mdi-palette-outline",
+    order: 33,
+    create: () => ({ type: 'task', task: { channel: 'function', method: 'random_color', data: { key: 'random_color' } } }),
   },
   {
     path: [

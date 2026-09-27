@@ -13,6 +13,7 @@
 <script lang="ts">
 import MacroTaskAccordion from '@/components/accordions/macro/MacroTaskAccordion.vue'
 import MacroFunctionRandomTaskAccordion from './MacroFunctionRandomTaskAccordion.vue'
+import MacroFunctionRandomColorTaskAccordion from './MacroFunctionRandomColorTaskAccordion.vue'
 import MacroFunctionSendDmTaskAccordion from './MacroFunctionSendDmTaskAccordion.vue'
 import MacroFunctionSendMessageTaskAccordion from './MacroFunctionSendMessageTaskAccordion.vue'
 import MacroFunctionSleepTaskAccordion from './MacroFunctionSleepTaskAccordion.vue'
@@ -27,6 +28,7 @@ export default {
   components: {
     MacroFunctionAnnounceTaskAccordion,
     MacroFunctionRandomTaskAccordion,
+    MacroFunctionRandomColorTaskAccordion,
     MacroFunctionSleepTaskAccordion,
     MacroFunctionSpeakTaskAccordion,
     MacroFunctionSongRequestTaskAccordion,
@@ -50,6 +52,7 @@ export default {
 
       const componentsByMethod: Record<string, string> = {
         random: 'MacroFunctionRandomTaskAccordion',
+        random_color: 'MacroFunctionRandomColorTaskAccordion',
         sleep: 'MacroFunctionSleepTaskAccordion',
         speak: 'MacroFunctionSpeakTaskAccordion',
         song_request: 'MacroFunctionSongRequestTaskAccordion',

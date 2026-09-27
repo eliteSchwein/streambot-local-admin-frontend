@@ -98,6 +98,7 @@ declare module 'vue' {
     MacroFunctionBaseTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionBaseTaskAccordion.vue')['default']
     MacroFunctionDumpVariablesTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionDumpVariablesTaskAccordion.vue')['default']
     MacroFunctionParallelTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionParallelTaskAccordion.vue')['default']
+    MacroFunctionRandomColorTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionRandomColorTaskAccordion.vue')['default']
     MacroFunctionRandomTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionRandomTaskAccordion.vue')['default']
     MacroFunctionSendDmTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionSendDmTaskAccordion.vue')['default']
     MacroFunctionSendMessageTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionSendMessageTaskAccordion.vue')['default']
