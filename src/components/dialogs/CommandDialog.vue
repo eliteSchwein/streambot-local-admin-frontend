@@ -454,8 +454,16 @@ export default {
       this.macroContent = ''
 
       if (!this.isEditing) {
-        this.syncMacro()
+        // The dialog stays mounted between edit/create operations. Do not read the
+        // macro accordion here: it may still contain the previously edited command.
+        // Start every new command with a genuinely empty macro instead.
+        this.macroContent = this.defaultMacroContent(this.generatedMacroName)
+
         await this.$nextTick()
+        ;(this.$refs.macroAccordion as any)?.setContent?.(
+          this.macroContent,
+          this.generatedMacroName,
+        )
         ;(this.$refs.assetAccordion as any)?.setAsset?.({ channel: 'general', duration: 5 })
         return
       }
