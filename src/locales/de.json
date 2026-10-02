@@ -2280,6 +2280,26 @@
         "apiKey": "Steam Web-API-Key",
         "apiKeyConfigured": "API-Key ist konfiguriert",
         "clear": "API-Key entfernen"
+      },
+      "cloud": {
+        "title": "Cloud Backend",
+        "description": "Optionale Streambot-Cloud-Verbindung für das Remote-Mod-Panel. Diese Registrierung ist vollständig unabhängig von Twitch Control- und Message-Auth.",
+        "registered": "Streambot ist beim Cloud Backend registriert",
+        "instanceId": "Instanz-ID",
+        "enabled": "Cloud-Verbindung aktivieren",
+        "unlink": "Verknüpfung entfernen",
+        "register": "Streambot registrieren",
+        "pairingDescription": "Starte die Registrierung hier. Im Remote-Streambot-Panel wird anschließend eine 6-stellige PIN angezeigt; gib diese PIN hier ein, um die Instanz zu verknüpfen.",
+        "instanceName": "Instanzname",
+        "instanceNamePlaceholder": "Leer lassen, um den Hostnamen zu verwenden",
+        "pendingDescription": "Die Registrierung wartet auf die 6-stellige PIN aus dem Remote-Streambot-Panel.",
+        "registrationStatus": "Registrierungsstatus",
+        "refreshStatus": "Status aktualisieren",
+        "reconnect": "Neu verbinden",
+        "pairingId": "Pairing-ID",
+        "verificationPin": "Bestätigungs-PIN",
+        "verificationPinHint": "Gib die 6-stellige PIN ein, die im Remote-Panel angezeigt wird.",
+        "verifyPin": "PIN bestätigen"
       }
     }
   },

@@ -2280,6 +2280,26 @@
         "apiKey": "Steam Web API key",
         "apiKeyConfigured": "API key is configured",
         "clear": "Remove API key"
+      },
+      "cloud": {
+        "title": "Cloud Backend",
+        "description": "Optional Streambot Cloud connection for the remote moderator panel. This registration is independent from Twitch control and message authentication.",
+        "registered": "Streambot is registered with the cloud backend",
+        "instanceId": "Instance ID",
+        "enabled": "Enable cloud connection",
+        "unlink": "Unlink",
+        "register": "Register Streambot",
+        "pairingDescription": "Start registration here. The remote Streambot panel will show a 6-digit PIN; enter that PIN here to finish linking this Streambot instance.",
+        "instanceName": "Instance name",
+        "instanceNamePlaceholder": "Leave empty to use the hostname",
+        "pendingDescription": "Registration is waiting for the 6-digit PIN shown in the remote Streambot panel.",
+        "registrationStatus": "Registration status",
+        "refreshStatus": "Refresh status",
+        "reconnect": "Reconnect",
+        "pairingId": "Pairing ID",
+        "verificationPin": "Verification PIN",
+        "verificationPinHint": "Enter the 6-digit PIN shown by the remote panel.",
+        "verifyPin": "Verify PIN"
       }
     }
   },

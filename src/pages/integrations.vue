@@ -88,6 +88,181 @@
           <v-card class="integration-card" color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
+                <v-icon icon="mdi-cloud-outline" />
+                <span>{{ $t('integrations.ui.cloud.title') }}</span>
+              </div>
+
+              <v-chip
+                size="x-small"
+                :color="cloudStatus.connected ? 'success' : (cloudStatus.registered && cloudStatus.enabled ? 'warning' : 'grey')"
+                variant="tonal"
+              >
+                {{ cloudStatus.connected
+                  ? $t('integrations.ui.status.connected')
+                  : (cloudStatus.registered
+                    ? (cloudStatus.enabled ? $t('integrations.ui.status.offline') : $t('integrations.ui.status.disabled'))
+                    : $t('integrations.ui.status.optional')) }}
+              </v-chip>
+            </v-card-title>
+
+            <v-card-text class="pt-2">
+              <div class="text-body-2 text-medium-emphasis mb-4">
+                {{ $t('integrations.ui.cloud.description') }}
+              </div>
+
+              <v-alert
+                v-if="cloudStatus.error"
+                type="error"
+                variant="tonal"
+                density="compact"
+                class="mb-4"
+              >
+                {{ cloudStatus.error }}
+              </v-alert>
+
+              <template v-if="cloudStatus.registered">
+                <v-list bg-color="transparent" density="compact" class="pa-0 mb-3">
+                  <v-list-item rounded class="bg-grey-darken-3">
+                    <template #prepend>
+                      <v-avatar color="primary" variant="tonal">
+                        <v-icon icon="mdi-server-network" />
+                      </v-avatar>
+                    </template>
+                    <v-list-item-title>
+                      {{ cloudStatus.instanceName || $t('integrations.ui.cloud.registered') }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle v-if="cloudStatus.instanceId">
+                      {{ $t('integrations.ui.cloud.instanceId') }}: {{ cloudStatus.instanceId }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                </v-list>
+
+                <v-switch
+                  :model-value="cloudStatus.enabled"
+                  :label="$t('integrations.ui.cloud.enabled')"
+                  color="primary"
+                  density="compact"
+                  hide-details
+                  class="mb-3"
+                  :loading="loading.cloudToggle"
+                  :disabled="reloadInProgress || loading.cloudToggle || loading.cloudRemove"
+                  @update:model-value="toggleCloud"
+                />
+
+                <div class="d-flex ga-2 flex-wrap">
+                  <v-btn
+                    v-if="cloudStatus.enabled && !cloudStatus.connected"
+                    color="primary"
+                    variant="tonal"
+                    prepend-icon="mdi-refresh"
+                    :loading="loading.cloudReconnect"
+                    :disabled="reloadInProgress || loading.cloudToggle || loading.cloudRemove"
+                    @click="reconnectCloud"
+                  >
+                    {{ $t('integrations.ui.cloud.reconnect') }}
+                  </v-btn>
+
+                  <v-btn
+                    color="error"
+                    variant="text"
+                    prepend-icon="mdi-link-off"
+                    :loading="loading.cloudRemove"
+                    :disabled="reloadInProgress || loading.cloudToggle || loading.cloudReconnect"
+                    @click="removeCloud"
+                  >
+                    {{ $t('integrations.ui.cloud.unlink') }}
+                  </v-btn>
+                </div>
+              </template>
+
+              <template v-else-if="cloudStatus.registering">
+                <v-alert type="info" variant="tonal" density="compact" class="mb-4">
+                  <div>{{ $t('integrations.ui.cloud.pendingDescription') }}</div>
+                  <div v-if="cloudStatus.pairingId" class="text-caption mt-1">
+                    {{ $t('integrations.ui.cloud.pairingId') }}: {{ cloudStatus.pairingId }}
+                  </div>
+                  <div v-if="cloudStatus.registrationStatus" class="text-caption mt-1">
+                    {{ $t('integrations.ui.cloud.registrationStatus') }}: {{ cloudStatus.registrationStatus }}
+                  </div>
+                </v-alert>
+
+                <v-text-field
+                  :model-value="cloudRegistrationPin"
+                  :label="$t('integrations.ui.cloud.verificationPin')"
+                  :hint="$t('integrations.ui.cloud.verificationPinHint')"
+                  persistent-hint
+                  variant="outlined"
+                  density="compact"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  maxlength="6"
+                  class="mb-3"
+                  :disabled="reloadInProgress || loading.cloudVerify"
+                  @update:model-value="onCloudPinInput"
+                  @keydown.enter="verifyCloudRegistration"
+                />
+
+                <div class="d-flex ga-2 flex-wrap">
+                  <v-btn
+                    color="primary"
+                    variant="flat"
+                    prepend-icon="mdi-shield-check"
+                    :loading="loading.cloudVerify"
+                    :disabled="reloadInProgress || loading.cloudVerify || cloudRegistrationPin.length !== 6"
+                    @click="verifyCloudRegistration"
+                  >
+                    {{ $t('integrations.ui.cloud.verifyPin') }}
+                  </v-btn>
+
+                  <v-btn
+                    color="secondary"
+                    variant="text"
+                    prepend-icon="mdi-refresh"
+                    :loading="loading.cloudStatus"
+                    :disabled="reloadInProgress || loading.cloudStatus"
+                    @click="refreshCloudStatus"
+                  >
+                    {{ $t('integrations.ui.cloud.refreshStatus') }}
+                  </v-btn>
+                </div>
+              </template>
+
+              <template v-else>
+                <v-alert type="info" variant="tonal" density="compact" class="mb-4">
+                  {{ $t('integrations.ui.cloud.pairingDescription') }}
+                </v-alert>
+
+                <v-text-field
+                  v-model="cloudInstanceName"
+                  :label="$t('integrations.ui.cloud.instanceName')"
+                  :placeholder="$t('integrations.ui.cloud.instanceNamePlaceholder')"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  class="mb-4"
+                  :disabled="reloadInProgress || loading.cloudRegister"
+                  @keydown.enter="registerCloud"
+                />
+
+                <v-btn
+                  color="primary"
+                  variant="flat"
+                  prepend-icon="mdi-link-variant-plus"
+                  :loading="loading.cloudRegister"
+                  :disabled="reloadInProgress || loading.cloudRegister"
+                  @click="registerCloud"
+                >
+                  {{ $t('integrations.ui.cloud.register') }}
+                </v-btn>
+              </template>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" lg="6">
+          <v-card class="integration-card" color="grey-darken-4" elevation="0">
+            <v-card-title class="d-flex align-center justify-space-between">
+              <div class="d-flex align-center ga-2">
                 <v-icon icon="mdi-steam" />
                 <span>Steam</span>
               </div>
@@ -974,6 +1149,9 @@ export default {
       ollamaExternalUrlOverride: null as string | null,
       ollamaExternalApiKey: '',
       steamApiKey: '',
+      cloudInstanceName: '',
+      cloudRuntimeState: null as any,
+      cloudRegistrationPin: '',
 
       loading: {
         wledAdd: false,
@@ -988,6 +1166,12 @@ export default {
         neopixelSave: false,
         neopixelRemove: '',
         steam: false,
+        cloudRegister: false,
+        cloudVerify: false,
+        cloudToggle: false,
+        cloudRemove: false,
+        cloudReconnect: false,
+        cloudStatus: false,
       },
 
     }
@@ -1148,6 +1332,39 @@ export default {
       )
     },
 
+    cloudStatus(): {
+      enabled: boolean
+      registered: boolean
+      connected: boolean
+      registering: boolean
+      instanceId: string
+      instanceName: string
+      pairingId: string
+      pinRequired: boolean
+      registrationStatus: string
+      expiresAt: number | null
+      error: string
+    } {
+      const cloud = this.integrations?.cloud ?? {}
+      const runtime = this.cloudRuntimeState ?? {}
+      const managed = (this.appStore.getConnections as any)?.cloud ?? {}
+      const instanceId = String(runtime.instance_id ?? cloud.instance_id ?? '')
+
+      return {
+        enabled: Boolean(runtime.enabled ?? cloud.enabled),
+        registered: Boolean(runtime.registered ?? cloud.registered ?? instanceId),
+        connected: Boolean(managed.connected ?? runtime.connected ?? false),
+        registering: Boolean(runtime.pending_registration ?? runtime.registering ?? false),
+        instanceId,
+        instanceName: String(runtime.name ?? cloud.name ?? ''),
+        pairingId: String(runtime.pairing_id ?? ''),
+        pinRequired: Boolean(runtime.pin_required ?? runtime.pending_registration ?? false),
+        registrationStatus: String(runtime.registration_status ?? runtime.status ?? ''),
+        expiresAt: runtime.expires_at == null ? null : Number(runtime.expires_at),
+        error: String(runtime.error ?? ''),
+      }
+    },
+
     steamHasApiKey(): boolean {
       return Boolean(this.integrations?.steam?.has_api_key)
     },
@@ -1158,6 +1375,10 @@ export default {
         message: Boolean(this.integrations?.twitch?.message),
       }
     },
+  },
+
+  mounted() {
+    void this.refreshCloudStatus()
   },
 
   methods: {
@@ -1181,6 +1402,128 @@ export default {
       } catch (error) {
         this.showError(error instanceof Error ? error.message : String(error))
         return false
+      }
+    },
+
+    async requestCloud(method: string, params: any = {}) {
+      const websocketClient = getWebsocketClient()
+
+      if (!websocketClient) {
+        this.showError(String(this.$t('integrations.ui.errors.websocketDisconnected')))
+        return null
+      }
+
+      try {
+        const response = await websocketClient.request(method, params)
+        const payload = response?.result ?? response?.data ?? response ?? {}
+
+        if (payload?.error) {
+          this.showError(String(payload.error?.message ?? payload.error))
+          return null
+        }
+
+        return payload
+      } catch (error: any) {
+        const message = error?.error?.message ?? error?.message ?? String(error)
+        this.showError(message)
+        return null
+      }
+    },
+
+    async refreshCloudStatus() {
+      this.loading.cloudStatus = true
+      try {
+        const state = await this.requestCloud('cloud_status')
+        if (state) {
+          this.cloudRuntimeState = state
+          if (!Boolean(state.pending_registration ?? state.pin_required ?? state.registering)) {
+            this.cloudRegistrationPin = ''
+          }
+        }
+      } finally {
+        this.loading.cloudStatus = false
+      }
+    },
+
+    async registerCloud() {
+      this.loading.cloudRegister = true
+      try {
+        const state = await this.requestCloud('cloud_registration_start', {
+          name: this.cloudInstanceName.trim(),
+        })
+        if (!state) return
+
+        this.cloudRegistrationPin = ''
+        this.cloudRuntimeState = {
+          ...(this.cloudRuntimeState ?? {}),
+          pending_registration: true,
+          pin_required: Boolean(state.pin_required ?? true),
+          pairing_id: state.pairing_id ?? '',
+          registration_status: state.status ?? 'pin_required',
+          expires_at: state.expires_at ?? null,
+        }
+      } finally {
+        this.loading.cloudRegister = false
+      }
+    },
+
+    onCloudPinInput(value: any) {
+      this.cloudRegistrationPin = String(value ?? '').replace(/\D/g, '').slice(0, 6)
+    },
+
+    async verifyCloudRegistration() {
+      const pin = this.cloudRegistrationPin.trim()
+      if (!/^\d{6}$/.test(pin)) return
+
+      this.loading.cloudVerify = true
+      try {
+        const state = await this.requestCloud('cloud_registration_verify', { pin })
+        if (!state) return
+
+        if (state.status === 'connected' || state.pin_required === false) {
+          this.cloudRegistrationPin = ''
+          await this.refreshCloudStatus()
+          return
+        }
+
+        this.cloudRuntimeState = {
+          ...(this.cloudRuntimeState ?? {}),
+          ...state,
+        }
+      } finally {
+        this.loading.cloudVerify = false
+      }
+    },
+
+    async toggleCloud(enabled: boolean | null) {
+      this.loading.cloudToggle = true
+      try {
+        const state = await this.requestCloud('cloud_toggle', { enabled: Boolean(enabled) })
+        if (state) this.cloudRuntimeState = state
+      } finally {
+        this.loading.cloudToggle = false
+      }
+    },
+
+    async reconnectCloud() {
+      this.loading.cloudReconnect = true
+      try {
+        const state = await this.requestCloud('cloud_reconnect')
+        if (state) this.cloudRuntimeState = state
+      } finally {
+        this.loading.cloudReconnect = false
+      }
+    },
+
+    async removeCloud() {
+      this.loading.cloudRemove = true
+      try {
+        const state = await this.requestCloud('cloud_remove')
+        if (state) this.cloudRuntimeState = state
+        this.cloudInstanceName = ''
+        this.cloudRegistrationPin = ''
+      } finally {
+        this.loading.cloudRemove = false
       }
     },
 
