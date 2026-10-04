@@ -134,6 +134,16 @@
                     <v-list-item-subtitle v-if="cloudStatus.instanceId">
                       {{ $t('integrations.ui.cloud.instanceId') }}: {{ cloudStatus.instanceId }}
                     </v-list-item-subtitle>
+                    <v-list-item-subtitle
+                      v-if="cloudStatus.enabled && (cloudStatus.connectionState !== 'connected' || (cloudStatus.connectionMessage && cloudStatus.connectionMessage !== 'connected'))"
+                    >
+                      <template v-if="cloudStatus.connectionState !== 'connected'">
+                        {{ cloudStatus.connectionState }}
+                      </template>
+                      <template v-if="cloudStatus.connectionMessage && cloudStatus.connectionMessage !== 'connected' && cloudStatus.connectionMessage !== cloudStatus.connectionState">
+                        <template v-if="cloudStatus.connectionState !== 'connected'"> · </template>{{ cloudStatus.connectionMessage }}
+                      </template>
+                    </v-list-item-subtitle>
                   </v-list-item>
                 </v-list>
 
@@ -1152,6 +1162,7 @@ export default {
       cloudInstanceName: '',
       cloudRuntimeState: null as any,
       cloudRegistrationPin: '',
+      cloudStatusPollTimer: null as ReturnType<typeof setInterval> | null,
 
       loading: {
         wledAdd: false,
@@ -1343,17 +1354,22 @@ export default {
       pinRequired: boolean
       registrationStatus: string
       expiresAt: number | null
+      connectionState: string
+      connectionMessage: string
       error: string
     } {
       const cloud = this.integrations?.cloud ?? {}
       const runtime = this.cloudRuntimeState ?? {}
-      const managed = (this.appStore.getConnections as any)?.cloud ?? {}
+      // cloud_status.connection is the backend-managed Cloud websocket state.
+      // appStore.getConnections is the list of Commander websocket clients and must
+      // not be used to determine whether the Cloud integration itself is online.
+      const connection = runtime.connection ?? {}
       const instanceId = String(runtime.instance_id ?? cloud.instance_id ?? '')
 
       return {
-        enabled: Boolean(runtime.enabled ?? cloud.enabled),
+        enabled: Boolean(runtime.enabled ?? cloud.enabled ?? connection.enabled),
         registered: Boolean(runtime.registered ?? cloud.registered ?? instanceId),
-        connected: Boolean(managed.connected ?? runtime.connected ?? false),
+        connected: Boolean(connection.connected ?? runtime.connected ?? false),
         registering: Boolean(runtime.pending_registration ?? runtime.registering ?? false),
         instanceId,
         instanceName: String(runtime.name ?? cloud.name ?? ''),
@@ -1361,7 +1377,9 @@ export default {
         pinRequired: Boolean(runtime.pin_required ?? runtime.pending_registration ?? false),
         registrationStatus: String(runtime.registration_status ?? runtime.status ?? ''),
         expiresAt: runtime.expires_at == null ? null : Number(runtime.expires_at),
-        error: String(runtime.error ?? ''),
+        connectionState: String(connection.state ?? (connection.connected ? 'connected' : 'disconnected')),
+        connectionMessage: String(connection.message ?? ''),
+        error: String(runtime.error ?? connection.error ?? ''),
       }
     },
 
@@ -1379,6 +1397,16 @@ export default {
 
   mounted() {
     void this.refreshCloudStatus()
+    this.cloudStatusPollTimer = setInterval(() => {
+      void this.refreshCloudStatus(true)
+    }, 2500)
+  },
+
+  beforeUnmount() {
+    if (this.cloudStatusPollTimer) {
+      clearInterval(this.cloudStatusPollTimer)
+      this.cloudStatusPollTimer = null
+    }
   },
 
   methods: {
@@ -1405,6 +1433,31 @@ export default {
       }
     },
 
+    unwrapCloudResponse(response: any, method: string): any {
+      const resultKey = `result_${String(method ?? '').replace(/[^a-zA-Z0-9_]/g, '_')}`
+      const queue: any[] = [response]
+      const seen = new Set<any>()
+
+      while (queue.length > 0) {
+        const current = queue.shift()
+        if (!current || typeof current !== 'object' || seen.has(current)) continue
+        seen.add(current)
+
+        if (Object.prototype.hasOwnProperty.call(current, resultKey)) {
+          return current[resultKey]
+        }
+
+        for (const key of ['params', 'result', 'data', 'payload']) {
+          const value = current[key]
+          if (value && typeof value === 'object') queue.push(value)
+        }
+      }
+
+      // Fallback for non-standard / older responses. Prefer params because the
+      // Streambot websocket API normally wraps method results there.
+      return response?.params ?? response?.result ?? response?.data ?? response?.payload ?? response ?? {}
+    },
+
     async requestCloud(method: string, params: any = {}) {
       const websocketClient = getWebsocketClient()
 
@@ -1415,7 +1468,7 @@ export default {
 
       try {
         const response = await websocketClient.request(method, params)
-        const payload = response?.result ?? response?.data ?? response ?? {}
+        const payload = this.unwrapCloudResponse(response, method)
 
         if (payload?.error) {
           this.showError(String(payload.error?.message ?? payload.error))
@@ -1424,14 +1477,15 @@ export default {
 
         return payload
       } catch (error: any) {
-        const message = error?.error?.message ?? error?.message ?? String(error)
-        this.showError(message)
+        const raw = error?.params ?? error?.result ?? error?.data ?? error
+        const message = raw?.error?.message ?? raw?.error ?? error?.message ?? String(error)
+        this.showError(String(message))
         return null
       }
     },
 
-    async refreshCloudStatus() {
-      this.loading.cloudStatus = true
+    async refreshCloudStatus(silent = false) {
+      if (!silent) this.loading.cloudStatus = true
       try {
         const state = await this.requestCloud('cloud_status')
         if (state) {
@@ -1441,7 +1495,7 @@ export default {
           }
         }
       } finally {
-        this.loading.cloudStatus = false
+        if (!silent) this.loading.cloudStatus = false
       }
     },
 
