@@ -422,6 +422,7 @@ export default {
       if (channel === 'audio') return 'mdi-volume-high'
       if (channel === 'obs') return 'mdi-video-outline'
       if (channel === 'yolobox') return 'mdi-video-wireless-outline'
+      if (channel === 'kofi') return 'mdi-coffee-outline'
       return 'mdi-lightning-bolt'
     },
   },
