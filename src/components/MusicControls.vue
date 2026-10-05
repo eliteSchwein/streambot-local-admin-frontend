@@ -146,9 +146,7 @@
 
 <script lang="ts">
 import { defineComponent, nextTick } from 'vue'
-import { WebsocketEvent } from "websocket-ts"
 import { useAppStore } from '@/stores/app'
-import eventBus from '@/eventBus'
 import {getWebsocketClient} from "@/plugins/websocketInstance.ts";
 
 export default defineComponent({
@@ -162,9 +160,9 @@ export default defineComponent({
       smoothedCavaValues: [] as number[],
       cavaSmoothing: 0.45,
       cavaFalloff: 6,
-      cavaSocket: undefined as any,
-      cavaSocketMessageListener: undefined as ((...args: any[]) => void) | undefined,
-      cavaConnectedListener: undefined as (() => void) | undefined,
+      cavaSocket: undefined as WebSocket | undefined,
+      cavaReconnectTimer: undefined as number | undefined,
+      cavaUnmounted: false,
     }
   },
 
@@ -250,6 +248,12 @@ export default defineComponent({
       },
     },
 
+    getWebsocket() {
+      if (this.cavaUnmounted) return
+      this.disconnectCavaSocket()
+      this.connectCavaSocket()
+    },
+
     currentTrackKey: {
       immediate: true,
       handler() {
@@ -279,87 +283,89 @@ export default defineComponent({
 
   mounted() {
     this.ensureCavaBars(this.cavaBarCount)
-
-    this.cavaSocketMessageListener = (...args: any[]) => {
-      const event = args.length > 1 ? args[1] : args[0]
-      const raw = event?.data ?? event
-
-      if (typeof raw !== 'string') return
-
-      let message: any
-
-      try {
-        message = JSON.parse(raw)
-      } catch {
-        return
-      }
-
-      if (message?.method !== 'notify_music_cava') return
-
-      const data = message?.params ?? {}
-      const target = String(data?.target ?? '').trim()
-
-      if (target !== 'music_preview') return
-
-      this.handleCavaData(data)
-    }
-
-    this.cavaConnectedListener = () => {
-      this.attachCavaSocketListener()
-    }
-
-    eventBus.$on('websocket:connected', this.cavaConnectedListener)
-
-    // Handles the case where the websocket is already connected before this component mounts.
-    this.attachCavaSocketListener()
+    this.cavaUnmounted = false
+    this.connectCavaSocket()
 
     void nextTick(() => this.scrollToCurrentSong())
   },
 
   beforeUnmount() {
-    if (this.cavaConnectedListener) {
-      eventBus.$off('websocket:connected', this.cavaConnectedListener)
-      this.cavaConnectedListener = undefined
-    }
-
-    this.detachCavaSocketListener()
-    this.cavaSocketMessageListener = undefined
+    this.cavaUnmounted = true
+    this.disconnectCavaSocket()
   },
 
   methods: {
-    attachCavaSocketListener() {
-      const socket = getWebsocketClient()?.getWebsocket() as any
+    getCavaWebsocketUrl(target = 'music_preview') {
+      const base = String(this.getWebsocket || '').replace(/\/+$/, '')
+      return `${base}/cava/${encodeURIComponent(target)}`
+    },
 
-      if (!socket || !this.cavaSocketMessageListener) return
+    connectCavaSocket() {
+      if (this.cavaUnmounted || typeof WebSocket === 'undefined') return
 
-      // Reconnect creates a new websocket object. Never leave the listener on the old one.
-      if (this.cavaSocket === socket) return
+      if (this.cavaReconnectTimer !== undefined) {
+        window.clearTimeout(this.cavaReconnectTimer)
+        this.cavaReconnectTimer = undefined
+      }
 
-      this.detachCavaSocketListener()
+      const current = this.cavaSocket
+      if (current && (current.readyState === WebSocket.OPEN || current.readyState === WebSocket.CONNECTING)) return
+
+      const socket = new WebSocket(this.getCavaWebsocketUrl('music_preview'))
       this.cavaSocket = socket
 
-      try {
-        socket.addEventListener(WebsocketEvent.message, this.cavaSocketMessageListener)
-      } catch {
-        socket.addEventListener('message', this.cavaSocketMessageListener)
+      socket.onmessage = event => {
+        if (this.cavaSocket !== socket || typeof event.data !== 'string') return
+
+        let message: any
+        try {
+          message = JSON.parse(event.data)
+        } catch {
+          return
+        }
+
+        if (message?.method !== 'notify_music_cava') return
+
+        const data = message?.params ?? {}
+        if (String(data?.target ?? '').trim() !== 'music_preview') return
+
+        this.handleCavaData(data)
+      }
+
+      socket.onclose = () => {
+        if (this.cavaSocket === socket) this.cavaSocket = undefined
+        this.scheduleCavaReconnect()
+      }
+
+      socket.onerror = () => {
+        // Closing here ensures the normal reconnect path runs for failed/half-open sockets.
+        try { socket.close() } catch {}
       }
     },
 
-    detachCavaSocketListener() {
-      const socket = this.cavaSocket as any
+    scheduleCavaReconnect() {
+      if (this.cavaUnmounted || this.cavaReconnectTimer !== undefined) return
 
-      if (!socket || !this.cavaSocketMessageListener) {
-        this.cavaSocket = undefined
-        return
+      this.cavaReconnectTimer = window.setTimeout(() => {
+        this.cavaReconnectTimer = undefined
+        this.connectCavaSocket()
+      }, 2000)
+    },
+
+    disconnectCavaSocket() {
+      if (this.cavaReconnectTimer !== undefined) {
+        window.clearTimeout(this.cavaReconnectTimer)
+        this.cavaReconnectTimer = undefined
       }
 
-      try {
-        socket.removeEventListener(WebsocketEvent.message, this.cavaSocketMessageListener)
-      } catch {
-        socket.removeEventListener('message', this.cavaSocketMessageListener)
-      }
-
+      const socket = this.cavaSocket
       this.cavaSocket = undefined
+      if (!socket) return
+
+      socket.onmessage = null
+      socket.onclose = null
+      socket.onerror = null
+      try { socket.close() } catch {}
     },
 
     sendMusicWebsocket(method: string, params: Record<string, any> = {}) {
