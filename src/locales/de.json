@@ -1627,8 +1627,63 @@
     "channelPoints": "Kanalpunkte"
   },
   "dashboard": {
-    "noAlerts": "Es gibt derzeit keine Alarme!",
-    "noAutoMacros": "Es gibt derzeit keine automatischen Makros!"
+    "noAutoMacros": "Es gibt derzeit keine automatischen Makros!",
+    "customize": {
+      "edit": "Dashboard bearbeiten",
+      "done": "Fertig",
+      "addCard": "Karte hinzufügen",
+      "removeCard": "Karte entfernen",
+      "reset": "Standard wiederherstellen",
+      "dropHere": "Karte hier ablegen",
+      "cards": {
+        "giveaway": "Giveaway",
+        "interactions": "Interaktionen",
+        "auto_macros": "Auto-Makros",
+        "music": "Musik",
+        "macros": "Makros",
+        "channel_points": "Kanalpunkte",
+        "rotating_scenes": "Rotierende Szenen",
+        "yolobox": "YoloBox",
+        "obs_scenes": "OBS-Szenen",
+        "obs_audio": "OBS-Audiomixer",
+        "audio_outputs": "Audio-Ausgänge",
+        "bot_audio_channels": "Bot-Audiokanäle",
+        "commands": "Commands",
+        "audio_presets": "Audio-Presets"
+      },
+      "columns": "Spalten",
+      "macroSearch": "Makros durchsuchen",
+      "noMacros": "Keine Makros gefunden.",
+      "channelPointsActive": "Aktiv: {count}",
+      "channelPointsTotal": "Gesamt: {count}",
+      "selectMacros": "Makros auswählen",
+      "noMacrosSelected": "Für diese Karte sind keine Makros ausgewählt.",
+      "macroPickerSearch": "Verfügbare Makros durchsuchen",
+      "selectedMacroCount": "{count} ausgewählt",
+      "clearMacroSelection": "Auswahl leeren",
+      "dragCard": "Karte verschieben",
+      "groups": {
+        "audio": "Audio"
+      }
+    },
+    "audio": {
+      "noOutputs": "Keine Audio-Ausgänge verfügbar.",
+      "noBotChannels": "Keine Bot-Audiokanäle verfügbar.",
+      "noPresets": "Keine Audio-Presets verfügbar.",
+      "applyPreset": "Preset anwenden",
+      "presetVolumes": "{count} Lautstärken",
+      "presetMappings": "{count} Zuordnungen"
+    },
+    "system": {
+      "cpuLoad": "CPU-Auslastung",
+      "cpuTemp": "CPU-Temperatur",
+      "noDetails": "Keine weiteren Systemdetails verfügbar."
+    },
+    "commands": {
+      "noneSelected": "Für diese Karte sind keine Commands ausgewählt.",
+      "select": "Commands auswählen",
+      "search": "Commands durchsuchen"
+    }
   },
   "recovery": {
     "warning": "Vor dem Auslösen dieser Aktionen gibt es keine Bestätigung. Löse sie nur aus, wenn du ABSOLUT sicher bist, was du tust.",

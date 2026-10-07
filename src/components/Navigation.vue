@@ -7,8 +7,15 @@ import eventBus from "@/eventBus.js";
 export default {
   data () {
     return {
-      rail: true
+      rail: true,
+      dashboardEditMode: false
     }
+  },
+  mounted() {
+    eventBus.$on('dashboard:edit-state', this.onDashboardEditState)
+  },
+  beforeUnmount() {
+    eventBus.$off('dashboard:edit-state', this.onDashboardEditState)
   },
   computed: {
     ...mapState(useAppStore, [
@@ -87,6 +94,12 @@ export default {
     showPowerMenu() {
       eventBus.$emit('dialog:show', 'power')
     },
+    onDashboardEditState(enabled) {
+      this.dashboardEditMode = Boolean(enabled)
+    },
+    toggleDashboardEdit() {
+      eventBus.$emit('dashboard:toggle-edit')
+    },
   }
 }
 </script>
@@ -103,7 +116,19 @@ export default {
   >
     <v-app-bar-nav-icon variant="text" @click.stop="rail = !rail"></v-app-bar-nav-icon>
 
-    <v-app-bar-title>{{ currentRouteTitle }}</v-app-bar-title>
+    <div class="topbar-title-group">
+      <span class="topbar-page-title">{{ currentRouteTitle }}</span>
+      <v-btn
+        v-if="$route.path === '/'"
+        class="dashboard-edit-button"
+        icon="mdi-pencil"
+        size="x-small"
+        variant="text"
+        :color="dashboardEditMode ? 'primary' : undefined"
+        :title="dashboardEditMode ? $t('dashboard.customize.done') : $t('dashboard.customize.edit')"
+        @click="toggleDashboardEdit"
+      />
+    </div>
 
     <v-spacer></v-spacer>
 
@@ -418,5 +443,24 @@ export default {
   min-width: 36px !important;
   width: 36px;
   padding-inline: 0 !important;
+}
+
+.topbar-title-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin-left: 8px;
+}
+
+.topbar-page-title {
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.dashboard-edit-button {
+  margin-left: 2px;
 }
 </style>

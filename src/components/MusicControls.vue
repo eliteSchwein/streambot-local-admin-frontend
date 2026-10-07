@@ -152,6 +152,10 @@ import {getWebsocketClient} from "@/plugins/websocketInstance.ts";
 export default defineComponent({
   name: 'MusicControls',
 
+  props: {
+    pauseVisualizer: { type: Boolean, default: false },
+  },
+
   data() {
     return {
       playlistItemRefs: {} as Record<string, any>,
@@ -251,7 +255,17 @@ export default defineComponent({
     getWebsocket() {
       if (this.cavaUnmounted) return
       this.disconnectCavaSocket()
-      this.connectCavaSocket()
+      if (!this.pauseVisualizer) this.connectCavaSocket()
+    },
+
+    pauseVisualizer(paused: boolean) {
+      if (paused) {
+        this.disconnectCavaSocket()
+        this.cavaValues = Array.from({ length: this.cavaBarCount }, () => 0)
+        this.smoothedCavaValues = Array.from({ length: this.cavaBarCount }, () => 0)
+        return
+      }
+      if (!this.cavaUnmounted) this.connectCavaSocket()
     },
 
     currentTrackKey: {
@@ -284,7 +298,7 @@ export default defineComponent({
   mounted() {
     this.ensureCavaBars(this.cavaBarCount)
     this.cavaUnmounted = false
-    this.connectCavaSocket()
+    if (!this.pauseVisualizer) this.connectCavaSocket()
 
     void nextTick(() => this.scrollToCurrentSong())
   },
@@ -301,7 +315,7 @@ export default defineComponent({
     },
 
     connectCavaSocket() {
-      if (this.cavaUnmounted || typeof WebSocket === 'undefined') return
+      if (this.cavaUnmounted || this.pauseVisualizer || typeof WebSocket === 'undefined') return
 
       if (this.cavaReconnectTimer !== undefined) {
         window.clearTimeout(this.cavaReconnectTimer)
@@ -484,11 +498,26 @@ export default defineComponent({
       const key = this.getFilename(current)
       const itemRef = this.playlistItemRefs[key]
       const element = itemRef?.$el ?? itemRef
+      const listRef: any = this.$refs.playlistList
+      const container = listRef?.$el ?? listRef
 
-      element?.scrollIntoView?.({
-        block: 'center',
-        behavior: 'smooth',
-      })
+      if (!element || !container) return
+
+      const elementRect = element.getBoundingClientRect?.()
+      const containerRect = container.getBoundingClientRect?.()
+      const elementTop = elementRect && containerRect
+        ? elementRect.top - containerRect.top + Number(container.scrollTop ?? 0)
+        : Number(element.offsetTop ?? 0)
+      const elementHeight = Number(elementRect?.height ?? element.offsetHeight ?? 0)
+      const containerHeight = Number(container.clientHeight ?? 0)
+      const maxScroll = Math.max(0, Number(container.scrollHeight ?? 0) - containerHeight)
+      const target = Math.max(0, Math.min(maxScroll, elementTop - Math.max(0, (containerHeight - elementHeight) / 2)))
+
+      if (typeof container.scrollTo === 'function') {
+        container.scrollTo({ top: target, behavior: 'smooth' })
+      } else {
+        container.scrollTop = target
+      }
     },
 
     callMusicApi(action: string) {
@@ -663,6 +692,7 @@ export default defineComponent({
 .music-playlist-list {
   max-height: calc(100vh - 395px);
   overflow-y: auto;
+  overflow-anchor: none;
 }
 
 .current-song {

@@ -144,6 +144,7 @@ export default {
 
 <template>
   <v-card
+    class="giveaway-card"
     color="grey-darken-3"
     rounded="3"
     :subtitle="$t('giveaway.title')"
@@ -242,32 +243,33 @@ export default {
       </v-expansion-panels>
     </v-card-item>
     <v-card-item v-else>
-      <v-row>
-        <v-col cols="12" md="6" xl="8">
-          <v-text-field
-            class="mt-1"
-            :label="$t('giveaway.contentLabel')"
-            variant="outlined"
-            v-model="giveawayTemplate.giveawayText"
-            density="compact"
-            hide-details
-          ></v-text-field>
-        </v-col>
-        <v-col cols="9" md="3" xl="2">
-          <v-select
-            class="mt-1"
-            :label="$t('giveaway.durationLabel')"
-            :items="times"
-            v-model="giveawayTemplate.interval"
-            variant="outlined"
-            density="compact"
-            hide-details
-          ></v-select>
-        </v-col>
-        <v-col cols="3" md="3" xl="2">
-          <v-btn @click="sendGiveaway" prepend-icon="mdi-send" variant="tonal" class="mt-1" width="100%">{{ $t('giveaway.create') }}</v-btn>
-        </v-col>
-      </v-row>
+      <div class="giveaway-create-controls">
+        <v-text-field
+          class="giveaway-create-controls__content"
+          :label="$t('giveaway.contentLabel')"
+          variant="outlined"
+          v-model="giveawayTemplate.giveawayText"
+          density="compact"
+          hide-details
+        />
+        <v-select
+          class="giveaway-create-controls__duration"
+          :label="$t('giveaway.durationLabel')"
+          :items="times"
+          v-model="giveawayTemplate.interval"
+          variant="outlined"
+          density="compact"
+          hide-details
+        />
+        <v-btn
+          class="giveaway-create-controls__submit"
+          @click="sendGiveaway"
+          prepend-icon="mdi-send"
+          variant="tonal"
+        >
+          {{ $t('giveaway.create') }}
+        </v-btn>
+      </div>
     </v-card-item>
 
     <GiveawayCancelConfirmDialog
@@ -280,5 +282,39 @@ export default {
 </template>
 
 <style scoped lang="scss">
+.giveaway-card {
+  container-type: inline-size;
+}
 
+.giveaway-create-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+}
+
+.giveaway-create-controls__content {
+  flex: 1 1 260px;
+  min-width: 180px;
+}
+
+.giveaway-create-controls__duration {
+  flex: 0 1 150px;
+  min-width: 120px;
+}
+
+.giveaway-create-controls__submit {
+  flex: 0 0 auto;
+  min-height: 40px;
+}
+
+@container (max-width: 520px) {
+  .giveaway-create-controls__content,
+  .giveaway-create-controls__duration,
+  .giveaway-create-controls__submit {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
 </style>

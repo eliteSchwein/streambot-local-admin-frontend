@@ -1627,8 +1627,63 @@
     "channelPoints": "Channel Points"
   },
   "dashboard": {
-    "noAlerts": "There are currently no alerts!",
-    "noAutoMacros": "There are currently no automatic macros!"
+    "noAutoMacros": "There are currently no automatic macros!",
+    "customize": {
+      "edit": "Edit dashboard",
+      "done": "Done",
+      "addCard": "Add card",
+      "removeCard": "Remove card",
+      "reset": "Reset to default",
+      "dropHere": "Drop card here",
+      "cards": {
+        "giveaway": "Giveaway",
+        "interactions": "Interactions",
+        "auto_macros": "Auto macros",
+        "music": "Music",
+        "macros": "Macros",
+        "channel_points": "Channel points",
+        "rotating_scenes": "Rotating scenes",
+        "yolobox": "YoloBox",
+        "obs_scenes": "OBS scenes",
+        "obs_audio": "OBS audio mixer",
+        "audio_outputs": "Audio outputs",
+        "bot_audio_channels": "Bot audio channels",
+        "commands": "Commands",
+        "audio_presets": "Audio presets"
+      },
+      "columns": "Columns",
+      "macroSearch": "Search macros",
+      "noMacros": "No macros found.",
+      "channelPointsActive": "Active: {count}",
+      "channelPointsTotal": "Total: {count}",
+      "selectMacros": "Select macros",
+      "noMacrosSelected": "No macros selected for this card.",
+      "macroPickerSearch": "Search available macros",
+      "selectedMacroCount": "{count} selected",
+      "clearMacroSelection": "Clear selection",
+      "dragCard": "Drag card",
+      "groups": {
+        "audio": "Audio"
+      }
+    },
+    "audio": {
+      "noOutputs": "No audio outputs available.",
+      "noBotChannels": "No bot audio channels available.",
+      "noPresets": "No audio presets available.",
+      "applyPreset": "Apply preset",
+      "presetVolumes": "{count} volume tracks",
+      "presetMappings": "{count} mappings"
+    },
+    "system": {
+      "cpuLoad": "CPU load",
+      "cpuTemp": "CPU temperature",
+      "noDetails": "No additional system details available."
+    },
+    "commands": {
+      "noneSelected": "No commands selected for this card.",
+      "select": "Select commands",
+      "search": "Search commands"
+    }
   },
   "recovery": {
     "warning": "There is no confirmation before triggering these actions. Only trigger them if you are ABSOLUTELY sure what you are doing.",
