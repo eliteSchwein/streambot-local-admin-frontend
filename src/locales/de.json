@@ -2579,7 +2579,8 @@
       "behavior": "Verhalten",
       "permissions": "Berechtigungen",
       "stripEmotes": "Emotes entfernen",
-      "stripUrls": "URLs entfernen"
+      "stripUrls": "URLs entfernen",
+      "options": "Optionen"
     },
     "fileDeleteConfirmDialog": {},
     "fileCopyDialog": {},

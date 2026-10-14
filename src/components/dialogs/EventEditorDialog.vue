@@ -60,7 +60,9 @@
             </v-expansion-panel-title>
 
             <v-expansion-panel-text eager>
+              <v-progress-linear v-if="assetLoading" indeterminate class="mb-3" />
               <EventAssetAccordion
+                v-show="!assetLoading"
                 ref="assetAccordion"
                 :name="configName"
                 :disabled="loading || savingInternal"
@@ -77,7 +79,9 @@
             </v-expansion-panel-title>
 
             <v-expansion-panel-text eager>
+              <v-progress-linear v-if="macroLoading" indeterminate class="mb-3" />
               <EventMacroAccordion
+                v-show="!macroLoading"
                 ref="macroAccordion"
                 :name="configName"
                 :initial-content="macroContent"
@@ -170,6 +174,8 @@ export default {
       bypassInteractionQueue: false,
       stripEmotes: false,
       stripUrls: false,
+      assetLoading: false,
+      macroLoading: false,
     }
   },
 
@@ -235,10 +241,11 @@ export default {
       this.stripEmotes = this.eventEntry?.strip_emotes === true || this.eventEntry?.stripEmotes === true
       this.stripUrls = this.eventEntry?.strip_urls === true || this.eventEntry?.stripUrls === true
       this.macroContent = this.defaultMacroContent(this.configName)
+      this.assetLoading = !this.isSystemEvent
+      this.macroLoading = true
       this.applyPanelState()
       await this.$nextTick()
-      await this.loadExistingGeneratedFiles()
-      this.applyPanelState()
+      void this.loadExistingGeneratedFiles()
     },
 
     applyPanelState() {
@@ -282,7 +289,7 @@ export default {
         loaders.push(this.loadExistingAsset())
       }
 
-      await Promise.all(loaders)
+      await Promise.allSettled(loaders)
     },
 
     async loadExistingAsset() {
@@ -291,6 +298,8 @@ export default {
         await (this.$refs.assetAccordion as any)?.open?.(this.configName)
       } catch (error) {
         ;(this.$refs.assetAccordion as any)?.setAsset?.({ channel: 'general', duration: 5 })
+      } finally {
+        this.assetLoading = false
       }
     },
 
@@ -309,6 +318,7 @@ export default {
 
       await this.$nextTick()
       ;(this.$refs.macroAccordion as any)?.setContent?.(this.macroContent, this.configName)
+      this.macroLoading = false
     },
 
     defaultMacroContent(name: string) {

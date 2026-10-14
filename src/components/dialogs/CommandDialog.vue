@@ -22,104 +22,115 @@
       <v-card-text class="px-0 py-3">
         <v-alert v-if="errorMessage" type="error" color="red-darken-3" class="mb-3 mx-3" :text="errorMessage" />
 
-        <div class="option-card-grid px-3 mb-4">
-          <v-card variant="tonal" class="option-card pa-4">
-            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.general') }}</div>
-            <v-row density="comfortable">
-              <v-col cols="12">
-                <v-text-field v-model="form.name" :label="$t('dialogs.commandCreateDialog.command')" prefix="!" variant="outlined" density="comfortable" hide-details="auto" :error-messages="nameExists ? [$t('common.commandNameAlreadyExists', { command: nameExistsCommand ? `!${nameExistsCommand}` : `!${normalizedName}` })] : []" />
-              </v-col>
-              <v-col cols="12">
-                <v-combobox
-                  v-model="form.aliases"
-                  :label="$t('dialogs.commandCreateDialog.aliases')"
-                  variant="outlined"
-                  density="comfortable"
-                  multiple
-                  chips
-                  closable-chips
-                  hide-details="auto"
-                  :error-messages="aliasExistsNames.length ? aliasExistsNames.map(alias => $t('common.commandAliasAlreadyExists', { alias: `!${alias}`, command: aliasExistsCommands[alias] ? `!${aliasExistsCommands[alias]}` : `!${normalizedName}` })) : []"
-                />
-              </v-col>
-            </v-row>
-          </v-card>
-
-          <v-card variant="tonal" class="option-card pa-4">
-            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.cooldowns') }}</div>
-            <v-row density="comfortable">
-              <v-col cols="12" sm="6"><v-text-field v-model.number="form.userCooldown" :label="$t('dialogs.commandCreateDialog.userCooldown')" type="number" variant="outlined" density="comfortable" hide-details /></v-col>
-              <v-col cols="12" sm="6"><v-text-field v-model.number="form.globalCooldown" :label="$t('dialogs.commandCreateDialog.globalCooldown')" type="number" variant="outlined" density="comfortable" hide-details /></v-col>
-            </v-row>
-          </v-card>
-
-          <v-card variant="tonal" class="option-card pa-4">
-            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.behavior') }}</div>
-            <v-row density="comfortable">
-              <v-col cols="12" sm="6"><v-switch v-model="form.enabled" :label="$t('dialogs.commandCreateDialog.enabled')" color="primary" hide-details density="comfortable" inset /></v-col>
-              <v-col cols="12" sm="6"><v-switch v-model="form.bypass_interaction_queue" :label="$t('dialogs.commandCreateDialog.bypassInteractionQueue')" color="primary" hide-details density="comfortable" inset /></v-col>
-              <v-col cols="12" sm="6"><v-switch v-model="form.strip_emotes" :label="$t('dialogs.commandCreateDialog.stripEmotes')" color="primary" hide-details density="comfortable" inset /></v-col>
-              <v-col cols="12" sm="6"><v-switch v-model="form.strip_urls" :label="$t('dialogs.commandCreateDialog.stripUrls')" color="primary" hide-details density="comfortable" inset /></v-col>
-              <v-col cols="12"><v-select v-model="form.single_use" :items="singleUseOptions" :label="$t('dialogs.commandCreateDialog.singleUse')" variant="outlined" density="comfortable" hide-details /></v-col>
-            </v-row>
-          </v-card>
-
-          <v-card variant="tonal" class="option-card pa-4">
-            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.permissions') }}</div>
-            <v-row density="comfortable">
-              <v-col cols="12" sm="6"><v-switch v-model="form.enforce_primary" :label="$t('dialogs.commandCreateDialog.primaryOnly')" color="primary" hide-details density="comfortable" inset /></v-col>
-              <v-col cols="12" sm="6"><v-switch v-model="form.requiresBroadcaster" :label="$t('dialogs.commandCreateDialog.broadcaster')" color="primary" hide-details density="comfortable" inset /></v-col>
-              <v-col cols="12" sm="6"><v-switch v-model="form.requiresMod" :label="$t('dialogs.commandCreateDialog.mod')" color="primary" hide-details density="comfortable" inset /></v-col>
-              <v-col cols="12" sm="6"><v-switch v-model="form.requiresVip" :label="$t('dialogs.commandCreateDialog.vip')" color="primary" density="comfortable" hide-details inset /></v-col>
-            </v-row>
-          </v-card>
-
-          <v-card variant="tonal" class="option-card pa-4">
-            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.userListMode') }}</div>
-            <v-select v-model="form.user_list_mode" :items="userListModeOptions" :label="$t('dialogs.commandCreateDialog.userListMode')" variant="outlined" density="comfortable" hide-details class="mb-3" />
-            <v-combobox v-if="form.user_list_mode !== 'none'" v-model="form.users" :label="$t('dialogs.commandCreateDialog.users')" variant="outlined" density="comfortable" multiple chips closable-chips hide-details />
-          </v-card>
-        </div>
-
-        <v-card color="grey-darken-4" variant="flat" class="dialog-section pa-3 mb-3">
-          <div class="d-flex align-center justify-space-between mb-2">
-            <div class="text-subtitle-2">{{ $t('dialogs.commandCreateDialog.params') }}</div>
-            <v-btn size="small" prepend-icon="mdi-plus" variant="tonal" @click="addParam">{{ $t('dialogs.commandCreateDialog.addParam') }}</v-btn>
-          </div>
-
-          <v-alert v-if="safeParams.length === 0" type="info" density="comfortable" variant="tonal" :text="$t('dialogs.commandCreateDialog.noParamsConfigured')" />
-
-          <v-row v-for="(param, index) in safeParams" :key="index" density="comfortable" class="align-center mb-1">
-            <v-col cols="12" md="3">
-              <v-text-field v-model="param.name" :label="$t('dialogs.commandCreateDialog.name')" variant="outlined" density="comfortable" hide-details />
-            </v-col>
-
-            <v-col cols="12" md="3">
-              <v-select v-model="param.type" :items="paramTypes" :label="$t('dialogs.commandCreateDialog.type')" variant="outlined" density="comfortable" hide-details />
-            </v-col>
-
-            <v-col cols="12" md="4">
-              <v-combobox
-                v-if="param.type === 'subcommand'"
-                v-model="param.subcommandNames"
-                :label="$t('dialogs.commandCreateDialog.subcommands')"
-                variant="outlined"
-                density="comfortable"
-                multiple
-                chips
-                closable-chips
-                hide-details
-              />
-              <v-switch v-else v-model="param.required" :label="$t('dialogs.commandCreateDialog.required')" color="primary" density="comfortable" hide-details />
-            </v-col>
-
-            <v-col cols="12" md="2" class="text-right">
-              <v-btn icon="mdi-delete" color="error" variant="text" @click="removeParam(index)" />
-            </v-col>
-          </v-row>
-        </v-card>
-
         <v-expansion-panels v-model="openPanels" variant="accordion">
+          <v-expansion-panel value="options">
+            <v-expansion-panel-title>
+              <div class="d-flex align-center ga-2 min-width-0">
+                <v-icon icon="mdi-tune" />
+                <span class="text-truncate">{{ $t('dialogs.commandCreateDialog.options') }}</span>
+              </div>
+            </v-expansion-panel-title>
+
+            <v-expansion-panel-text eager>
+              <div class="option-card-grid px-3 mb-4">
+                <v-card variant="tonal" class="option-card pa-4">
+                  <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.general') }}</div>
+                  <v-row density="comfortable">
+                    <v-col cols="12">
+                      <v-text-field v-model="form.name" :label="$t('dialogs.commandCreateDialog.command')" prefix="!" variant="outlined" density="comfortable" hide-details="auto" :error-messages="nameExists ? [$t('common.commandNameAlreadyExists', { command: nameExistsCommand ? `!${nameExistsCommand}` : `!${normalizedName}` })] : []" />
+                    </v-col>
+                    <v-col cols="12">
+                      <v-combobox
+                        v-model="form.aliases"
+                        :label="$t('dialogs.commandCreateDialog.aliases')"
+                        variant="outlined"
+                        density="comfortable"
+                        multiple
+                        chips
+                        closable-chips
+                        hide-details="auto"
+                        :error-messages="aliasExistsNames.length ? aliasExistsNames.map(alias => $t('common.commandAliasAlreadyExists', { alias: `!${alias}`, command: aliasExistsCommands[alias] ? `!${aliasExistsCommands[alias]}` : `!${normalizedName}` })) : []"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-card>
+
+                <v-card variant="tonal" class="option-card pa-4">
+                  <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.cooldowns') }}</div>
+                  <v-row density="comfortable">
+                    <v-col cols="12" sm="6"><v-text-field v-model.number="form.userCooldown" :label="$t('dialogs.commandCreateDialog.userCooldown')" type="number" variant="outlined" density="comfortable" hide-details /></v-col>
+                    <v-col cols="12" sm="6"><v-text-field v-model.number="form.globalCooldown" :label="$t('dialogs.commandCreateDialog.globalCooldown')" type="number" variant="outlined" density="comfortable" hide-details /></v-col>
+                  </v-row>
+                </v-card>
+
+                <v-card variant="tonal" class="option-card pa-4">
+                  <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.behavior') }}</div>
+                  <v-row density="comfortable">
+                    <v-col cols="12" sm="6"><v-switch v-model="form.enabled" :label="$t('dialogs.commandCreateDialog.enabled')" color="primary" hide-details density="comfortable" inset /></v-col>
+                    <v-col cols="12" sm="6"><v-switch v-model="form.bypass_interaction_queue" :label="$t('dialogs.commandCreateDialog.bypassInteractionQueue')" color="primary" hide-details density="comfortable" inset /></v-col>
+                    <v-col cols="12" sm="6"><v-switch v-model="form.strip_emotes" :label="$t('dialogs.commandCreateDialog.stripEmotes')" color="primary" hide-details density="comfortable" inset /></v-col>
+                    <v-col cols="12" sm="6"><v-switch v-model="form.strip_urls" :label="$t('dialogs.commandCreateDialog.stripUrls')" color="primary" hide-details density="comfortable" inset /></v-col>
+                    <v-col cols="12"><v-select v-model="form.single_use" :items="singleUseOptions" :label="$t('dialogs.commandCreateDialog.singleUse')" variant="outlined" density="comfortable" hide-details /></v-col>
+                  </v-row>
+                </v-card>
+
+                <v-card variant="tonal" class="option-card pa-4">
+                  <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.permissions') }}</div>
+                  <v-row density="comfortable">
+                    <v-col cols="12" sm="6"><v-switch v-model="form.enforce_primary" :label="$t('dialogs.commandCreateDialog.primaryOnly')" color="primary" hide-details density="comfortable" inset /></v-col>
+                    <v-col cols="12" sm="6"><v-switch v-model="form.requiresBroadcaster" :label="$t('dialogs.commandCreateDialog.broadcaster')" color="primary" hide-details density="comfortable" inset /></v-col>
+                    <v-col cols="12" sm="6"><v-switch v-model="form.requiresMod" :label="$t('dialogs.commandCreateDialog.mod')" color="primary" hide-details density="comfortable" inset /></v-col>
+                    <v-col cols="12" sm="6"><v-switch v-model="form.requiresVip" :label="$t('dialogs.commandCreateDialog.vip')" color="primary" density="comfortable" hide-details inset /></v-col>
+                  </v-row>
+                </v-card>
+
+                <v-card variant="tonal" class="option-card pa-4">
+                  <div class="text-subtitle-2 mb-3">{{ $t('dialogs.commandCreateDialog.userListMode') }}</div>
+                  <v-select v-model="form.user_list_mode" :items="userListModeOptions" :label="$t('dialogs.commandCreateDialog.userListMode')" variant="outlined" density="comfortable" hide-details class="mb-3" />
+                  <v-combobox v-if="form.user_list_mode !== 'none'" v-model="form.users" :label="$t('dialogs.commandCreateDialog.users')" variant="outlined" density="comfortable" multiple chips closable-chips hide-details />
+                </v-card>
+              </div>
+
+              <v-card color="grey-darken-4" variant="flat" class="dialog-section pa-3 mb-3">
+                <div class="d-flex align-center justify-space-between mb-2">
+                  <div class="text-subtitle-2">{{ $t('dialogs.commandCreateDialog.params') }}</div>
+                  <v-btn size="small" prepend-icon="mdi-plus" variant="tonal" @click="addParam">{{ $t('dialogs.commandCreateDialog.addParam') }}</v-btn>
+                </div>
+
+                <v-alert v-if="safeParams.length === 0" type="info" density="comfortable" variant="tonal" :text="$t('dialogs.commandCreateDialog.noParamsConfigured')" />
+
+                <v-row v-for="(param, index) in safeParams" :key="index" density="comfortable" class="align-center mb-1">
+                  <v-col cols="12" md="3">
+                    <v-text-field v-model="param.name" :label="$t('dialogs.commandCreateDialog.name')" variant="outlined" density="comfortable" hide-details />
+                  </v-col>
+
+                  <v-col cols="12" md="3">
+                    <v-select v-model="param.type" :items="paramTypes" :label="$t('dialogs.commandCreateDialog.type')" variant="outlined" density="comfortable" hide-details />
+                  </v-col>
+
+                  <v-col cols="12" md="4">
+                    <v-combobox
+                      v-if="param.type === 'subcommand'"
+                      v-model="param.subcommandNames"
+                      :label="$t('dialogs.commandCreateDialog.subcommands')"
+                      variant="outlined"
+                      density="comfortable"
+                      multiple
+                      chips
+                      closable-chips
+                      hide-details
+                    />
+                    <v-switch v-else v-model="param.required" :label="$t('dialogs.commandCreateDialog.required')" color="primary" density="comfortable" hide-details />
+                  </v-col>
+
+                  <v-col cols="12" md="2" class="text-right">
+                    <v-btn icon="mdi-delete" color="error" variant="text" @click="removeParam(index)" />
+                  </v-col>
+                </v-row>
+              </v-card>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+
           <v-expansion-panel value="asset">
             <v-expansion-panel-title>
               <div class="d-flex align-center ga-2 min-width-0">
@@ -131,7 +142,9 @@
             </v-expansion-panel-title>
 
             <v-expansion-panel-text eager>
+              <v-progress-linear v-if="assetLoading" indeterminate class="mb-3" />
               <CommandAssetAccordion
+                v-show="!assetLoading"
                 ref="assetAccordion"
                 :name="generatedAssetName"
                 :auto-load="false"
@@ -151,7 +164,9 @@
             </v-expansion-panel-title>
 
             <v-expansion-panel-text eager>
+              <v-progress-linear v-if="macroLoading" indeterminate class="mb-3" />
               <CommandMacroAccordion
+                v-show="!macroLoading"
                 ref="macroAccordion"
                 :name="generatedMacroName"
                 :source-name="normalizedName"
@@ -215,7 +230,9 @@ export default {
   data() {
     return {
       appStore: useAppStore(),
-      openPanels: [],
+      openPanels: 'options',
+      assetLoading: false,
+      macroLoading: false,
       errorMessage: '',
       paramTypes: ['string', 'number', 'user', 'subcommand', 'all'],
       macroContent: '',
@@ -316,6 +333,8 @@ export default {
       const nameAvailable = !this.nameChecking && !this.nameExists
       return this.normalizedName.length > 0 && !this.loading
         && !this.savingInternal
+        && !this.assetLoading
+        && !this.macroLoading
         && nameAvailable
         && !this.aliasChecking
         && this.aliasExistsNames.length === 0
@@ -454,6 +473,8 @@ export default {
       this.aliasChecking = false
       this.form = this.defaultForm()
       this.macroContent = ''
+      this.assetLoading = false
+      this.macroLoading = false
 
       if (!this.isEditing) {
         // The dialog stays mounted between edit/create operations. Do not read the
@@ -497,14 +518,25 @@ export default {
       }
       this.originalAliases = [...this.normalizedAliases]
 
-      await this.$nextTick()
-      await Promise.all([
-        this.loadAsset(assetName),
-        this.loadMacro(macroName).then((content: string) => { this.macroContent = content }),
-      ])
-
+      this.macroContent = this.defaultMacroContent(macroName)
       await this.$nextTick()
       ;(this.$refs.macroAccordion as any)?.setContent?.(this.macroContent, macroName)
+
+      this.assetLoading = true
+      this.macroLoading = true
+
+      void this.loadAsset(assetName).finally(() => {
+        this.assetLoading = false
+      })
+
+      void this.loadMacro(macroName)
+        .then((content: string) => {
+          this.macroContent = content
+          ;(this.$refs.macroAccordion as any)?.setContent?.(content, macroName)
+        })
+        .finally(() => {
+          this.macroLoading = false
+        })
     },
 
     async requestWebsocket(method: string, params: Record<string, any> = {}, timeout = 4_000): Promise<any> {

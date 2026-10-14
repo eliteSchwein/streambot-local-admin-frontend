@@ -36,30 +36,41 @@
           :text="error || errorMessage"
         />
 
-        <div class="option-card-grid px-3 mb-4">
-          <v-card variant="tonal" class="option-card pa-4">
-            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.channelPointDialog.general') }}</div>
-            <v-text-field v-model="form.name" :label="$t('dialogs.channelPointDialog.name')" density="comfortable" variant="outlined" hide-details="auto" :error-messages="!isEditing && nameExists ? [$t('common.nameAlreadyExists')] : []" />
-          </v-card>
-
-          <v-card variant="tonal" class="option-card pa-4">
-            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.channelPointDialog.options') }}</div>
-            <v-row density="comfortable">
-              <v-col cols="12" sm="6"><v-switch v-model="form.enable_default" :label="$t('dialogs.channelPointDialog.enableDefault')" color="primary" density="comfortable" hide-details inset /></v-col>
-              <v-col cols="12" sm="6"><v-switch v-model="form.auto_accept" :label="$t('dialogs.channelPointDialog.autoAccept')" color="primary" density="comfortable" hide-details inset /></v-col>
-              <v-col cols="12" sm="6"><v-switch v-model="form.strip_emotes" :label="$t('dialogs.channelPointDialog.stripEmotes')" color="primary" density="comfortable" hide-details inset /></v-col>
-              <v-col cols="12" sm="6"><v-switch v-model="form.strip_urls" :label="$t('dialogs.channelPointDialog.stripUrls')" color="primary" density="comfortable" hide-details inset /></v-col>
-              <v-col cols="12" sm="6"><v-switch v-model="form.input_required" :label="$t('dialogs.channelPointDialog.inputRequired')" color="primary" density="comfortable" hide-details inset /></v-col>
-            </v-row>
-          </v-card>
-
-          <v-card variant="tonal" class="option-card pa-4">
-            <div class="text-subtitle-2 mb-3">{{ $t('dialogs.channelPointDialog.interaction') }}</div>
-            <v-switch v-model="form.bypass_interaction_queue" :label="$t('dialogs.channelPointDialog.bypassInteractionQueue')" color="primary" density="comfortable" hide-details inset />
-          </v-card>
-        </div>
-
         <v-expansion-panels v-model="openPanels" variant="accordion">
+          <v-expansion-panel value="options">
+            <v-expansion-panel-title>
+              <div class="d-flex align-center ga-2 min-width-0">
+                <v-icon icon="mdi-tune" />
+                <span class="text-truncate">{{ $t('dialogs.channelPointDialog.options') }}</span>
+              </div>
+            </v-expansion-panel-title>
+
+            <v-expansion-panel-text eager>
+              <div class="option-card-grid px-3 mb-4">
+                <v-card variant="tonal" class="option-card pa-4">
+                  <div class="text-subtitle-2 mb-3">{{ $t('dialogs.channelPointDialog.general') }}</div>
+                  <v-text-field v-model="form.name" :label="$t('dialogs.channelPointDialog.name')" density="comfortable" variant="outlined" hide-details="auto" :error-messages="!isEditing && nameExists ? [$t('common.nameAlreadyExists')] : []" />
+                </v-card>
+
+                <v-card variant="tonal" class="option-card pa-4">
+                  <div class="text-subtitle-2 mb-3">{{ $t('dialogs.channelPointDialog.options') }}</div>
+                  <v-row density="comfortable">
+                    <v-col cols="12" sm="6"><v-switch v-model="form.enable_default" :label="$t('dialogs.channelPointDialog.enableDefault')" color="primary" density="comfortable" hide-details inset /></v-col>
+                    <v-col cols="12" sm="6"><v-switch v-model="form.auto_accept" :label="$t('dialogs.channelPointDialog.autoAccept')" color="primary" density="comfortable" hide-details inset /></v-col>
+                    <v-col cols="12" sm="6"><v-switch v-model="form.strip_emotes" :label="$t('dialogs.channelPointDialog.stripEmotes')" color="primary" density="comfortable" hide-details inset /></v-col>
+                    <v-col cols="12" sm="6"><v-switch v-model="form.strip_urls" :label="$t('dialogs.channelPointDialog.stripUrls')" color="primary" density="comfortable" hide-details inset /></v-col>
+                    <v-col cols="12" sm="6"><v-switch v-model="form.input_required" :label="$t('dialogs.channelPointDialog.inputRequired')" color="primary" density="comfortable" hide-details inset /></v-col>
+                  </v-row>
+                </v-card>
+
+                <v-card variant="tonal" class="option-card pa-4">
+                  <div class="text-subtitle-2 mb-3">{{ $t('dialogs.channelPointDialog.interaction') }}</div>
+                  <v-switch v-model="form.bypass_interaction_queue" :label="$t('dialogs.channelPointDialog.bypassInteractionQueue')" color="primary" density="comfortable" hide-details inset />
+                </v-card>
+              </div>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+
           <v-expansion-panel value="asset">
             <v-expansion-panel-title>
               <div class="d-flex align-center ga-2 min-width-0">
@@ -69,11 +80,13 @@
             </v-expansion-panel-title>
 
             <v-expansion-panel-text eager>
+              <v-progress-linear v-if="assetLoading" indeterminate class="mb-3" />
               <ChannelPointAssetAccordion
+                v-show="!assetLoading"
                 ref="assetAccordion"
                 :name="generatedConfigName"
                 :auto-load="false"
-                :disabled="loading || initializingInternal || savingInternal"
+                :disabled="loading || savingInternal"
               />
             </v-expansion-panel-text>
           </v-expansion-panel>
@@ -87,7 +100,9 @@
             </v-expansion-panel-title>
 
             <v-expansion-panel-text eager>
+              <v-progress-linear v-if="macroLoading" indeterminate class="mb-3" />
               <ChannelPointMacroAccordion
+                v-show="!macroLoading"
                 ref="macroAccordion"
                 :name="generatedConfigName"
                 :initial-content="macroContent"
@@ -157,7 +172,9 @@ export default {
   data() {
     return {
       appStore: useAppStore(),
-      openPanels: [],
+      openPanels: 'options',
+      assetLoading: false,
+      macroLoading: false,
       form: {
         name: '',
         enable_default: false,
@@ -200,7 +217,7 @@ export default {
     },
 
     canSave(): boolean {
-      return String(this.form.name ?? '').trim().length > 0 && this.normalizedName.length > 0 && !this.loading && !this.initializingInternal && !this.savingInternal && (this.isEditing || (!this.nameChecking && !this.nameExists))
+      return String(this.form.name ?? '').trim().length > 0 && this.normalizedName.length > 0 && !this.loading && !this.initializingInternal && !this.savingInternal && !this.assetLoading && !this.macroLoading && (this.isEditing || (!this.nameChecking && !this.nameExists))
     },
 
     exportFilename(): string {
@@ -299,14 +316,16 @@ export default {
     async open() {
       this.initializingInternal = true
       this.errorMessage = ''
+      this.assetLoading = false
+      this.macroLoading = false
 
-      try {
-        this.resetForm()
-        await this.$nextTick()
-        await this.loadExistingGeneratedFiles()
-      } finally {
-        this.initializingInternal = false
-      }
+      this.resetForm()
+      await this.$nextTick()
+      this.initializingInternal = false
+
+      this.assetLoading = true
+      this.macroLoading = true
+      void this.loadExistingGeneratedFiles()
     },
 
     async requestWebsocket(method: string, params: Record<string, any> = {}, timeout = 15_000): Promise<any> {
@@ -375,13 +394,17 @@ export default {
         await this.$nextTick()
         ;(this.$refs.assetAccordion as any)?.setAsset?.({ channel: 'general', duration: 5 })
         ;(this.$refs.macroAccordion as any)?.setContent?.(this.defaultMacroContent(this.generatedConfigName), this.generatedConfigName)
+        this.assetLoading = false
+        this.macroLoading = false
         return
       }
 
-      await Promise.all([
-        this.loadExistingAsset(),
-        this.loadExistingMacro(),
-      ])
+      void this.loadExistingAsset().finally(() => {
+        this.assetLoading = false
+      })
+      void this.loadExistingMacro().finally(() => {
+        this.macroLoading = false
+      })
     },
 
     async loadExistingAsset() {
