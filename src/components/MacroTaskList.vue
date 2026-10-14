@@ -167,10 +167,16 @@ export default {
     templateMacro() {
       this.scheduleTemplateVariableReload()
     },
+    getCategoryLibrary: {
+      deep: true,
+      handler() {
+        this.scheduleTemplateVariableReload()
+      },
+    },
   },
 
   computed: {
-    ...mapState(useAppStore, ['getIntegrations', 'hasOllamaEnabled']),
+    ...mapState(useAppStore, ['getIntegrations', 'hasOllamaEnabled', 'getCategoryLibrary', 'getSettings']),
 
     currentTaskListComponent(): any {
       return this.taskListComponent || this.$options
@@ -265,7 +271,7 @@ export default {
 
         if (token !== this.templateVariableLoadToken) return
         const contextPrefixes = this.templateVariableContextPrefixes(response)
-        this.templateVariableEntries = Array.isArray(response?.paths)
+        const backendEntries = Array.isArray(response?.paths)
           ? response.paths
               .filter((entry: any) => entry && typeof entry.path === 'string' && entry.path.trim())
               .map((entry: any) => {
@@ -280,6 +286,8 @@ export default {
                 }
               })
           : []
+
+        this.templateVariableEntries = this.withCanonicalCategoryTemplateVariables(backendEntries)
 
         if (this.templateVariableActiveInput && document.activeElement === this.templateVariableActiveInput) {
           this.updateTemplateVariableSuggestions(this.templateVariableActiveInput)
@@ -326,6 +334,133 @@ export default {
 
     templateVariableMatchesContext(path: string, prefixes: string[]) {
       return prefixes.some((prefix: string) => path === prefix || path.startsWith(`${prefix}.`))
+    },
+
+    categoryTemplateMediaSlotNames(): string[] {
+      const names = new Set<string>(['cover', 'background'])
+      const library: any = this.getCategoryLibrary ?? {}
+      const settings: any = this.getSettings?.category_library ?? {}
+      const slots = Array.isArray(library?.settings?.media_slots)
+        ? library.settings.media_slots
+        : Array.isArray(settings?.media_slots)
+          ? settings.media_slots
+          : []
+
+      for (const slot of slots) {
+        const name = String(slot?.name ?? '').trim()
+        if (name) names.add(name)
+      }
+
+      return Array.from(names)
+    },
+
+    canonicalCategoryTemplateVariables(): any[] {
+      const entries = new Map<string, any>()
+
+      const add = (path: string, type = 'variable') => {
+        const normalized = String(path ?? '').trim()
+        if (!normalized || entries.has(normalized)) return
+        entries.set(normalized, {
+          path: normalized,
+          expression: `\${${normalized}}`,
+          type,
+          source: 'template',
+        })
+      }
+
+      const scalarFields: Array<[string, string]> = [
+        ['category_id', 'string'],
+        ['name', 'string'],
+        ['cover_path', 'string'],
+        ['cover_url', 'string'],
+        ['steam_app_id', 'number'],
+        ['shop_url', 'string'],
+        ['wallpaper_path', 'string'],
+        ['wallpaper_url', 'string'],
+        ['theme_color', 'string'],
+        ['custom_css', 'string'],
+        ['use_as_media_fallback', 'boolean'],
+        ['active', 'boolean'],
+        ['created_at', 'string'],
+        ['updated_at', 'string'],
+      ]
+
+      const objectFields: Array<[string, string]> = [
+        ['obs_filters', 'object'],
+        ['channel_points', 'array'],
+        ['blocked_channel_points', 'array'],
+        ['macros_on_active', 'array'],
+        ['macros_on_inactive', 'array'],
+        ['custom_media', 'array'],
+        ['effective_obs_filters', 'object'],
+        ['active_channel_points', 'object'],
+      ]
+
+      const addResolvedCategory = (prefix: string) => {
+        add(prefix, 'object')
+        for (const [field, type] of scalarFields) add(`${prefix}.${field}`, type)
+        for (const [field, type] of objectFields) add(`${prefix}.${field}`, type)
+        addMedia(prefix)
+      }
+
+      const mediaFields: Array<[string, string]> = [
+        ['name', 'string'],
+        ['path', 'string'],
+        ['type', 'string'],
+        ['target', 'string'],
+        ['orientation', 'string'],
+        ['autoplay', 'boolean'],
+        ['loop', 'boolean'],
+        ['muted', 'boolean'],
+        ['source_category_id', 'string'],
+        ['source_category_name', 'string'],
+        ['fallback', 'boolean'],
+      ]
+
+      const addMedia = (prefix: string) => {
+        add(`${prefix}.media`, 'object')
+        for (const slot of this.categoryTemplateMediaSlotNames()) {
+          const slotPrefix = `${prefix}.media.${slot}`
+          add(slotPrefix, 'object')
+          for (const [field, type] of mediaFields) add(`${slotPrefix}.${field}`, type)
+        }
+      }
+
+      // category is the resolved active-category object.
+      addResolvedCategory('category')
+
+      // category_library intentionally exposes only the canonical template context,
+      // not the full persisted library/settings/categories snapshot.
+      add('category_library', 'object')
+      add('category_library.enabled', 'boolean')
+      add('category_library.active_category_id', 'string')
+      addResolvedCategory('category_library.active_category')
+      addResolvedCategory('category_library.active')
+      addMedia('category_library')
+      add('category_library.fallback_category_id', 'string')
+      add('category_library.fallback_category_name', 'string')
+
+      return Array.from(entries.values())
+    },
+
+    withCanonicalCategoryTemplateVariables(backendEntries: any[]): any[] {
+      const isCategoryPath = (entry: any) => {
+        const path = String(entry?.path ?? '').trim()
+        return path === 'category'
+          || path.startsWith('category.')
+          || path === 'category_library'
+          || path.startsWith('category_library.')
+      }
+
+      const firstCategoryIndex = backendEntries.findIndex(isCategoryPath)
+      const cleaned = backendEntries.filter((entry: any) => !isCategoryPath(entry))
+      const canonical = this.canonicalCategoryTemplateVariables()
+      const insertAt = firstCategoryIndex < 0
+        ? cleaned.length
+        : Math.min(firstCategoryIndex, cleaned.length)
+
+      cleaned.splice(insertAt, 0, ...canonical)
+      return cleaned
     },
 
     currentMacroGeneratedTemplateVariables() {
