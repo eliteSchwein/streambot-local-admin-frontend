@@ -25,6 +25,7 @@ export const useAppStore = defineStore('app', {
       connecting: false
     },
     shieldMode: false,
+    twitchData: { channel: null, category: null, live: null },
     currentGame: {},
     channelPoints: {
       active: [],
@@ -107,6 +108,7 @@ export const useAppStore = defineStore('app', {
     isWebsocketConnecting: (state) => state.websocket.connecting,
     getCurrentGame: (state) => state.currentGame,
     isShieldActive: (state) => state.shieldMode,
+    getTwitchData: (state) => state.twitchData,
     getChannelPoints: (state) => state.channelPoints,
     getAudioData: (state) => state.audioData,
     getSystemInfo: (state) => state.systemInfo,
@@ -329,6 +331,10 @@ export const useAppStore = defineStore('app', {
     setShieldActive(shieldMode: boolean) {
       this.shieldMode = shieldMode
       this.$patch(state => state.shieldMode = shieldMode)
+    },
+    setTwitchData(twitchData: any) {
+      this.twitchData = twitchData ?? { channel: null, category: null, live: null }
+      this.$patch(state => state.twitchData = this.twitchData)
     },
     setChannelPoints(channelPoints: []) {
       this.channelPoints = channelPoints

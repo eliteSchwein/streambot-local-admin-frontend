@@ -2447,6 +2447,36 @@
       "applyCustomCss": "Kategorie-CSS anwenden",
       "applyObsFilters": "Kategorie-OBS-Filter anwenden",
       "applyChannelPoints": "Kategorie-Kanalpunkte anwenden"
+    },
+    "topNavbar": {
+      "title": "Obere Navigationsleiste",
+      "description": "Lege fest, welche optionalen Einträge rechts oben angezeigt werden. Neuladen, Update, Drosselungswarnungen und Power sind fest.",
+      "addItem": "Navbar-Eintrag hinzufügen",
+      "items": {
+        "reload": "Neuladen",
+        "update": "Update",
+        "connections": "Verbindungen",
+        "systemInfo": "Systeminformationen",
+        "throttled": "Drosselungswarnung",
+        "shield": "Shield-Status",
+        "power": "Power",
+        "liveViewers": "Live-Zuschauer",
+        "liveStatus": "Live-Status"
+      },
+      "dropHere": "Hier ablegen",
+      "noItemsToAdd": "Keine weiteren Einträge verfügbar",
+      "systemInfoMetrics": {
+        "title": "Systeminformationen anzeigen",
+        "cpuLoad": "CPU-Auslastung",
+        "cpuTemp": "CPU-Temperatur",
+        "memory": "RAM-Auslastung",
+        "internalStorage": "Interner Speicher",
+        "externalStorage": "Externer Speicher"
+      },
+      "liveStatus": {
+        "live": "LIVE",
+        "offline": "Offline"
+      }
     }
   },
   "components": {

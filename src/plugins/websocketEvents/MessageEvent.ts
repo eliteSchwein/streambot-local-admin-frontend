@@ -49,6 +49,7 @@ import NotifyRestoreMessage from "@/plugins/websocketEvents/websocketMessage/Not
 import NotifyRestoreReadyMessage from "@/plugins/websocketEvents/websocketMessage/NotifyRestoreReadyMessage.ts";
 import NotifyCategoryLibraryUpdateMessage
   from "@/plugins/websocketEvents/websocketMessage/NotifyCategoryLibraryUpdateMessage.ts";
+import NotifyTwitchDataMessage from "@/plugins/websocketEvents/websocketMessage/NotifyTwitchDataMessage.ts";
 
 export default class MessageEvent extends BaseEvent {
   name = 'message'
@@ -107,5 +108,6 @@ export default class MessageEvent extends BaseEvent {
     await new NotifyRestoreMessage(this.webSocketClient).handleMessage(data)
     await new NotifyRestoreReadyMessage(this.webSocketClient).handleMessage(data)
     await new NotifyCategoryLibraryUpdateMessage(this.webSocketClient).handleMessage(data)
+    await new NotifyTwitchDataMessage(this.webSocketClient).handleMessage(data)
   }
 }

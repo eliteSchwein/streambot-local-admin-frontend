@@ -2447,6 +2447,36 @@
       "applyCustomCss": "Apply category CSS",
       "applyObsFilters": "Apply category OBS filters",
       "applyChannelPoints": "Apply category channel points"
+    },
+    "topNavbar": {
+      "title": "Top navbar",
+      "description": "Choose which optional entries are shown in the top-right navbar. Reload, Update, throttling warnings and Power are fixed.",
+      "addItem": "Add navbar entry",
+      "items": {
+        "reload": "Reload",
+        "update": "Update",
+        "connections": "Connections",
+        "systemInfo": "System info",
+        "throttled": "Throttling warning",
+        "shield": "Shield status",
+        "power": "Power",
+        "liveViewers": "Live viewers",
+        "liveStatus": "Live status"
+      },
+      "dropHere": "Drop here",
+      "noItemsToAdd": "No more entries available",
+      "systemInfoMetrics": {
+        "title": "System info display",
+        "cpuLoad": "CPU load",
+        "cpuTemp": "CPU temperature",
+        "memory": "RAM usage",
+        "internalStorage": "Internal storage",
+        "externalStorage": "External storage"
+      },
+      "liveStatus": {
+        "live": "LIVE",
+        "offline": "Offline"
+      }
     }
   },
   "components": {

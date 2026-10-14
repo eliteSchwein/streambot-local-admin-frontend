@@ -768,6 +768,13 @@ type SettingsForm = {
     enabled: boolean
     channels: string[]
   }>
+  local_admin_panel?: {
+    top_navbar: Array<{
+      key: string
+      enabled: boolean
+      order: number
+    }>
+  }
   category_library: {
     enabled: boolean
     auto_create: boolean
@@ -818,6 +825,15 @@ const defaultForm = (): SettingsForm => ({
     default_color: 'ff9800',
   },
   virtual_audio_cables: [],
+  local_admin_panel: {
+    top_navbar: [
+      { key: 'system_info', enabled: true, order: 0 },
+      { key: 'live_status', enabled: true, order: 1 },
+    ],
+    system_info: {
+      metrics: ['cpu_load', 'memory', 'internal_storage'],
+    },
+  },
   category_library: {
     enabled: false,
     auto_create: true,
@@ -877,6 +893,7 @@ export default {
       giveawayCommandExists: false,
       giveawayCommandConflictName: '',
       savedGiveawayCommand: 'ticket',
+      newTopNavbarItem: '',
       newCavaTargetName: '',
       newCavaTargetBars: 63,
       newCavaTargetSettings: {} as Record<string, { key: string, value: string }>,
@@ -904,6 +921,20 @@ export default {
         (this as any).waitingForReload ||
         !(this as any).reloadFinished
       )
+    },
+
+
+    topNavbarDefinitions(): Array<{ key: string; title: string; icon: string }> {
+      return [
+        { key: 'connections', title: String(this.$t('settings.topNavbar.items.connections')), icon: 'mdi-webhook' },
+        { key: 'system_info', title: String(this.$t('settings.topNavbar.items.systemInfo')), icon: 'mdi-cpu-64-bit' },
+        { key: 'shield', title: String(this.$t('settings.topNavbar.items.shield')), icon: 'mdi-shield-outline' },
+      ]
+    },
+
+    availableTopNavbarItems(): Array<{ key: string; title: string; icon: string }> {
+      const active = new Set((this.form.local_admin_panel?.top_navbar || []).map((item: any) => String(item?.key ?? '')))
+      return this.topNavbarDefinitions.filter(item => !active.has(item.key))
     },
 
     normalizedDefaultColorPreview(): string {
@@ -1142,6 +1173,7 @@ export default {
             id,
             ...(cable && typeof cable === 'object' ? cable : {}),
           }))
+      const localAdminPanel = settings.local_admin_panel || {}
       const categoryLibrary = settings.category_library || {}
       const giveaway = settings.giveaway || {}
       const { command: legacyGiveawayCommand, ...giveawaySettings } = giveaway
@@ -1196,6 +1228,10 @@ export default {
             }
           })
           .filter((cable: any) => cable.id),
+        local_admin_panel: {
+          ...(localAdminPanel && typeof localAdminPanel === 'object' ? localAdminPanel : {}),
+          top_navbar: this.normalizeTopNavbarItems(localAdminPanel?.top_navbar),
+        },
         category_library: {
           ...defaults.category_library,
           ...categoryLibrary,
@@ -1251,6 +1287,64 @@ export default {
 
     getFormSnapshot(): string {
       return JSON.stringify(this.normalizeForm())
+    },
+
+
+    topNavbarDefinition(key: string) {
+      return this.topNavbarDefinitions.find(item => item.key === key)
+    },
+
+    normalizeTopNavbarItems(value: any) {
+      const defaults = defaultForm().local_admin_panel.top_navbar
+      const source = Array.isArray(value) && value.length ? value : defaults
+      const seen = new Set<string>()
+      const result: any[] = []
+
+      source.forEach((raw: any, index: number) => {
+        const key = String(raw?.key ?? raw?.id ?? raw?.value ?? '').trim()
+        if (!key || seen.has(key) || !this.topNavbarDefinitions.some(item => item.key === key)) return
+        seen.add(key)
+        result.push({
+          key,
+          enabled: raw?.enabled !== false,
+          order: Number.isFinite(Number(raw?.order)) ? Math.max(0, Math.floor(Number(raw.order))) : index,
+        })
+      })
+
+      return result
+        .sort((a, b) => a.order - b.order)
+        .map((item, order) => ({ ...item, enabled: item.enabled !== false, order }))
+    },
+
+    addTopNavbarItem(key: string) {
+      const normalizedKey = String(key ?? '').trim()
+      if (!normalizedKey || this.settingsLocked) return
+      if (!this.topNavbarDefinitions.some(item => item.key === normalizedKey)) return
+      if (this.form.local_admin_panel.top_navbar.some(item => item.key === normalizedKey)) return
+
+      this.form.local_admin_panel.top_navbar.push({
+        key: normalizedKey,
+        enabled: true,
+        order: this.form.local_admin_panel.top_navbar.length,
+      })
+      this.form.local_admin_panel.top_navbar = this.normalizeTopNavbarItems(this.form.local_admin_panel.top_navbar)
+      this.newTopNavbarItem = ''
+    },
+
+    removeTopNavbarItem(key: string) {
+      if (this.settingsLocked) return
+      this.form.local_admin_panel.top_navbar = this.normalizeTopNavbarItems(
+        this.form.local_admin_panel.top_navbar.filter(item => item.key !== key)
+      )
+    },
+
+    moveTopNavbarItem(index: number, delta: number) {
+      if (this.settingsLocked) return
+      const target = index + delta
+      const items = [...this.form.local_admin_panel.top_navbar]
+      if (target < 0 || target >= items.length) return
+      ;[items[index], items[target]] = [items[target], items[index]]
+      this.form.local_admin_panel.top_navbar = items.map((item, order) => ({ ...item, order }))
     },
 
     normalizeCavaValue(value: any) {
@@ -1596,6 +1690,8 @@ export default {
         delete current.touch_wallpaper
         delete previous.virtual_audio_cables
         delete current.virtual_audio_cables
+        delete previous.local_admin_panel
+        delete current.local_admin_panel
 
         return JSON.stringify(previous) !== JSON.stringify(current)
       } catch {
