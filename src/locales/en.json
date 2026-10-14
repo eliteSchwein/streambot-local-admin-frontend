@@ -218,6 +218,7 @@
         "title": "Sleep: {duration}",
         "time": "Time",
         "unit": "Unit",
+        "milliseconds": "Milliseconds",
         "units": {
           "milliseconds": "Milliseconds",
           "seconds": "Seconds",
@@ -684,7 +685,9 @@
         "stopAutoMacro": "Stop auto macro",
         "startSceneRotation": "Start scene rotation",
         "stopSceneRotation": "Stop scene rotation",
-        "endMacro": "End macro"
+        "endMacro": "End macro",
+        "temporaryAutoMacroInterval": "Set temporary auto macro interval",
+        "resetAutoMacroInterval": "Reset auto macro interval"
       },
       "alert": "Alert",
       "animation": "Animation",
@@ -1159,6 +1162,25 @@
       },
       "macro": {
         "title": "Macro"
+      },
+      "autoMacroTemporaryInterval": {
+        "title": "Set temporary auto macro interval",
+        "autoMacro": "Auto macro",
+        "interval": "Temporary interval",
+        "duration": "Duration",
+        "unit": "Unit",
+        "limitDuration": "Restore automatically after a duration",
+        "durationHint": "After the duration expires, the configured normal interval is restored automatically.",
+        "untilResetHint": "The temporary interval stays active until another macro resets it.",
+        "milliseconds": "Milliseconds",
+        "seconds": "Seconds",
+        "minutes": "Minutes",
+        "hours": "Hours"
+      },
+      "autoMacroResetInterval": {
+        "title": "Reset auto macro interval",
+        "autoMacro": "Auto macro",
+        "hint": "Removes the temporary interval and immediately restores the auto macro's configured interval."
       }
     },
     "final": {
@@ -2525,6 +2547,7 @@
       "name": "Name",
       "interval": "Interval",
       "unit": "Unit",
+      "milliseconds": "Milliseconds",
       "startEnabledAfterRestart": "Start enabled after restart",
       "addMacro": "Add macro",
       "noMacrosSelectedYetAddAtLeastOneMacroToTrigger": "No macros selected yet. Add at least one macro to trigger.",
@@ -2619,6 +2642,7 @@
       "name": "Name",
       "interval": "Interval",
       "unit": "Unit",
+      "milliseconds": "Milliseconds",
       "addOBSScene": "Add OBS scene",
       "noScenesSelectedYetAddAtLeastOneOBSScene": "No scenes selected yet. Add at least one OBS scene.",
       "sceneOrder": "Scene order",

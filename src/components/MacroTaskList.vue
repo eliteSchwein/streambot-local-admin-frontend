@@ -875,6 +875,8 @@ export default {
 
       if (item?.task?.channel === 'auto_macro') {
         if (['stop', 'disable'].includes(item?.task?.method)) return 'MacroAutoMacroStopTaskAccordion'
+        if (['set_interval', 'temporary_interval'].includes(item?.task?.method)) return 'MacroAutoMacroTemporaryIntervalTaskAccordion'
+        if (['reset_interval', 'reset_temporary_interval'].includes(item?.task?.method)) return 'MacroAutoMacroResetIntervalTaskAccordion'
         return 'MacroAutoMacroStartTaskAccordion'
       }
 

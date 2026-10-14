@@ -22,22 +22,31 @@ const isDashboardMode = computed(() => props.mode === 'dashboard')
 const autoMacroName = computed(() => String(props.autoMacro?.name ?? ''))
 
 const progressValue = computed(() => {
-  const interval = Number(props.autoMacro?.interval ?? 0)
-  const currentInterval = Number(props.autoMacro?.current_interval ?? 0)
+  const interval = Number(props.autoMacro?.interval_ms ?? Number(props.autoMacro?.interval ?? 0) * 1000)
+  const currentInterval = Number(props.autoMacro?.current_interval_ms ?? Number(props.autoMacro?.current_interval ?? 0) * 1000)
 
   if (!interval || interval <= 0) return 0
   return Math.max(0, Math.min(100, (100 / interval) * currentInterval))
 })
 
-const intervalLabel = computed(() => formatDuration(Number(props.autoMacro?.interval ?? 0)))
+const intervalLabel = computed(() => formatDurationMs(
+  Number(props.autoMacro?.interval_ms ?? Number(props.autoMacro?.interval ?? 0) * 1000),
+))
 
 const macroList = computed(() => {
   const macros = props.autoMacro?.macros
   return Array.isArray(macros) ? macros.map((macro: any) => String(macro)) : []
 })
 
-function formatDuration(totalSeconds: number) {
-  const seconds = Math.max(0, Math.round(Number(totalSeconds) || 0))
+function formatDurationMs(totalMilliseconds: number) {
+  const milliseconds = Math.max(0, Math.round(Number(totalMilliseconds) || 0))
+  if (milliseconds < 1000) return `${milliseconds}ms`
+
+  if (milliseconds < 60_000 && milliseconds % 1000 !== 0) {
+    return `${Number((milliseconds / 1000).toFixed(3))}s`
+  }
+
+  const seconds = Math.floor(milliseconds / 1000)
   const minutes = Math.floor(seconds / 60)
   const remainingSeconds = seconds % 60
   const hours = Math.floor(minutes / 60)

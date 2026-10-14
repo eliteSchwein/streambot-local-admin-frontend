@@ -285,6 +285,8 @@ export default {
         default_enabled: false,
         interval: 600,
         current_interval: 600,
+        interval_ms: 600000,
+        current_interval_ms: 600000,
         macros: [],
       }
       this.selectedAutoMacroFile = ''

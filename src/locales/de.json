@@ -218,6 +218,7 @@
         "title": "Pause: {duration}",
         "time": "Zeit",
         "unit": "Einheit",
+        "milliseconds": "Millisekunden",
         "units": {
           "milliseconds": "Millisekunden",
           "seconds": "Sekunden",
@@ -684,7 +685,9 @@
         "stopAutoMacro": "Auto-Makro stoppen",
         "startSceneRotation": "Szenenwechsel starten",
         "stopSceneRotation": "Szenenwechsel stoppen",
-        "endMacro": "Makro beenden"
+        "endMacro": "Makro beenden",
+        "temporaryAutoMacroInterval": "Temporäres Auto-Makro-Intervall setzen",
+        "resetAutoMacroInterval": "Auto-Makro-Intervall zurücksetzen"
       },
       "alert": "Alarm",
       "animation": "Animation",
@@ -1159,6 +1162,25 @@
       },
       "macro": {
         "title": "Makro"
+      },
+      "autoMacroTemporaryInterval": {
+        "title": "Temporäres Auto-Makro-Intervall setzen",
+        "autoMacro": "Auto-Makro",
+        "interval": "Temporäres Intervall",
+        "duration": "Dauer",
+        "unit": "Einheit",
+        "limitDuration": "Nach einer Dauer automatisch zurücksetzen",
+        "durationHint": "Nach Ablauf der Dauer wird automatisch wieder das konfigurierte normale Intervall verwendet.",
+        "untilResetHint": "Das temporäre Intervall bleibt aktiv, bis es durch ein anderes Makro zurückgesetzt wird.",
+        "milliseconds": "Millisekunden",
+        "seconds": "Sekunden",
+        "minutes": "Minuten",
+        "hours": "Stunden"
+      },
+      "autoMacroResetInterval": {
+        "title": "Auto-Makro-Intervall zurücksetzen",
+        "autoMacro": "Auto-Makro",
+        "hint": "Entfernt das temporäre Intervall und stellt sofort das konfigurierte Intervall des Auto-Makros wieder her."
       }
     },
     "final": {
@@ -2525,6 +2547,7 @@
       "name": "Name",
       "interval": "Intervall",
       "unit": "Einheit",
+      "milliseconds": "Millisekunden",
       "startEnabledAfterRestart": "Nach Neustart aktiviert starten",
       "addMacro": "Makro hinzufügen",
       "noMacrosSelectedYetAddAtLeastOneMacroToTrigger": "Noch keine Makros ausgewählt. Füge mindestens ein Makro zum Auslösen hinzu.",
@@ -2619,6 +2642,7 @@
       "name": "Name",
       "interval": "Intervall",
       "unit": "Einheit",
+      "milliseconds": "Millisekunden",
       "addOBSScene": "OBS-Szene hinzufügen",
       "noScenesSelectedYetAddAtLeastOneOBSScene": "Noch keine Szenen ausgewählt. Füge mindestens eine OBS-Szene hinzu.",
       "sceneOrder": "Szenen-Reihenfolge",

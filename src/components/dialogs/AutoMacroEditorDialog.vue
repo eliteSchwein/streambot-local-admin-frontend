@@ -83,7 +83,8 @@
                 v-model.number="visualAutoMacro.interval"
                 :label="$t('dialogs.autoMacroEditorDialog.interval')"
                 type="number"
-                min="1"
+                :min="intervalUnit === 'milliseconds' ? 50 : intervalUnit === 'seconds' ? 0.05 : 0.001"
+                :step="intervalUnit === 'milliseconds' ? 1 : intervalUnit === 'seconds' ? 0.05 : 0.01"
                 density="comfortable"
                 variant="outlined"
                 hide-details
@@ -346,6 +347,10 @@ export default {
     intervalUnits() {
       return [
         {
+          title: this.$t('dialogs.autoMacroEditorDialog.milliseconds'),
+          value: 'milliseconds',
+        },
+        {
           title: this.$t('macro.function.sleep.units.seconds'),
           value: 'seconds',
         },
@@ -360,11 +365,18 @@ export default {
       ]
     },
 
+    intervalMilliseconds(): number {
+      const interval = Number(this.visualAutoMacro.interval || 0)
+      let milliseconds = interval
+      if (this.intervalUnit === 'hours') milliseconds = interval * 3_600_000
+      else if (this.intervalUnit === 'minutes') milliseconds = interval * 60_000
+      else if (this.intervalUnit === 'seconds') milliseconds = interval * 1_000
+
+      return Math.max(50, Math.round(milliseconds))
+    },
+
     intervalSeconds(): number {
-      const interval = Number(this.visualAutoMacro.interval || 1)
-      if (this.intervalUnit === 'hours') return Math.round(interval * 3600)
-      if (this.intervalUnit === 'minutes') return Math.round(interval * 60)
-      return Math.round(interval)
+      return this.intervalMilliseconds / 1000
     },
   },
 
@@ -573,8 +585,10 @@ export default {
 
     autoMacroToVisual(): VisualAutoMacro {
       const item: any = this.autoMacro ?? {}
-      const seconds = Number(item.interval ?? 600)
-      const normalized = this.secondsToBestUnit(seconds)
+      const intervalMs = item.interval_ms !== undefined
+        ? Number(item.interval_ms)
+        : Number(item.interval ?? 600) * 1000
+      const normalized = this.millisecondsToBestUnit(intervalMs)
       this.intervalUnit = normalized.unit
 
       return {
@@ -585,18 +599,22 @@ export default {
       }
     },
 
-    secondsToBestUnit(seconds: number) {
-      const value = Number.isFinite(seconds) && seconds > 0 ? seconds : 600
-      if (value % 3600 === 0) return { value: value / 3600, unit: 'hours' }
-      if (value % 60 === 0) return { value: value / 60, unit: 'minutes' }
-      return { value, unit: 'seconds' }
+    millisecondsToBestUnit(milliseconds: number) {
+      const value = Number.isFinite(milliseconds) && milliseconds > 0 ? Math.max(50, milliseconds) : 600_000
+      if (value % 3_600_000 === 0) return { value: value / 3_600_000, unit: 'hours' }
+      if (value % 60_000 === 0) return { value: value / 60_000, unit: 'minutes' }
+      if (value >= 1_000 && value % 1_000 === 0) return { value: value / 1_000, unit: 'seconds' }
+      if (value >= 1_000) return { value: Number((value / 1_000).toFixed(3)), unit: 'seconds' }
+      return { value: Math.round(value), unit: 'milliseconds' }
     },
 
     parseContentToVisual() {
       try {
         const parsed: any = this.yamlLoad(this.content) ?? {}
-        const seconds = Number(parsed.interval ?? parsed.interval_seconds ?? 600)
-        const normalized = this.secondsToBestUnit(seconds)
+        const intervalMs = parsed.interval_ms !== undefined
+          ? Number(parsed.interval_ms)
+          : Number(parsed.interval ?? parsed.interval_seconds ?? 600) * 1000
+        const normalized = this.millisecondsToBestUnit(intervalMs)
 
         this.intervalUnit = normalized.unit
         this.visualAutoMacro = {
@@ -617,6 +635,7 @@ export default {
       return {
         name: this.visualAutoMacro.name,
         default_enabled: this.visualAutoMacro.default_enabled,
+        interval_ms: this.intervalMilliseconds,
         interval: this.intervalSeconds,
         macros: this.visualAutoMacro.macros ?? [],
       }
