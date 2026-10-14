@@ -23,6 +23,7 @@
 
         <v-col cols="12" md="6">
           <UploadCard
+            ref="uploadCard"
             :label="$t('commands.upload') || 'Upload command'"
             :drop-label="$t('file.dropFiles') || 'Drop files here'"
             icon="mdi-upload"
@@ -427,6 +428,7 @@ export default {
         if (!response.ok || payload?.error || data?.error) throw new Error(payload?.message ?? payload?.error ?? 'command upload failed')
 
         await (this.$refs.storageCard as any)?.fetchStorageInfo?.()
+        ;(this.$refs.uploadCard as any)?.reset?.()
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'command upload failed'
       } finally {

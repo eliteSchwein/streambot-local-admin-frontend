@@ -264,6 +264,7 @@ export default {
         }
 
         await (this.$refs.storageCard as any)?.fetchStorageInfo?.()
+        ;(this.$refs.uploadCard as any)?.reset?.()
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'macro upload failed'
       } finally {

@@ -41,9 +41,15 @@ export default {
   },
   mounted() {
     eventBus.$on('dashboard:edit-state', this.onDashboardEditState)
+    window.addEventListener('drop', this.handleGlobalNavbarDragCleanup)
+    window.addEventListener('dragend', this.handleGlobalNavbarDragCleanup)
+    window.addEventListener('blur', this.handleGlobalNavbarDragCleanup)
   },
   beforeUnmount() {
     eventBus.$off('dashboard:edit-state', this.onDashboardEditState)
+    window.removeEventListener('drop', this.handleGlobalNavbarDragCleanup)
+    window.removeEventListener('dragend', this.handleGlobalNavbarDragCleanup)
+    window.removeEventListener('blur', this.handleGlobalNavbarDragCleanup)
     if (this.navbarSaveTimer) clearTimeout(this.navbarSaveTimer)
   },
   computed: {
@@ -197,6 +203,11 @@ export default {
     },
   },
   methods: {
+    handleGlobalNavbarDragCleanup() {
+      if (!this.navbarDragKey && this.navbarDropIndex < 0) return
+      this.endNavbarDrag()
+    },
+
     onDashboardEditState(enabled) {
       this.dashboardEditMode = Boolean(enabled)
       if (!this.dashboardEditMode) {
@@ -321,11 +332,17 @@ export default {
     },
     dropNavbarAt(index) {
       const sourceKey = this.navbarDragKey
-      if (!sourceKey) return
+      if (!sourceKey) {
+        this.endNavbarDrag()
+        return
+      }
 
       const active = this.activeOptionalTopNavbarItems.map(item => ({ ...item }))
       const sourceIndex = active.findIndex(item => item.key === sourceKey)
-      if (sourceIndex < 0) return
+      if (sourceIndex < 0) {
+        this.endNavbarDrag()
+        return
+      }
 
       const [source] = active.splice(sourceIndex, 1)
       let insertAt = Number(index) || 0
@@ -375,7 +392,7 @@ export default {
       <NavbarUpdateStatus />
     </template>
 
-    <div v-if="dashboardEditMode" class="topbar-navbar-editor mr-1">
+    <div v-if="dashboardEditMode" class="topbar-navbar-editor mr-1" :class="{ 'topbar-navbar-editor--dragging': Boolean(navbarDragKey) }">
       <template v-for="(item, index) in activeOptionalTopNavbarItems" :key="`navbar-edit-${item.key}`">
         <div
           class="topbar-navbar-drop-zone"
@@ -759,7 +776,7 @@ export default {
   opacity: .55;
 }
 
-.topbar-navbar-drop-zone:hover,
+.topbar-navbar-editor:not(.topbar-navbar-editor--dragging) .topbar-navbar-drop-zone:hover,
 .topbar-navbar-drop-zone--active {
   width: 72px;
   min-width: 72px;
@@ -769,9 +786,9 @@ export default {
   color: rgba(var(--v-theme-on-surface), .82);
 }
 
-.topbar-navbar-drop-zone:hover > span,
+.topbar-navbar-editor:not(.topbar-navbar-editor--dragging) .topbar-navbar-drop-zone:hover > span,
 .topbar-navbar-drop-zone--active > span,
-.topbar-navbar-drop-zone:hover > .v-icon,
+.topbar-navbar-editor:not(.topbar-navbar-editor--dragging) .topbar-navbar-drop-zone:hover > .v-icon,
 .topbar-navbar-drop-zone--active > .v-icon {
   opacity: 1;
 }

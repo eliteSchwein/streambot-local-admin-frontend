@@ -65,6 +65,18 @@ export default {
 
   emits: ['upload'],
 
+  mounted() {
+    window.addEventListener('drop', this.resetDragState, true)
+    window.addEventListener('dragend', this.resetDragState, true)
+    window.addEventListener('blur', this.resetDragState)
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('drop', this.resetDragState, true)
+    window.removeEventListener('dragend', this.resetDragState, true)
+    window.removeEventListener('blur', this.resetDragState)
+  },
+
   data() {
     return {
       model: [] as File[],
@@ -75,11 +87,15 @@ export default {
   },
 
   methods: {
+    resetDragState() {
+      this.dragging = false
+      this.dragDepth = 0
+    },
+
     reset() {
       this.model = []
       this.inputKey += 1
-      this.dragging = false
-      this.dragDepth = 0
+      this.resetDragState()
     },
 
     emitFiles(value: File | File[] | null) {
@@ -118,11 +134,14 @@ export default {
     },
 
     onDrop(event: DragEvent) {
-      if (this.disabled || this.loading) return
-
       const files = Array.from(event.dataTransfer?.files ?? [])
 
+      // Always clear the visual state first. The parent can switch to loading
+      // while the native drop is still finishing, so cleanup must not depend
+      // on disabled/loading.
       this.reset()
+
+      if (this.disabled || this.loading) return
 
       if (!files.length) return
 

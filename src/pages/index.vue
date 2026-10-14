@@ -9,7 +9,7 @@
     <div
       ref="dashboardBoard"
       class="dashboard-layout mx-4"
-      :class="{ 'dashboard-layout--editing': editMode }"
+      :class="{ 'dashboard-layout--editing': editMode, 'dashboard-layout--dragging': Boolean(draggedCard) }"
       :style="{ '--dashboard-columns': dashboardColumnCount }"
     >
       <div
@@ -442,6 +442,9 @@ export default {
     void this.loadSettings()
     eventBus.$on('dashboard:toggle-edit', this.toggleEditMode)
     eventBus.$on('dashboard:set-edit', this.setEditMode)
+    window.addEventListener('drop', this.handleGlobalDragCleanup)
+    window.addEventListener('dragend', this.handleGlobalDragCleanup)
+    window.addEventListener('blur', this.handleGlobalDragCleanup)
     this.$nextTick(() => {
       this.startDashboardResizeObserver()
       this.syncDynamicCards()
@@ -452,6 +455,9 @@ export default {
     eventBus.$emit('dashboard:edit-state', false)
     eventBus.$off('dashboard:toggle-edit', this.toggleEditMode)
     eventBus.$off('dashboard:set-edit', this.setEditMode)
+    window.removeEventListener('drop', this.handleGlobalDragCleanup)
+    window.removeEventListener('dragend', this.handleGlobalDragCleanup)
+    window.removeEventListener('blur', this.handleGlobalDragCleanup)
     this.dashboardResizeObserver?.disconnect()
     this.dashboardResizeObserver = null
     if (this.dropTargetRaf) cancelAnimationFrame(this.dropTargetRaf)
@@ -463,6 +469,11 @@ export default {
   },
 
   methods: {
+    handleGlobalDragCleanup() {
+      if (!this.draggedCard && this.dropTargetColumn < 0 && this.dropTargetIndex < 0) return
+      this.endDrag()
+    },
+
     setEditMode(enabled: boolean) {
       this.editMode = Boolean(enabled)
       if (!this.editMode) this.endDrag()
@@ -689,7 +700,10 @@ export default {
 
     dropCardAt(targetColumn: number, targetIndex: number) {
       const key = this.draggedCard
-      if (!key) return
+      if (!key) {
+        this.endDrag()
+        return
+      }
 
       const section = this.dashboardLayout.sections.find(item => item.key === key)
       if (!section) {
@@ -925,7 +939,7 @@ export default {
 }
 .dashboard-drop-zone { cursor: pointer; gap: 4px; }
 .dashboard-drop-zone > span { font-size: 11px; pointer-events: none; opacity: .55; transition: opacity 90ms ease; }
-.dashboard-drop-zone:hover,
+.dashboard-layout:not(.dashboard-layout--dragging) .dashboard-drop-zone:hover,
 .dashboard-drop-zone--active {
   height: 44px;
   min-height: 44px;
@@ -934,9 +948,9 @@ export default {
   background: rgba(var(--v-theme-primary), .12);
   color: rgba(var(--v-theme-on-surface), .82);
 }
-.dashboard-drop-zone:hover > span,
+.dashboard-layout:not(.dashboard-layout--dragging) .dashboard-drop-zone:hover > span,
 .dashboard-drop-zone--active > span { opacity: 1; }
-.dashboard-drop-zone:hover > .v-icon, .dashboard-drop-zone--active > .v-icon { opacity: 1; }
+.dashboard-layout:not(.dashboard-layout--dragging) .dashboard-drop-zone:hover > .v-icon, .dashboard-drop-zone--active > .v-icon { opacity: 1; }
 .dashboard-drop-zone--end { margin-top: 0; }
 
 .dashboard-empty-column {
