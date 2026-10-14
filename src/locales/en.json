@@ -1861,6 +1861,33 @@
           "categoryLibrary": "Stored Twitch category metadata, media assignments, theme colors, CSS and category-library data."
         }
       }
+    },
+    "info": {
+      "title": "System information",
+      "live": "Live data",
+      "cpu": "CPU",
+      "cpuUsage": "CPU usage",
+      "memoryUsage": "RAM usage",
+      "internalStorage": "Internal storage",
+      "processor": "Processor",
+      "model": "Model",
+      "cores": "Physical / logical cores",
+      "speed": "Speed",
+      "temperature": "Temperature",
+      "load": "Load",
+      "memory": "Memory",
+      "used": "Used",
+      "available": "Available",
+      "total": "Total",
+      "usage": "Usage",
+      "mount": "Mount",
+      "filesystem": "Filesystem",
+      "graphics": "Graphics",
+      "gpu": "GPU",
+      "vram": "VRAM",
+      "notAvailable": "Not available",
+      "externalStorage": "External storage",
+      "allData": "All system information"
     }
   },
   "common": {

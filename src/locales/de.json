@@ -1861,6 +1861,33 @@
           "categoryLibrary": "Gespeicherte Twitch-Kategorien, Medienzuweisungen, Theme-Farben, CSS und Daten der Kategorienbibliothek."
         }
       }
+    },
+    "info": {
+      "title": "Systeminformationen",
+      "live": "Live-Daten",
+      "cpu": "CPU",
+      "cpuUsage": "CPU-Auslastung",
+      "memoryUsage": "RAM-Auslastung",
+      "internalStorage": "Interner Speicher",
+      "processor": "Prozessor",
+      "model": "Modell",
+      "cores": "Physische / logische Kerne",
+      "speed": "Takt",
+      "temperature": "Temperatur",
+      "load": "Auslastung",
+      "memory": "Arbeitsspeicher",
+      "used": "Belegt",
+      "available": "Verfügbar",
+      "total": "Gesamt",
+      "usage": "Auslastung",
+      "mount": "Mount",
+      "filesystem": "Dateisystem",
+      "graphics": "Grafik",
+      "gpu": "GPU",
+      "vram": "VRAM",
+      "notAvailable": "Nicht verfügbar",
+      "externalStorage": "Externer Speicher",
+      "allData": "Alle Systeminformationen"
     }
   },
   "common": {

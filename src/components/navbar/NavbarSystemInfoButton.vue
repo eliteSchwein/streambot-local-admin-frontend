@@ -1,6 +1,7 @@
 <template>
   <v-btn
     class="mr-1 system-info-navbar-button"
+    @click="openSystemPage"
     color="grey-darken-4"
     variant="flat"
   >
@@ -50,6 +51,7 @@ export default {
     },
   },
   methods: {
+    openSystemPage() { this.$router.push('/system') },
     metricEnabled(key: string) { return this.selectedMetrics.includes(key) },
     formatPercent(value: any) {
       const number = Number(value)

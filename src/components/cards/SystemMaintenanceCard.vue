@@ -348,6 +348,7 @@ export default {
 <style scoped>
 .system-maintenance-card {
   min-height: 116px;
+  container-type: inline-size;
 }
 
 .system-maintenance-card__actions {
@@ -357,10 +358,19 @@ export default {
 }
 
 .system-maintenance-card__action {
+  min-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-@media (max-width: 1100px) {
+/* Switch based on the maintenance card's actual width. In the 2/3-column
+   System layout the card gets narrow long before the viewport itself does. */
+@container (max-width: 820px) {
+  .system-maintenance-card__actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 560px) {
   .system-maintenance-card__actions {
     grid-template-columns: 1fr;
   }
