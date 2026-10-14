@@ -32,9 +32,6 @@
             bg-color="grey-darken-4"
             rounded
           />
-          <div class="system-information-card__ring-center ubuntu-mono">
-            {{ formatPercent(cpuUsage) }}
-          </div>
         </div>
 
         <div class="system-information-card__values">
@@ -132,14 +129,6 @@ export default {
   position: absolute;
   inset: 50% auto auto 50%;
   transform: translate(-50%, -50%);
-}
-.system-information-card__ring-center {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .95rem;
 }
 .system-information-card__values {
   flex: 1 1 auto;
