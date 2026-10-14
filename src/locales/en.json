@@ -932,6 +932,10 @@
         "toggle": "Toggle command",
         "configure": "Configure command",
         "resetAll": "Reset temporary settings"
+      },
+      "color": {
+        "title": "Color",
+        "converter": "Color converter"
       }
     },
     "core": {
@@ -1410,6 +1414,20 @@
     "variable": {
       "getTitle": "Get variable",
       "setTitle": "Set variable"
+    },
+    "colorConverter": {
+      "title": "Color converter",
+      "info": "Converts a color between HEX, decimal, RGB and HSV and stores the result in a macro variable.",
+      "from": "From",
+      "to": "To",
+      "value": "Color value",
+      "variableHint": "The converted color is stored in this variable.",
+      "valueHints": {
+        "hex": "Examples: #A1B2C3, A1B2C3 or #ABC",
+        "dec": "Decimal color value from 0 to 16777215",
+        "rgb": "Examples: 255, 128, 0 or rgb(255, 128, 0)",
+        "hsv": "Hue 0–360, saturation/value 0–100, e.g. 30, 100, 100"
+      }
     }
   },
   "giveaway": {

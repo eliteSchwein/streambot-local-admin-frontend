@@ -513,6 +513,10 @@ export default {
             add(data.key, 'string')
           }
 
+          if (channel === 'color_converter') {
+            add(data.key, String(data.to ?? '').toLowerCase() === 'dec' ? 'number' : 'string')
+          }
+
           if (channel === 'file' && method === 'read_folder') {
             add(data.key, 'array')
           }
@@ -750,6 +754,8 @@ export default {
       if (item?.task?.channel === 'condition' && item?.task?.method === 'end_macro') return 'MacroEndMacroTaskAccordion'
       if (item?.type === 'switch' || (item?.task?.channel === 'switch' && item?.task?.method === 'switch')) return 'MacroSwitchTaskAccordion'
       if (item?.task?.channel === 'switch' && item?.task?.method === 'break') return 'MacroSwitchBreakTaskAccordion'
+      if (item?.task?.channel === 'color_converter') return 'MacroColorConverterTaskAccordion'
+
       if (item?.task?.channel === 'function') {
         const functionComponentsByMethod: Record<string, string> = {
           announce: 'MacroFunctionAnnounceTaskAccordion',

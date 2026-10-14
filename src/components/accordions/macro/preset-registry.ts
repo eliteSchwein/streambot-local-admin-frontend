@@ -5,6 +5,7 @@ import { audioMacroTaskPresets } from './audio'
 import { autoMacroMacroTaskPresets } from './auto-macro'
 import { channelPointMacroTaskPresets } from './channel-point'
 import { commandMacroTaskPresets } from './command'
+import { colorConverterMacroTaskPresets } from './color-converter'
 import { fileMacroTaskPresets } from './file'
 import { flowMacroTaskPresets } from './flow'
 import { functionsMacroTaskPresets } from './functions'
@@ -34,6 +35,7 @@ const registrations: MacroTaskPresetRegistration[] = [
   ...autoMacroMacroTaskPresets,
   ...channelPointMacroTaskPresets,
   ...commandMacroTaskPresets,
+  ...colorConverterMacroTaskPresets,
   ...fileMacroTaskPresets,
   ...flowMacroTaskPresets,
   ...functionsMacroTaskPresets,

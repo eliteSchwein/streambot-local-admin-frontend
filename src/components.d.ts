@@ -91,6 +91,7 @@ declare module 'vue' {
     MacroChannelPointPauseTaskAccordion: typeof import('./components/accordions/macro/channel-point/MacroChannelPointPauseTaskAccordion.vue')['default']
     MacroChannelPointSelect: typeof import('./components/accordions/macro/channel-point/MacroChannelPointSelect.vue')['default']
     MacroClearMediaTaskAccordion: typeof import('./components/accordions/macro/media/MacroClearMediaTaskAccordion.vue')['default']
+    MacroColorConverterTaskAccordion: typeof import('./components/accordions/macro/color-converter/MacroColorConverterTaskAccordion.vue')['default']
     MacroCommandDisableTaskAccordion: typeof import('./components/accordions/macro/command/MacroCommandDisableTaskAccordion.vue')['default']
     MacroCommandEnableTaskAccordion: typeof import('./components/accordions/macro/command/MacroCommandEnableTaskAccordion.vue')['default']
     MacroCommandResetAllTaskAccordion: typeof import('./components/accordions/macro/command/MacroCommandResetAllTaskAccordion.vue')['default']

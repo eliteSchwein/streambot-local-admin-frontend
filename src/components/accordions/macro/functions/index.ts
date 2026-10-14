@@ -137,7 +137,7 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
   },
   {
     path: [
-      { titleKey: "macro.presets.randomGroup.title", icon: "mdi-dice-multiple-outline" },
+      { titleKey: "macro.presets.color.title", icon: "mdi-palette-outline" },
     ],
     titleKey: "macro.presets.randomColor",
     icon: "mdi-palette-outline",

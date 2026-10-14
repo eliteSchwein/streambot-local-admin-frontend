@@ -1,5 +1,6 @@
 <template>
   <v-dialog
+    eager
     :model-value="modelValue"
     max-width="520"
     @update:model-value="$emit('update:modelValue', $event)"
@@ -95,6 +96,18 @@ const presetFiles = import.meta.glob('../../presets/macros/*.{yaml,yml}', {
   eager: true,
 })
 
+const presetItems = Object.keys(presetFiles)
+  .sort((a, b) => a.localeCompare(b))
+  .map((file) => {
+    const presetName = file.split('/').pop()?.replace(/\.ya?ml$/i, '') ?? file
+    return {
+      title: String(presetName)
+        .replace(/[-_]+/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase()),
+      value: file,
+    }
+  })
+
 export default {
   name: 'MacroCreateDialog',
 
@@ -119,16 +132,7 @@ export default {
 
   computed: {
     presetItems(): Array<{ title: string; value: string }> {
-      return Object.keys(presetFiles)
-        .sort((a, b) => a.localeCompare(b))
-        .map((file) => {
-          const presetName = file.split('/').pop()?.replace(/\.ya?ml$/i, '') ?? file
-
-          return {
-            title: this.formatPresetName(presetName),
-            value: file,
-          }
-        })
+      return presetItems
     },
 
     normalizedName(): string {
@@ -228,12 +232,6 @@ export default {
 
     getPresetContent(): string {
       return String((presetFiles as any)[this.selectedPreset] ?? '')
-    },
-
-    formatPresetName(value: string): string {
-      return String(value ?? '')
-        .replace(/[-_]+/g, ' ')
-        .replace(/\b\w/g, char => char.toUpperCase())
     },
 
     async createMacro() {

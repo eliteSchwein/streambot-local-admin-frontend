@@ -6,8 +6,8 @@ import type { MacroTaskPresetRegistration } from '../preset-registry-types'
 export const themeMacroTaskPresets: MacroTaskPresetRegistration[] = [
   {
     path: [
-      { titleKey: "macro.presets.expert.title", icon: "mdi-function" },
-      { titleKey: "macro.presets.expert.theme.title", icon: "mdi-palette-outline" },
+      { titleKey: "macro.presets.color.title", icon: "mdi-palette-outline" },
+      { titleKey: "macro.presets.expert.theme.title", icon: "mdi-theme-light-dark" },
     ],
     titleKey: "macro.theme.setColor.title",
     icon: "mdi-palette",
@@ -22,8 +22,8 @@ export const themeMacroTaskPresets: MacroTaskPresetRegistration[] = [
   },
   {
     path: [
-      { titleKey: "macro.presets.expert.title", icon: "mdi-function" },
-      { titleKey: "macro.presets.expert.theme.title", icon: "mdi-palette-outline" },
+      { titleKey: "macro.presets.color.title", icon: "mdi-palette-outline" },
+      { titleKey: "macro.presets.expert.theme.title", icon: "mdi-theme-light-dark" },
     ],
     titleKey: "macro.theme.restoreColor.title",
     icon: "mdi-palette-outline",

@@ -932,6 +932,10 @@
         "toggle": "Befehl umschalten",
         "configure": "Befehl konfigurieren",
         "resetAll": "Temporäre Einstellungen zurücksetzen"
+      },
+      "color": {
+        "title": "Farbe",
+        "converter": "Farbkonverter"
       }
     },
     "core": {
@@ -1410,6 +1414,20 @@
     "variable": {
       "getTitle": "Variable abrufen",
       "setTitle": "Variable setzen"
+    },
+    "colorConverter": {
+      "title": "Farbkonverter",
+      "info": "Konvertiert eine Farbe zwischen HEX, Dezimal, RGB und HSV und speichert das Ergebnis in einer Makro-Variable.",
+      "from": "Von",
+      "to": "Nach",
+      "value": "Farbwert",
+      "variableHint": "Die konvertierte Farbe wird in dieser Variable gespeichert.",
+      "valueHints": {
+        "hex": "Beispiele: #A1B2C3, A1B2C3 oder #ABC",
+        "dec": "Dezimaler Farbwert von 0 bis 16777215",
+        "rgb": "Beispiele: 255, 128, 0 oder rgb(255, 128, 0)",
+        "hsv": "Farbton 0–360, Sättigung/Helligkeit 0–100, z. B. 30, 100, 100"
+      }
     }
   },
   "giveaway": {
