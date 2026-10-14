@@ -1559,7 +1559,9 @@
         "loading_scene_rotations": "Szenenwechselen werden geladen…",
         "starting_music_player": "Musikplayer wird gestartet…",
         "updating_event_index": "Event-Index wird aktualisiert…",
-        "finished": "Fertig"
+        "finished": "Fertig",
+        "loading_web_content": "Web-Inhalte werden geladen…",
+        "loading_tts_voices": "TTS-Stimmen werden geladen…"
       }
     }
   },

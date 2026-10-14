@@ -22,12 +22,16 @@ const showStartupStatus = computed(() => {
 })
 
 const localizedStage = computed(() => {
-  const stage = props.startupStage || "unknown"
+  const stage = String(props.startupStage || "unknown").trim() || "unknown"
   const key = `connectDialog.startup.stages.${stage}`
 
-  return te(key)
-    ? t(key)
-    : t("connectDialog.startup.stages.unknown")
+  if (te(key)) return t(key)
+
+  return stage
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^\w/, character => character.toUpperCase())
 })
 </script>
 

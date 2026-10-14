@@ -1559,7 +1559,9 @@
         "loading_scene_rotations": "Loading scene rotations…",
         "starting_music_player": "Starting music player…",
         "updating_event_index": "Updating event index…",
-        "finished": "Finished"
+        "finished": "Finished",
+        "loading_web_content": "Loading web content…",
+        "loading_tts_voices": "Loading TTS voices…"
       }
     }
   },
