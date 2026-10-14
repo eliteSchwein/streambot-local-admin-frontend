@@ -376,6 +376,8 @@ export default {
         ['steam_app_id', 'number'],
         ['shop_url', 'string'],
         ['wallpaper_path', 'string'],
+        ['wallpaper_base64', 'string'],
+        ['wallpaper_data_url', 'string'],
         ['wallpaper_url', 'string'],
         ['theme_color', 'string'],
         ['custom_css', 'string'],
@@ -415,6 +417,8 @@ export default {
         ['source_category_id', 'string'],
         ['source_category_name', 'string'],
         ['fallback', 'boolean'],
+        ['base64', 'string'],
+        ['data_url', 'string'],
       ]
 
       const addMedia = (prefix: string) => {
