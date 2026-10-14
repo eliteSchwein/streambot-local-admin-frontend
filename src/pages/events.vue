@@ -25,10 +25,17 @@
       <v-alert v-if="errorMessage" type="error" color="red-darken-3" class="mb-4" :text="errorMessage" />
       <v-alert v-if="totalEvents === 0" type="error" color="red-darken-3" :text="$t('events.none')" />
 
-      <v-expansion-panels v-else variant="accordion" multiple class="event-channel-list">
+      <v-expansion-panels
+        v-else
+        v-model="expandedChannels"
+        variant="accordion"
+        multiple
+        class="event-channel-list"
+      >
         <v-expansion-panel
           v-for="channelGroup in filteredNestedEvents"
           :key="channelGroup.name"
+          :value="channelGroup.name"
           bg-color="grey-darken-4"
         >
           <v-expansion-panel-title>
@@ -42,6 +49,7 @@
           <v-expansion-panel-text>
             <v-expansion-panels
               v-if="channelGroup.hasSubchannels"
+              v-model="expandedSubchannels[channelGroup.name]"
               variant="accordion"
               multiple
               class="event-subchannel-list"
@@ -49,6 +57,7 @@
               <v-expansion-panel
                 v-for="subchannelGroup in channelGroup.subchannels"
                 :key="`${channelGroup.name}_${subchannelGroup.name}`"
+                :value="subchannelGroup.name"
                 bg-color="grey-darken-3"
               >
                 <v-expansion-panel-title>
@@ -164,6 +173,8 @@ export default {
       errorMessage: '',
       editorError: '',
       searchQuery: '',
+      expandedChannels: [] as string[],
+      expandedSubchannels: {} as Record<string, string[]>,
       selectedEvent: null as EventEntryData | null,
       editorDialog: false,
       workingAction: null as null | 'save',
@@ -188,7 +199,13 @@ export default {
       if (!query) return this.eventList
 
       return this.eventList.filter((eventEntry) =>
-        [eventEntry.name, eventEntry.channel, eventEntry.subchannel, eventEntry.configName]
+        [
+          eventEntry.name,
+          eventEntry.channel,
+          eventEntry.subchannel,
+          eventEntry.configName,
+          this.eventDisplayName(eventEntry),
+        ]
           .filter(Boolean)
           .some((value) => String(value).toLowerCase().includes(query)),
       )
@@ -231,8 +248,48 @@ export default {
     },
   },
 
+  watch: {
+    searchQuery() {
+      this.$nextTick(() => this.syncSearchExpansion())
+    },
+
+    filteredNestedEvents() {
+      if (!String(this.searchQuery ?? '').trim()) return
+      this.$nextTick(() => this.syncSearchExpansion())
+    },
+  },
+
 
   methods: {
+    syncSearchExpansion() {
+      const searching = Boolean(String(this.searchQuery ?? '').trim())
+
+      if (!searching) {
+        this.expandedChannels = []
+        this.expandedSubchannels = {}
+        return
+      }
+
+      const visibleGroups = this.filteredNestedEvents
+
+      if (visibleGroups.length > 3) {
+        this.expandedChannels = []
+        this.expandedSubchannels = {}
+        return
+      }
+
+      const channels = visibleGroups.map(group => group.name)
+      const subchannels: Record<string, string[]> = {}
+
+      for (const group of visibleGroups) {
+        if (!group.hasSubchannels) continue
+        subchannels[group.name] = group.subchannels.map(subchannel => subchannel.name)
+      }
+
+      this.expandedChannels = channels
+      this.expandedSubchannels = subchannels
+    },
+
     async requestWebsocket(method: string, params: Record<string, any> = {}, timeout = 15_000): Promise<any> {
       const client = getWebsocketClient()
 
@@ -398,6 +455,27 @@ export default {
 
     defaultMacroContent(name: string) {
       return `name: ${name}\napis: []\ntasks: []\n`
+    },
+
+
+    eventDisplayName(eventEntry: EventEntryData) {
+      const explicitLocaleKey = String(eventEntry?.localeKey ?? '').trim()
+      if (explicitLocaleKey && (this as any).$te?.(explicitLocaleKey)) {
+        return String((this as any).$t(explicitLocaleKey))
+      }
+
+      const configName = String(eventEntry?.configName ?? '').trim()
+      const configLocaleKey = configName ? `events.items.${configName}` : ''
+      if (configLocaleKey && (this as any).$te?.(configLocaleKey)) {
+        return String((this as any).$t(configLocaleKey))
+      }
+
+      return String(eventEntry?.name ?? configName)
+        .replace(/^event_/, '')
+        .split('_')
+        .filter(Boolean)
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ')
     },
 
     channelLabel(channel: string) {

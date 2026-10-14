@@ -250,6 +250,12 @@
       "accounts": {
         "message": "Nachrichtenkonto",
         "streamer": "Streamer-Konto"
+      },
+      "stripUrls": {
+        "title": "URLs entfernen",
+        "info": "Entfernt URLs aus einem Text, normalisiert Leerzeichen und speichert das bereinigte Ergebnis in einer Makro-Variable.",
+        "contentHint": "Unterstützt Makro-Variablen, zum Beispiel eine Nachrichten- oder KI-Antwortvariable.",
+        "variableHint": "Der bereinigte Text wird in dieser Variable gespeichert."
       }
     },
     "music": {
@@ -688,7 +694,8 @@
         "sendDm": "DM senden",
         "chatMessage": "Chatnachricht",
         "announce": "Ankündigen",
-        "stripEmojis": "Emojis entfernen"
+        "stripEmojis": "Emojis entfernen",
+        "stripUrls": "URLs entfernen"
       },
       "time": {
         "title": "Zeit",
@@ -2091,7 +2098,7 @@
       "event_twitch_poll_completed": "Umfrage abgeschlossen",
       "event_twitch_poll_terminated": "Umfrage abgebrochen",
       "event_twitch_channel_unban": "Benutzer entbannt",
-      "event_twitch_community_sub": "Community-Subs",
+      "event_twitch_community_sub": "Community-Geschenkabos",
       "event_twitch_follow": "Neuer Follower",
       "event_twitch_poll_progress": "Umfrage-Fortschritt",
       "event_twitch_prediction_lock": "Vorhersage gesperrt",
@@ -2502,7 +2509,9 @@
       "editTitle": "Ereignis bearbeiten: {event}",
       "websocketDisconnected": "WebSocket ist nicht verbunden",
       "invalidSimulationJson": "Ungültiges JSON in „{field}“",
-      "bypassInteractionQueue": "Interaktionswarteschlange umgehen"
+      "bypassInteractionQueue": "Interaktionswarteschlange umgehen",
+      "stripEmotes": "Emotes entfernen",
+      "stripUrls": "URLs entfernen"
     },
     "commandCreateDialog": {
       "command": "Befehl",
@@ -2536,7 +2545,9 @@
       "general": "Allgemein",
       "cooldowns": "Cooldowns",
       "behavior": "Verhalten",
-      "permissions": "Berechtigungen"
+      "permissions": "Berechtigungen",
+      "stripEmotes": "Emotes entfernen",
+      "stripUrls": "URLs entfernen"
     },
     "fileDeleteConfirmDialog": {},
     "fileCopyDialog": {},
@@ -2592,7 +2603,8 @@
       "bypassInteractionQueue": "Interaktionswarteschlange umgehen",
       "general": "Allgemein",
       "options": "Optionen",
-      "interaction": "Interaktion"
+      "interaction": "Interaktion",
+      "stripUrls": "URLs entfernen"
     },
     "commandDialog": {
       "createTitle": "Befehl erstellen",

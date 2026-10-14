@@ -120,6 +120,7 @@ declare module 'vue' {
     MacroFunctionSongRequestToggleTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionSongRequestToggleTaskAccordion.vue')['default']
     MacroFunctionSpeakTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionSpeakTaskAccordion.vue')['default']
     MacroFunctionStripEmojisTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionStripEmojisTaskAccordion.vue')['default']
+    MacroFunctionStripUrlsTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionStripUrlsTaskAccordion.vue')['default']
     MacroFunctionTaskAccordion: typeof import('./components/accordions/macro/functions/MacroFunctionTaskAccordion.vue')['default']
     MacroKeyboardTaskAccordion: typeof import('./components/accordions/macro/keyboard/MacroKeyboardTaskAccordion.vue')['default']
     MacroLoopControlTaskAccordion: typeof import('./components/accordions/macro/flow/MacroLoopControlTaskAccordion.vue')['default']

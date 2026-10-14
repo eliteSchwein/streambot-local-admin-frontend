@@ -58,6 +58,8 @@
             <v-row density="comfortable">
               <v-col cols="12" sm="6"><v-switch v-model="form.enabled" :label="$t('dialogs.commandCreateDialog.enabled')" color="primary" hide-details density="comfortable" inset /></v-col>
               <v-col cols="12" sm="6"><v-switch v-model="form.bypass_interaction_queue" :label="$t('dialogs.commandCreateDialog.bypassInteractionQueue')" color="primary" hide-details density="comfortable" inset /></v-col>
+              <v-col cols="12" sm="6"><v-switch v-model="form.strip_emotes" :label="$t('dialogs.commandCreateDialog.stripEmotes')" color="primary" hide-details density="comfortable" inset /></v-col>
+              <v-col cols="12" sm="6"><v-switch v-model="form.strip_urls" :label="$t('dialogs.commandCreateDialog.stripUrls')" color="primary" hide-details density="comfortable" inset /></v-col>
               <v-col cols="12"><v-select v-model="form.single_use" :items="singleUseOptions" :label="$t('dialogs.commandCreateDialog.singleUse')" variant="outlined" density="comfortable" hide-details /></v-col>
             </v-row>
           </v-card>
@@ -481,6 +483,8 @@ export default {
         params: this.expandImportedParams(command.params),
         enabled: command.enabled !== false,
         bypass_interaction_queue: command.bypass_interaction_queue === true,
+        strip_emotes: command.strip_emotes === true,
+        strip_urls: command.strip_urls === true,
         single_use: ['user', 'global'].includes(command.single_use ?? command.singleUse) ? (command.single_use ?? command.singleUse) : 'none',
         user_list_mode: ['blacklist', 'whitelist'].includes(command.user_list_mode ?? command.userListMode) ? (command.user_list_mode ?? command.userListMode) : 'none',
         users: this.toArray(command.users ?? command.user_list ?? command.userList).map((user: any) => String(user ?? '').replace(/^@+/, '').trim()).filter(Boolean),
@@ -548,6 +552,8 @@ export default {
         params: [] as any[],
         enabled: true,
         bypass_interaction_queue: false,
+        strip_emotes: false,
+        strip_urls: false,
         single_use: 'none',
         user_list_mode: 'none',
         users: [] as string[],
@@ -578,6 +584,8 @@ export default {
           .filter(Boolean),
         enabled: value.enabled !== false,
         bypass_interaction_queue: value.bypass_interaction_queue === true,
+        strip_emotes: value.strip_emotes === true,
+        strip_urls: value.strip_urls === true,
         single_use: ['user', 'global'].includes(value.single_use ?? value.singleUse)
           ? (value.single_use ?? value.singleUse)
           : 'none',
@@ -763,6 +771,8 @@ export default {
           userCooldown: command.userCooldown,
           globalCooldown: command.globalCooldown,
           bypass_interaction_queue: command.bypass_interaction_queue === true,
+          strip_emotes: command.strip_emotes === true,
+          strip_urls: command.strip_urls === true,
           enforce_primary: command.enforce_primary === true || command.enforceSame === true,
           requiresBroadcaster: command.requiresBroadcaster === true,
           requiresMod: command.requiresMod === true,

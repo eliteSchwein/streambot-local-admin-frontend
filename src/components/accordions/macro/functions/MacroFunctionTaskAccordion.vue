@@ -21,12 +21,16 @@ import MacroFunctionSongRequestTaskAccordion from './MacroFunctionSongRequestTas
 import MacroFunctionSongRequestToggleTaskAccordion from './MacroFunctionSongRequestToggleTaskAccordion.vue'
 import MacroFunctionSpeakTaskAccordion from './MacroFunctionSpeakTaskAccordion.vue'
 import MacroFunctionAnnounceTaskAccordion from './MacroFunctionAnnounceTaskAccordion.vue'
+import MacroFunctionStripEmojisTaskAccordion from './MacroFunctionStripEmojisTaskAccordion.vue'
+import MacroFunctionStripUrlsTaskAccordion from './MacroFunctionStripUrlsTaskAccordion.vue'
 
 export default {
   name: 'MacroFunctionTaskAccordion',
 
   components: {
     MacroFunctionAnnounceTaskAccordion,
+    MacroFunctionStripEmojisTaskAccordion,
+    MacroFunctionStripUrlsTaskAccordion,
     MacroFunctionRandomTaskAccordion,
     MacroFunctionRandomColorTaskAccordion,
     MacroFunctionSleepTaskAccordion,
@@ -60,6 +64,8 @@ export default {
         send_message: 'MacroFunctionSendMessageTaskAccordion',
         send_dm: 'MacroFunctionSendDmTaskAccordion',
         announce: 'MacroFunctionAnnounceTaskAccordion',
+        strip_emojis: 'MacroFunctionStripEmojisTaskAccordion',
+        strip_urls: 'MacroFunctionStripUrlsTaskAccordion',
       }
 
       return componentsByMethod[method] ?? 'MacroTaskAccordion'

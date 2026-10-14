@@ -370,7 +370,7 @@ export default {
             add(data.key, 'string')
           }
 
-          if (channel === 'function' && method === 'strip_emojis') {
+          if (channel === 'function' && ['strip_emojis', 'strip_urls'].includes(method)) {
             add(data.key, 'string')
           }
 
@@ -625,6 +625,7 @@ export default {
           song_request_toggle: 'MacroFunctionSongRequestToggleTaskAccordion',
           speak: 'MacroFunctionSpeakTaskAccordion',
           strip_emojis: 'MacroFunctionStripEmojisTaskAccordion',
+          strip_urls: 'MacroFunctionStripUrlsTaskAccordion',
         }
 
         return functionComponentsByMethod[item?.task?.method] ?? 'MacroFunctionTaskAccordion'

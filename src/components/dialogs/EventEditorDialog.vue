@@ -37,14 +37,17 @@
         />
 
         <div class="px-4 mb-3">
-          <v-switch
-            v-model="bypassInteractionQueue"
-            :label="$t('dialogs.eventEditorDialog.bypassInteractionQueue')"
-            color="primary"
-            density="comfortable"
-            hide-details
-            inset
-          />
+          <v-row density="comfortable">
+            <v-col cols="12" sm="4">
+              <v-switch v-model="bypassInteractionQueue" :label="$t('dialogs.eventEditorDialog.bypassInteractionQueue')" color="primary" density="comfortable" hide-details inset />
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-switch v-model="stripEmotes" :label="$t('dialogs.eventEditorDialog.stripEmotes')" color="primary" density="comfortable" hide-details inset />
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-switch v-model="stripUrls" :label="$t('dialogs.eventEditorDialog.stripUrls')" color="primary" density="comfortable" hide-details inset />
+            </v-col>
+          </v-row>
         </div>
 
         <v-expansion-panels v-model="openPanels" variant="accordion" @update:model-value="onPanelsChanged">
@@ -165,6 +168,8 @@ export default {
       savingInternal: false,
       simulationDialog: false,
       bypassInteractionQueue: false,
+      stripEmotes: false,
+      stripUrls: false,
     }
   },
 
@@ -227,6 +232,8 @@ export default {
     async open() {
       this.errorMessage = ''
       this.bypassInteractionQueue = this.eventEntry?.bypass_interaction_queue === true || this.eventEntry?.bypassInteractionQueue === true
+      this.stripEmotes = this.eventEntry?.strip_emotes === true || this.eventEntry?.stripEmotes === true
+      this.stripUrls = this.eventEntry?.strip_urls === true || this.eventEntry?.stripUrls === true
       this.macroContent = this.defaultMacroContent(this.configName)
       this.applyPanelState()
       await this.$nextTick()
@@ -337,7 +344,7 @@ export default {
         || this.macroContent
         || this.defaultMacroContent(this.configName)
 
-      return this.withBypassInteractionQueue(this.normalizeImportedMacroContent(content))
+      return this.withEventOptions(this.normalizeImportedMacroContent(content))
     },
 
     async buildEventExportBundle() {
@@ -354,6 +361,8 @@ export default {
         config: {
           name: this.configName,
           bypass_interaction_queue: this.bypassInteractionQueue,
+          strip_emotes: this.stripEmotes,
+          strip_urls: this.stripUrls,
         },
         ...(this.isSystemEvent
           ? {}
@@ -396,9 +405,9 @@ export default {
 
           try {
             const macroData = YAML.parse(macroContent)
-            if (typeof macroData?.bypass_interaction_queue === 'boolean') {
-              this.bypassInteractionQueue = macroData.bypass_interaction_queue
-            }
+            if (typeof macroData?.bypass_interaction_queue === 'boolean') this.bypassInteractionQueue = macroData.bypass_interaction_queue
+            if (typeof macroData?.strip_emotes === 'boolean') this.stripEmotes = macroData.strip_emotes
+            if (typeof macroData?.strip_urls === 'boolean') this.stripUrls = macroData.strip_urls
           } catch {
             // The macro editor will surface malformed content if necessary.
           }
@@ -407,9 +416,9 @@ export default {
           ;(this.$refs.macroAccordion as any)?.setContent?.(macroContent, this.configName)
         }
 
-        if (typeof config?.bypass_interaction_queue === 'boolean') {
-          this.bypassInteractionQueue = config.bypass_interaction_queue
-        }
+        if (typeof config?.bypass_interaction_queue === 'boolean') this.bypassInteractionQueue = config.bypass_interaction_queue
+        if (typeof config?.strip_emotes === 'boolean') this.stripEmotes = config.strip_emotes
+        if (typeof config?.strip_urls === 'boolean') this.stripUrls = config.strip_urls
 
         if (!this.isSystemEvent && data?.asset?.content && typeof data.asset.content === 'object') {
           await this.$nextTick()
@@ -429,19 +438,27 @@ export default {
       this.simulationDialog = true
     },
 
-    withBypassInteractionQueue(content: string) {
-      const value = String(content ?? '')
-      const line = `bypass_interaction_queue: ${this.bypassInteractionQueue ? 'true' : 'false'}`
+    withEventOptions(content: string) {
+      let value = String(content ?? '')
+      const options = [
+        ['bypass_interaction_queue', this.bypassInteractionQueue],
+        ['strip_emotes', this.stripEmotes],
+        ['strip_urls', this.stripUrls],
+      ] as const
 
-      if (/^bypass_interaction_queue\s*:/m.test(value)) {
-        return value.replace(/^bypass_interaction_queue\s*:.*$/m, line)
+      const missing: string[] = []
+      for (const [key, enabled] of options) {
+        const line = `${key}: ${enabled ? 'true' : 'false'}`
+        const pattern = new RegExp(`^${key}\\s*:.*$`, 'm')
+        if (pattern.test(value)) value = value.replace(pattern, line)
+        else missing.push(line)
       }
 
+      if (!missing.length) return value
       if (/^name\s*:/m.test(value)) {
-        return value.replace(/^(name\s*:.*)$/m, `$1\n${line}`)
+        return value.replace(/^(name\s*:.*)$/m, `$1\n${missing.join('\n')}`)
       }
-
-      return `${line}\n${value}`
+      return `${missing.join('\n')}\n${value}`
     },
 
     save() {
@@ -453,7 +470,7 @@ export default {
         name: this.configName,
         skipAsset: this.isSystemEvent,
         asset: this.isSystemEvent ? undefined : ((this.$refs.assetAccordion as any)?.getAssetPayload?.() ?? {}),
-        macroContent: this.withBypassInteractionQueue(macroContent),
+        macroContent: this.withEventOptions(macroContent),
       })
     },
   },

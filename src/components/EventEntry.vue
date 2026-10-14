@@ -67,10 +67,16 @@ export default {
     },
 
     displayName(): string {
-      const localeKey = String(this.eventEntry?.localeKey ?? '')
+      const explicitLocaleKey = String(this.eventEntry?.localeKey ?? '').trim()
 
-      if (localeKey && this.$te(localeKey)) {
-        return this.$t(localeKey) as string
+      if (explicitLocaleKey && this.$te(explicitLocaleKey)) {
+        return this.$t(explicitLocaleKey) as string
+      }
+
+      const configLocaleKey = this.configName ? `events.items.${this.configName}` : ''
+
+      if (configLocaleKey && this.$te(configLocaleKey)) {
+        return this.$t(configLocaleKey) as string
       }
 
       const raw = String(this.eventEntry?.name ?? this.configName)

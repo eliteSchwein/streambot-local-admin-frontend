@@ -48,6 +48,7 @@
               <v-col cols="12" sm="6"><v-switch v-model="form.enable_default" :label="$t('dialogs.channelPointDialog.enableDefault')" color="primary" density="comfortable" hide-details inset /></v-col>
               <v-col cols="12" sm="6"><v-switch v-model="form.auto_accept" :label="$t('dialogs.channelPointDialog.autoAccept')" color="primary" density="comfortable" hide-details inset /></v-col>
               <v-col cols="12" sm="6"><v-switch v-model="form.strip_emotes" :label="$t('dialogs.channelPointDialog.stripEmotes')" color="primary" density="comfortable" hide-details inset /></v-col>
+              <v-col cols="12" sm="6"><v-switch v-model="form.strip_urls" :label="$t('dialogs.channelPointDialog.stripUrls')" color="primary" density="comfortable" hide-details inset /></v-col>
               <v-col cols="12" sm="6"><v-switch v-model="form.input_required" :label="$t('dialogs.channelPointDialog.inputRequired')" color="primary" density="comfortable" hide-details inset /></v-col>
             </v-row>
           </v-card>
@@ -162,6 +163,7 @@ export default {
         enable_default: false,
         auto_accept: false,
         strip_emotes: false,
+        strip_urls: false,
         input_required: false,
         bypass_interaction_queue: false,
       },
@@ -229,6 +231,7 @@ export default {
         enable_default: this.form.enable_default,
         auto_accept: this.form.auto_accept,
         strip_emotes: this.form.strip_emotes,
+        strip_urls: this.form.strip_urls,
         input_required: this.form.input_required,
         bypass_interaction_queue: this.form.bypass_interaction_queue,
         asset: generatedName,
@@ -359,6 +362,7 @@ export default {
         enable_default: point.enable_default === true,
         auto_accept: point.auto_accept === true,
         strip_emotes: point.strip_emotes === true,
+        strip_urls: point.strip_urls === true,
         input_required: point.input_required === true,
         bypass_interaction_queue: point.bypass_interaction_queue === true,
       }
@@ -434,6 +438,7 @@ export default {
         enable_default: config.enable_default === true,
         auto_accept: config.auto_accept === true,
         strip_emotes: config.strip_emotes === true,
+        strip_urls: config.strip_urls === true,
         input_required: config.input_required === true,
         bypass_interaction_queue: config.bypass_interaction_queue === true,
       }
@@ -479,6 +484,7 @@ export default {
         enable_default: this.form.enable_default,
         auto_accept: this.form.auto_accept,
         strip_emotes: this.form.strip_emotes,
+        strip_urls: this.form.strip_urls,
         input_required: this.form.input_required,
         bypass_interaction_queue: this.form.bypass_interaction_queue,
         asset: (this.$refs.assetAccordion as any)?.getAssetPayload?.() ?? {},

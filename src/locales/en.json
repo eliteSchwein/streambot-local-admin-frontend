@@ -250,6 +250,12 @@
       "accounts": {
         "message": "Message account",
         "streamer": "Streamer account"
+      },
+      "stripUrls": {
+        "title": "Strip URLs",
+        "info": "Removes URLs from text, normalizes whitespace, and stores the cleaned result in a macro variable.",
+        "contentHint": "Supports macro variables, for example a message or AI response variable.",
+        "variableHint": "The cleaned text is stored in this variable."
       }
     },
     "music": {
@@ -688,7 +694,8 @@
         "sendDm": "Send DM",
         "chatMessage": "Chat message",
         "announce": "Announce",
-        "stripEmojis": "Strip emojis"
+        "stripEmojis": "Strip emojis",
+        "stripUrls": "Strip URLs"
       },
       "time": {
         "title": "Time",
@@ -2091,7 +2098,7 @@
       "event_twitch_poll_completed": "Poll completed",
       "event_twitch_poll_terminated": "Poll terminated",
       "event_twitch_channel_unban": "User unbanned",
-      "event_twitch_community_sub": "Community subs",
+      "event_twitch_community_sub": "Community gift subs",
       "event_twitch_follow": "New follower",
       "event_twitch_poll_progress": "Poll progress",
       "event_twitch_prediction_lock": "Prediction locked",
@@ -2502,7 +2509,9 @@
       "editTitle": "Edit event: {event}",
       "websocketDisconnected": "WebSocket is not connected",
       "invalidSimulationJson": "Invalid JSON in “{field}”",
-      "bypassInteractionQueue": "Bypass interaction queue"
+      "bypassInteractionQueue": "Bypass interaction queue",
+      "stripEmotes": "Strip emotes",
+      "stripUrls": "Strip URLs"
     },
     "commandCreateDialog": {
       "command": "Command",
@@ -2536,7 +2545,9 @@
       "general": "General",
       "cooldowns": "Cooldowns",
       "behavior": "Behavior",
-      "permissions": "Permissions"
+      "permissions": "Permissions",
+      "stripEmotes": "Strip emotes",
+      "stripUrls": "Strip URLs"
     },
     "fileDeleteConfirmDialog": {},
     "fileCopyDialog": {},
@@ -2592,7 +2603,8 @@
       "bypassInteractionQueue": "Bypass interaction queue",
       "general": "General",
       "options": "Options",
-      "interaction": "Interaction"
+      "interaction": "Interaction",
+      "stripUrls": "Strip URLs"
     },
     "commandDialog": {
       "createTitle": "Create command",

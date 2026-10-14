@@ -11,6 +11,7 @@ export { default as MacroFunctionSongRequestTaskAccordion } from './MacroFunctio
 export { default as MacroFunctionSongRequestToggleTaskAccordion } from './MacroFunctionSongRequestToggleTaskAccordion.vue'
 export { default as MacroFunctionSpeakTaskAccordion } from './MacroFunctionSpeakTaskAccordion.vue'
 export { default as MacroFunctionStripEmojisTaskAccordion } from './MacroFunctionStripEmojisTaskAccordion.vue'
+export { default as MacroFunctionStripUrlsTaskAccordion } from './MacroFunctionStripUrlsTaskAccordion.vue'
 export { default as MacroFunctionTaskAccordion } from './MacroFunctionTaskAccordion.vue'
 
 import type { MacroTaskPresetRegistration } from '../preset-registry-types'
@@ -76,6 +77,22 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
                 data: {
                   content: '',
                   key: 'stripped_text',
+                },
+              } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.message.title", icon: "mdi-forum-outline" },
+    ],
+    titleKey: "macro.presets.message.stripUrls",
+    icon: "mdi-link-off",
+    order: 23,
+    create: () => ({ type: 'task', task: {
+                channel: 'function',
+                method: 'strip_urls',
+                data: {
+                  content: '',
+                  key: 'stripped_url_text',
                 },
               } }),
   },
