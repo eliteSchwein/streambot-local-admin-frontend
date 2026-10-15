@@ -8,8 +8,9 @@ export default class WebsocketClient {
   url = ''
   websocket: Websocket|undefined = undefined
   store: useAppStore
-  pendingRequests: Record<number, { resolve: (value: any) => void, reject: (error: any) => void, timeout: number }> = {}
+  pendingRequests: Record<number, { method: string, resolve: (value: any) => void, reject: (error: any) => void, timeout: number }> = {}
   messageListeners: Record<string, Set<(data: any) => void>> = {}
+  notificationEndpoints: string[] = []
 
   public constructor(
     url: string,
@@ -51,17 +52,46 @@ export default class WebsocketClient {
   }
 
   private registerEvents() {
+    const messageEvent = new MessageEvent(this)
+    this.notificationEndpoints = messageEvent.getRegisteredMethods()
+
     void new ConnectEvent(this).register()
     void new DisconnectEvent(this).register()
-    void new MessageEvent(this).register()
+    void messageEvent.register()
+  }
+
+
+  public registerNotificationEndpoints() {
+    if (!this.notificationEndpoints.length) return
+    this.send('register_endpoints', this.notificationEndpoints)
+  }
+
+  public rejectPendingRequests(reason = 'websocket disconnected') {
+    const error = new Error(reason)
+
+    for (const [id, pending] of Object.entries(this.pendingRequests)) {
+      window.clearTimeout(pending.timeout)
+      pending.reject(error)
+      delete this.pendingRequests[Number(id)]
+    }
   }
 
   public onMessage(method: string, listener: (data: any) => void) {
-    if (!this.messageListeners[method]) {
-      this.messageListeners[method] = new Set()
+    const normalizedMethod = String(method || '').trim()
+    if (!normalizedMethod) return
+
+    if (!this.notificationEndpoints.includes(normalizedMethod) && normalizedMethod.startsWith('notify_')) {
+      this.notificationEndpoints.push(normalizedMethod)
+      if (this.store.isWebsocketConnected) {
+        this.send('register_endpoints', [normalizedMethod])
+      }
     }
 
-    this.messageListeners[method].add(listener)
+    if (!this.messageListeners[normalizedMethod]) {
+      this.messageListeners[normalizedMethod] = new Set()
+    }
+
+    this.messageListeners[normalizedMethod].add(listener)
   }
 
   public offMessage(method: string, listener: (data: any) => void) {
@@ -101,7 +131,7 @@ export default class WebsocketClient {
         reject(new Error(`${method} websocket request timed out`))
       }, timeoutMs)
 
-      this.pendingRequests[id] = {resolve, reject, timeout}
+      this.pendingRequests[id] = {method, resolve, reject, timeout}
 
       try {
         this.websocket?.send(JSON.stringify({jsonrpc: "2.0", method: method, params: data, id}))
@@ -137,6 +167,12 @@ export default class WebsocketClient {
 
     const pending = this.pendingRequests[message.id]
     if (!pending) return
+
+    // Backend API replies use result_<request method> and carry the same id.
+    // notify_* packets also have random ids, so id equality alone is not enough
+    // to identify an RPC response.
+    const expectedMethod = `result_${pending.method}`
+    if (message?.method !== expectedMethod && !message?.error) return
 
     window.clearTimeout(pending.timeout)
     delete this.pendingRequests[message.id]

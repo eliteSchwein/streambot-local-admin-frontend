@@ -8,6 +8,7 @@ export default class DisconnectEvent extends BaseEvent {
   async handle(websocket: Websocket, event:any) {
     this.store.setWebsocketConnected(false)
     this.store.setWebsocketConnecting(false)
-    console.log('Disconnected to Websocket')
+    this.webSocketClient.rejectPendingRequests('websocket disconnected')
+    console.log('Disconnected from Websocket')
   }
 }

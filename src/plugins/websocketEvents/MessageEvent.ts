@@ -1,5 +1,6 @@
 import BaseEvent from "@/plugins/websocketEvents/BaseEvent";
 import {type Websocket, WebsocketEvent} from "websocket-ts";
+import BaseMessage from "@/plugins/websocketEvents/websocketMessage/BaseMessage";
 import NotifyAlertQueryMessage from "@/plugins/websocketEvents/websocketMessage/NotifyAlertQueryMessage";
 import NotifyGameUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyGameUpdateMessage";
 import NotifyShieldModeMessage from "@/plugins/websocketEvents/websocketMessage/NotifyShieldModeMessage";
@@ -26,8 +27,7 @@ import NotifyDisconnectMessage from "@/plugins/websocketEvents/websocketMessage/
 import NotifyMusicUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyMusicUpdateMessage.ts";
 import NotifyAudioOutputUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyAudioOutputUpdateMessage.ts";
 import NotifyStorageUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyStorageUpdateMessage.ts";
-import NotifyIntegrationsUpdateMessage
-  from "@/plugins/websocketEvents/websocketMessage/NotifyIntegrationsUpdateMessage.ts";
+import NotifyIntegrationsUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyIntegrationsUpdateMessage.ts";
 import NotifySettingsUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifySettingsUpdateMessage.ts";
 import NotifyPlaylistUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyPlaylistUpdateMessage.ts";
 import NotifyReloadUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyReloadUpdateMessage.ts";
@@ -35,79 +35,115 @@ import NotifyCommandsUpdateMessage from "@/plugins/websocketEvents/websocketMess
 import NotifyUpdateManagerMessage from "@/plugins/websocketEvents/websocketMessage/NotifyUpdateManagerMessage.ts";
 import NotifyServiceReloadMessage from "@/plugins/websocketEvents/websocketMessage/NotifyServiceReloadMessage.ts";
 import NotifyOllamaUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyOllamaUpdateMessage.ts";
-import NotifyRotatingSceneUpdateMessage
-  from "@/plugins/websocketEvents/websocketMessage/NotifyRotatingSceneUpdateMessage.ts";
+import NotifyRotatingSceneUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyRotatingSceneUpdateMessage.ts";
 import NotifyEventsUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyEventsUpdateMessage.ts";
-import NotifyAudioPresetsUpdateMessage
-  from "@/plugins/websocketEvents/websocketMessage/NotifyAudioPresetsUpdateMessage.ts";
-import NotifyDynamicDataUpdateMessage
-  from "@/plugins/websocketEvents/websocketMessage/NotifyDynamicDataUpdateMessage.ts";
+import NotifyAudioPresetsUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyAudioPresetsUpdateMessage.ts";
+import NotifyDynamicDataUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyDynamicDataUpdateMessage.ts";
 import NotifySpeedtestMessage from "@/plugins/websocketEvents/websocketMessage/NotifySpeedtestMessage.ts";
 import NotifyInteractionQueueMessage from "@/plugins/websocketEvents/websocketMessage/NotifyInteractionQueueMessage.ts";
 import NotifyInteractionMessage from "@/plugins/websocketEvents/websocketMessage/NotifyInteractionMessage.ts";
 import NotifyRestoreMessage from "@/plugins/websocketEvents/websocketMessage/NotifyRestoreMessage.ts";
 import NotifyRestoreReadyMessage from "@/plugins/websocketEvents/websocketMessage/NotifyRestoreReadyMessage.ts";
-import NotifyCategoryLibraryUpdateMessage
-  from "@/plugins/websocketEvents/websocketMessage/NotifyCategoryLibraryUpdateMessage.ts";
+import NotifyCategoryLibraryUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyCategoryLibraryUpdateMessage.ts";
 import NotifyTwitchDataMessage from "@/plugins/websocketEvents/websocketMessage/NotifyTwitchDataMessage.ts";
+import NotifyThrottledMessage from "@/plugins/websocketEvents/websocketMessage/NotifyThrottledMessage.ts";
+
+const MESSAGE_TYPES = [
+  NotifyDisconnectMessage,
+  NotifyAlertQueryMessage,
+  NotifyGameUpdateMessage,
+  NotifyShieldModeMessage,
+  NotifyChannelPointUpdateMessage,
+  NotifyAudioUpdateMessage,
+  NotifySystemInfoMessage,
+  NotifySceneMessage,
+  NotifyConnectionMessage,
+  NotifyConfigUpdateMessage,
+  NotifyObsSceneUpdateMessage,
+  NotifyObsSceneUpdateNamedMessage,
+  NotifyTestMode,
+  NotifyPowerButtonMessage,
+  NotifyVoiceListUpdateMessage,
+  NotifyMacroUpdateMessage,
+  NotifyAutoMacrosUpdate,
+  NotifyVariableUpdateMessage,
+  NotifyGiveawayUpdateMessage,
+  NotifyYoloboxUpdateMessage,
+  NotifyObsAudioUpdateMessage,
+  NotifyObsAudioUpdateNamedMessage,
+  NotifyAssetsUpdateMessage,
+  NotifyMusicUpdateMessage,
+  NotifyAudioOutputUpdateMessage,
+  NotifyStorageUpdateMessage,
+  NotifyIntegrationsUpdateMessage,
+  NotifySettingsUpdateMessage,
+  NotifyPlaylistUpdateMessage,
+  NotifyReloadUpdateMessage,
+  NotifyCommandsUpdateMessage,
+  NotifyUpdateManagerMessage,
+  NotifyServiceReloadMessage,
+  NotifyOllamaUpdateMessage,
+  NotifyRotatingSceneUpdateMessage,
+  NotifyEventsUpdateMessage,
+  NotifyAudioPresetsUpdateMessage,
+  NotifyDynamicDataUpdateMessage,
+  NotifySpeedtestMessage,
+  NotifyInteractionQueueMessage,
+  NotifyInteractionMessage,
+  NotifyRestoreMessage,
+  NotifyRestoreReadyMessage,
+  NotifyCategoryLibraryUpdateMessage,
+  NotifyTwitchDataMessage,
+  NotifyThrottledMessage,
+] as const
 
 export default class MessageEvent extends BaseEvent {
   name = 'message'
   eventTypes = [WebsocketEvent.message]
+  private handlers = new Map<string, BaseMessage>()
 
-  async handle(websocket: Websocket, event:any) {
-    const data = JSON.parse(event.data)
+  constructor(webSocketClient: any) {
+    super(webSocketClient)
 
-    if(data.params.error) {
+    for (const MessageType of MESSAGE_TYPES) {
+      const handler = new MessageType(webSocketClient) as BaseMessage
+      if (handler.method) this.handlers.set(handler.method, handler)
+    }
+  }
+
+  public getRegisteredMethods() {
+    return Array.from(this.handlers.keys())
+  }
+
+  async handle(websocket: Websocket, event: any) {
+    let data: any
+
+    try {
+      data = JSON.parse(event?.data ?? event)
+    } catch {
+      return
+    }
+
+    // JSON-RPC responses are handled by WebsocketClient's request handler. They
+    // are not notifications and must not pass through every notify_* handler.
+    if (!data?.method) return
+
+    const method = String(data.method)
+    if (method.startsWith('result_')) return
+
+    if (data?.error || data?.params?.error) {
       console.warn(data)
       return
     }
 
-    await new NotifyDisconnectMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyAlertQueryMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyGameUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyShieldModeMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyChannelPointUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyAudioUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifySystemInfoMessage(this.webSocketClient).handleMessage(data)
-    await new NotifySceneMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyConnectionMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyConfigUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyObsSceneUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyObsSceneUpdateNamedMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyTestMode(this.webSocketClient).handleMessage(data)
-    await new NotifyPowerButtonMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyVoiceListUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyMacroUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyAutoMacrosUpdate(this.webSocketClient).handleMessage(data)
-    await new NotifyVariableUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyGiveawayUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyYoloboxUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyObsAudioUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyObsAudioUpdateNamedMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyAssetsUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyMusicUpdateMessage(this.webSocketClient).handleMessage(data)
+    const handler = this.handlers.get(method)
 
-    await new NotifyAudioOutputUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyStorageUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyIntegrationsUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifySettingsUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyPlaylistUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyReloadUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyCommandsUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyUpdateManagerMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyServiceReloadMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyOllamaUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyRotatingSceneUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyEventsUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyAudioPresetsUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyDynamicDataUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifySpeedtestMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyInteractionQueueMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyInteractionMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyRestoreMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyRestoreReadyMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyCategoryLibraryUpdateMessage(this.webSocketClient).handleMessage(data)
-    await new NotifyTwitchDataMessage(this.webSocketClient).handleMessage(data)
+    if (handler) {
+      await handler.handleMessage(data)
+    }
+
+    // Keep the lightweight listener API working for feature-local subscribers,
+    // including future notifications which do not need a global store handler.
+    this.webSocketClient.emitMessage(method, data?.params)
   }
 }

@@ -10,7 +10,7 @@ export default class ConnectEvent extends BaseEvent {
     this.store.setWebsocketConnected(true)
     this.store.setWebsocketConnecting(false)
 
-    this.webSocketClient.send('register_endpoints', ['all'])
+    this.webSocketClient.registerNotificationEndpoints()
 
     eventBus.$emit('websocket:connected', {})
     console.log('Connected to Websocket')
