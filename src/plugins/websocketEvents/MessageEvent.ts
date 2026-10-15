@@ -97,10 +97,96 @@ const MESSAGE_TYPES = [
   NotifyThrottledMessage,
 ] as const
 
+
+const STATEFUL_METHODS = new Set<string>([
+  'notify_interaction_queue',
+  'notify_assets_update',
+  'notify_ads',
+  'notify_toggle_element',
+  'notify_source_update',
+  'notify_system_info',
+  'notify_audio_update',
+  'notify_virtual_audio_cables',
+  'notify_channel_point_update',
+  'notify_shield_mode',
+  'notify_game_update',
+  'notify_timer',
+  'notify_visible_element',
+  'notify_connection',
+  'notify_connection_update',
+  'notify_config_update',
+  'notify_obs_scene_update',
+  'notify_obs_scene_update_named',
+  'notify_obs_audio_update',
+  'notify_obs_audio_update_named',
+  'notify_test_mode',
+  'notify_voice_list_update',
+  'notify_macro_update',
+  'notify_commands_update',
+  'notify_auto_macros_update',
+  'notify_rotating_scene_update',
+  'notify_rotating_scene_runtime_update',
+  'notify_variables_update',
+  'notify_giveaway_update',
+  'notify_yolobox_update',
+  'notify_music_show',
+  'notify_music_update',
+  'notify_audio_outputs_update',
+  'notify_audio_presets_update',
+  'notify_storage_update',
+  'notify_integrations_update',
+  'notify_settings_update',
+  'notify_playlist_update',
+  'notify_reload_update',
+  'notify_update_manager',
+  'notify_ollama_update',
+  'notify_events_update',
+  'notify_dynamic_data_update',
+  'notify_speedtest_update',
+  'notify_category_library_update',
+  'notify_category_active',
+  'notify_category_style_update',
+  'notify_twitch_data',
+])
+
+function isPlainObject(value: any): value is Record<string, any> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+function cloneStateValue(value: any): any {
+  if (Array.isArray(value)) return value.map(cloneStateValue)
+  if (!isPlainObject(value)) return value
+
+  const result: Record<string, any> = {}
+  for (const [key, entry] of Object.entries(value)) {
+    result[key] = cloneStateValue(entry)
+  }
+  return result
+}
+
+function mergeStateDelta(previous: any, delta: any): any {
+  // Arrays are authoritative whenever the backend sends them. Trying to merge
+  // array indexes would keep removed entries around.
+  if (Array.isArray(delta)) return delta.map(cloneStateValue)
+
+  // Primitive values and null are explicit replacements.
+  if (!isPlainObject(delta)) return delta
+
+  const base = isPlainObject(previous) ? previous : {}
+  const result: Record<string, any> = { ...base }
+
+  for (const [key, value] of Object.entries(delta)) {
+    result[key] = mergeStateDelta(base[key], value)
+  }
+
+  return result
+}
+
 export default class MessageEvent extends BaseEvent {
   name = 'message'
   eventTypes = [WebsocketEvent.message]
   private handlers = new Map<string, BaseMessage>()
+  private stateByMethod = new Map<string, any>()
 
   constructor(webSocketClient: any) {
     super(webSocketClient)
@@ -136,14 +222,31 @@ export default class MessageEvent extends BaseEvent {
       return
     }
 
+    let params = data?.params
+
+    if (STATEFUL_METHODS.has(method)) {
+      if (this.stateByMethod.has(method)) {
+        params = mergeStateDelta(this.stateByMethod.get(method), params)
+      } else {
+        // First payload after a new connection is the authoritative full snapshot.
+        params = cloneStateValue(params)
+      }
+
+      this.stateByMethod.set(method, params)
+    }
+
+    const normalizedMessage = params === data?.params
+      ? data
+      : { ...data, params }
+
     const handler = this.handlers.get(method)
 
     if (handler) {
-      await handler.handleMessage(data)
+      await handler.handleMessage(normalizedMessage)
     }
 
-    // Keep the lightweight listener API working for feature-local subscribers,
-    // including future notifications which do not need a global store handler.
-    this.webSocketClient.emitMessage(method, data?.params)
+    // Local subscribers receive the same reconstructed state as the global store
+    // handlers. This keeps delta-awareness centralized in one place.
+    this.webSocketClient.emitMessage(method, params)
   }
 }
