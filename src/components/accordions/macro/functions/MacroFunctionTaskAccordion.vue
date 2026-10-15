@@ -14,6 +14,7 @@
 import MacroTaskAccordion from '@/components/accordions/macro/MacroTaskAccordion.vue'
 import MacroFunctionRandomTaskAccordion from './MacroFunctionRandomTaskAccordion.vue'
 import MacroFunctionRandomColorTaskAccordion from './MacroFunctionRandomColorTaskAccordion.vue'
+import MacroFunctionReplyTaskAccordion from './MacroFunctionReplyTaskAccordion.vue'
 import MacroFunctionSendDmTaskAccordion from './MacroFunctionSendDmTaskAccordion.vue'
 import MacroFunctionSendMessageTaskAccordion from './MacroFunctionSendMessageTaskAccordion.vue'
 import MacroFunctionSleepTaskAccordion from './MacroFunctionSleepTaskAccordion.vue'
@@ -33,6 +34,7 @@ export default {
     MacroFunctionStripUrlsTaskAccordion,
     MacroFunctionRandomTaskAccordion,
     MacroFunctionRandomColorTaskAccordion,
+    MacroFunctionReplyTaskAccordion,
     MacroFunctionSleepTaskAccordion,
     MacroFunctionSpeakTaskAccordion,
     MacroFunctionSongRequestTaskAccordion,
@@ -63,6 +65,7 @@ export default {
         song_request_toggle: 'MacroFunctionSongRequestToggleTaskAccordion',
         send_message: 'MacroFunctionSendMessageTaskAccordion',
         send_dm: 'MacroFunctionSendDmTaskAccordion',
+        reply: 'MacroFunctionReplyTaskAccordion',
         announce: 'MacroFunctionAnnounceTaskAccordion',
         strip_emojis: 'MacroFunctionStripEmojisTaskAccordion',
         strip_urls: 'MacroFunctionStripUrlsTaskAccordion',

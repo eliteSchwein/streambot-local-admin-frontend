@@ -185,7 +185,9 @@
         "eventId": "Event ID",
         "autoMacroName": "Auto macro name",
         "locale": "Locale",
-        "account": "Account"
+        "account": "Account",
+        "messageId": "Message ID",
+        "channelId": "Channel ID"
       },
       "announce": {
         "title": "Announce"
@@ -202,7 +204,8 @@
         "title": "Send DM"
       },
       "sendMessage": {
-        "title": "Send chat message"
+        "title": "Send chat message",
+        "channelIdHint": "Optional. Leave empty to send to the current broadcaster/channel."
       },
       "songRequest": {
         "title": "Song request"
@@ -257,6 +260,12 @@
         "info": "Removes URLs from text, normalizes whitespace, and stores the cleaned result in a macro variable.",
         "contentHint": "Supports macro variables, for example a message or AI response variable.",
         "variableHint": "The cleaned text is stored in this variable."
+      },
+      "reply": {
+        "title": "Reply to message",
+        "messageIdPlaceholder": "Automatic from the current event",
+        "messageIdHint": "Optional. Leave empty to reply to the message that triggered the macro.",
+        "channelIdHint": "Optional. Leave empty to use the current broadcaster/channel."
       }
     },
     "music": {
@@ -611,6 +620,32 @@
       },
       "vipRemove": {
         "title": "Remove VIP"
+      },
+      "chat": {
+        "enabled": "Enabled",
+        "slowDelay": "Slow mode delay (seconds)",
+        "slowDelayHint": "Allowed range: 3–120 seconds.",
+        "followersDelay": "Follower age (minutes)",
+        "followersDelayHint": "Minimum time a user must have followed before chatting.",
+        "slowMode": "Slow mode",
+        "emoteOnly": "Emote-only mode",
+        "subscribersOnly": "Subscribers-only mode",
+        "uniqueChat": "Unique chat",
+        "noChange": "No change",
+        "chatSettingsHint": "Only settings explicitly selected here are changed. No change leaves the current Twitch setting untouched.",
+        "clearChatHint": "Clears the current Twitch chat.",
+        "disableSlowChatHint": "Disables slow mode for the Twitch chat.",
+        "methods": {
+          "slow_chat": "Slow chat",
+          "enable_slow_chat": "Enable slow chat",
+          "disable_slow_chat": "Disable slow chat",
+          "clear_chat": "Clear chat",
+          "emote_only": "Emote-only",
+          "followers_only": "Followers-only",
+          "subscribers_only": "Subscribers-only",
+          "unique_chat": "Unique chat",
+          "chat_settings": "Chat settings"
+        }
       }
     },
     "yolobox": {
@@ -698,7 +733,8 @@
         "chatMessage": "Chat message",
         "announce": "Announce",
         "stripEmojis": "Strip emojis",
-        "stripUrls": "Strip URLs"
+        "stripUrls": "Strip URLs",
+        "reply": "Reply to message"
       },
       "time": {
         "title": "Time",
@@ -800,6 +836,9 @@
         },
         "clips": {
           "title": "Clips"
+        },
+        "chat": {
+          "title": "Chat"
         }
       },
       "yolobox": {

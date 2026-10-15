@@ -1,3 +1,4 @@
+export { default as MacroTwitchChatSettingsTaskAccordion } from './MacroTwitchChatSettingsTaskAccordion.vue'
 export { default as MacroTwitchAdTaskAccordion } from './MacroTwitchAdTaskAccordion.vue'
 export { default as MacroTwitchBanTaskAccordion } from './MacroTwitchBanTaskAccordion.vue'
 export { default as MacroTwitchCategoryTaskAccordion } from './MacroTwitchCategoryTaskAccordion.vue'
@@ -217,10 +218,100 @@ export const twitchMacroTaskPresets: MacroTaskPresetRegistration[] = [
   {
     path: [
       { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
+      { titleKey: "macro.presets.twitch.moderation.title", icon: "mdi-shield-account-outline" },
+    ],
+    titleKey: "macro.twitch.chat.methods.slow_chat",
+    icon: "mdi-timer-cog-outline",
+    order: 86,
+    create: () => ({ type: 'task', task: { channel: 'twitch', method: 'slow_chat', data: { enabled: true, delay: 3 } } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
+      { titleKey: "macro.presets.twitch.moderation.title", icon: "mdi-shield-account-outline" },
+    ],
+    titleKey: "macro.twitch.chat.methods.enable_slow_chat",
+    icon: "mdi-timer-play-outline",
+    order: 87,
+    create: () => ({ type: 'task', task: { channel: 'twitch', method: 'enable_slow_chat', data: { delay: 3 } } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
+      { titleKey: "macro.presets.twitch.moderation.title", icon: "mdi-shield-account-outline" },
+    ],
+    titleKey: "macro.twitch.chat.methods.disable_slow_chat",
+    icon: "mdi-timer-off-outline",
+    order: 88,
+    create: () => ({ type: 'task', task: { channel: 'twitch', method: 'disable_slow_chat', data: {} } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
+      { titleKey: "macro.presets.twitch.moderation.title", icon: "mdi-shield-account-outline" },
+    ],
+    titleKey: "macro.twitch.chat.methods.clear_chat",
+    icon: "mdi-broom",
+    order: 89,
+    create: () => ({ type: 'task', task: { channel: 'twitch', method: 'clear_chat', data: {} } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
+      { titleKey: "macro.presets.twitch.moderation.title", icon: "mdi-shield-account-outline" },
+    ],
+    titleKey: "macro.twitch.chat.methods.emote_only",
+    icon: "mdi-emoticon-outline",
+    order: 90,
+    create: () => ({ type: 'task', task: { channel: 'twitch', method: 'emote_only', data: { enabled: true } } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
+      { titleKey: "macro.presets.twitch.moderation.title", icon: "mdi-shield-account-outline" },
+    ],
+    titleKey: "macro.twitch.chat.methods.followers_only",
+    icon: "mdi-account-heart-outline",
+    order: 91,
+    create: () => ({ type: 'task', task: { channel: 'twitch', method: 'followers_only', data: { enabled: true, delay: 0 } } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
+      { titleKey: "macro.presets.twitch.moderation.title", icon: "mdi-shield-account-outline" },
+    ],
+    titleKey: "macro.twitch.chat.methods.subscribers_only",
+    icon: "mdi-account-star-outline",
+    order: 92,
+    create: () => ({ type: 'task', task: { channel: 'twitch', method: 'subscribers_only', data: { enabled: true } } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
+      { titleKey: "macro.presets.twitch.moderation.title", icon: "mdi-shield-account-outline" },
+    ],
+    titleKey: "macro.twitch.chat.methods.unique_chat",
+    icon: "mdi-message-bulleted-off",
+    order: 93,
+    create: () => ({ type: 'task', task: { channel: 'twitch', method: 'unique_chat', data: { enabled: true } } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
+      { titleKey: "macro.presets.twitch.moderation.title", icon: "mdi-shield-account-outline" },
+    ],
+    titleKey: "macro.twitch.chat.methods.chat_settings",
+    icon: "mdi-chat-processing-outline",
+    order: 94,
+    create: () => ({ type: 'task', task: { channel: 'twitch', method: 'chat_settings', data: {} } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
     ],
     titleKey: "macro.presets.twitch.runAd",
     icon: "mdi-advertisements",
-    order: 86,
+    order: 95,
     create: () => ({ type: 'task', task: { channel: 'twitch', method: 'ad', data: { duration: 30, variable: 'ad' } } }),
   },
 ]

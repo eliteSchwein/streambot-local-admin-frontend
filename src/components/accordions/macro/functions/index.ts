@@ -4,6 +4,7 @@ export { default as MacroFunctionDumpVariablesTaskAccordion } from './MacroFunct
 export { default as MacroFunctionParallelTaskAccordion } from './MacroFunctionParallelTaskAccordion.vue'
 export { default as MacroFunctionRandomTaskAccordion } from './MacroFunctionRandomTaskAccordion.vue'
 export { default as MacroFunctionRandomColorTaskAccordion } from './MacroFunctionRandomColorTaskAccordion.vue'
+export { default as MacroFunctionReplyTaskAccordion } from './MacroFunctionReplyTaskAccordion.vue'
 export { default as MacroFunctionSendDmTaskAccordion } from './MacroFunctionSendDmTaskAccordion.vue'
 export { default as MacroFunctionSendMessageTaskAccordion } from './MacroFunctionSendMessageTaskAccordion.vue'
 export { default as MacroFunctionSleepTaskAccordion } from './MacroFunctionSleepTaskAccordion.vue'
@@ -37,7 +38,7 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
     titleKey: "macro.presets.message.sendDm",
     icon: "mdi-message-lock-outline",
     order: 19,
-    create: () => ({ type: 'task', task: { channel: 'function', method: 'send_dm', data: { user: '', content: '', account: 'message' } } }),
+    create: () => ({ type: 'task', task: { channel: 'function', method: 'send_dm', data: { user: '', content: '' } } }),
   },
   {
     path: [
@@ -46,7 +47,20 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
     titleKey: "macro.presets.message.chatMessage",
     icon: "mdi-message-text-outline",
     order: 20,
-    create: () => ({ type: 'task', task: { channel: 'function', method: 'send_message', data: { content: '', account: 'message' } } }),
+    create: () => ({ type: 'task', task: { channel: 'function', method: 'send_message', data: { content: '', channel_id: '' } } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.message.title", icon: "mdi-forum-outline" },
+    ],
+    titleKey: "macro.presets.message.reply",
+    icon: "mdi-reply-outline",
+    order: 21,
+    create: () => ({ type: 'task', task: {
+      channel: 'function',
+      method: 'reply',
+      data: { content: '', message_id: '', channel_id: '' },
+    } }),
   },
   {
     path: [
@@ -54,7 +68,7 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
     ],
     titleKey: "macro.presets.message.announce",
     icon: "mdi-bullhorn-outline",
-    order: 21,
+    order: 22,
     create: () => ({ type: 'task', task: {
                 channel: 'function',
                 method: 'announce',
@@ -70,7 +84,7 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
     ],
     titleKey: "macro.presets.message.stripEmojis",
     icon: "mdi-emoticon-remove-outline",
-    order: 22,
+    order: 23,
     create: () => ({ type: 'task', task: {
                 channel: 'function',
                 method: 'strip_emojis',
@@ -86,7 +100,7 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
     ],
     titleKey: "macro.presets.message.stripUrls",
     icon: "mdi-link-off",
-    order: 23,
+    order: 24,
     create: () => ({ type: 'task', task: {
                 channel: 'function',
                 method: 'strip_urls',

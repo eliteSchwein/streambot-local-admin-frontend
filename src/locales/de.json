@@ -185,7 +185,9 @@
         "eventId": "Ereignis-ID",
         "autoMacroName": "Auto-Makro-Name",
         "locale": "Locale",
-        "account": "Konto"
+        "account": "Konto",
+        "messageId": "Nachrichten-ID",
+        "channelId": "Kanal-ID"
       },
       "announce": {
         "title": "Ankündigen"
@@ -202,7 +204,8 @@
         "title": "DM senden"
       },
       "sendMessage": {
-        "title": "Chatnachricht senden"
+        "title": "Chatnachricht senden",
+        "channelIdHint": "Optional. Leer lassen, um an den aktuellen Broadcaster/Kanal zu senden."
       },
       "songRequest": {
         "title": "Songwunsch"
@@ -257,6 +260,12 @@
         "info": "Entfernt URLs aus einem Text, normalisiert Leerzeichen und speichert das bereinigte Ergebnis in einer Makro-Variable.",
         "contentHint": "Unterstützt Makro-Variablen, zum Beispiel eine Nachrichten- oder KI-Antwortvariable.",
         "variableHint": "Der bereinigte Text wird in dieser Variable gespeichert."
+      },
+      "reply": {
+        "title": "Auf Nachricht antworten",
+        "messageIdPlaceholder": "Automatisch aus dem aktuellen Event",
+        "messageIdHint": "Optional. Leer lassen, um auf die Nachricht zu antworten, die das Makro ausgelöst hat.",
+        "channelIdHint": "Optional. Leer lassen, um den aktuellen Broadcaster/Kanal zu verwenden."
       }
     },
     "music": {
@@ -611,6 +620,32 @@
       },
       "vipRemove": {
         "title": "VIP entfernen"
+      },
+      "chat": {
+        "enabled": "Aktiviert",
+        "slowDelay": "Slow-Mode-Verzögerung (Sekunden)",
+        "slowDelayHint": "Erlaubter Bereich: 3–120 Sekunden.",
+        "followersDelay": "Follower-Alter (Minuten)",
+        "followersDelayHint": "Mindestzeit, die ein Benutzer folgen muss, bevor er schreiben darf.",
+        "slowMode": "Slow Mode",
+        "emoteOnly": "Nur Emotes",
+        "subscribersOnly": "Nur Abonnenten",
+        "uniqueChat": "Unique Chat",
+        "noChange": "Nicht ändern",
+        "chatSettingsHint": "Nur hier ausdrücklich ausgewählte Einstellungen werden geändert. Nicht ändern lässt die aktuelle Twitch-Einstellung unverändert.",
+        "clearChatHint": "Leert den aktuellen Twitch-Chat.",
+        "disableSlowChatHint": "Deaktiviert den Slow Mode im Twitch-Chat.",
+        "methods": {
+          "slow_chat": "Slow Chat",
+          "enable_slow_chat": "Slow Chat aktivieren",
+          "disable_slow_chat": "Slow Chat deaktivieren",
+          "clear_chat": "Chat leeren",
+          "emote_only": "Nur Emotes",
+          "followers_only": "Nur Follower",
+          "subscribers_only": "Nur Abonnenten",
+          "unique_chat": "Unique Chat",
+          "chat_settings": "Chat-Einstellungen"
+        }
       }
     },
     "yolobox": {
@@ -698,7 +733,8 @@
         "chatMessage": "Chatnachricht",
         "announce": "Ankündigen",
         "stripEmojis": "Emojis entfernen",
-        "stripUrls": "URLs entfernen"
+        "stripUrls": "URLs entfernen",
+        "reply": "Auf Nachricht antworten"
       },
       "time": {
         "title": "Zeit",
@@ -800,6 +836,9 @@
         },
         "clips": {
           "title": "Clips"
+        },
+        "chat": {
+          "title": "Chat"
         }
       },
       "yolobox": {
