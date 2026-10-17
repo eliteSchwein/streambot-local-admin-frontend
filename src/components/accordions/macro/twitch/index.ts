@@ -220,16 +220,6 @@ export const twitchMacroTaskPresets: MacroTaskPresetRegistration[] = [
       { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
       { titleKey: "macro.presets.twitch.moderation.title", icon: "mdi-shield-account-outline" },
     ],
-    titleKey: "macro.twitch.chat.methods.slow_chat",
-    icon: "mdi-timer-cog-outline",
-    order: 86,
-    create: () => ({ type: 'task', task: { channel: 'twitch', method: 'slow_chat', data: { enabled: true, delay: 3 } } }),
-  },
-  {
-    path: [
-      { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
-      { titleKey: "macro.presets.twitch.moderation.title", icon: "mdi-shield-account-outline" },
-    ],
     titleKey: "macro.twitch.chat.methods.enable_slow_chat",
     icon: "mdi-timer-play-outline",
     order: 87,
@@ -294,16 +284,6 @@ export const twitchMacroTaskPresets: MacroTaskPresetRegistration[] = [
     icon: "mdi-message-bulleted-off",
     order: 93,
     create: () => ({ type: 'task', task: { channel: 'twitch', method: 'unique_chat', data: { enabled: true } } }),
-  },
-  {
-    path: [
-      { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
-      { titleKey: "macro.presets.twitch.moderation.title", icon: "mdi-shield-account-outline" },
-    ],
-    titleKey: "macro.twitch.chat.methods.chat_settings",
-    icon: "mdi-chat-processing-outline",
-    order: 94,
-    create: () => ({ type: 'task', task: { channel: 'twitch', method: 'chat_settings', data: {} } }),
   },
   {
     path: [

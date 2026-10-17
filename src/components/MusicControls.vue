@@ -163,7 +163,10 @@ export default defineComponent({
       cavaValues: [] as number[],
       smoothedCavaValues: [] as number[],
       cavaSmoothing: 0.45,
-      cavaFalloff: 6,
+      cavaFalloffPerSecond: 360,
+      cavaFrameRate: 60,
+      cavaConfiguredBars: 5,
+      cavaSource: 'music',
       cavaSocket: undefined as WebSocket | undefined,
       cavaReconnectTimer: undefined as number | undefined,
       cavaUnmounted: false,
@@ -180,7 +183,7 @@ export default defineComponent({
     },
 
     cavaBarCount(): number {
-      return 5
+      return Math.max(1, Math.round(Number(this.cavaConfiguredBars) || 5))
     },
 
     getWebsocket(): string {
@@ -387,6 +390,21 @@ export default defineComponent({
     },
 
     handleCavaData(data: any) {
+      const bars = Number(data?.bars)
+      if (Number.isFinite(bars) && bars > 0) {
+        this.cavaConfiguredBars = Math.round(bars)
+        this.ensureCavaBars(this.cavaBarCount)
+      }
+
+      const framerate = Number(data?.framerate)
+      if (Number.isFinite(framerate) && framerate > 0) {
+        this.cavaFrameRate = framerate
+      }
+
+      if (typeof data?.source === 'string' && data.source.trim()) {
+        this.cavaSource = data.source.trim()
+      }
+
       const frames = this.parseCavaFrames(String(data?.raw ?? ''))
       const barCount = this.cavaBarCount
 
@@ -442,7 +460,8 @@ export default defineComponent({
         if (target > current) {
           smoothed[i] = current + (target - current) * this.cavaSmoothing
         } else {
-          smoothed[i] = Math.max(target, current - this.cavaFalloff)
+          const falloff = this.cavaFalloffPerSecond / Math.max(1, this.cavaFrameRate)
+          smoothed[i] = Math.max(target, current - falloff)
         }
       }
 

@@ -627,24 +627,19 @@
         "slowDelayHint": "Allowed range: 3–120 seconds.",
         "followersDelay": "Follower age (minutes)",
         "followersDelayHint": "Minimum time a user must have followed before chatting.",
-        "slowMode": "Slow mode",
         "emoteOnly": "Emote-only mode",
         "subscribersOnly": "Subscribers-only mode",
         "uniqueChat": "Unique chat",
-        "noChange": "No change",
-        "chatSettingsHint": "Only settings explicitly selected here are changed. No change leaves the current Twitch setting untouched.",
         "clearChatHint": "Clears the current Twitch chat.",
         "disableSlowChatHint": "Disables slow mode for the Twitch chat.",
         "methods": {
-          "slow_chat": "Slow chat",
-          "enable_slow_chat": "Enable slow chat",
+          "enable_slow_chat": "Slow chat",
           "disable_slow_chat": "Disable slow chat",
           "clear_chat": "Clear chat",
           "emote_only": "Emote-only",
           "followers_only": "Followers-only",
           "subscribers_only": "Subscribers-only",
-          "unique_chat": "Unique chat",
-          "chat_settings": "Chat settings"
+          "unique_chat": "Unique chat"
         }
       }
     },
@@ -2515,7 +2510,7 @@
     "cavaBars": "Bars",
     "cavaDefaultBars": "Default bars",
     "cavaTargets": "CAVA targets",
-    "cavaTargetsHint": "Add optional extra CAVA outputs like jukebox. These are not created by default.",
+    "cavaTargetsHint": "Add optional CAVA outputs. Bars, framerate and source inherit the global values unless overridden per target.",
     "cavaTargetName": "Target name",
     "cavaSettingKey": "Option",
     "cavaSettingValue": "Option Value",
@@ -2583,6 +2578,15 @@
         "live": "LIVE",
         "offline": "Offline"
       }
+    },
+    "cavaFramerate": "Framerate (FPS)",
+    "cavaSource": "Audio source",
+    "cavaInheritValue": "Global: {value}",
+    "cavaInheritSource": "Use global ({source})",
+    "cavaSources": {
+      "music": "Music",
+      "tts": "TTS",
+      "alert": "Alert"
     }
   },
   "components": {

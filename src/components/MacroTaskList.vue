@@ -910,7 +910,7 @@ export default {
         }
         if (item?.task?.method === 'ban') return 'MacroTwitchBanTaskAccordion'
         if (item?.task?.method === 'timeout') return 'MacroTwitchTimeoutTaskAccordion'
-        if (['slow_chat', 'enable_slow_chat', 'disable_slow_chat', 'clear_chat', 'emote_only', 'followers_only', 'subscribers_only', 'unique_chat', 'chat_settings'].includes(item?.task?.method)) return 'MacroTwitchChatSettingsTaskAccordion'
+        if (['enable_slow_chat', 'disable_slow_chat', 'clear_chat', 'emote_only', 'followers_only', 'subscribers_only', 'unique_chat'].includes(item?.task?.method)) return 'MacroTwitchChatSettingsTaskAccordion'
         if (item?.task?.method === 'ad') return 'MacroTwitchAdTaskAccordion'
       }
 

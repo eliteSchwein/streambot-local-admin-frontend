@@ -627,24 +627,19 @@
         "slowDelayHint": "Erlaubter Bereich: 3–120 Sekunden.",
         "followersDelay": "Follower-Alter (Minuten)",
         "followersDelayHint": "Mindestzeit, die ein Benutzer folgen muss, bevor er schreiben darf.",
-        "slowMode": "Slow Mode",
         "emoteOnly": "Nur Emotes",
         "subscribersOnly": "Nur Abonnenten",
         "uniqueChat": "Unique Chat",
-        "noChange": "Nicht ändern",
-        "chatSettingsHint": "Nur hier ausdrücklich ausgewählte Einstellungen werden geändert. Nicht ändern lässt die aktuelle Twitch-Einstellung unverändert.",
         "clearChatHint": "Leert den aktuellen Twitch-Chat.",
         "disableSlowChatHint": "Deaktiviert den Slow Mode im Twitch-Chat.",
         "methods": {
-          "slow_chat": "Slow Chat",
-          "enable_slow_chat": "Slow Chat aktivieren",
+          "enable_slow_chat": "Slow Chat",
           "disable_slow_chat": "Slow Chat deaktivieren",
           "clear_chat": "Chat leeren",
           "emote_only": "Nur Emotes",
           "followers_only": "Nur Follower",
           "subscribers_only": "Nur Abonnenten",
-          "unique_chat": "Unique Chat",
-          "chat_settings": "Chat-Einstellungen"
+          "unique_chat": "Unique Chat"
         }
       }
     },
@@ -2515,7 +2510,7 @@
     "cavaBars": "Balken",
     "cavaDefaultBars": "Standardbalken",
     "cavaTargets": "CAVA-Ziele",
-    "cavaTargetsHint": "Füge optional weitere CAVA-Ausgaben wie Jukebox hinzu. Diese werden standardmäßig nicht erstellt.",
+    "cavaTargetsHint": "Füge optionale CAVA-Ausgaben hinzu. Balken, Framerate und Quelle übernehmen die globalen Werte, solange sie pro Ziel nicht überschrieben werden.",
     "cavaTargetName": "Zielname",
     "cavaSettingKey": "Option",
     "cavaSettingValue": "Optionswert",
@@ -2583,6 +2578,15 @@
         "live": "LIVE",
         "offline": "Offline"
       }
+    },
+    "cavaFramerate": "Framerate (FPS)",
+    "cavaSource": "Audioquelle",
+    "cavaInheritValue": "Global: {value}",
+    "cavaInheritSource": "Global verwenden ({source})",
+    "cavaSources": {
+      "music": "Musik",
+      "tts": "TTS",
+      "alert": "Alert"
     }
   },
   "components": {

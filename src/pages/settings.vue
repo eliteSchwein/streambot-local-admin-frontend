@@ -527,7 +527,7 @@
 
             <v-card-text>
               <v-row density="compact">
-                <v-col cols="12" md="6">
+                <v-col cols="12" md="4">
                   <v-text-field
                     :disabled="settingsLocked"
                     v-model.number="form.cava.bars"
@@ -536,6 +536,34 @@
                     min="1"
                     max="512"
                     step="1"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    :disabled="settingsLocked"
+                    v-model.number="form.cava.framerate"
+                    :label="$t('settings.cavaFramerate')"
+                    type="number"
+                    min="1"
+                    step="1"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="4">
+                  <v-select
+                    :disabled="settingsLocked"
+                    v-model="form.cava.source"
+                    :items="cavaSourceItems"
+                    item-title="title"
+                    item-value="value"
+                    :label="$t('settings.cavaSource')"
                     variant="outlined"
                     density="comfortable"
                     hide-details="auto"
@@ -556,27 +584,12 @@
 
               <v-sheet color="grey-darken-3" rounded class="pa-3 mb-3">
                 <v-row density="compact" align="center">
-                  <v-col cols="12" md="5">
+                  <v-col cols="12" md="9">
                     <v-text-field
                       :disabled="settingsLocked"
                       v-model="newCavaTargetName"
                       :label="$t('settings.cavaTargetName')"
                       placeholder="jukebox"
-                      variant="outlined"
-                      density="comfortable"
-                      hide-details="auto"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      :disabled="settingsLocked"
-                      v-model.number="newCavaTargetBars"
-                      :label="$t('settings.cavaBars')"
-                      type="number"
-                      min="1"
-                      max="512"
-                      step="1"
                       variant="outlined"
                       density="comfortable"
                       hide-details="auto"
@@ -615,29 +628,64 @@
                       <span class="text-truncate">cava {{ targetName }}</span>
                       <v-spacer />
                       <v-chip size="small" variant="tonal">
-                        {{ form.cava.targets[targetName]?.bars || 36 }} bars
+                        {{ cavaTargetSummary(targetName) }}
                       </v-chip>
                     </div>
                   </v-expansion-panel-title>
 
                   <v-expansion-panel-text>
                     <v-row density="compact">
-                      <v-col cols="12" md="6">
+                      <v-col cols="12" md="3">
                         <v-text-field
                           :disabled="settingsLocked"
-                          v-model.number="form.cava.targets[targetName].bars"
+                          :model-value="form.cava.targets[targetName].bars"
+                          @update:model-value="setOptionalCavaTargetNumber(targetName, 'bars', $event)"
                           :label="$t('settings.cavaBars')"
+                          :placeholder="$t('settings.cavaInheritValue', { value: form.cava.bars })"
                           type="number"
                           min="1"
                           max="512"
                           step="1"
+                          clearable
                           variant="outlined"
                           density="comfortable"
                           hide-details="auto"
                         />
                       </v-col>
 
-                      <v-col cols="12" md="6">
+                      <v-col cols="12" md="3">
+                        <v-text-field
+                          :disabled="settingsLocked"
+                          :model-value="form.cava.targets[targetName].framerate"
+                          @update:model-value="setOptionalCavaTargetNumber(targetName, 'framerate', $event)"
+                          :label="$t('settings.cavaFramerate')"
+                          :placeholder="$t('settings.cavaInheritValue', { value: form.cava.framerate })"
+                          type="number"
+                          min="1"
+                          step="1"
+                          clearable
+                          variant="outlined"
+                          density="comfortable"
+                          hide-details="auto"
+                        />
+                      </v-col>
+
+                      <v-col cols="12" md="3">
+                        <v-select
+                          :disabled="settingsLocked"
+                          :model-value="form.cava.targets[targetName].source ?? null"
+                          @update:model-value="setOptionalCavaTargetSource(targetName, $event)"
+                          :items="cavaTargetSourceItems"
+                          item-title="title"
+                          item-value="value"
+                          :label="$t('settings.cavaSource')"
+                          variant="outlined"
+                          density="comfortable"
+                          hide-details="auto"
+                        />
+                      </v-col>
+
+                      <v-col cols="12" md="3">
                         <v-switch
                           :disabled="settingsLocked"
                           v-model="form.cava.targets[targetName].enabled"
@@ -798,9 +846,8 @@ type SettingsForm = {
   }
   cava: {
     bars: number
-    input: {
-      source: string
-    }
+    framerate: number
+    source: 'music' | 'tts' | 'alert'
     output: {
       channels: string
     }
@@ -857,9 +904,8 @@ const defaultForm = (): SettingsForm => ({
   },
   cava: {
     bars: 36,
-    input: {
-      source: 'streambot_cava.monitor',
-    },
+    framerate: 60,
+    source: 'music',
     output: {
       channels: 'mono',
     },
@@ -895,7 +941,6 @@ export default {
       savedGiveawayCommand: 'ticket',
       newTopNavbarItem: '',
       newCavaTargetName: '',
-      newCavaTargetBars: 63,
       newCavaTargetSettings: {} as Record<string, { key: string, value: string }>,
       languageItems: [
         { title: 'English', value: 'en' },
@@ -987,6 +1032,24 @@ export default {
 
     cavaTargetNames(): string[] {
       return Object.keys((this as any).form?.cava?.targets || {}).sort()
+    },
+
+    cavaSourceItems(): any[] {
+      return [
+        { title: this.$t('settings.cavaSources.music'), value: 'music' },
+        { title: this.$t('settings.cavaSources.tts'), value: 'tts' },
+        { title: this.$t('settings.cavaSources.alert'), value: 'alert' },
+      ]
+    },
+
+    cavaTargetSourceItems(): any[] {
+      return [
+        {
+          title: this.$t('settings.cavaInheritSource', { source: this.$t(`settings.cavaSources.${this.form.cava.source}`) }),
+          value: null,
+        },
+        ...this.cavaSourceItems,
+      ]
     },
 
     filteredVoiceLanguages(): string[] {
@@ -1178,6 +1241,7 @@ export default {
       const giveaway = settings.giveaway || {}
       const { command: legacyGiveawayCommand, ...giveawaySettings } = giveaway
       const cava = settings.cava || {}
+      const { input: legacyCavaInput, ...cavaSettings } = cava
 
       this.savedGiveawayCommand = this.normalizeGiveawayCommand(giveaway.giveawayCommand ?? legacyGiveawayCommand ?? defaults.giveaway.giveawayCommand)
       this.giveawayCommandExists = false
@@ -1259,12 +1323,10 @@ export default {
         },
         cava: {
           ...defaults.cava,
-          ...cava,
+          ...cavaSettings,
           bars: this.normalizeNumber(cava.bars, defaults.cava.bars),
-          input: {
-            ...defaults.cava.input,
-            ...(cava.input || {}),
-          },
+          framerate: this.normalizeNumber(cava.framerate, defaults.cava.framerate),
+          source: this.normalizeCavaSource(cava.source ?? legacyCavaInput?.source),
           output: {
             ...defaults.cava.output,
             ...(cava.output || {}),
@@ -1376,6 +1438,45 @@ export default {
       }
     },
 
+    normalizeCavaSource(value: any): 'music' | 'tts' | 'alert' {
+      const raw = String(value ?? '').trim().toLowerCase()
+      if (raw === 'tts' || raw.includes('streambot_tts')) return 'tts'
+      if (raw === 'alert' || raw.includes('streambot_alert')) return 'alert'
+      return 'music'
+    },
+
+    setOptionalCavaTargetNumber(targetName: string, key: 'bars' | 'framerate', value: any) {
+      const target = this.form.cava.targets?.[targetName]
+      if (!target) return
+      if (value === '' || value === null || value === undefined) {
+        delete target[key]
+        return
+      }
+      const number = Number(value)
+      if (!Number.isFinite(number)) return
+      target[key] = key === 'bars'
+        ? Math.max(1, Math.min(512, Math.round(number)))
+        : Math.max(1, Math.round(number))
+    },
+
+    setOptionalCavaTargetSource(targetName: string, value: any) {
+      const target = this.form.cava.targets?.[targetName]
+      if (!target) return
+      if (value === null || value === undefined || value === '') {
+        delete target.source
+        return
+      }
+      target.source = this.normalizeCavaSource(value)
+    },
+
+    cavaTargetSummary(targetName: string) {
+      const target = this.form.cava.targets?.[targetName] ?? {}
+      const bars = target.bars ?? this.form.cava.bars
+      const framerate = target.framerate ?? this.form.cava.framerate
+      const source = target.source ?? this.form.cava.source
+      return `${bars} bars · ${framerate} FPS · ${this.$t(`settings.cavaSources.${source}`)}`
+    },
+
     addCavaTarget() {
       if (this.settingsLocked) return
       const targetName = this.normalizeCavaTargetName(this.newCavaTargetName)
@@ -1385,15 +1486,13 @@ export default {
       this.form.cava.targets = {
         ...(this.form.cava.targets || {}),
         [targetName]: {
-          bars: this.normalizeNumber(this.newCavaTargetBars, 63),
           enabled: true,
           ...(this.form.cava.targets?.[targetName] || {}),
         },
       }
 
       this.newCavaTargetSettings[targetName] = { key: '', value: '' }
-      this.newCavaTargetName = ''
-      this.newCavaTargetBars = 63
+      this.newCavaTargetName = '' 
     },
 
     removeCavaTarget(targetName: string) {
@@ -1406,7 +1505,7 @@ export default {
 
     cavaTargetSettingKeys(targetName: string) {
       return Object.keys(this.form.cava.targets?.[targetName] || {})
-        .filter(key => !['bars', 'enabled'].includes(key))
+        .filter(key => !['bars', 'framerate', 'source', 'enabled'].includes(key))
         .sort()
     },
 
@@ -1415,7 +1514,7 @@ export default {
       const draft = this.newCavaTargetSettings[targetName] || { key: '', value: '' }
       const key = String(draft.key || '').trim()
 
-      if (!key || ['bars', 'enabled'].includes(key)) return
+      if (!key || ['bars', 'framerate', 'source', 'enabled'].includes(key)) return
 
       this.form.cava.targets[targetName] = {
         ...(this.form.cava.targets[targetName] || {}),
@@ -1650,27 +1749,28 @@ export default {
           require_moderator: Boolean(this.form.giveaway.require_moderator),
         },
         cava: {
-          ...defaults.cava,
-          ...this.form.cava,
-          bars: this.normalizeNumber(this.form.cava.bars, defaults.cava.bars),
-          input: {
-            ...defaults.cava.input,
-            ...(this.form.cava.input || {}),
-          },
+          bars: Math.max(1, Math.min(512, Math.round(this.normalizeNumber(this.form.cava.bars, defaults.cava.bars)))),
+          framerate: Math.max(1, Math.round(this.normalizeNumber(this.form.cava.framerate, defaults.cava.framerate))),
+          source: this.normalizeCavaSource(this.form.cava.source),
           output: {
             ...defaults.cava.output,
             ...(this.form.cava.output || {}),
           },
           targets: Object.fromEntries(
             Object.entries(this.form.cava.targets || {})
-              .map(([targetName, targetConfig]: [string, any]) => [
-                this.normalizeCavaTargetName(targetName),
-                {
+              .map(([targetName, targetConfig]: [string, any]) => {
+                const normalized: Record<string, any> = {
                   ...targetConfig,
-                  bars: this.normalizeNumber(targetConfig?.bars, defaults.cava.bars),
                   enabled: targetConfig?.enabled !== false,
-                },
-              ])
+                }
+                if (targetConfig?.bars === '' || targetConfig?.bars === null || targetConfig?.bars === undefined) delete normalized.bars
+                else normalized.bars = Math.max(1, Math.min(512, Math.round(this.normalizeNumber(targetConfig.bars, defaults.cava.bars))))
+                if (targetConfig?.framerate === '' || targetConfig?.framerate === null || targetConfig?.framerate === undefined) delete normalized.framerate
+                else normalized.framerate = Math.max(1, Math.round(this.normalizeNumber(targetConfig.framerate, defaults.cava.framerate)))
+                if (!targetConfig?.source) delete normalized.source
+                else normalized.source = this.normalizeCavaSource(targetConfig.source)
+                return [this.normalizeCavaTargetName(targetName), normalized]
+              })
               .filter(([targetName]) => targetName && targetName !== 'default'),
           ),
         },
