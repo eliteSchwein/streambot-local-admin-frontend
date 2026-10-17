@@ -48,6 +48,7 @@ declare module 'vue' {
     DashboardObsScenesCard: typeof import('./components/cards/DashboardObsScenesCard.vue')['default']
     DashboardRotatingScenesCard: typeof import('./components/cards/DashboardRotatingScenesCard.vue')['default']
     DashboardSystemStatusCard: typeof import('./components/cards/DashboardSystemStatusCard.vue')['default']
+    DashboardTwitchUsersCard: typeof import('./components/cards/DashboardTwitchUsersCard.vue')['default']
     DashboardVirtualAudioChannelsCard: typeof import('./components/cards/DashboardVirtualAudioChannelsCard.vue')['default']
     DashboardYoloboxCard: typeof import('./components/cards/DashboardYoloboxCard.vue')['default']
     EventAssetAccordion: typeof import('./components/accordions/EventAssetAccordion.vue')['default']

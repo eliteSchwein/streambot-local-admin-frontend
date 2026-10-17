@@ -126,6 +126,7 @@
             <DashboardBotAudioChannelsCard v-else-if="entry.card.key === 'bot_audio_channels'" />
             <DashboardCommandsCard v-else-if="entry.card.key === 'commands'" ref="dashboardCommandsCard" :selected-commands="dashboardLayout.command_names" @update:selected-commands="updateSelectedCommands" />
             <DashboardAudioPresetsCard v-else-if="entry.card.key === 'audio_presets'" />
+            <DashboardTwitchUsersCard v-else-if="entry.card.key === 'twitch_users'" />
             <DashboardObsScenesCard
               v-else-if="isObsSceneCard(entry.card.key)"
               :connection="obsConnectionFromKey(entry.card.key)"
@@ -269,6 +270,7 @@ import DashboardObsScenesCard from '@/components/cards/DashboardObsScenesCard.vu
 import DashboardObsAudioCard from '@/components/cards/DashboardObsAudioCard.vue'
 import DashboardCommandsCard from '@/components/cards/DashboardCommandsCard.vue'
 import DashboardAudioPresetsCard from '@/components/cards/DashboardAudioPresetsCard.vue'
+import DashboardTwitchUsersCard from '@/components/cards/DashboardTwitchUsersCard.vue'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import eventBus from '@/eventBus.js'
 
@@ -288,7 +290,7 @@ type DashboardLayout = {
   command_names: string[]
 }
 
-const DASHBOARD_VERSION = 14
+const DASHBOARD_VERSION = 15
 
 const DEFAULT_DASHBOARD_LAYOUT: DashboardLayout = {
   version: DASHBOARD_VERSION,
@@ -307,10 +309,11 @@ const DEFAULT_DASHBOARD_LAYOUT: DashboardLayout = {
     { key: 'bot_audio_channels', visible: false, column: 2, order: 2 },
     { key: 'commands', visible: false, column: 1, order: 3 },
     { key: 'audio_presets', visible: false, column: 2, order: 3 },
+    { key: 'twitch_users', visible: false, column: 2, order: 4 },
   ],
 }
 
-const STATIC_CARD_KEYS: DashboardCardKey[] = ['giveaway', 'interactions', 'auto_macros', 'music', 'macros', 'channel_points', 'rotating_scenes', 'yolobox', 'audio_outputs', 'bot_audio_channels', 'commands', 'audio_presets']
+const STATIC_CARD_KEYS: DashboardCardKey[] = ['giveaway', 'interactions', 'auto_macros', 'music', 'macros', 'channel_points', 'rotating_scenes', 'yolobox', 'audio_outputs', 'bot_audio_channels', 'commands', 'audio_presets', 'twitch_users']
 
 function cloneDefaultLayout(): DashboardLayout {
   return JSON.parse(JSON.stringify(DEFAULT_DASHBOARD_LAYOUT))
@@ -331,6 +334,7 @@ export default {
     DashboardObsAudioCard,
     DashboardCommandsCard,
     DashboardAudioPresetsCard,
+    DashboardTwitchUsersCard,
   },
 
   data() {
@@ -525,6 +529,7 @@ export default {
         bot_audio_channels: 'mdi-waveform',
         commands: 'mdi-console-line',
         audio_presets: 'mdi-tune-variant',
+        twitch_users: 'mdi-account-group-outline',
       }
       return icons[key] ?? 'mdi-view-dashboard-outline'
     },

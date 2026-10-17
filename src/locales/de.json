@@ -1732,7 +1732,8 @@
         "audio_outputs": "Audio-Ausgänge",
         "bot_audio_channels": "Bot-Audiokanäle",
         "commands": "Commands",
-        "audio_presets": "Audio-Presets"
+        "audio_presets": "Audio-Presets",
+        "twitch_users": "Twitch-Nutzer"
       },
       "columns": "Spalten",
       "macroSearch": "Makros durchsuchen",
@@ -1766,6 +1767,67 @@
       "noneSelected": "Für diese Karte sind keine Commands ausgewählt.",
       "select": "Commands auswählen",
       "search": "Commands durchsuchen"
+    },
+    "twitchUsers": {
+      "title": "Twitch-Nutzer",
+      "search": "Nutzer suchen",
+      "role": "Rolle",
+      "noResults": "Keine passenden Nutzer gefunden.",
+      "empty": "Noch keine Twitch-Nutzer verfügbar.",
+      "updated": "Aktualisiert",
+      "user": "Twitch-Nutzer",
+      "userId": "Nutzer-ID",
+      "broadcasterType": "Broadcaster-Typ",
+      "createdAt": "Account erstellt",
+      "followedAt": "Folgt seit",
+      "subscription": "Abonnement",
+      "gifted": "Geschenkt",
+      "notSubscribed": "Nicht abonniert",
+      "subscribed": "Abonniert",
+      "none": "Keiner",
+      "lookupUnavailable": "WebSocket-Nutzersuche ist nicht verfügbar.",
+      "lookupFailed": "Twitch-Nutzerdetails konnten nicht geladen werden.",
+      "roles": {
+        "all": "Alle Nutzer",
+        "streamer": "Streamer",
+        "moderator": "Moderator",
+        "vip": "VIP",
+        "normal": "Normal"
+      },
+      "subscribedFor": "Abo-Dauer",
+      "months": "{count} Monate",
+      "lookupUser": "{user} nachschlagen",
+      "userNotFound": "Twitch-Nutzer {user} wurde nicht gefunden.",
+      "groups": {
+        "streamer": "Broadcaster",
+        "moderator": "Moderatoren",
+        "vip": "VIPs",
+        "normal": "Nutzer"
+      },
+      "moderation": {
+        "title": "Moderation",
+        "reason": "Grund (optional)",
+        "timeoutDuration": "Timeout-Dauer",
+        "timeoutHint": "Timeouts können zwischen 1 Sekunde und 14 Tagen liegen.",
+        "timeout": "Timeout",
+        "ban": "Bannen",
+        "unban": "Entbannen / Timeout aufheben",
+        "broadcasterDisabled": "Moderationsaktionen sind für den Broadcaster nicht verfügbar.",
+        "unavailable": "Twitch-Moderation ist über WebSocket nicht verfügbar.",
+        "invalidDuration": "Gib eine Timeout-Dauer zwischen 1 Sekunde und 14 Tagen an.",
+        "failed": "Die Moderationsaktion ist fehlgeschlagen.",
+        "units": {
+          "seconds": "Sekunden",
+          "minutes": "Minuten",
+          "hours": "Stunden",
+          "days": "Tage"
+        },
+        "success": {
+          "timeout": "{user} hat einen Timeout erhalten.",
+          "ban": "{user} wurde gebannt.",
+          "unban": "Ban/Timeout für {user} wurde aufgehoben."
+        }
+      }
     }
   },
   "recovery": {

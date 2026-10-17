@@ -26,6 +26,7 @@ export const useAppStore = defineStore('app', {
     },
     shieldMode: false,
     twitchData: { channel: null, category: null, live: null },
+    twitchUserList: { channel: null, updated_at: null, total: 0, streamer: [] as any[], moderator: [] as any[], vips: [] as any[], normal: [] as any[] },
     currentGame: {},
     channelPoints: {
       active: [],
@@ -109,6 +110,7 @@ export const useAppStore = defineStore('app', {
     getCurrentGame: (state) => state.currentGame,
     isShieldActive: (state) => state.shieldMode,
     getTwitchData: (state) => state.twitchData,
+    getTwitchUserList: (state) => state.twitchUserList,
     getChannelPoints: (state) => state.channelPoints,
     getAudioData: (state) => state.audioData,
     getSystemInfo: (state) => state.systemInfo,
@@ -335,6 +337,25 @@ export const useAppStore = defineStore('app', {
     setTwitchData(twitchData: any) {
       this.twitchData = twitchData ?? { channel: null, category: null, live: null }
       this.$patch(state => state.twitchData = this.twitchData)
+    },
+    setTwitchUserList(userList: any) {
+      const normalized = userList && typeof userList === 'object' ? userList : {}
+      const normalizeUsers = (value: any): any[] => {
+        if (Array.isArray(value)) return value
+        if (!value || typeof value !== 'object') return []
+        if (value.id || value.login || value.display_name) return [value]
+        return Object.values(value)
+      }
+      this.twitchUserList = {
+        channel: normalized.channel ?? null,
+        updated_at: normalized.updated_at ?? null,
+        total: Number(normalized.total ?? 0) || 0,
+        streamer: normalizeUsers(normalized.streamer),
+        moderator: normalizeUsers(normalized.moderator),
+        vips: normalizeUsers(normalized.vips),
+        normal: normalizeUsers(normalized.normal),
+      }
+      this.$patch(state => state.twitchUserList = this.twitchUserList)
     },
     setChannelPoints(channelPoints: []) {
       this.channelPoints = channelPoints

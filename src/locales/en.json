@@ -1732,7 +1732,8 @@
         "audio_outputs": "Audio outputs",
         "bot_audio_channels": "Bot audio channels",
         "commands": "Commands",
-        "audio_presets": "Audio presets"
+        "audio_presets": "Audio presets",
+        "twitch_users": "Twitch users"
       },
       "columns": "Columns",
       "macroSearch": "Search macros",
@@ -1766,6 +1767,67 @@
       "noneSelected": "No commands selected for this card.",
       "select": "Select commands",
       "search": "Search commands"
+    },
+    "twitchUsers": {
+      "title": "Twitch users",
+      "search": "Search users",
+      "role": "Role",
+      "noResults": "No matching users found.",
+      "empty": "No Twitch users are available yet.",
+      "updated": "Updated",
+      "user": "Twitch user",
+      "userId": "User ID",
+      "broadcasterType": "Broadcaster type",
+      "createdAt": "Account created",
+      "followedAt": "Following since",
+      "subscription": "Subscription",
+      "gifted": "Gifted",
+      "notSubscribed": "Not subscribed",
+      "subscribed": "Subscribed",
+      "none": "None",
+      "lookupUnavailable": "WebSocket user lookup is unavailable.",
+      "lookupFailed": "Could not load Twitch user details.",
+      "roles": {
+        "all": "All users",
+        "streamer": "Streamer",
+        "moderator": "Moderator",
+        "vip": "VIP",
+        "normal": "Normal"
+      },
+      "subscribedFor": "Subscription duration",
+      "months": "{count} months",
+      "lookupUser": "Look up {user}",
+      "userNotFound": "Twitch user {user} was not found.",
+      "groups": {
+        "streamer": "Broadcaster",
+        "moderator": "Moderators",
+        "vip": "VIPs",
+        "normal": "Users"
+      },
+      "moderation": {
+        "title": "Moderation",
+        "reason": "Reason (optional)",
+        "timeoutDuration": "Timeout duration",
+        "timeoutHint": "Timeouts can be between 1 second and 14 days.",
+        "timeout": "Timeout",
+        "ban": "Ban",
+        "unban": "Unban / clear timeout",
+        "broadcasterDisabled": "Moderation actions are not available for the broadcaster.",
+        "unavailable": "Twitch moderation is unavailable over WebSocket.",
+        "invalidDuration": "Enter a timeout duration between 1 second and 14 days.",
+        "failed": "The moderation action failed.",
+        "units": {
+          "seconds": "Seconds",
+          "minutes": "Minutes",
+          "hours": "Hours",
+          "days": "Days"
+        },
+        "success": {
+          "timeout": "{user} was timed out.",
+          "ban": "{user} was banned.",
+          "unban": "The ban/timeout for {user} was removed."
+        }
+      }
     }
   },
   "recovery": {

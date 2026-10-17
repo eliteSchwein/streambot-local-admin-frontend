@@ -46,6 +46,7 @@ import NotifyRestoreMessage from "@/plugins/websocketEvents/websocketMessage/Not
 import NotifyRestoreReadyMessage from "@/plugins/websocketEvents/websocketMessage/NotifyRestoreReadyMessage.ts";
 import NotifyCategoryLibraryUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyCategoryLibraryUpdateMessage.ts";
 import NotifyTwitchDataMessage from "@/plugins/websocketEvents/websocketMessage/NotifyTwitchDataMessage.ts";
+import NotifyTwitchUserListMessage from "@/plugins/websocketEvents/websocketMessage/NotifyTwitchUserListMessage.ts";
 import NotifyThrottledMessage from "@/plugins/websocketEvents/websocketMessage/NotifyThrottledMessage.ts";
 
 const MESSAGE_TYPES = [
@@ -94,6 +95,7 @@ const MESSAGE_TYPES = [
   NotifyRestoreReadyMessage,
   NotifyCategoryLibraryUpdateMessage,
   NotifyTwitchDataMessage,
+  NotifyTwitchUserListMessage,
   NotifyThrottledMessage,
 ] as const
 
@@ -147,6 +149,7 @@ const STATEFUL_METHODS = new Set<string>([
   'notify_category_active',
   'notify_category_style_update',
   'notify_twitch_data',
+  'notify_twitch_user_list',
 ])
 
 function isPlainObject(value: any): value is Record<string, any> {
