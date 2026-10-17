@@ -453,66 +453,13 @@
                     persistent-hint
                   />
                 </v-col>
-
                 <v-col cols="12">
                   <v-divider class="my-1" />
                   <div class="text-subtitle-2 mt-3 mb-1">{{ $t('settings.giveawayRequirements') }}</div>
-                  <div class="text-caption text-grey-lighten-1 mb-2">{{ $t('settings.giveawayRequirementsHint') }}</div>
-                </v-col>
-
-                <v-col cols="12" md="6">
-                  <v-switch
-                    v-model="form.giveaway.require_follower"
+                  <div class="text-caption text-grey-lighten-1 mb-3">{{ $t('settings.giveawayRequirementsHint') }}</div>
+                  <TwitchAccessRequirements
+                    v-model="form.giveaway"
                     :disabled="settingsLocked"
-                    :label="$t('settings.giveawayRequireFollower')"
-                    color="primary"
-                    hide-details
-                  />
-                </v-col>
-
-                <v-col cols="12" md="6">
-                  <v-text-field
-                    v-model.number="form.giveaway.minimum_follow_seconds"
-                    :disabled="settingsLocked"
-                    :label="$t('settings.giveawayMinimumFollowTime')"
-                    :hint="$t('settings.giveawayMinimumFollowTimeHint')"
-                    type="number"
-                    min="0"
-                    step="1"
-                    suffix="s"
-                    variant="outlined"
-                    density="comfortable"
-                    persistent-hint
-                  />
-                </v-col>
-
-                <v-col cols="12" sm="4">
-                  <v-switch
-                    v-model="form.giveaway.require_subscriber"
-                    :disabled="settingsLocked"
-                    :label="$t('settings.giveawayRequireSubscriber')"
-                    color="primary"
-                    hide-details
-                  />
-                </v-col>
-
-                <v-col cols="12" sm="4">
-                  <v-switch
-                    v-model="form.giveaway.require_vip"
-                    :disabled="settingsLocked"
-                    :label="$t('settings.giveawayRequireVip')"
-                    color="primary"
-                    hide-details
-                  />
-                </v-col>
-
-                <v-col cols="12" sm="4">
-                  <v-switch
-                    v-model="form.giveaway.require_moderator"
-                    :disabled="settingsLocked"
-                    :label="$t('settings.giveawayRequireModerator')"
-                    color="primary"
-                    hide-details
                   />
                 </v-col>
               </v-row>
@@ -792,6 +739,7 @@ import { mapState } from 'pinia'
 import { useAppStore } from '@/stores/app'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import ColorPickerField from '@/components/inputs/ColorPickerField.vue'
+import TwitchAccessRequirements from '@/components/inputs/TwitchAccessRequirements.vue'
 import { checkNameExistsResult } from '@/helper/NameExistsHelper'
 
 type SettingsForm = {
@@ -841,6 +789,8 @@ type SettingsForm = {
     require_follower: boolean
     minimum_follow_seconds: number
     require_subscriber: boolean
+    minimum_sub_tier: number
+    minimum_sub_months: number
     require_vip: boolean
     require_moderator: boolean
   }
@@ -899,6 +849,8 @@ const defaultForm = (): SettingsForm => ({
     require_follower: false,
     minimum_follow_seconds: 0,
     require_subscriber: false,
+    minimum_sub_tier: 0,
+    minimum_sub_months: 0,
     require_vip: false,
     require_moderator: false,
   },
@@ -918,6 +870,7 @@ export default {
 
   components: {
     ColorPickerField,
+    TwitchAccessRequirements,
   },
 
   data() {
@@ -1318,6 +1271,8 @@ export default {
           require_follower: giveaway.require_follower === true,
           minimum_follow_seconds: Math.max(0, Math.floor(this.normalizeNumber(giveaway.minimum_follow_seconds, defaults.giveaway.minimum_follow_seconds))),
           require_subscriber: giveaway.require_subscriber === true,
+          minimum_sub_tier: Math.max(0, Math.floor(this.normalizeNumber(giveaway.minimum_sub_tier, defaults.giveaway.minimum_sub_tier))),
+          minimum_sub_months: Math.max(0, Math.floor(this.normalizeNumber(giveaway.minimum_sub_months, defaults.giveaway.minimum_sub_months))),
           require_vip: giveaway.require_vip === true,
           require_moderator: giveaway.require_moderator === true,
         },
@@ -1745,6 +1700,8 @@ export default {
           require_follower: Boolean(this.form.giveaway.require_follower),
           minimum_follow_seconds: Math.max(0, Math.floor(this.normalizeNumber(this.form.giveaway.minimum_follow_seconds, defaults.giveaway.minimum_follow_seconds))),
           require_subscriber: Boolean(this.form.giveaway.require_subscriber),
+          minimum_sub_tier: Math.max(0, Math.floor(this.normalizeNumber(this.form.giveaway.minimum_sub_tier, defaults.giveaway.minimum_sub_tier))),
+          minimum_sub_months: Math.max(0, Math.floor(this.normalizeNumber(this.form.giveaway.minimum_sub_months, defaults.giveaway.minimum_sub_months))),
           require_vip: Boolean(this.form.giveaway.require_vip),
           require_moderator: Boolean(this.form.giveaway.require_moderator),
         },

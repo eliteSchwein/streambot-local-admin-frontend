@@ -2973,5 +2973,25 @@
       "nameDuplicate": "Die Namen der Medien-Definitionen müssen eindeutig sein."
     },
     "wallpaper": "Wallpaper"
+  },
+  "twitchAccess": {
+    "title": "Zugriffsvoraussetzungen",
+    "requireFollower": "Follower erforderlich",
+    "minimumFollowTime": "Minimale Follow-Zeit",
+    "requireSubscriber": "Abonnent erforderlich",
+    "minimumSubTier": "Minimale Sub-Stufe",
+    "minimumSubMonths": "Minimale Sub-Monate",
+    "requireVip": "VIP erforderlich",
+    "requireModerator": "Moderator erforderlich",
+    "subTierAny": "Beliebiges Abo",
+    "subTier1": "Tier 1+",
+    "subTier2": "Tier 2+",
+    "subTier3": "Tier 3",
+    "units": {
+      "minutes": "Minuten",
+      "hours": "Stunden",
+      "days": "Tage",
+      "weeks": "Wochen"
+    }
   }
 }

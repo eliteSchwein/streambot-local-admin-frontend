@@ -268,6 +268,7 @@ declare module 'vue' {
     StorageCard: typeof import('./components/cards/StorageCard.vue')['default']
     SystemInformationCard: typeof import('./components/cards/SystemInformationCard.vue')['default']
     SystemMaintenanceCard: typeof import('./components/cards/SystemMaintenanceCard.vue')['default']
+    TwitchAccessRequirements: typeof import('./components/inputs/TwitchAccessRequirements.vue')['default']
     UpdateCard: typeof import('./components/cards/UpdateCard.vue')['default']
     UploadCard: typeof import('./components/cards/UploadCard.vue')['default']
     VirtualAudioCableSettings: typeof import('./components/audio/VirtualAudioCableSettings.vue')['default']

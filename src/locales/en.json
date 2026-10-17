@@ -2973,5 +2973,25 @@
       "nameDuplicate": "Media definition names must be unique."
     },
     "wallpaper": "Wallpaper"
+  },
+  "twitchAccess": {
+    "title": "Access requirements",
+    "requireFollower": "Follower required",
+    "minimumFollowTime": "Minimum follow time",
+    "requireSubscriber": "Subscriber required",
+    "minimumSubTier": "Minimum sub tier",
+    "minimumSubMonths": "Minimum sub months",
+    "requireVip": "VIP required",
+    "requireModerator": "Moderator required",
+    "subTierAny": "Any subscription",
+    "subTier1": "Tier 1+",
+    "subTier2": "Tier 2+",
+    "subTier3": "Tier 3",
+    "units": {
+      "minutes": "Minutes",
+      "hours": "Hours",
+      "days": "Days",
+      "weeks": "Weeks"
+    }
   }
 }

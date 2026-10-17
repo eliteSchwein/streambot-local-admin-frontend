@@ -105,6 +105,13 @@ type ChannelPointEntry = {
   auto_accept?: boolean
   strip_emotes?: boolean,
   input_required?: boolean,
+  require_follower?: boolean
+  minimum_follow_seconds?: number
+  require_subscriber?: boolean
+  minimum_sub_tier?: number
+  minimum_sub_months?: number
+  require_vip?: boolean
+  require_moderator?: boolean
   file?: string
   active?: boolean
   id?: string
@@ -301,6 +308,13 @@ export default {
         auto_accept: content?.auto_accept === true,
         strip_emotes: content?.strip_emotes === true,
         input_required: content?.input_required === true,
+        require_follower: content?.require_follower === true || content?.requiresFollower === true,
+        minimum_follow_seconds: Number(content?.minimum_follow_seconds ?? content?.minimumFollowSeconds ?? 0) || 0,
+        require_subscriber: content?.require_subscriber === true || content?.requiresSubscriber === true,
+        minimum_sub_tier: Number(content?.minimum_sub_tier ?? content?.minimumSubTier ?? 0) || 0,
+        minimum_sub_months: Number(content?.minimum_sub_months ?? content?.minimumSubMonths ?? 0) || 0,
+        require_vip: content?.require_vip === true || content?.requiresVip === true,
+        require_moderator: content?.require_moderator === true || content?.requiresModerator === true || content?.requiresMod === true,
         file: raw?.path ?? raw?.file ?? `${name}.yaml`,
         active: raw?.active,
         id: raw?.id,
@@ -401,6 +415,13 @@ export default {
           strip_emotes: payload.strip_emotes === true,
           input_required: payload.input_required === true,
           bypass_interaction_queue: payload.bypass_interaction_queue === true,
+          require_follower: payload.require_follower === true,
+          minimum_follow_seconds: Math.max(0, Number(payload.minimum_follow_seconds ?? 0) || 0),
+          require_subscriber: payload.require_subscriber === true,
+          minimum_sub_tier: Math.max(0, Number(payload.minimum_sub_tier ?? 0) || 0),
+          minimum_sub_months: Math.max(0, Number(payload.minimum_sub_months ?? 0) || 0),
+          require_vip: payload.require_vip === true,
+          require_moderator: payload.require_moderator === true,
         }
 
         await this.requestChannelPointEndpoint('assets_edit', {
@@ -426,6 +447,13 @@ export default {
           strip_emotes: channelPoint.strip_emotes,
           input_required: channelPoint.input_required,
           bypass_interaction_queue: channelPoint.bypass_interaction_queue,
+          require_follower: channelPoint.require_follower,
+          minimum_follow_seconds: channelPoint.minimum_follow_seconds,
+          require_subscriber: channelPoint.require_subscriber,
+          minimum_sub_tier: channelPoint.minimum_sub_tier,
+          minimum_sub_months: channelPoint.minimum_sub_months,
+          require_vip: channelPoint.require_vip,
+          require_moderator: channelPoint.require_moderator,
           channel_point: channelPoint,
           content: this.channelPointToYaml(channelPoint),
         }, 30_000)
@@ -456,6 +484,13 @@ export default {
         `auto_accept: ${channelPoint.auto_accept === true ? 'true' : 'false'}`,
         `strip_emotes: ${channelPoint.strip_emotes === true ? 'true' : 'false'}`,
         `input_required: ${channelPoint.input_required === true ? 'true' : 'false'}`,
+        `require_follower: ${channelPoint.require_follower === true ? 'true' : 'false'}`,
+        `minimum_follow_seconds: ${Math.max(0, Number(channelPoint.minimum_follow_seconds ?? 0) || 0)}`,
+        `require_subscriber: ${channelPoint.require_subscriber === true ? 'true' : 'false'}`,
+        `minimum_sub_tier: ${Math.max(0, Number(channelPoint.minimum_sub_tier ?? 0) || 0)}`,
+        `minimum_sub_months: ${Math.max(0, Number(channelPoint.minimum_sub_months ?? 0) || 0)}`,
+        `require_vip: ${channelPoint.require_vip === true ? 'true' : 'false'}`,
+        `require_moderator: ${channelPoint.require_moderator === true ? 'true' : 'false'}`,
         `bypass_interaction_queue: ${channelPoint.bypass_interaction_queue === true ? 'true' : 'false'}`,
         '',
       ].join('\n')

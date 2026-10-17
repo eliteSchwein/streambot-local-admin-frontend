@@ -79,8 +79,8 @@
                   <v-row density="comfortable">
                     <v-col cols="12" sm="6"><v-switch v-model="form.enforce_primary" :label="$t('dialogs.commandCreateDialog.primaryOnly')" color="primary" hide-details density="comfortable" inset /></v-col>
                     <v-col cols="12" sm="6"><v-switch v-model="form.requiresBroadcaster" :label="$t('dialogs.commandCreateDialog.broadcaster')" color="primary" hide-details density="comfortable" inset /></v-col>
-                    <v-col cols="12" sm="6"><v-switch v-model="form.requiresMod" :label="$t('dialogs.commandCreateDialog.mod')" color="primary" hide-details density="comfortable" inset /></v-col>
-                    <v-col cols="12" sm="6"><v-switch v-model="form.requiresVip" :label="$t('dialogs.commandCreateDialog.vip')" color="primary" density="comfortable" hide-details inset /></v-col>
+                    <v-col cols="12"><v-divider class="my-2" /></v-col>
+                    <v-col cols="12"><TwitchAccessRequirements v-model="form" /></v-col>
                   </v-row>
                 </v-card>
 
@@ -206,6 +206,7 @@
 </template>
 
 <script lang="ts">
+import TwitchAccessRequirements from '@/components/inputs/TwitchAccessRequirements.vue'
 import CommandAssetAccordion from '@/components/accordions/CommandAssetAccordion.vue'
 import CommandMacroAccordion from '@/components/accordions/CommandMacroAccordion.vue'
 import YamlImportExportButtons from '@/components/YamlImportExportButtons.vue'
@@ -216,7 +217,8 @@ import { checkNameExistsResult } from '@/helper/NameExistsHelper'
 export default {
   name: 'CommandDialog',
 
-  components: { CommandAssetAccordion, CommandMacroAccordion, YamlImportExportButtons },
+  components: {
+    TwitchAccessRequirements, CommandAssetAccordion, CommandMacroAccordion, YamlImportExportButtons },
 
   props: {
     modelValue: { type: Boolean, default: false },
@@ -513,8 +515,13 @@ export default {
         globalCooldown: command.globalCooldown,
         enforce_primary: command.enforce_primary === true || command.enforceSame === true,
         requiresBroadcaster: command.requiresBroadcaster === true,
-        requiresMod: command.requiresMod === true,
-        requiresVip: command.requiresVip === true,
+        require_follower: command.require_follower === true || command.requiresFollower === true,
+        minimum_follow_seconds: Number(command.minimum_follow_seconds ?? command.minimumFollowSeconds ?? 0) || 0,
+        require_subscriber: command.require_subscriber === true || command.requiresSubscriber === true,
+        minimum_sub_tier: Number(command.minimum_sub_tier ?? command.minimumSubTier ?? 0) || 0,
+        minimum_sub_months: Number(command.minimum_sub_months ?? command.minimumSubMonths ?? 0) || 0,
+        require_vip: command.require_vip === true || command.requiresVip === true,
+        require_moderator: command.require_moderator === true || command.requiresModerator === true || command.requiresMod === true,
       }
       this.originalAliases = [...this.normalizedAliases]
 
@@ -593,8 +600,13 @@ export default {
         globalCooldown: undefined as any,
         enforce_primary: false,
         requiresBroadcaster: false,
-        requiresMod: false,
-        requiresVip: false,
+        require_follower: false,
+        minimum_follow_seconds: 0,
+        require_subscriber: false,
+        minimum_sub_tier: 0,
+        minimum_sub_months: 0,
+        require_vip: false,
+        require_moderator: false,
       }
     },
 
@@ -807,8 +819,13 @@ export default {
           strip_urls: command.strip_urls === true,
           enforce_primary: command.enforce_primary === true || command.enforceSame === true,
           requiresBroadcaster: command.requiresBroadcaster === true,
-          requiresMod: command.requiresMod === true,
-          requiresVip: command.requiresVip === true,
+          require_follower: command.require_follower === true || command.requiresFollower === true,
+          minimum_follow_seconds: Number(command.minimum_follow_seconds ?? command.minimumFollowSeconds ?? 0) || 0,
+          require_subscriber: command.require_subscriber === true || command.requiresSubscriber === true,
+          minimum_sub_tier: Number(command.minimum_sub_tier ?? command.minimumSubTier ?? 0) || 0,
+          minimum_sub_months: Number(command.minimum_sub_months ?? command.minimumSubMonths ?? 0) || 0,
+          require_vip: command.require_vip === true || command.requiresVip === true,
+          require_moderator: command.require_moderator === true || command.requiresModerator === true || command.requiresMod === true,
         })
 
         this.setMacroContent(

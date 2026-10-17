@@ -2,11 +2,13 @@
 import {mapState} from "pinia";
 import {useAppStore} from "@/stores/app";
 import {getWebsocketClient} from "@/plugins/websocketInstance";
+import TwitchAccessRequirements from '@/components/inputs/TwitchAccessRequirements.vue';
 import GiveawayCancelConfirmDialog from "@/components/dialogs/GiveawayCancelConfirmDialog.vue";
 
 export default {
   components: {
     GiveawayCancelConfirmDialog,
+    TwitchAccessRequirements,
   },
 
   data() {
@@ -14,6 +16,13 @@ export default {
       giveawayTemplate: {
         giveawayText: '',
         interval: null,
+        require_follower: false,
+        minimum_follow_seconds: 0,
+        require_subscriber: false,
+        minimum_sub_tier: 0,
+        minimum_sub_months: 0,
+        require_vip: false,
+        require_moderator: false,
       },
       participantSearch: '',
       cancelDialog: false,
@@ -119,6 +128,13 @@ export default {
         // Compatibility with backends that still validate the old field name.
         content: giveawayText,
         duration: this.giveawayTemplate.interval,
+        require_follower: this.giveawayTemplate.require_follower === true,
+        minimum_follow_seconds: Math.max(0, Number(this.giveawayTemplate.minimum_follow_seconds ?? 0) || 0),
+        require_subscriber: this.giveawayTemplate.require_subscriber === true,
+        minimum_sub_tier: Math.max(0, Number(this.giveawayTemplate.minimum_sub_tier ?? 0) || 0),
+        minimum_sub_months: Math.max(0, Number(this.giveawayTemplate.minimum_sub_months ?? 0) || 0),
+        require_vip: this.giveawayTemplate.require_vip === true,
+        require_moderator: this.giveawayTemplate.require_moderator === true,
       })
     },
     requestStopGiveaway() {
@@ -270,6 +286,20 @@ export default {
           {{ $t('giveaway.create') }}
         </v-btn>
       </div>
+
+      <v-expansion-panels class="mt-3" variant="accordion">
+        <v-expansion-panel>
+          <v-expansion-panel-title>
+            <div class="d-flex align-center ga-2">
+              <v-icon icon="mdi-account-lock" />
+              <span>{{ $t('twitchAccess.title') }}</span>
+            </div>
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <TwitchAccessRequirements v-model="giveawayTemplate" />
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
     </v-card-item>
 
     <GiveawayCancelConfirmDialog

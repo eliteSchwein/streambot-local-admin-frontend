@@ -67,6 +67,11 @@
                   <div class="text-subtitle-2 mb-3">{{ $t('dialogs.channelPointDialog.interaction') }}</div>
                   <v-switch v-model="form.bypass_interaction_queue" :label="$t('dialogs.channelPointDialog.bypassInteractionQueue')" color="primary" density="comfortable" hide-details inset />
                 </v-card>
+
+                <v-card variant="tonal" class="option-card pa-4">
+                  <div class="text-subtitle-2 mb-3">{{ $t('twitchAccess.title') }}</div>
+                  <TwitchAccessRequirements v-model="form" />
+                </v-card>
               </div>
             </v-expansion-panel-text>
           </v-expansion-panel>
@@ -144,6 +149,7 @@
 </template>
 
 <script lang="ts">
+import TwitchAccessRequirements from '@/components/inputs/TwitchAccessRequirements.vue'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import { useAppStore } from '@/stores/app'
 import { checkNameExists } from '@/helper/NameExistsHelper'
@@ -155,6 +161,7 @@ export default {
   name: 'ChannelPointDialog',
 
   components: {
+    TwitchAccessRequirements,
     ChannelPointAssetAccordion,
     ChannelPointMacroAccordion,
     YamlImportExportButtons,
@@ -183,6 +190,13 @@ export default {
         strip_urls: false,
         input_required: false,
         bypass_interaction_queue: false,
+        require_follower: false,
+        minimum_follow_seconds: 0,
+        require_subscriber: false,
+        minimum_sub_tier: 0,
+        minimum_sub_months: 0,
+        require_vip: false,
+        require_moderator: false,
       },
       originalName: '',
       macroContent: '',
@@ -251,6 +265,13 @@ export default {
         strip_urls: this.form.strip_urls,
         input_required: this.form.input_required,
         bypass_interaction_queue: this.form.bypass_interaction_queue,
+        require_follower: this.form.require_follower === true,
+        minimum_follow_seconds: Math.max(0, Number(this.form.minimum_follow_seconds ?? 0) || 0),
+        require_subscriber: this.form.require_subscriber === true,
+        minimum_sub_tier: Math.max(0, Number(this.form.minimum_sub_tier ?? 0) || 0),
+        minimum_sub_months: Math.max(0, Number(this.form.minimum_sub_months ?? 0) || 0),
+        require_vip: this.form.require_vip === true,
+        require_moderator: this.form.require_moderator === true,
         asset: generatedName,
         macro: generatedName,
       }
@@ -384,6 +405,13 @@ export default {
         strip_urls: point.strip_urls === true,
         input_required: point.input_required === true,
         bypass_interaction_queue: point.bypass_interaction_queue === true,
+        require_follower: point.require_follower === true || point.requiresFollower === true,
+        minimum_follow_seconds: Number(point.minimum_follow_seconds ?? point.minimumFollowSeconds ?? 0) || 0,
+        require_subscriber: point.require_subscriber === true || point.requiresSubscriber === true,
+        minimum_sub_tier: Number(point.minimum_sub_tier ?? point.minimumSubTier ?? 0) || 0,
+        minimum_sub_months: Number(point.minimum_sub_months ?? point.minimumSubMonths ?? 0) || 0,
+        require_vip: point.require_vip === true || point.requiresVip === true,
+        require_moderator: point.require_moderator === true || point.requiresModerator === true || point.requiresMod === true,
       }
 
       this.macroContent = this.defaultMacroContent(fileName ? `channel_point_${fileName}` : 'channel_point_')
@@ -464,6 +492,13 @@ export default {
         strip_urls: config.strip_urls === true,
         input_required: config.input_required === true,
         bypass_interaction_queue: config.bypass_interaction_queue === true,
+        require_follower: config.require_follower === true || config.requiresFollower === true,
+        minimum_follow_seconds: Number(config.minimum_follow_seconds ?? config.minimumFollowSeconds ?? 0) || 0,
+        require_subscriber: config.require_subscriber === true || config.requiresSubscriber === true,
+        minimum_sub_tier: Number(config.minimum_sub_tier ?? config.minimumSubTier ?? 0) || 0,
+        minimum_sub_months: Number(config.minimum_sub_months ?? config.minimumSubMonths ?? 0) || 0,
+        require_vip: config.require_vip === true || config.requiresVip === true,
+        require_moderator: config.require_moderator === true || config.requiresModerator === true || config.requiresMod === true,
       }
 
       this.errorMessage = ''
@@ -510,6 +545,13 @@ export default {
         strip_urls: this.form.strip_urls,
         input_required: this.form.input_required,
         bypass_interaction_queue: this.form.bypass_interaction_queue,
+        require_follower: this.form.require_follower === true,
+        minimum_follow_seconds: Math.max(0, Number(this.form.minimum_follow_seconds ?? 0) || 0),
+        require_subscriber: this.form.require_subscriber === true,
+        minimum_sub_tier: Math.max(0, Number(this.form.minimum_sub_tier ?? 0) || 0),
+        minimum_sub_months: Math.max(0, Number(this.form.minimum_sub_months ?? 0) || 0),
+        require_vip: this.form.require_vip === true,
+        require_moderator: this.form.require_moderator === true,
         asset: (this.$refs.assetAccordion as any)?.getAssetPayload?.() ?? {},
         macroContent: (this.$refs.macroAccordion as any)?.getContent?.() || this.macroContent || this.defaultMacroContent(this.generatedConfigName),
       })

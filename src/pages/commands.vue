@@ -126,7 +126,7 @@
             </v-chip>
 
             <v-chip
-              v-else-if="item.command?.requiresMod"
+              v-else-if="item.command?.require_moderator || item.command?.requiresModerator || item.command?.requiresMod"
               size="x-small"
               color="blue"
               variant="tonal"
@@ -136,13 +136,33 @@
             </v-chip>
 
             <v-chip
-              v-else-if="item.command?.requiresVip"
+              v-else-if="item.command?.require_vip || item.command?.requiresVip"
               size="x-small"
               color="pink"
               variant="tonal"
               class="command-row__chip"
             >
               VIP
+            </v-chip>
+
+            <v-chip
+              v-else-if="item.command?.require_subscriber || item.command?.requiresSubscriber"
+              size="x-small"
+              color="purple-lighten-1"
+              variant="tonal"
+              class="command-row__chip"
+            >
+              Sub
+            </v-chip>
+
+            <v-chip
+              v-else-if="item.command?.require_follower || item.command?.requiresFollower"
+              size="x-small"
+              color="cyan"
+              variant="tonal"
+              class="command-row__chip"
+            >
+              Follower
             </v-chip>
           </div>
 
@@ -499,8 +519,13 @@ export default {
         globalCooldown: payload.globalCooldown || undefined,
         enforce_primary: payload.enforce_primary === true,
         requiresBroadcaster: payload.requiresBroadcaster === true,
-        requiresMod: payload.requiresMod === true,
-        requiresVip: payload.requiresVip === true,
+        require_follower: payload.require_follower === true,
+        minimum_follow_seconds: Math.max(0, Number(payload.minimum_follow_seconds ?? 0) || 0),
+        require_subscriber: payload.require_subscriber === true,
+        minimum_sub_tier: Math.max(0, Number(payload.minimum_sub_tier ?? 0) || 0),
+        minimum_sub_months: Math.max(0, Number(payload.minimum_sub_months ?? 0) || 0),
+        require_vip: payload.require_vip === true,
+        require_moderator: payload.require_moderator === true,
       })
 
       await this.requestEndpoint('commands_edit', 'commands/edit', {
