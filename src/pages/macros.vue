@@ -42,16 +42,137 @@
         </v-col>
       </v-row>
 
-      <v-text-field
-        v-model="searchQuery"
-        :label="$t('macro.search') || 'Search macros'"
-        prepend-inner-icon="mdi-magnify"
-        clearable
-        variant="outlined"
-        density="comfortable"
-        hide-details
-        class="mb-3"
-      />
+      <div class="macro-toolbar mb-3">
+        <v-text-field
+          v-model="searchQuery"
+          :label="$t('macro.search') || 'Search macros'"
+          prepend-inner-icon="mdi-magnify"
+          clearable
+          variant="outlined"
+          density="compact"
+          hide-details
+          class="macro-toolbar__search"
+        />
+
+        <v-menu
+          v-model="filterMenu"
+          :close-on-content-click="false"
+          location="bottom end"
+        >
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              variant="tonal"
+              height="40"
+              prepend-icon="mdi-filter-variant"
+            >
+              {{ $t('macro.filters.title') }}
+              <v-badge
+                v-if="activeFilterCount > 0"
+                :content="activeFilterCount"
+                color="primary"
+                inline
+                class="ml-2"
+              />
+            </v-btn>
+          </template>
+
+          <v-card min-width="320" max-width="380">
+            <v-card-title class="d-flex align-center ga-2 text-subtitle-1">
+              <v-icon icon="mdi-filter-variant" />
+              {{ $t('macro.filters.title') }}
+            </v-card-title>
+
+            <v-card-text class="d-flex flex-column ga-3">
+              <v-select
+                v-model="cloudFilter"
+                :items="cloudFilterItems"
+                :label="$t('macro.filters.cloud')"
+                variant="outlined"
+                density="compact"
+                hide-details
+              />
+
+              <v-select
+                v-model="descriptionFilter"
+                :items="descriptionFilterItems"
+                :label="$t('macro.filters.description')"
+                variant="outlined"
+                density="compact"
+                hide-details
+              />
+
+              <v-select
+                v-model="taskFilter"
+                :items="taskFilterItems"
+                :label="$t('macro.filters.tasks')"
+                variant="outlined"
+                density="compact"
+                hide-details
+              />
+            </v-card-text>
+
+            <v-card-actions>
+              <v-btn
+                variant="text"
+                prepend-icon="mdi-filter-remove"
+                :disabled="activeFilterCount === 0"
+                @click="resetFilters"
+              >
+                {{ $t('macro.filters.reset') }}
+              </v-btn>
+
+              <v-spacer />
+
+              <v-btn
+                color="primary"
+                variant="tonal"
+                @click="filterMenu = false"
+              >
+                {{ $t('common.close') }}
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
+
+        <v-select
+          v-model="sortBy"
+          :items="sortItems"
+          :label="$t('macro.sort.title')"
+          variant="outlined"
+          density="compact"
+          hide-details
+          class="macro-toolbar__sort"
+        />
+
+        <v-btn
+          variant="tonal"
+          height="40"
+          min-width="40"
+          :icon="sortDirection === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+          :title="sortDirection === 'asc' ? $t('macro.sort.ascending') : $t('macro.sort.descending')"
+          @click="toggleSortDirection"
+        />
+      </div>
+
+      <div
+        v-if="searchQuery || activeFilterCount > 0"
+        class="d-flex align-center ga-2 mb-3 text-caption text-medium-emphasis"
+      >
+        <span>
+          {{ $t('macro.filteredCount', { shown: filteredMacros.length, total: macroList.length }) }}
+        </span>
+
+        <v-btn
+          v-if="searchQuery || activeFilterCount > 0"
+          size="x-small"
+          variant="text"
+          prepend-icon="mdi-close"
+          @click="resetListControls"
+        >
+          {{ $t('macro.clearSearchAndFilters') }}
+        </v-btn>
+      </div>
 
       <v-alert
         v-if="errorMessage"
@@ -142,6 +263,12 @@ export default {
   data() {
     return {
       searchQuery: '',
+      filterMenu: false,
+      cloudFilter: 'all' as 'all' | 'cloud' | 'hidden',
+      descriptionFilter: 'all' as 'all' | 'with' | 'without',
+      taskFilter: 'all' as 'all' | 'with' | 'empty',
+      sortBy: 'name' as 'name' | 'tasks' | 'description' | 'cloud',
+      sortDirection: 'asc' as 'asc' | 'desc',
       loading: false,
       uploading: false,
       errorMessage: '',
@@ -165,24 +292,122 @@ export default {
       return Object.entries(this.getMacros ?? {})
         .map(([name, macro]) => ({ name, macro }))
         .filter(item => !isHiddenMacroName(item.name))
-        .sort((a, b) => a.name.localeCompare(b.name))
+    },
+
+    cloudFilterItems(): Array<{ title: string; value: string }> {
+      return [
+        { title: String(this.$t('macro.filters.all')), value: 'all' },
+        { title: String(this.$t('macro.filters.cloudVisible')), value: 'cloud' },
+        { title: String(this.$t('macro.filters.cloudHidden')), value: 'hidden' },
+      ]
+    },
+
+    descriptionFilterItems(): Array<{ title: string; value: string }> {
+      return [
+        { title: String(this.$t('macro.filters.all')), value: 'all' },
+        { title: String(this.$t('macro.filters.hasDescription')), value: 'with' },
+        { title: String(this.$t('macro.filters.noDescription')), value: 'without' },
+      ]
+    },
+
+    taskFilterItems(): Array<{ title: string; value: string }> {
+      return [
+        { title: String(this.$t('macro.filters.all')), value: 'all' },
+        { title: String(this.$t('macro.filters.hasTasks')), value: 'with' },
+        { title: String(this.$t('macro.filters.empty')), value: 'empty' },
+      ]
+    },
+
+    sortItems(): Array<{ title: string; value: string }> {
+      return [
+        { title: String(this.$t('macro.sort.name')), value: 'name' },
+        { title: String(this.$t('macro.sort.tasks')), value: 'tasks' },
+        { title: String(this.$t('macro.sort.description')), value: 'description' },
+        { title: String(this.$t('macro.sort.cloud')), value: 'cloud' },
+      ]
+    },
+
+    activeFilterCount(): number {
+      return [this.cloudFilter, this.descriptionFilter, this.taskFilter]
+        .filter(value => value !== 'all')
+        .length
     },
 
     filteredMacros(): MacroEntry[] {
-      const query = String(this.searchQuery ?? '').trim().toLowerCase()
+      const query = String(this.searchQuery ?? '').trim().toLocaleLowerCase()
 
-      if (!query) return this.macroList
+      const filtered = this.macroList.filter((item) => {
+        const description = String(item.macro?.description ?? '').trim()
+        const taskCount = Array.isArray(item.macro?.tasks) ? item.macro.tasks.length : 0
+        const hiddenFromCloud = item.macro?.hide_from_cloud === true
 
-      return this.macroList.filter((item) => {
+        if (this.cloudFilter === 'cloud' && hiddenFromCloud) return false
+        if (this.cloudFilter === 'hidden' && !hiddenFromCloud) return false
+
+        if (this.descriptionFilter === 'with' && !description) return false
+        if (this.descriptionFilter === 'without' && description) return false
+
+        if (this.taskFilter === 'with' && taskCount === 0) return false
+        if (this.taskFilter === 'empty' && taskCount > 0) return false
+
+        if (!query) return true
+
         return (
-          item.name.toLowerCase().includes(query) ||
-          JSON.stringify(item.macro ?? {}).toLowerCase().includes(query)
+          item.name.toLocaleLowerCase().includes(query) ||
+          description.toLocaleLowerCase().includes(query) ||
+          JSON.stringify(item.macro?.tasks ?? []).toLocaleLowerCase().includes(query)
         )
+      })
+
+      const direction = this.sortDirection === 'asc' ? 1 : -1
+
+      return filtered.sort((a, b) => {
+        let result = 0
+
+        switch (this.sortBy) {
+          case 'tasks': {
+            const aTasks = Array.isArray(a.macro?.tasks) ? a.macro.tasks.length : 0
+            const bTasks = Array.isArray(b.macro?.tasks) ? b.macro.tasks.length : 0
+            result = aTasks - bTasks
+            break
+          }
+          case 'description':
+            result = String(a.macro?.description ?? '').localeCompare(String(b.macro?.description ?? ''), undefined, { sensitivity: 'base' })
+            break
+          case 'cloud':
+            result = Number(a.macro?.hide_from_cloud === true) - Number(b.macro?.hide_from_cloud === true)
+            break
+          case 'name':
+          default:
+            result = a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+            break
+        }
+
+        if (result === 0 && this.sortBy !== 'name') {
+          result = a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+        }
+
+        return result * direction
       })
     },
   },
 
   methods: {
+    toggleSortDirection() {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'
+    },
+
+    resetFilters() {
+      this.cloudFilter = 'all'
+      this.descriptionFilter = 'all'
+      this.taskFilter = 'all'
+    },
+
+    resetListControls() {
+      this.searchQuery = ''
+      this.resetFilters()
+    },
+
     async requestWebsocket(method: string, params: Record<string, any> = {}, timeout = 30_000): Promise<any> {
       const client = getWebsocketClient()
 
@@ -337,6 +562,22 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.macro-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.macro-toolbar__search {
+  min-width: 220px;
+  flex: 1 1 420px;
+}
+
+.macro-toolbar__sort {
+  flex: 0 1 220px;
+  min-width: 180px;
+}
+
 .macro-list {
   overflow: hidden;
   border-radius: 4px;
@@ -344,5 +585,19 @@ export default {
 
 .min-width-0 {
   min-width: 0;
+}
+
+@media (max-width: 800px) {
+  .macro-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .macro-toolbar__search {
+    flex-basis: 100%;
+  }
+
+  .macro-toolbar__sort {
+    flex: 1 1 180px;
+  }
 }
 </style>

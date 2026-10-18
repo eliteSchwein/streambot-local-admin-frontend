@@ -1488,7 +1488,33 @@
     "description": "Description",
     "descriptionHint": "Optional description shown with the macro and sent to the cloud.",
     "hideFromCloud": "Hide from cloud",
-    "hideFromCloudHint": "Keep this macro local and never include it in cloud macro data."
+    "hideFromCloudHint": "Keep this macro local and never include it in cloud macro data.",
+    "hiddenFromCloud": "Hidden from cloud",
+    "filteredCount": "Showing {shown} of {total} macros",
+    "clearSearchAndFilters": "Clear",
+    "filters": {
+      "title": "Filters",
+      "cloud": "Cloud visibility",
+      "description": "Description",
+      "tasks": "Tasks",
+      "all": "All",
+      "cloudVisible": "Visible in cloud",
+      "cloudHidden": "Hidden from cloud",
+      "hasDescription": "Has description",
+      "noDescription": "No description",
+      "hasTasks": "Has tasks",
+      "empty": "Empty macros",
+      "reset": "Reset filters"
+    },
+    "sort": {
+      "title": "Sort by",
+      "name": "Name",
+      "tasks": "Task count",
+      "description": "Description",
+      "cloud": "Cloud visibility",
+      "ascending": "Ascending",
+      "descending": "Descending"
+    }
   },
   "giveaway": {
     "title": "Giveaway",

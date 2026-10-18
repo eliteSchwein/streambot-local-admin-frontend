@@ -41,6 +41,14 @@ export default {
     taskCount(): number {
       return Array.isArray(this.macro?.tasks) ? this.macro.tasks.length : 0
     },
+
+    description(): string {
+      return String(this.macro?.description ?? '').trim()
+    },
+
+    hiddenFromCloud(): boolean {
+      return this.macro?.hide_from_cloud === true
+    },
   },
 
   methods: {
@@ -79,9 +87,27 @@ export default {
 <template>
   <div class="macro-row">
     <div class="macro-row__content">
-      <div class="macro-row__name text-truncate" :title="name">
-        {{ name }}
+      <div class="macro-row__text min-width-0">
+        <div class="macro-row__name text-truncate" :title="name">
+          {{ name }}
+        </div>
+
+        <div
+          v-if="description"
+          class="macro-row__description text-caption text-medium-emphasis text-truncate"
+          :title="description"
+        >
+          {{ description }}
+        </div>
       </div>
+
+      <v-icon
+        v-if="hiddenFromCloud"
+        icon="mdi-cloud-off-outline"
+        size="small"
+        color="medium-emphasis"
+        :title="$t('macro.hiddenFromCloud')"
+      />
 
       <v-chip
         size="x-small"
@@ -156,9 +182,19 @@ export default {
   flex: 1 1 auto;
 }
 
+.macro-row__text {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
 .macro-row__name {
   min-width: 0;
   font-weight: 500;
+}
+
+.macro-row__description {
+  max-width: 760px;
+  margin-top: 1px;
 }
 
 .macro-row__count {
