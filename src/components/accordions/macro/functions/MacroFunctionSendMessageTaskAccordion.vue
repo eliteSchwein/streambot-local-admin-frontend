@@ -15,14 +15,7 @@
         <v-text-field v-model="data.content" :label="$t('macro.function.fields.message')" density="compact" variant="outlined" hide-details />
       </v-col>
       <v-col cols="12" md="4">
-        <v-text-field
-          v-model="data.channel_id"
-          :label="$t('macro.function.fields.channelId')"
-          :hint="$t('macro.function.sendMessage.channelIdHint')"
-          persistent-hint
-          density="compact"
-          variant="outlined"
-        />
+        <MacroFunctionAccountSelect v-model="data.account" />
       </v-col>
     </template>
   </MacroFunctionBaseTaskAccordion>
@@ -30,12 +23,14 @@
 
 <script lang="ts">
 import MacroFunctionBaseTaskAccordion from './MacroFunctionBaseTaskAccordion.vue'
+import MacroFunctionAccountSelect from './MacroFunctionAccountSelect.vue'
 
 export default {
   name: 'MacroFunctionSendMessageTaskAccordion',
 
   components: {
     MacroFunctionBaseTaskAccordion,
+    MacroFunctionAccountSelect,
   },
 
   props: {
@@ -70,9 +65,11 @@ export default {
     if (!task.data || typeof task.data !== 'object') task.data = {}
 
     task.data.content = String(task.data.content ?? '')
-    task.data.channel_id = String(task.data.channel_id ?? task.data.channelId ?? '')
+    task.data.account = String(task.data.account ?? 'message').toLowerCase()
+    if (task.data.account === 'streamer') task.data.account = 'control'
+    if (task.data.account !== 'control') task.data.account = 'message'
+    delete task.data.channel_id
     delete task.data.channelId
-    delete task.data.account
   },
 }
 </script>

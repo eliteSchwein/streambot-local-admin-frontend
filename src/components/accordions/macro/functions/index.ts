@@ -38,7 +38,7 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
     titleKey: "macro.presets.message.sendDm",
     icon: "mdi-message-lock-outline",
     order: 19,
-    create: () => ({ type: 'task', task: { channel: 'function', method: 'send_dm', data: { user: '', content: '' } } }),
+    create: () => ({ type: 'task', task: { channel: 'function', method: 'send_dm', data: { user: '', content: '', account: 'message' } } }),
   },
   {
     path: [
@@ -47,7 +47,7 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
     titleKey: "macro.presets.message.chatMessage",
     icon: "mdi-message-text-outline",
     order: 20,
-    create: () => ({ type: 'task', task: { channel: 'function', method: 'send_message', data: { content: '', channel_id: '' } } }),
+    create: () => ({ type: 'task', task: { channel: 'function', method: 'send_message', data: { content: '', account: 'message' } } }),
   },
   {
     path: [
@@ -59,7 +59,7 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
     create: () => ({ type: 'task', task: {
       channel: 'function',
       method: 'reply',
-      data: { content: '', message_id: '', channel_id: '' },
+      data: { content: '', message_id: '', account: 'message' },
     } }),
   },
   {
@@ -75,6 +75,7 @@ export const functionsMacroTaskPresets: MacroTaskPresetRegistration[] = [
                 data: {
                   content: '',
                   color: 'primary',
+                  account: 'message',
                 },
               } }),
   },

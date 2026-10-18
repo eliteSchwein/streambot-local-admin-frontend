@@ -28,10 +28,10 @@ export default {
     account: {
       get(): string {
         const value = String(this.modelValue ?? '').trim().toLowerCase()
-        return value === 'streamer' || value === 'control' ? 'streamer' : 'message'
+        return value === 'streamer' || value === 'control' ? 'control' : 'message'
       },
       set(value: string) {
-        this.$emit('update:modelValue', value === 'streamer' ? 'streamer' : 'message')
+        this.$emit('update:modelValue', value === 'control' ? 'control' : 'message')
       },
     },
 
@@ -43,7 +43,7 @@ export default {
         },
         {
           title: String(this.$t('macro.function.accounts.streamer')),
-          value: 'streamer',
+          value: 'control',
         },
       ]
     },
