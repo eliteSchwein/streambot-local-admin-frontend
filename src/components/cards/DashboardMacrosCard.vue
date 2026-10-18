@@ -143,13 +143,13 @@
 <script lang="ts">
 import { mapState } from 'pinia'
 import { useAppStore } from '@/stores/app'
+import { isHiddenMacroName } from '@/helper/MacroHelper'
 
 type MacroEntry = {
   name: string
   macro: any
 }
 
-const HIDDEN_MACRO_PREFIXES = ['event_', 'channel_point_', 'command_']
 
 export default {
   name: 'DashboardMacrosCard',
@@ -208,8 +208,7 @@ export default {
 
   methods: {
     isHiddenMacro(name: string) {
-      const normalized = String(name ?? '').trim().toLowerCase()
-      return HIDDEN_MACRO_PREFIXES.some(prefix => normalized.startsWith(prefix))
+      return isHiddenMacroName(name)
     },
 
     openPicker() {

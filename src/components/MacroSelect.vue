@@ -54,6 +54,7 @@ import { useAppStore } from '@/stores/app'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import MacroEditorDialog from '@/components/dialogs/MacroEditorDialog.vue'
 import MacroCreateDialog from '@/components/dialogs/MacroCreateDialog.vue'
+import { filterVisibleMacroNames, isHiddenMacroName } from '@/helper/MacroHelper'
 
 export default {
   name: 'MacroSelect',
@@ -95,10 +96,10 @@ export default {
     },
 
     macroOptions(): string[] {
-      const options = Object.keys(this.macroConfigs ?? {})
+      const options = filterVisibleMacroNames(Object.keys(this.macroConfigs ?? {}))
       const current = String(this.modelValue ?? '').trim()
 
-      if (current && !options.includes(current)) {
+      if (current && !isHiddenMacroName(current) && !options.includes(current)) {
         options.unshift(current)
       }
 
@@ -205,7 +206,7 @@ export default {
         for (const file of files) {
           if (file?.type !== 'file') continue
           const name = String(file.name ?? '').replace(/\.(ya?ml|json)$/i, '')
-          if (name) macros[name] = { file: file.path }
+          if (name && !isHiddenMacroName(name)) macros[name] = { file: file.path }
         }
 
         this.localMacros = macros

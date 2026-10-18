@@ -1484,7 +1484,11 @@
         "rgb": "Beispiele: 255, 128, 0 oder rgb(255, 128, 0)",
         "hsv": "Farbton 0–360, Sättigung/Helligkeit 0–100, z. B. 30, 100, 100"
       }
-    }
+    },
+    "description": "Beschreibung",
+    "descriptionHint": "Optionale Beschreibung, die beim Makro angezeigt und an die Cloud gesendet wird.",
+    "hideFromCloud": "Vor Cloud verbergen",
+    "hideFromCloudHint": "Dieses Makro lokal halten und niemals in Cloud-Makrodaten übertragen."
   },
   "giveaway": {
     "title": "Giveaway",

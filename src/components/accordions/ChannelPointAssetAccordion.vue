@@ -218,6 +218,7 @@
 </template>
 
 <script lang="ts">
+import { filterVisibleMacroNames } from '@/helper/MacroHelper'
 import { useAppStore } from '@/stores/app'
 import {getWebsocketClient} from "@/plugins/websocketInstance.ts";
 import YamlImportExportButtons from '@/components/YamlImportExportButtons.vue'
@@ -344,7 +345,7 @@ export default {
         ? storeMacros.map((item: any) => (typeof item === 'string' ? item : item?.name))
         : Object.keys(storeMacros)
 
-      return [...new Set([...storeMacroNames, ...this.localMacroItems].filter(Boolean).map(String))]
+      return filterVisibleMacroNames([...storeMacroNames, ...this.localMacroItems])
         .sort((a, b) => a.localeCompare(b))
     },
 

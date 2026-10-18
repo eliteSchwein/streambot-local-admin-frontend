@@ -1,4 +1,5 @@
 <script lang="ts">
+import { filterVisibleMacroNames } from '@/helper/MacroHelper'
 import {useAppStore} from '@/stores/app'
 import { checkNameExists } from '@/helper/NameExistsHelper'
 import {getWebsocketClient} from '@/plugins/websocketInstance.ts'
@@ -180,11 +181,9 @@ export default {
     },
 
     macroOptions(): string[] {
-      return (this.macroItems as any[])
-        .map((item: any) => (typeof item === "string" ? item : item?.name))
-        .filter(Boolean)
-        .map(String)
-        .sort((a: string, b: string) => a.localeCompare(b));
+      return filterVisibleMacroNames(
+        (this.macroItems as any[]).map((item: any) => (typeof item === "string" ? item : item?.name)),
+      ).sort((a: string, b: string) => a.localeCompare(b));
     },
 
     wledOptions(): string[] {

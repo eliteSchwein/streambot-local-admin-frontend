@@ -52,6 +52,7 @@
 
 <script lang="ts">
 import { useAppStore } from '@/stores/app'
+import { filterVisibleMacroNames } from '@/helper/MacroHelper'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import AssetEditorDialog from '@/components/dialogs/AssetEditorDialog.vue'
 
@@ -119,7 +120,7 @@ export default {
 
     macroItems(): string[] {
       const appStore = useAppStore()
-      return Object.keys(appStore.getMacros ?? {}).sort((a, b) => a.localeCompare(b))
+      return filterVisibleMacroNames(Object.keys(appStore.getMacros ?? {})).sort((a, b) => a.localeCompare(b))
     },
 
     wledItems(): string[] {

@@ -864,6 +864,7 @@
 </template>
 
 <script lang="ts">
+import { filterVisibleMacroNames } from '@/helper/MacroHelper'
 import AssetPreview from '@/components/AssetPreview.vue'
 import ColorPickerField from '@/components/inputs/ColorPickerField.vue'
 import MacroCreateDialog from '@/components/dialogs/MacroCreateDialog.vue'
@@ -941,9 +942,8 @@ export default {
         ? macros.map((item: any) => typeof item === 'string' ? item : item?.name)
         : Object.keys(macros)
 
-      return Array.from(new Set(
-        names.map((name: any) => String(name ?? '').trim()).filter(Boolean),
-      )).sort((a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }))
+      return filterVisibleMacroNames(names)
+        .sort((a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }))
     },
 
     currentObsSourceCount(): number {

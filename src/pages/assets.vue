@@ -96,6 +96,7 @@
 <script lang="ts">
 import { mapActions, mapState } from 'pinia'
 import { useAppStore } from '@/stores/app'
+import { filterVisibleMacroNames } from '@/helper/MacroHelper'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import StorageCard from '@/components/cards/StorageCard.vue'
 import UploadCard from '@/components/cards/UploadCard.vue'
@@ -151,7 +152,7 @@ export default {
     },
 
     macroItems(): string[] {
-      return Object.keys(this.getMacros ?? {}).sort((a, b) => a.localeCompare(b))
+      return filterVisibleMacroNames(Object.keys(this.getMacros ?? {})).sort((a, b) => a.localeCompare(b))
     },
 
     wledItems(): string[] {

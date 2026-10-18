@@ -256,6 +256,7 @@
 <script lang="ts">
 import { mapState } from 'pinia'
 import { useAppStore } from '@/stores/app'
+import { filterVisibleMacroNames } from '@/helper/MacroHelper'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import YamlImportExportButtons from '@/components/YamlImportExportButtons.vue'
@@ -341,7 +342,7 @@ export default {
     },
 
     macroOptions(): string[] {
-      return Object.keys(this.getMacros ?? {}).sort((a, b) => a.localeCompare(b))
+      return filterVisibleMacroNames(Object.keys(this.getMacros ?? {})).sort((a, b) => a.localeCompare(b))
     },
 
     intervalUnits() {

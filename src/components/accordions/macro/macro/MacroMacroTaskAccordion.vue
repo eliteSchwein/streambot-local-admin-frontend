@@ -29,6 +29,7 @@
 
 <script lang="ts">
 import { useAppStore } from '@/stores/app'
+import { filterVisibleMacroNames } from '@/helper/MacroHelper'
 import MacroTaskAccordionTemplate from '../MacroTaskAccordionTemplate.vue'
 
 export default {
@@ -58,15 +59,12 @@ export default {
       const macros = appStore.getMacros ?? {}
 
       if (Array.isArray(macros)) {
-        return macros
-          .map((item: any) => (typeof item === 'string' ? item : item?.name))
-          .filter(Boolean)
-          .map(String)
-          .sort((a: string, b: string) => a.localeCompare(b))
+        return filterVisibleMacroNames(
+          macros.map((item: any) => (typeof item === 'string' ? item : item?.name)),
+        ).sort((a: string, b: string) => a.localeCompare(b))
       }
 
-      return Object.keys(macros)
-        .filter(Boolean)
+      return filterVisibleMacroNames(Object.keys(macros))
         .sort((a: string, b: string) => a.localeCompare(b))
     },
   },

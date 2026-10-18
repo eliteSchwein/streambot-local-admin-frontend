@@ -1484,7 +1484,11 @@
         "rgb": "Examples: 255, 128, 0 or rgb(255, 128, 0)",
         "hsv": "Hue 0–360, saturation/value 0–100, e.g. 30, 100, 100"
       }
-    }
+    },
+    "description": "Description",
+    "descriptionHint": "Optional description shown with the macro and sent to the cloud.",
+    "hideFromCloud": "Hide from cloud",
+    "hideFromCloudHint": "Keep this macro local and never include it in cloud macro data."
   },
   "giveaway": {
     "title": "Giveaway",

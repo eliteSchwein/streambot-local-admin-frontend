@@ -120,6 +120,7 @@ import Macro from '@/components/Macro.vue'
 import MacroEditorDialog from '@/components/dialogs/MacroEditorDialog.vue'
 import MacroDeleteConfirmDialog from '@/components/dialogs/MacroDeleteConfirmDialog.vue'
 import MacroCreateDialog from '@/components/dialogs/MacroCreateDialog.vue'
+import { isHiddenMacroName } from '@/helper/MacroHelper'
 
 type MacroEntry = {
   name: string
@@ -163,6 +164,7 @@ export default {
     macroList(): MacroEntry[] {
       return Object.entries(this.getMacros ?? {})
         .map(([name, macro]) => ({ name, macro }))
+        .filter(item => !isHiddenMacroName(item.name))
         .sort((a, b) => a.name.localeCompare(b.name))
     },
 

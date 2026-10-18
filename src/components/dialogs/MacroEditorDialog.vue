@@ -78,6 +78,31 @@
                   :error-messages="nameChanged && nameExists ? [$t('common.nameAlreadyExists')] : []"
                 />
               </v-col>
+
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="visualMacro.description"
+                  :label="$t('macro.description')"
+                  :hint="$t('macro.descriptionHint')"
+                  persistent-hint
+                  density="comfortable"
+                  variant="outlined"
+                  clearable
+                />
+              </v-col>
+
+              <v-col cols="12" md="2" class="d-flex align-center">
+                <v-switch
+                  v-model="visualMacro.hide_from_cloud"
+                  color="primary"
+                  density="comfortable"
+                  hide-details="auto"
+                  inset
+                  :label="$t('macro.hideFromCloud')"
+                  :hint="$t('macro.hideFromCloudHint')"
+                  persistent-hint
+                />
+              </v-col>
             </v-row>
 
             <MacroTaskList
@@ -167,6 +192,8 @@ export default {
       rawMode: false,
       visualMacro: {
         name: '',
+        description: '',
+        hide_from_cloud: false,
         items: [] as VisualTask[],
       },
       macroDocument: {} as Record<string, any>,
@@ -316,6 +343,27 @@ export default {
         const data = response?.data ?? response
         if (data?.error) throw new Error(data.error)
 
+        let metadataName = String(this.visualMacro.name || this.name).trim()
+        let metadataDescription = String(this.visualMacro.description ?? '').trim()
+        let metadataHideFromCloud = this.visualMacro.hide_from_cloud === true
+
+        if (this.rawMode) {
+          const rawMacro = YAML.parse(this.content) ?? {}
+          if (rawMacro && typeof rawMacro === 'object' && !Array.isArray(rawMacro)) {
+            metadataName = String(rawMacro.name ?? metadataName).trim()
+            metadataDescription = String(rawMacro.description ?? '').trim()
+            metadataHideFromCloud = rawMacro.hide_from_cloud === true
+          }
+        }
+
+        const metadataResponse = await this.requestWebsocket('macro_metadata', {
+          name: metadataName,
+          description: metadataDescription,
+          hide_from_cloud: metadataHideFromCloud,
+        })
+        const metadataData = metadataResponse?.data ?? metadataResponse
+        if (metadataData?.error) throw new Error(metadataData.error)
+
         this.$emit('saved')
       } catch (error: any) {
         this.errorMessage = error?.message ?? this.$t('macro.errors.saveFailed')
@@ -334,6 +382,8 @@ export default {
 
         this.visualMacro = {
           name: normalized.name ?? this.name,
+          description: String(normalized.description ?? ''),
+          hide_from_cloud: normalized.hide_from_cloud === true,
           items: result.items,
         }
 
@@ -513,6 +563,8 @@ export default {
       return {
         ...(this.macroDocument ?? {}),
         name: this.visualMacro.name || this.name,
+        description: String(this.visualMacro.description ?? '').trim(),
+        hide_from_cloud: this.visualMacro.hide_from_cloud === true,
         tasks: this.flattenVisualTasks(this.visualMacro.items),
       }
     },
