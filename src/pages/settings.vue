@@ -79,30 +79,6 @@
             </v-card-text>
           </v-card>
 
-          <v-card color="grey-darken-4" elevation="0" class="mb-2">
-            <v-card-title class="d-flex align-center ga-2">
-              <v-icon icon="mdi-monitor-dashboard" />
-              <span>{{ $t('settings.touchDisplay') }}</span>
-            </v-card-title>
-
-            <v-card-text>
-              <v-combobox
-                v-model="form.touch_wallpaper"
-                :items="touchWallpaperItems"
-                :label="$t('settings.touchWallpaper')"
-                :hint="$t('settings.touchWallpaperHint')"
-                prepend-inner-icon="mdi-wallpaper"
-                variant="outlined"
-                density="comfortable"
-                clearable
-                persistent-hint
-                :loading="loadingTouchWallpapers"
-                :disabled="settingsLocked"
-                :menu-props="{ maxHeight: 360 }"
-              />
-            </v-card-text>
-          </v-card>
-
           <v-card color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
@@ -744,7 +720,6 @@ import { checkNameExistsResult } from '@/helper/NameExistsHelper'
 
 type SettingsForm = {
   language: string
-  touch_wallpaper: string
   asset_tune: {
     codec: string
     auto_compress_upload: boolean
@@ -807,7 +782,6 @@ type SettingsForm = {
 
 const defaultForm = (): SettingsForm => ({
   language: 'en',
-  touch_wallpaper: '',
   asset_tune: {
     codec: 'vp9',
     auto_compress_upload: false,
@@ -884,9 +858,6 @@ export default {
       form: defaultForm(),
       voiceSearch: '',
       showVoicePicker: false,
-      touchWallpaperItems: [] as string[],
-      loadingTouchWallpapers: false,
-      touchWallpapersLoaded: false,
       giveawayCommandCheckTimer: undefined as ReturnType<typeof setTimeout> | undefined,
       giveawayCommandChecking: false,
       giveawayCommandExists: false,
@@ -1072,12 +1043,6 @@ export default {
     },
   },
 
-  mounted() {
-    // Prime wallpaper suggestions once in the background. The combobox then
-    // only filters the cached local list while the user types.
-    void this.ensureTouchWallpaperItems()
-  },
-
   beforeUnmount() {
     if (this.autoSaveTimer) {
       clearTimeout(this.autoSaveTimer)
@@ -1204,7 +1169,6 @@ export default {
         ...defaults,
         ...settings,
         language: settings.language || defaults.language,
-        touch_wallpaper: String(settings.touch_wallpaper ?? defaults.touch_wallpaper),
         asset_tune: {
           ...defaults.asset_tune,
           ...assetTune,
@@ -1494,80 +1458,6 @@ export default {
         .replace(/\/{2,}/g, '/')
     },
 
-    isWallpaperImage(path: string): boolean {
-      return /\.(?:avif|bmp|gif|jpe?g|png|webp)$/i.test(path)
-    },
-
-    getMediaListEntries(response: any): any[] {
-      const data = response?.params
-        ?? this.unwrapWebsocketResponse(response, 'media_list')
-        ?? response?.data
-        ?? response
-
-      if (Array.isArray(data?.files)) return data.files
-      if (Array.isArray(data?.items)) return data.items
-      if (Array.isArray(data?.entries)) return data.entries
-      if (Array.isArray(data?.children)) return data.children
-      return []
-    },
-
-    async ensureTouchWallpaperItems() {
-      if (this.touchWallpapersLoaded || this.loadingTouchWallpapers) return
-
-      this.loadingTouchWallpapers = true
-
-      try {
-        const found = new Set<string>()
-        const visited = new Set<string>()
-        const pending: Array<{ path: string; depth: number }> = [{ path: '', depth: 0 }]
-        const maxDepth = 8
-        const workerCount = 4
-
-        const current = String(this.form.touch_wallpaper ?? '').trim()
-        if (current) found.add(current)
-
-        const worker = async () => {
-          while (pending.length) {
-            const next = pending.shift()
-            if (!next) return
-
-            const normalizedPath = this.normalizeMediaPath(next.path)
-            if (visited.has(normalizedPath) || next.depth > maxDepth) continue
-            visited.add(normalizedPath)
-
-            const response = await this.requestWebsocket('media_list', { path: normalizedPath }, 15_000)
-            const files = this.getMediaListEntries(response)
-
-            for (const entry of files) {
-              const name = String(entry?.name ?? '').trim()
-              const entryPath = this.normalizeMediaPath(
-                entry?.path || [normalizedPath, name].filter(Boolean).join('/')
-              )
-
-              if (!entryPath) continue
-
-              if (entry?.type === 'folder' || entry?.isDirectory === true) {
-                pending.push({ path: entryPath, depth: next.depth + 1 })
-              } else if (this.isWallpaperImage(entryPath)) {
-                found.add(`/${entryPath}`)
-              }
-            }
-          }
-        }
-
-        await Promise.all(Array.from({ length: workerCount }, () => worker()))
-
-        this.touchWallpaperItems = Array.from(found).sort((a, b) =>
-          a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true })
-        )
-        this.touchWallpapersLoaded = true
-      } catch (error) {
-        console.error('loading touch wallpaper suggestions failed', error)
-      } finally {
-        this.loadingTouchWallpapers = false
-      }
-    },
-
     requestWebsocket(method: string, params: Record<string, any> = {}, timeout = 8_000): Promise<any> {
       const client: any = getWebsocketClient()
 
@@ -1643,7 +1533,6 @@ export default {
 
       return {
         language: String(this.form.language || defaults.language).trim().toLowerCase(),
-        touch_wallpaper: String(this.form.touch_wallpaper ?? '').trim(),
         asset_tune: {
           codec: String(this.form.asset_tune.codec || defaults.asset_tune.codec).trim().toLowerCase(),
           auto_compress_upload: Boolean(this.form.asset_tune.auto_compress_upload),
@@ -1743,8 +1632,6 @@ export default {
 
         delete previous.tts
         delete current.tts
-        delete previous.touch_wallpaper
-        delete current.touch_wallpaper
         delete previous.virtual_audio_cables
         delete current.virtual_audio_cables
         delete previous.local_admin_panel
