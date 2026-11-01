@@ -31,7 +31,7 @@
 
       <MacroTaskActions
         class="mt-2"
-        :task="item.task"
+        :item="item"
         :filename="`${exportPrefix}_${index + 1}.yaml`"
         @remove="$emit('remove')"
       />

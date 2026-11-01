@@ -25,6 +25,8 @@
           :items="parallelItems"
           :depth="depth + 1"
           :task-list-component="taskListComponent"
+          :inside-loop="insideLoop"
+          :inside-switch="insideSwitch"
           nested
         />
       </v-col>
@@ -34,6 +36,7 @@
 
 <script lang="ts">
 import MacroFunctionBaseTaskAccordion from './MacroFunctionBaseTaskAccordion.vue'
+import { flattenMacroVisualTasks, parseMacroVisualTasks } from '@/helper/MacroVisualTaskHelper'
 
 export default {
   name: 'MacroFunctionParallelTaskAccordion',
@@ -47,35 +50,40 @@ export default {
     index: { type: Number, required: true },
     depth: { type: Number, default: 0 },
     taskListComponent: { type: [Object, Function, String], required: true },
+    insideLoop: { type: Boolean, default: false },
+    insideSwitch: { type: Boolean, default: false },
   },
 
   emits: ['remove', 'move-up', 'move-down'],
 
-  data() {
-    return {
-      parallelItems: [] as any[],
-    }
+  computed: {
+    parallelItems(): any[] {
+      return (this.item as any).children ?? []
+    },
   },
 
   created() {
-    const task = (this.item as any).task
+    const item = this.item as any
+    const task = item.task
     task.channel = 'function'
     task.method = 'parallel'
     if (!task.data || typeof task.data !== 'object') task.data = {}
     if (!Array.isArray(task.data.tasks)) task.data.tasks = []
 
-    this.parallelItems = task.data.tasks.map((nestedTask: any) => ({
-      id: this.uid(),
-      type: 'task',
-      task: nestedTask,
-    }))
+    // Existing macros/presets may not have the visual children representation yet.
+    // Parse the flat backend task sequence exactly once into the normal visual tree.
+    if (!Array.isArray(item.children)) {
+      item.children = parseMacroVisualTasks(task.data.tasks, () => this.uid())
+    }
   },
 
   watch: {
     parallelItems: {
       deep: true,
       handler(items: any[]) {
-        ;(this.item as any).task.data.tasks = items.map((entry: any) => entry.task)
+        const task = (this.item as any).task
+        task.data ??= {}
+        task.data.tasks = flattenMacroVisualTasks(items)
       },
     },
   },

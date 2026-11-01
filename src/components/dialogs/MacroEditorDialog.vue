@@ -657,7 +657,12 @@ export default {
           continue
         }
 
-        tasks.push(this.cloneTask(item.task))
+        const task = this.cloneTask(item.task)
+        if (task?.channel === 'function' && task?.method === 'parallel') {
+          task.data = task.data && typeof task.data === 'object' ? task.data : {}
+          task.data.tasks = this.flattenVisualTasks(item.children ?? [])
+        }
+        tasks.push(task)
       }
 
       return tasks
