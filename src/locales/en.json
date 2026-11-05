@@ -2539,6 +2539,21 @@
           "internal": "Managed local Ollama",
           "ollama": "External Ollama",
           "openai": "OpenAI-compatible API"
+        },
+        "recommendedModel": "Recommended for this device ({ram} GiB RAM):",
+        "contextSize": {
+          "title": "Context size",
+          "description": "Number of tokens the model can keep in memory (num_ctx). Larger values allow longer conversations but use more RAM and make responses slower. Leave empty to use the recommendation for the active model.",
+          "label": "Context size (tokens)",
+          "automatic": "Automatic",
+          "hint": "Leave empty for automatic.",
+          "hintRecommended": "Leave empty for automatic. Recommended for the active model: {recommended}",
+          "invalid": "Enter a whole number between {min} and {max}, or leave empty for automatic.",
+          "save": "Save context size",
+          "reset": "Reset to automatic",
+          "effective": "Active context size",
+          "ollamaDefault": "Ollama default",
+          "recommendedSuffix": "recommended"
         }
       },
       "steam": {

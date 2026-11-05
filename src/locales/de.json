@@ -2539,6 +2539,21 @@
           "internal": "Verwaltetes lokales Ollama",
           "ollama": "Externes Ollama",
           "openai": "OpenAI-kompatible API"
+        },
+        "recommendedModel": "Empfohlen für dieses Gerät ({ram} GiB RAM):",
+        "contextSize": {
+          "title": "Kontextgröße",
+          "description": "Anzahl der Tokens, die das Modell im Speicher halten kann (num_ctx). Größere Werte erlauben längere Unterhaltungen, belegen aber mehr Arbeitsspeicher und verlangsamen die Antworten. Leer lassen, um die Empfehlung für das aktive Modell zu verwenden.",
+          "label": "Kontextgröße (Tokens)",
+          "automatic": "Automatisch",
+          "hint": "Leer lassen für automatisch.",
+          "hintRecommended": "Leer lassen für automatisch. Empfohlen für das aktive Modell: {recommended}",
+          "invalid": "Gib eine ganze Zahl zwischen {min} und {max} ein oder lass das Feld leer für automatisch.",
+          "save": "Kontextgröße speichern",
+          "reset": "Auf automatisch zurücksetzen",
+          "effective": "Aktive Kontextgröße",
+          "ollamaDefault": "Ollama-Standard",
+          "recommendedSuffix": "empfohlen"
         }
       },
       "steam": {

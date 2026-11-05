@@ -915,6 +915,30 @@
                   </v-col>
                 </v-row>
 
+                <div
+                  v-if="ollamaStatus.recommended_model"
+                  class="d-flex align-center ga-2 flex-wrap mt-2"
+                >
+                  <span class="text-caption text-medium-emphasis">
+                    {{ $t('integrations.ui.ollama.recommendedModel', { ram: ollamaRamGiB }) }}
+                  </span>
+                  <v-chip
+                    size="small"
+                    color="primary"
+                    variant="tonal"
+                    prepend-icon="mdi-star-outline"
+                    :disabled="
+                      reloadInProgress
+                      || !ollamaStatus.enabled
+                      || ollamaStatus.installing
+                      || ollamaStatus.changing_model
+                    "
+                    @click="setOllamaSelectedModel(ollamaStatus.recommended_model)"
+                  >
+                    {{ ollamaStatus.recommended_model }}
+                  </v-chip>
+                </div>
+
                 <v-divider class="my-4" />
 
                 <div class="d-flex align-center justify-space-between ga-3 flex-wrap">
@@ -1099,6 +1123,91 @@
                   </div>
                 </div>
               </template>
+
+              <template v-if="ollamaContextSizeSupported">
+                <v-divider class="my-4" />
+
+                <div class="text-body-2 mb-1">
+                  {{ $t('integrations.ui.ollama.contextSize.title') }}
+                </div>
+                <div class="text-body-2 text-medium-emphasis mb-4">
+                  {{ $t('integrations.ui.ollama.contextSize.description') }}
+                </div>
+
+                <v-row density="comfortable" class="integration-form">
+                  <v-col cols="12" md="8">
+                    <v-text-field
+                      :model-value="ollamaContextSizeInput"
+                      type="number"
+                      :min="ollamaStatus.min_context_size"
+                      :max="ollamaStatus.max_context_size"
+                      step="512"
+                      :label="$t('integrations.ui.ollama.contextSize.label')"
+                      :placeholder="$t('integrations.ui.ollama.contextSize.automatic')"
+                      :hint="ollamaContextSizeHint"
+                      :error-messages="ollamaContextSizeError"
+                      persistent-hint
+                      persistent-placeholder
+                      density="compact"
+                      variant="outlined"
+                      clearable
+                      :disabled="reloadInProgress || !ollamaStatus.enabled || loading.ollamaContextSize"
+                      @update:model-value="setOllamaContextSizeInput"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="4">
+                    <v-btn
+                      block
+                      class="integration-action-btn"
+                      color="primary"
+                      variant="flat"
+                      prepend-icon="mdi-content-save-outline"
+                      :loading="loading.ollamaContextSize"
+                      :disabled="
+                        reloadInProgress
+                        || !ollamaStatus.enabled
+                        || ollamaStatus.changing_model
+                        || Boolean(ollamaContextSizeError)
+                        || ollamaContextSizeValue === ollamaStatus.context_size
+                      "
+                      @click="saveOllamaContextSize"
+                    >
+                      {{ $t('integrations.ui.ollama.contextSize.save') }}
+                    </v-btn>
+                  </v-col>
+                </v-row>
+
+                <div class="d-flex align-center justify-space-between ga-3 flex-wrap mt-2">
+                  <div>
+                    <div class="text-body-2">
+                      {{ $t('integrations.ui.ollama.contextSize.effective') }}
+                    </div>
+                    <div class="text-medium-emphasis text-caption">
+                      {{
+                        ollamaStatus.effective_context_size > 0
+                          ? ollamaStatus.effective_context_size
+                          : $t('integrations.ui.ollama.contextSize.ollamaDefault')
+                      }}
+                      <template v-if="ollamaStatus.context_size === 0 && ollamaStatus.effective_context_size > 0">
+                        ({{ $t('integrations.ui.ollama.contextSize.recommendedSuffix') }})
+                      </template>
+                    </div>
+                  </div>
+
+                  <v-btn
+                    v-if="ollamaStatus.context_size > 0"
+                    color="secondary"
+                    variant="tonal"
+                    prepend-icon="mdi-auto-fix"
+                    :loading="loading.ollamaContextSize"
+                    :disabled="reloadInProgress || !ollamaStatus.enabled || ollamaStatus.changing_model"
+                    @click="resetOllamaContextSize"
+                  >
+                    {{ $t('integrations.ui.ollama.contextSize.reset') }}
+                  </v-btn>
+                </div>
+              </template>
             </v-card-text>
           </v-card>
         </v-col>
@@ -1154,6 +1263,7 @@ export default {
       },
 
       ollamaModel: '',
+      ollamaContextSizeOverride: null as string | null,
       ollamaExternalEnabledOverride: null as boolean | null,
       ollamaExternalProviderOverride: null as 'ollama' | 'openai' | null,
       ollamaExternalUrlOverride: null as string | null,
@@ -1174,6 +1284,7 @@ export default {
         ollamaModel: false,
         ollamaRestart: false,
         ollamaExternal: false,
+        ollamaContextSize: false,
         neopixelSave: false,
         neopixelRemove: '',
         steam: false,
@@ -1258,6 +1369,13 @@ export default {
       changing_model: boolean
       model: string
       models: string[]
+      recommended_model: string
+      context_size: number
+      recommended_context_size: number
+      effective_context_size: number
+      min_context_size: number
+      max_context_size: number
+      ram_mib: number
       external: boolean
       external_provider: 'ollama' | 'openai'
       external_url: string
@@ -1276,6 +1394,13 @@ export default {
         changing_model: Boolean(ollama.changing_model),
         model: String(ollama.model ?? ''),
         models: Array.isArray(ollama.models) ? ollama.models.map(String) : [],
+        recommended_model: String(ollama.recommended_model ?? ''),
+        context_size: Number(ollama.context_size ?? 0) || 0,
+        recommended_context_size: Number(ollama.recommended_context_size ?? 0) || 0,
+        effective_context_size: Number(ollama.effective_context_size ?? 0) || 0,
+        min_context_size: Number(ollama.min_context_size ?? 0) || 512,
+        max_context_size: Number(ollama.max_context_size ?? 0) || 131072,
+        ram_mib: Number(ollama.ram_mib ?? 0) || 0,
         external: Boolean(ollama.external),
         external_provider: ollama.external_provider === 'openai' ? 'openai' : 'ollama',
         external_url: String(ollama.external_url ?? ''),
@@ -1319,6 +1444,54 @@ export default {
 
     ollamaSelectedModel(): string {
       return this.ollamaModel || this.ollamaStatus.model
+    },
+
+    ollamaRamGiB(): string {
+      return (this.ollamaStatus.ram_mib / 1024).toFixed(1)
+    },
+
+    // num_ctx is not sent to OpenAI-compatible APIs, so the setting only
+    // applies to the managed and external Ollama backends.
+    ollamaContextSizeSupported(): boolean {
+      return !(this.ollamaStatus.external && this.ollamaStatus.external_provider === 'openai')
+    },
+
+    ollamaContextSizeInput(): string {
+      if (this.ollamaContextSizeOverride !== null) return this.ollamaContextSizeOverride
+
+      return this.ollamaStatus.context_size > 0 ? String(this.ollamaStatus.context_size) : ''
+    },
+
+    // 0 = automatic, NaN = invalid input
+    ollamaContextSizeValue(): number {
+      const input = this.ollamaContextSizeInput.trim()
+
+      if (!input) return 0
+
+      const value = Number(input)
+
+      return Number.isInteger(value) ? value : Number.NaN
+    },
+
+    ollamaContextSizeError(): string {
+      const value = this.ollamaContextSizeValue
+      const { min_context_size: min, max_context_size: max } = this.ollamaStatus
+
+      if (value === 0) return ''
+
+      if (Number.isNaN(value) || value < min || value > max) {
+        return String(this.$t('integrations.ui.ollama.contextSize.invalid', { min, max }))
+      }
+
+      return ''
+    },
+
+    ollamaContextSizeHint(): string {
+      const recommended = this.ollamaStatus.recommended_context_size
+
+      return recommended > 0
+        ? String(this.$t('integrations.ui.ollama.contextSize.hintRecommended', { recommended }))
+        : String(this.$t('integrations.ui.ollama.contextSize.hint'))
     },
 
     canAddWled(): boolean {
@@ -1826,6 +1999,36 @@ export default {
 
     setOllamaSelectedModel(model: string | null) {
       this.ollamaModel = String(model ?? '')
+    },
+
+    setOllamaContextSizeInput(value: string | number | null) {
+      this.ollamaContextSizeOverride = value === null ? '' : String(value)
+    },
+
+    async saveOllamaContextSize() {
+      if (this.ollamaContextSizeError) return
+
+      await this.sendOllamaContextSize(this.ollamaContextSizeValue)
+    },
+
+    async resetOllamaContextSize() {
+      await this.sendOllamaContextSize(0)
+    },
+
+    async sendOllamaContextSize(contextSize: number) {
+      this.loading.ollamaContextSize = true
+
+      try {
+        const sent = await this.sendWebsocket('ollama_context_size', {
+          context_size: contextSize,
+        })
+
+        if (sent) {
+          this.ollamaContextSizeOverride = null
+        }
+      } finally {
+        this.loading.ollamaContextSize = false
+      }
     },
 
     async toggleOllama(enabled: boolean | null) {
