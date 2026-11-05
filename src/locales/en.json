@@ -2013,7 +2013,9 @@
       "vram": "VRAM",
       "notAvailable": "Not available",
       "externalStorage": "External storage",
-      "allData": "All system information"
+      "allData": "All system information",
+      "swapUsage": "Swap usage",
+      "noSwap": "No swap"
     }
   },
   "common": {
@@ -2676,7 +2678,8 @@
         "cpuTemp": "CPU temperature",
         "memory": "RAM usage",
         "internalStorage": "Internal storage",
-        "externalStorage": "External storage"
+        "externalStorage": "External storage",
+        "swap": "Swap usage"
       },
       "liveStatus": {
         "live": "LIVE",

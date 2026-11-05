@@ -85,6 +85,7 @@ export default {
         { key: 'cpu_load', icon: 'mdi-cpu-64-bit', label: this.$t('settings.topNavbar.systemInfoMetrics.cpuLoad') },
         { key: 'cpu_temp', icon: 'mdi-thermometer', label: this.$t('settings.topNavbar.systemInfoMetrics.cpuTemp') },
         { key: 'memory', icon: 'mdi-memory', label: this.$t('settings.topNavbar.systemInfoMetrics.memory') },
+        { key: 'swap', icon: 'mdi-swap-horizontal', label: this.$t('settings.topNavbar.systemInfoMetrics.swap') },
         { key: 'internal_storage', icon: 'mdi-harddisk', label: this.$t('settings.topNavbar.systemInfoMetrics.internalStorage') },
         { key: 'external_storage', icon: 'mdi-usb', label: this.$t('settings.topNavbar.systemInfoMetrics.externalStorage') },
       ]

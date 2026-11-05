@@ -26,9 +26,18 @@
           <v-progress-circular
             class="system-information-card__ring"
             :model-value="internalStorageUsage"
-            :size="82"
+            :size="60"
             :width="6"
             color="info"
+            bg-color="grey-darken-4"
+            rounded
+          />
+          <v-progress-circular
+            class="system-information-card__ring"
+            :model-value="swapUsage"
+            :size="82"
+            :width="6"
+            color="purple"
             bg-color="grey-darken-4"
             rounded
           />
@@ -41,7 +50,7 @@
               <v-icon icon="mdi-cpu-64-bit" size="18" />
               <span>{{ $t('system.info.cpuUsage') }}</span>
             </div>
-            <strong class="ubuntu-mono">{{ formatPercent(cpuUsage) }}</strong>
+            <strong class="ubuntu-mono" :class="usageClass(cpuUsage)">{{ formatPercent(cpuUsage) }}</strong>
           </div>
 
           <div class="system-information-card__value-row">
@@ -50,7 +59,17 @@
               <v-icon icon="mdi-memory" size="18" />
               <span>{{ $t('system.info.memoryUsage') }}</span>
             </div>
-            <strong class="ubuntu-mono">{{ formatPercent(memoryUsage) }}</strong>
+            <strong class="ubuntu-mono" :class="usageClass(memoryUsage)">{{ formatPercent(memoryUsage) }}</strong>
+          </div>
+
+          <div class="system-information-card__value-row">
+            <div class="system-information-card__value-label">
+              <span class="system-information-card__dot bg-purple" />
+              <v-icon icon="mdi-swap-horizontal" size="18" />
+              <span>{{ $t('system.info.swapUsage') }}</span>
+            </div>
+            <strong v-if="hasSwap" class="ubuntu-mono" :class="usageClass(swapUsage)">{{ formatPercent(swapUsage) }}</strong>
+            <strong v-else class="ubuntu-mono text-medium-emphasis">{{ $t('system.info.noSwap') }}</strong>
           </div>
 
           <div class="system-information-card__value-row">
@@ -59,7 +78,7 @@
               <v-icon icon="mdi-harddisk" size="18" />
               <span>{{ $t('system.info.internalStorage') }}</span>
             </div>
-            <strong class="ubuntu-mono">{{ formatPercent(internalStorageUsage) }}</strong>
+            <strong class="ubuntu-mono" :class="usageClass(internalStorageUsage)">{{ formatPercent(internalStorageUsage) }}</strong>
           </div>
 
           <v-divider class="my-2" />
@@ -79,6 +98,7 @@
 
 <script lang="ts">
 import { useAppStore } from '@/stores/app'
+import { usageColorClass } from '@/helper/UsageColorHelper'
 
 export default {
   name: 'SystemInformationCard',
@@ -88,6 +108,8 @@ export default {
     components(): any { return this.appStore.getSystemInfo?.components ?? {} },
     cpuUsage(): number { return this.clampPercent(this.components?.load?.currentLoad) },
     memoryUsage(): number { return this.clampPercent(this.components?.memory?.usage_percent) },
+    hasSwap(): boolean { return Number(this.components?.swap?.total) > 0 },
+    swapUsage(): number { return this.clampPercent(this.components?.swap?.usage_percent) },
     internalStorageUsage(): number { return this.clampPercent(this.components?.storage?.internal?.usage_percent) },
     cpuTemperature(): number | null {
       const value = Number(this.components?.cpu?.temp?.main)
@@ -99,6 +121,9 @@ export default {
     clampPercent(value: any) {
       const number = Number(value)
       return Number.isFinite(number) ? Math.min(100, Math.max(0, number)) : 0
+    },
+    usageClass(value: any) {
+      return usageColorClass(value)
     },
     formatPercent(value: any) {
       const number = Number(value)

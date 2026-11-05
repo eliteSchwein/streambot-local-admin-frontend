@@ -7,7 +7,7 @@
   >
     <span v-if="metricEnabled('cpu_load')" class="system-info-navbar-entry ubuntu-mono" :title="$t('settings.topNavbar.systemInfoMetrics.cpuLoad')">
       <v-icon size="18" icon="mdi-cpu-64-bit" />
-      <span class="system-info-navbar-value">{{ formatPercent(getSystemInfo?.components?.load?.currentLoad) }}</span>
+      <span class="system-info-navbar-value" :class="usageClass(getSystemInfo?.components?.load?.currentLoad)">{{ formatPercent(getSystemInfo?.components?.load?.currentLoad) }}</span>
     </span>
     <span v-if="metricEnabled('cpu_temp')" class="system-info-navbar-entry ubuntu-mono" :title="$t('settings.topNavbar.systemInfoMetrics.cpuTemp')">
       <v-icon size="18" icon="mdi-thermometer" />
@@ -15,18 +15,22 @@
     </span>
     <span v-if="metricEnabled('memory')" class="system-info-navbar-entry ubuntu-mono" :title="$t('settings.topNavbar.systemInfoMetrics.memory')">
       <v-icon size="18" icon="mdi-memory" />
-      <span class="system-info-navbar-value">{{ formatPercent(getSystemInfo?.components?.memory?.usage_percent) }}</span>
+      <span class="system-info-navbar-value" :class="usageClass(getSystemInfo?.components?.memory?.usage_percent)">{{ formatPercent(getSystemInfo?.components?.memory?.usage_percent) }}</span>
+    </span>
+    <span v-if="metricEnabled('swap') && hasSwap" class="system-info-navbar-entry ubuntu-mono" :title="$t('settings.topNavbar.systemInfoMetrics.swap')">
+      <v-icon size="18" icon="mdi-swap-horizontal" />
+      <span class="system-info-navbar-value" :class="usageClass(getSystemInfo?.components?.swap?.usage_percent)">{{ formatPercent(getSystemInfo?.components?.swap?.usage_percent) }}</span>
     </span>
     <span v-if="metricEnabled('internal_storage')" class="system-info-navbar-entry ubuntu-mono" :title="$t('settings.topNavbar.systemInfoMetrics.internalStorage')">
       <v-icon size="18" icon="mdi-harddisk" />
-      <span class="system-info-navbar-value">{{ formatPercent(getSystemInfo?.components?.storage?.internal?.usage_percent) }}</span>
+      <span class="system-info-navbar-value" :class="usageClass(getSystemInfo?.components?.storage?.internal?.usage_percent)">{{ formatPercent(getSystemInfo?.components?.storage?.internal?.usage_percent) }}</span>
     </span>
     <span v-if="metricEnabled('external_storage') && externalStorageEntries.length" class="system-info-navbar-entry ubuntu-mono" :title="$t('settings.topNavbar.systemInfoMetrics.externalStorage')">
       <v-icon size="18" icon="mdi-usb" />
-      <span class="system-info-navbar-value">{{ formatPercent(externalStorageEntries[0]?.usage_percent) }}</span>
+      <span class="system-info-navbar-value" :class="usageClass(externalStorageEntries[0]?.usage_percent)">{{ formatPercent(externalStorageEntries[0]?.usage_percent) }}</span>
       <v-tooltip v-if="externalStorageEntries.length > 1" activator="parent" location="bottom">
         <div v-for="storage in externalStorageEntries" :key="`${storage.fs}-${storage.mount}`">
-          {{ storage.mount || storage.fs }}: {{ formatPercent(storage.usage_percent) }}
+          {{ storage.mount || storage.fs }}: <span :class="usageClass(storage.usage_percent)">{{ formatPercent(storage.usage_percent) }}</span>
         </div>
       </v-tooltip>
     </span>
@@ -36,6 +40,7 @@
 <script lang="ts">
 import { mapState } from 'pinia'
 import { useAppStore } from '@/stores/app'
+import { usageColorClass } from '@/helper/UsageColorHelper'
 
 export default {
   name: 'NavbarSystemInfoButton',
@@ -45,6 +50,9 @@ export default {
       const configured = this.getSettings?.local_admin_panel?.system_info?.metrics
       return Array.isArray(configured) ? configured.map(String) : ['cpu_load', 'memory', 'internal_storage']
     },
+    hasSwap(): boolean {
+      return Number(this.getSystemInfo?.components?.swap?.total) > 0
+    },
     externalStorageEntries(): any[] {
       const entries = this.getSystemInfo?.components?.storage?.external
       return Array.isArray(entries) ? entries : []
@@ -53,6 +61,7 @@ export default {
   methods: {
     openSystemPage() { this.$router.push('/system') },
     metricEnabled(key: string) { return this.selectedMetrics.includes(key) },
+    usageClass(value: any) { return usageColorClass(value) },
     formatPercent(value: any) {
       const number = Number(value)
       return Number.isFinite(number) ? `${Math.round(number)} %` : '—'
