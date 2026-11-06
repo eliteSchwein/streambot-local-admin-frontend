@@ -973,6 +973,12 @@
       "color": {
         "title": "Color",
         "converter": "Color converter"
+      },
+      "overlay": {
+        "title": "Overlay",
+        "cssSet": "Set CSS style",
+        "cssReset": "Reset CSS style",
+        "showVariable": "Show variable"
       }
     },
     "core": {
@@ -1215,6 +1221,25 @@
         "title": "Reset auto macro interval",
         "autoMacro": "Auto macro",
         "hint": "Removes the temporary interval and immediately restores the auto macro's configured interval."
+      },
+      "css": {
+        "title": "CSS style",
+        "method": "Mode",
+        "methods": {
+          "set": "Replace",
+          "append": "Append",
+          "reset": "Reset"
+        },
+        "selector": "CSS selector",
+        "resetHint": "Leave empty to reset all styles set by macros",
+        "css": "CSS",
+        "cssHint": "Normal CSS declarations, e.g. color: red; transform: scale(1.2);"
+      },
+      "overlayVariable": {
+        "title": "Show variable on overlay",
+        "key": "Variable key",
+        "value": "Value",
+        "hint": "Shows the value in overlay variable elements without storing it. Stored variables (Set Variable) update the overlay automatically."
       }
     },
     "final": {

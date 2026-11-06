@@ -1030,6 +1030,8 @@ export default {
         neopixel: 'MacroNeopixelTaskAccordion',
         effect: 'MacroEffectTaskAccordion',
         animation: 'MacroAnimationTaskAccordion',
+        css: 'MacroCssTaskAccordion',
+        overlay_variable: 'MacroOverlayVariableTaskAccordion',
         rest: 'MacroRestTaskAccordion',
         obs: 'MacroObsTaskAccordion',
         music: 'MacroMusicTaskAccordion',

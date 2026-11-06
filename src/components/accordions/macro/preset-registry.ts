@@ -5,6 +5,7 @@ import { audioMacroTaskPresets } from './audio'
 import { autoMacroMacroTaskPresets } from './auto-macro'
 import { channelPointMacroTaskPresets } from './channel-point'
 import { commandMacroTaskPresets } from './command'
+import { cssMacroTaskPresets } from './css'
 import { colorConverterMacroTaskPresets } from './color-converter'
 import { fileMacroTaskPresets } from './file'
 import { flowMacroTaskPresets } from './flow'
@@ -15,6 +16,7 @@ import { mediaMacroTaskPresets } from './media'
 import { miscMacroTaskPresets } from './misc'
 import { musicMacroTaskPresets } from './music'
 import { obsMacroTaskPresets } from './obs'
+import { overlayVariableMacroTaskPresets } from './overlay-variable'
 import { ollamaMacroTaskPresets } from './ollama'
 import { rotateSceneMacroTaskPresets } from './rotate-scene'
 import { systemMacroTaskPresets } from './system'
@@ -35,6 +37,7 @@ const registrations: MacroTaskPresetRegistration[] = [
   ...autoMacroMacroTaskPresets,
   ...channelPointMacroTaskPresets,
   ...commandMacroTaskPresets,
+  ...cssMacroTaskPresets,
   ...colorConverterMacroTaskPresets,
   ...fileMacroTaskPresets,
   ...flowMacroTaskPresets,
@@ -45,6 +48,7 @@ const registrations: MacroTaskPresetRegistration[] = [
   ...miscMacroTaskPresets,
   ...musicMacroTaskPresets,
   ...obsMacroTaskPresets,
+  ...overlayVariableMacroTaskPresets,
   ...ollamaMacroTaskPresets,
   ...rotateSceneMacroTaskPresets,
   ...systemMacroTaskPresets,

@@ -973,6 +973,12 @@
       "color": {
         "title": "Farbe",
         "converter": "Farbkonverter"
+      },
+      "overlay": {
+        "title": "Overlay",
+        "cssSet": "CSS-Stil setzen",
+        "cssReset": "CSS-Stil zurücksetzen",
+        "showVariable": "Variable anzeigen"
       }
     },
     "core": {
@@ -1215,6 +1221,25 @@
         "title": "Auto-Makro-Intervall zurücksetzen",
         "autoMacro": "Auto-Makro",
         "hint": "Entfernt das temporäre Intervall und stellt sofort das konfigurierte Intervall des Auto-Makros wieder her."
+      },
+      "css": {
+        "title": "CSS-Stil",
+        "method": "Modus",
+        "methods": {
+          "set": "Ersetzen",
+          "append": "Anhängen",
+          "reset": "Zurücksetzen"
+        },
+        "selector": "CSS-Selektor",
+        "resetHint": "Leer lassen, um alle per Makro gesetzten Stile zurückzusetzen",
+        "css": "CSS",
+        "cssHint": "Normale CSS-Deklarationen, z. B. color: red; transform: scale(1.2);"
+      },
+      "overlayVariable": {
+        "title": "Variable im Overlay anzeigen",
+        "key": "Variablenschlüssel",
+        "value": "Wert",
+        "hint": "Zeigt den Wert in Overlay-Variablenelementen an, ohne ihn zu speichern. Gespeicherte Variablen (Variable setzen) aktualisieren das Overlay automatisch."
       }
     },
     "final": {
