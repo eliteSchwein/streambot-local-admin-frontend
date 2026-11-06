@@ -641,6 +641,13 @@
           "subscribers_only": "Subscribers-only",
           "unique_chat": "Unique chat"
         }
+      },
+      "userInfo": {
+        "info": "Loads a Twitch user including follow, sub, mod and VIP status and stores it as an object, e.g. twitch_user.followDays.",
+        "user": "Twitch user",
+        "userHint": "Login name, user id or a whole user variable (e.g. user or gifter)",
+        "variable": "Result variable",
+        "variableHint": "The user object is stored in this variable."
       }
     },
     "yolobox": {
@@ -834,7 +841,8 @@
         },
         "chat": {
           "title": "Chat"
-        }
+        },
+        "userInfo": "Get user data"
       },
       "yolobox": {
         "title": "YoloBox",
@@ -979,6 +987,16 @@
         "cssSet": "Set CSS style",
         "cssReset": "Reset CSS style",
         "showVariable": "Show variable"
+      },
+      "format": {
+        "title": "Format",
+        "date": "Format date/time",
+        "duration": "Format duration",
+        "case": "Change text case",
+        "truncate": "Shorten text",
+        "replace": "Replace text",
+        "pad": "Pad text",
+        "number": "Format number"
       }
     },
     "core": {
@@ -1539,6 +1557,104 @@
       "cloud": "Cloud visibility",
       "ascending": "Ascending",
       "descending": "Descending"
+    },
+    "format": {
+      "title": "Format",
+      "method": "Function",
+      "value": "Value",
+      "key": "Result variable",
+      "keyHint": "The formatted text is stored in this variable.",
+      "methods": {
+        "date": "Date/time",
+        "duration": "Duration",
+        "case": "Text case",
+        "truncate": "Shorten text",
+        "replace": "Replace text",
+        "pad": "Pad text",
+        "number": "Number"
+      },
+      "valueHints": {
+        "date": "ISO date, unix timestamp or empty for now, e.g. the followedAt field of a user",
+        "duration": "Number in the chosen unit, or a date for since/until",
+        "case": "Text to convert",
+        "truncate": "Text to shorten",
+        "replace": "Text to search in",
+        "pad": "Text or number to pad",
+        "number": "Number to format"
+      },
+      "format": "Format",
+      "formatHint": "Pick a preset or type a pattern: YYYY MM DD HH mm ss, MMMM (month name), dddd (weekday), text in [brackets]",
+      "datePresets": {
+        "date": "Date",
+        "date_short": "Date (short)",
+        "date_long": "Date (long)",
+        "time": "Time",
+        "time_seconds": "Time with seconds",
+        "datetime": "Date and time",
+        "datetime_long": "Date and time (long)",
+        "relative": "Relative (\"3 days ago\")",
+        "iso": "ISO 8601",
+        "unix": "Unix timestamp"
+      },
+      "timezone": "Time zone",
+      "timezoneHint": "IANA name, empty = system time zone",
+      "unit": "Input",
+      "durationUnits": {
+        "seconds": "Seconds",
+        "milliseconds": "Milliseconds",
+        "minutes": "Minutes",
+        "hours": "Hours",
+        "since": "Time since date",
+        "until": "Time until date"
+      },
+      "style": "Style",
+      "durationStyles": {
+        "long": "Long (1 hour and 5 minutes)",
+        "short": "Short (1 hr 5 min)",
+        "clock": "Clock (1:05:00)"
+      },
+      "smallestUnit": "Smallest unit",
+      "timeUnits": {
+        "year": "Years",
+        "month": "Months",
+        "day": "Days",
+        "hour": "Hours",
+        "minute": "Minutes",
+        "second": "Seconds"
+      },
+      "maxUnits": "Max. units",
+      "maxUnitsHint": "0 = all",
+      "mode": "Mode",
+      "caseModes": {
+        "upper": "UPPERCASE",
+        "lower": "lowercase",
+        "capitalize": "First letter uppercase",
+        "title": "Title Case"
+      },
+      "length": "Length",
+      "suffix": "Suffix",
+      "words": "Cut at word boundary",
+      "search": "Search",
+      "replacement": "Replace with",
+      "replacementRegexHint": "$1, $2 … insert capture groups",
+      "regex": "Regular expression",
+      "ignoreCase": "Ignore case",
+      "char": "Fill character",
+      "side": "Side",
+      "padSides": {
+        "start": "Start",
+        "end": "End",
+        "both": "Both sides"
+      },
+      "numberStyles": {
+        "decimal": "Number (1,234.5)",
+        "percent": "Percent (0.25 → 25%)",
+        "compact": "Compact (1.2K)"
+      },
+      "decimals": "Decimals",
+      "decimalsHint": "Empty = automatic",
+      "locale": "Language",
+      "localeAuto": "Bot language"
     }
   },
   "giveaway": {

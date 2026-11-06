@@ -13,6 +13,7 @@ export { default as MacroTwitchPredictionCreateTaskAccordion } from './MacroTwit
 export { default as MacroTwitchPredictionLockTaskAccordion } from './MacroTwitchPredictionLockTaskAccordion.vue'
 export { default as MacroTwitchPredictionResolveTaskAccordion } from './MacroTwitchPredictionResolveTaskAccordion.vue'
 export { default as MacroTwitchShoutoutTaskAccordion } from './MacroTwitchShoutoutTaskAccordion.vue'
+export { default as MacroTwitchUserInfoTaskAccordion } from './MacroTwitchUserInfoTaskAccordion.vue'
 export { default as MacroTwitchStreamMarkerTaskAccordion } from './MacroTwitchStreamMarkerTaskAccordion.vue'
 export { default as MacroTwitchTimeoutTaskAccordion } from './MacroTwitchTimeoutTaskAccordion.vue'
 export { default as MacroTwitchVipAddTaskAccordion } from './MacroTwitchVipAddTaskAccordion.vue'
@@ -77,6 +78,15 @@ export const twitchMacroTaskPresets: MacroTaskPresetRegistration[] = [
                     method: 'disable_random_clip',
                     data: {},
                   } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.twitch.title", icon: "mdi-twitch" },
+    ],
+    titleKey: "macro.presets.twitch.userInfo",
+    icon: "mdi-account-search",
+    order: 71.5,
+    create: () => ({ type: 'task', task: { channel: 'twitch', method: 'user_info', data: { user: '', variable: 'twitch_user' } } }),
   },
   {
     path: [

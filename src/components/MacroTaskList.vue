@@ -513,6 +513,10 @@ export default {
             add(data.key, 'string')
           }
 
+          if (channel === 'format') {
+            add(data.key, 'string')
+          }
+
           if (channel === 'color_converter') {
             add(data.key, String(data.to ?? '').toLowerCase() === 'dec' ? 'number' : 'string')
           }
@@ -528,6 +532,18 @@ export default {
           if (channel === 'twitch' && data.variable) {
             add(data.variable, 'object')
             if (method === 'clip') add(`${String(data.variable).trim()}.url`, 'string')
+            if (method === 'user_info') {
+              const root = String(data.variable).trim()
+              const fields: Record<string, string> = {
+                id: 'string', name: 'string', displayName: 'string', description: 'string',
+                profilePictureUrl: 'string', broadcasterType: 'string', creationDate: 'string',
+                gameName: 'string', isBroadcaster: 'boolean', isMod: 'boolean', isVip: 'boolean',
+                isFollowing: 'boolean', followedAt: 'string', followDays: 'number',
+                isSubscriber: 'boolean', subTier: 'number', subMonths: 'number', subIsGift: 'boolean',
+                subGifterName: 'string', accountAgeDays: 'number',
+              }
+              for (const [field, type] of Object.entries(fields)) add(`${root}.${field}`, type)
+            }
           }
 
           if (Array.isArray(item?.children)) visit(item.children)
@@ -889,6 +905,7 @@ export default {
       if (item?.task?.channel === 'twitch') {
         if (item?.task?.method === 'clip') return 'MacroTwitchClipTaskAccordion'
         if (item?.task?.method === 'shoutout') return 'MacroTwitchShoutoutTaskAccordion'
+        if (item?.task?.method === 'user_info') return 'MacroTwitchUserInfoTaskAccordion'
         if (item?.task?.method === 'set_category') return 'MacroTwitchCategoryTaskAccordion'
         if (item?.task?.method === 'enable_random_clip') return 'MacroTwitchEnableRandomClipTaskAccordion'
         if (item?.task?.method === 'disable_random_clip') return 'MacroTwitchDisableRandomClipTaskAccordion'
@@ -1031,6 +1048,7 @@ export default {
         effect: 'MacroEffectTaskAccordion',
         animation: 'MacroAnimationTaskAccordion',
         css: 'MacroCssTaskAccordion',
+        format: 'MacroFormatTaskAccordion',
         overlay_variable: 'MacroOverlayVariableTaskAccordion',
         rest: 'MacroRestTaskAccordion',
         obs: 'MacroObsTaskAccordion',

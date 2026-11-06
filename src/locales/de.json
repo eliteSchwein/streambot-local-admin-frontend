@@ -641,6 +641,13 @@
           "subscribers_only": "Nur Abonnenten",
           "unique_chat": "Unique Chat"
         }
+      },
+      "userInfo": {
+        "info": "Lädt einen Twitch-Benutzer inklusive Follow-, Sub-, Mod- und VIP-Status und speichert ihn als Objekt, z. B. twitch_user.followDays.",
+        "user": "Twitch-Benutzer",
+        "userHint": "Loginname, Benutzer-ID oder eine ganze Benutzervariable (z. B. user oder gifter)",
+        "variable": "Ergebnisvariable",
+        "variableHint": "Das Benutzerobjekt wird in dieser Variable gespeichert."
       }
     },
     "yolobox": {
@@ -834,7 +841,8 @@
         },
         "chat": {
           "title": "Chat"
-        }
+        },
+        "userInfo": "Benutzerdaten abrufen"
       },
       "yolobox": {
         "title": "YoloBox",
@@ -979,6 +987,16 @@
         "cssSet": "CSS-Stil setzen",
         "cssReset": "CSS-Stil zurücksetzen",
         "showVariable": "Variable anzeigen"
+      },
+      "format": {
+        "title": "Formatieren",
+        "date": "Datum/Uhrzeit formatieren",
+        "duration": "Dauer formatieren",
+        "case": "Groß-/Kleinschreibung ändern",
+        "truncate": "Text kürzen",
+        "replace": "Text ersetzen",
+        "pad": "Text auffüllen",
+        "number": "Zahl formatieren"
       }
     },
     "core": {
@@ -1539,6 +1557,104 @@
       "cloud": "Cloud-Sichtbarkeit",
       "ascending": "Aufsteigend",
       "descending": "Absteigend"
+    },
+    "format": {
+      "title": "Formatieren",
+      "method": "Funktion",
+      "value": "Wert",
+      "key": "Ergebnisvariable",
+      "keyHint": "Der formatierte Text wird in dieser Variable gespeichert.",
+      "methods": {
+        "date": "Datum/Uhrzeit",
+        "duration": "Dauer",
+        "case": "Groß-/Kleinschreibung",
+        "truncate": "Text kürzen",
+        "replace": "Text ersetzen",
+        "pad": "Text auffüllen",
+        "number": "Zahl"
+      },
+      "valueHints": {
+        "date": "ISO-Datum, Unix-Zeitstempel oder leer für jetzt, z. B. das Feld followedAt eines Benutzers",
+        "duration": "Zahl in der gewählten Einheit oder ein Datum für seit/bis",
+        "case": "Umzuwandelnder Text",
+        "truncate": "Zu kürzender Text",
+        "replace": "Text, in dem gesucht wird",
+        "pad": "Aufzufüllender Text oder Zahl",
+        "number": "Zu formatierende Zahl"
+      },
+      "format": "Format",
+      "formatHint": "Vorlage wählen oder Muster eingeben: YYYY MM DD HH mm ss, MMMM (Monatsname), dddd (Wochentag), Text in [Klammern]",
+      "datePresets": {
+        "date": "Datum",
+        "date_short": "Datum (kurz)",
+        "date_long": "Datum (lang)",
+        "time": "Uhrzeit",
+        "time_seconds": "Uhrzeit mit Sekunden",
+        "datetime": "Datum und Uhrzeit",
+        "datetime_long": "Datum und Uhrzeit (lang)",
+        "relative": "Relativ („vor 3 Tagen“)",
+        "iso": "ISO 8601",
+        "unix": "Unix-Zeitstempel"
+      },
+      "timezone": "Zeitzone",
+      "timezoneHint": "IANA-Name, leer = Systemzeitzone",
+      "unit": "Eingabe",
+      "durationUnits": {
+        "seconds": "Sekunden",
+        "milliseconds": "Millisekunden",
+        "minutes": "Minuten",
+        "hours": "Stunden",
+        "since": "Zeit seit Datum",
+        "until": "Zeit bis Datum"
+      },
+      "style": "Stil",
+      "durationStyles": {
+        "long": "Lang (1 Stunde und 5 Minuten)",
+        "short": "Kurz (1 Std. 5 Min.)",
+        "clock": "Uhr (1:05:00)"
+      },
+      "smallestUnit": "Kleinste Einheit",
+      "timeUnits": {
+        "year": "Jahre",
+        "month": "Monate",
+        "day": "Tage",
+        "hour": "Stunden",
+        "minute": "Minuten",
+        "second": "Sekunden"
+      },
+      "maxUnits": "Max. Einheiten",
+      "maxUnitsHint": "0 = alle",
+      "mode": "Modus",
+      "caseModes": {
+        "upper": "GROSSBUCHSTABEN",
+        "lower": "kleinbuchstaben",
+        "capitalize": "Erster Buchstabe groß",
+        "title": "Jedes Wort Groß"
+      },
+      "length": "Länge",
+      "suffix": "Endung",
+      "words": "An Wortgrenze kürzen",
+      "search": "Suchen",
+      "replacement": "Ersetzen durch",
+      "replacementRegexHint": "$1, $2 … fügen Gruppen ein",
+      "regex": "Regulärer Ausdruck",
+      "ignoreCase": "Groß-/Kleinschreibung ignorieren",
+      "char": "Füllzeichen",
+      "side": "Seite",
+      "padSides": {
+        "start": "Anfang",
+        "end": "Ende",
+        "both": "Beide Seiten"
+      },
+      "numberStyles": {
+        "decimal": "Zahl (1.234,5)",
+        "percent": "Prozent (0,25 → 25 %)",
+        "compact": "Kompakt (1,2 Tsd.)"
+      },
+      "decimals": "Nachkommastellen",
+      "decimalsHint": "Leer = automatisch",
+      "locale": "Sprache",
+      "localeAuto": "Bot-Sprache"
     }
   },
   "giveaway": {

@@ -9,6 +9,7 @@ import { cssMacroTaskPresets } from './css'
 import { colorConverterMacroTaskPresets } from './color-converter'
 import { fileMacroTaskPresets } from './file'
 import { flowMacroTaskPresets } from './flow'
+import { formatMacroTaskPresets } from './format'
 import { functionsMacroTaskPresets } from './functions'
 import { keyboardMacroTaskPresets } from './keyboard'
 import { macroMacroTaskPresets } from './macro'
@@ -41,6 +42,7 @@ const registrations: MacroTaskPresetRegistration[] = [
   ...colorConverterMacroTaskPresets,
   ...fileMacroTaskPresets,
   ...flowMacroTaskPresets,
+  ...formatMacroTaskPresets,
   ...functionsMacroTaskPresets,
   ...keyboardMacroTaskPresets,
   ...macroMacroTaskPresets,
