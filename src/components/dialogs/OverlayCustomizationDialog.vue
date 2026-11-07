@@ -50,15 +50,21 @@
           @click:close="errorMessage = ''"
         />
 
-        <v-alert
-          v-if="successMessage"
-          type="success"
-          density="comfortable"
-          closable
-          class="ma-3 mb-0"
-          :text="successMessage"
-          @click:close="successMessage = ''"
-        />
+        <v-snackbar
+          v-model="successVisible"
+          location="bottom right"
+          color="success"
+          :timeout="3000"
+        >
+          <div class="d-flex align-center">
+            <v-icon icon="mdi-check-circle" class="mr-2" />
+            {{ successMessage }}
+          </div>
+
+          <template #actions>
+            <v-btn icon="mdi-close" variant="text" size="small" @click="successVisible = false" />
+          </template>
+        </v-snackbar>
 
         <v-window v-model="tab" class="overlay-customization-dialog__window">
           <v-window-item value="style" class="overlay-customization-dialog__window-item">
@@ -115,10 +121,6 @@
                   <template v-if="selectedStyle">
                     <strong>{{ selectedStyle.name }}</strong>
 
-                    <v-chip size="small" variant="tonal" class="ml-2">
-                      {{ selectedStyle.mode.toUpperCase() }}
-                    </v-chip>
-
                     <v-spacer />
 
                     <v-btn
@@ -158,248 +160,199 @@
             </div>
           </v-window-item>
           <v-window-item value="fonts" class="overlay-customization-dialog__window-item">
-            <div class="overlay-customization-dialog__fonts pa-4">
-              <v-card color="grey-darken-3" variant="flat" class="mb-4">
-                <v-card-title class="text-subtitle-1">
-                  {{ $t('overlay.customization.uploadFonts') }}
-                </v-card-title>
-                <v-card-text>
-                  <v-file-input
-                    v-model="fontUploadFiles"
-                    multiple
-                    chips
-                    clearable
-                    accept=".ttf,.otf,.woff,.woff2,.eot,.zip,font/ttf,font/otf,font/woff,font/woff2,application/zip"
-                    prepend-icon="mdi-format-font"
-                    :label="$t('overlay.customization.fontFiles')"
-                    :hint="$t('overlay.customization.fontUploadHint')"
-                    persistent-hint
-                    :disabled="uploading"
-                  />
+            <div class="overlay-customization-dialog__styles-layout">
+              <aside class="overlay-customization-dialog__styles-sidebar">
+                <div class="overlay-customization-dialog__styles-sidebar-toolbar">
+                  <span class="text-subtitle-2">{{ $t('overlay.customization.installedFonts') }}</span>
 
-                  <div class="d-flex justify-end mt-3">
-                    <v-btn
-                      color="primary"
-                      prepend-icon="mdi-upload"
-                      :loading="uploading"
-                      :disabled="!fontUploadFiles.length"
-                      @click="uploadFonts"
-                    >
-                      {{ $t('media.upload') }}
-                    </v-btn>
-                  </div>
-                </v-card-text>
-              </v-card>
-
-              <v-card color="grey-darken-3" variant="flat">
-                <v-card-title class="d-flex align-center justify-space-between">
-                  <span class="text-subtitle-1">
-                    {{ $t('overlay.customization.installedFonts') }}
-                  </span>
-                  <v-btn
-                    icon="mdi-refresh"
-                    variant="text"
-                    size="small"
-                    :loading="loadingFonts"
-                    @click="loadFonts"
-                  />
-                </v-card-title>
-
-                <v-divider />
-
-                <div class="overlay-customization-dialog__font-list">
-                  <div
-                    v-if="fontFamilies.length"
-                    class="overlay-customization-dialog__font-list-header"
-                  >
-                    <div>{{ $t('overlay.customization.family') }}</div>
-                    <div>{{ $t('overlay.customization.cssClass') }}</div>
-                    <div>{{ $t('overlay.customization.weight') }}</div>
-                  </div>
-
-                  <template v-for="family in fontFamilies" :key="family.family">
-                    <v-expansion-panels
-                      v-if="family.fonts.length > 1 || family.variable"
-                      variant="accordion"
-                      class="overlay-customization-dialog__font-family"
-                    >
-                      <v-expansion-panel>
-                        <v-expansion-panel-title>
-                          <div class="overlay-customization-dialog__font-family-row">
-                            <div>
-                              <span :style="{ fontFamily: `'${family.family}', sans-serif` }">
-                                {{ family.family }}
-                              </span>
-                              <v-chip
-                                v-if="family.variable"
-                                size="x-small"
-                                variant="tonal"
-                                class="ml-2"
-                              >
-                                Variable
-                              </v-chip>
-                              <span class="text-caption text-grey-lighten-1 ml-2">
-                                {{ family.fonts.length }} file{{ family.fonts.length === 1 ? '' : 's' }}
-                              </span>
-                            </div>
-
-                            <div>
-                              <v-chip
-                                size="small"
-                                variant="tonal"
-                                @click.stop="copyText(`.${family.className}`)"
-                              >
-                                .{{ family.className }}
-                              </v-chip>
-                            </div>
-
-                            <div>
-                              {{ family.weightMin === family.weightMax
-                                ? family.weightMin
-                                : `${family.weightMin}–${family.weightMax}` }}
-                            </div>
-                          </div>
-                        </v-expansion-panel-title>
-
-                        <v-expansion-panel-text>
-                          <v-table density="comfortable" class="overlay-customization-dialog__font-table">
-                            <thead>
-                            <tr>
-                              <th>{{ $t('file.name') }}</th>
-                              <th>{{ $t('overlay.customization.weight') }}</th>
-                              <th>{{ $t('overlay.customization.style') }}</th>
-                              <th>Axes</th>
-                              <th class="text-right">{{ $t('yolobox.settings.actions') }}</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr v-for="font in family.fonts" :key="font.path">
-                              <td>
-                                <div>{{ font.name }}</div>
-                                <div class="text-caption text-grey-lighten-1">{{ font.path }}</div>
-                              </td>
-                              <td>
-                                {{ font.variable && font.weightMin !== font.weightMax
-                                  ? `${font.weightMin}–${font.weightMax}`
-                                  : font.weight }}
-                              </td>
-                              <td>{{ font.style }}</td>
-                              <td>
-                                <div v-if="font.axes?.length" class="d-flex flex-wrap ga-1">
-                                  <v-chip
-                                    v-for="axis in font.axes"
-                                    :key="axis.tag"
-                                    size="x-small"
-                                    variant="outlined"
-                                  >
-                                    {{ axis.tag }} {{ axis.min }}–{{ axis.max }}
-                                  </v-chip>
-                                </div>
-                                <span v-else class="text-grey-lighten-1">—</span>
-                              </td>
-                              <td class="text-right">
-                                <v-btn
-                                  icon="mdi-delete"
-                                  variant="text"
-                                  color="error"
-                                  size="small"
-                                  :loading="deletingFont === font.path"
-                                  @click="deleteFont(font)"
-                                />
-                              </td>
-                            </tr>
-                            </tbody>
-                          </v-table>
-
-                          <div v-if="family.variable" class="mt-3">
-                            <div class="text-caption text-grey-lighten-1 mb-2">
-                              Generated weight variants
-                            </div>
-                            <div class="d-flex flex-wrap ga-2">
-                              <v-chip
-                                v-for="variant in family.generatedVariants"
-                                :key="variant.className"
-                                size="small"
-                                variant="tonal"
-                                @click="copyText(`.${variant.className}`)"
-                              >
-                                .{{ variant.className }} · {{ variant.weight }}
-                              </v-chip>
-                            </div>
-                          </div>
-                        </v-expansion-panel-text>
-                      </v-expansion-panel>
-                    </v-expansion-panels>
-
-                    <div v-else class="overlay-customization-dialog__font-family-row overlay-customization-dialog__font-family-row--single">
-                      <div>
-                        <span :style="{ fontFamily: `'${family.family}', sans-serif` }">
-                          {{ family.family }}
-                        </span>
-                        <div class="text-caption text-grey-lighten-1">
-                          {{ family.fonts[0].name }}
-                        </div>
-                      </div>
-
-                      <div>
-                        <v-chip
-                          size="small"
-                          variant="tonal"
-                          @click="copyText(`.${family.className}`)"
-                        >
-                          .{{ family.className }}
-                        </v-chip>
-                      </div>
-
-                      <div class="d-flex align-center justify-space-between">
-                        <span>{{ family.fonts[0].weight }}</span>
-                        <v-btn
-                          icon="mdi-delete"
-                          variant="text"
-                          color="error"
-                          size="small"
-                          :loading="deletingFont === family.fonts[0].path"
-                          @click="deleteFont(family.fonts[0])"
-                        />
-                      </div>
-                    </div>
-                  </template>
-
-                  <div
-                    v-if="!fontFamilies.length && !loadingFonts"
-                    class="text-center text-grey-lighten-1 py-8"
-                  >
-                    {{ $t('overlay.customization.noFonts') }}
-                  </div>
-                </div>
-              </v-card>
-
-              <v-card color="grey-darken-3" variant="flat" class="mt-4">
-                <v-card-title class="text-subtitle-1 d-flex align-center justify-space-between">
-                  <span>{{ $t('overlay.customization.generatedFontCss') }}</span>
                   <div class="d-flex align-center">
                     <v-btn
+                      icon="mdi-refresh"
                       variant="text"
                       size="small"
-                      prepend-icon="mdi-download"
-                      @click="downloadFontCss"
->
-                      {{ $t('overlay.customization.downloadFontCss') }}
-                    </v-btn>
-
+                      :loading="loadingFonts"
+                      @click="loadFonts"
+                    />
                     <v-btn
+                      icon="mdi-upload"
                       variant="text"
                       size="small"
-                      prepend-icon="mdi-content-copy"
-                      @click="copyText(generatedFontCss)"
-                    >
-                      {{ $t('media.copy') }}
-                    </v-btn>
+                      :loading="uploading"
+                      :title="`${$t('overlay.customization.uploadFonts')} – ${$t('overlay.customization.fontUploadHint')}`"
+                      @click="openFontUpload"
+                    />
                   </div>
-                </v-card-title>
-                <v-divider />
-                <pre class="overlay-customization-dialog__generated-css">{{ generatedFontCss || '/* No fonts installed */' }}</pre>
-              </v-card>
+
+                  <input
+                    ref="fontUploadInput"
+                    type="file"
+                    multiple
+                    hidden
+                    accept=".ttf,.otf,.woff,.woff2,.eot,.zip,font/ttf,font/otf,font/woff,font/woff2,application/zip"
+                    @change="handleFontUploadSelection"
+                  >
+                </div>
+
+                <v-list
+                  density="comfortable"
+                  bg-color="transparent"
+                  class="overlay-customization-dialog__styles-list"
+                >
+                  <v-list-item
+                    v-for="family in fontFamilies"
+                    :key="family.family"
+                    :active="selectedFontView === family.family"
+                    @click="selectedFontView = family.family"
+                  >
+                    <template #prepend>
+                      <v-icon :icon="family.variable ? 'mdi-format-font-size-increase' : 'mdi-format-font'" />
+                    </template>
+
+                    <v-list-item-title :style="{ fontFamily: `'${family.family}', sans-serif` }">
+                      {{ family.family }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ $t('overlay.customization.fileCount', { count: family.fonts.length }, family.fonts.length) }}
+                      · {{ formatWeightRange(family.weightMin, family.weightMax) }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                </v-list>
+
+                <div v-if="!fontFamilies.length && !loadingFonts" class="text-caption text-grey-lighten-1 pa-4">
+                  {{ $t('overlay.customization.noFonts') }}
+                </div>
+              </aside>
+
+              <section class="overlay-customization-dialog__styles-main">
+                <div class="overlay-customization-dialog__style-toolbar">
+                  <template v-if="selectedFontFamily">
+                    <strong>{{ selectedFontFamily.family }}</strong>
+
+                    <v-chip
+                      v-if="selectedFontFamily.variable"
+                      size="small"
+                      variant="tonal"
+                      class="ml-2"
+                    >
+                      {{ $t('overlay.customization.variableFont') }}
+                    </v-chip>
+                  </template>
+
+                  <span v-else class="text-grey-lighten-1">
+                    {{ $t('overlay.customization.selectFont') }}
+                  </span>
+                </div>
+
+
+                <div v-if="selectedFontFamily" class="overlay-customization-dialog__font-detail pa-4">
+                  <v-card color="grey-darken-3" variant="flat" class="mb-4">
+                    <v-card-title class="text-subtitle-2">
+                      {{ $t('overlay.customization.classGenerator') }}
+                    </v-card-title>
+                    <v-card-text>
+                      <v-row density="comfortable">
+                        <v-col cols="12" md="4">
+                          <v-select
+                            v-model="fontClassWeight"
+                            :items="selectedFontWeightOptions"
+                            :label="$t('overlay.customization.weight')"
+                            variant="outlined"
+                            density="comfortable"
+                            hide-details
+                          />
+                        </v-col>
+                        <v-col cols="12" md="8">
+                          <v-text-field
+                            :model-value="generatedFontClasses"
+                            :label="$t('overlay.customization.cssClasses')"
+                            readonly
+                            variant="outlined"
+                            density="comfortable"
+                            hide-details
+                            class="font-monospace"
+                            @focus="selectFieldText"
+                          />
+                        </v-col>
+                      </v-row>
+
+                      <div
+                        class="overlay-customization-dialog__font-preview mt-4"
+                        :style="{ fontFamily: `'${selectedFontFamily.family}', sans-serif`, fontWeight: fontClassWeight || undefined }"
+                      >
+                        {{ $t('overlay.customization.previewText') }}
+                      </div>
+                    </v-card-text>
+                  </v-card>
+
+                  <v-card color="grey-darken-3" variant="flat" class="mb-4">
+                    <v-card-text>
+                      <div
+                        v-for="variant in selectedFontPreviewWeights"
+                        :key="variant"
+                        class="overlay-customization-dialog__font-preview"
+                        :style="{ fontFamily: `'${selectedFontFamily.family}', sans-serif`, fontWeight: variant }"
+                      >
+                        <span class="text-caption text-grey-lighten-1 overlay-customization-dialog__font-preview-weight">
+                          {{ variant }}
+                        </span>
+                        {{ $t('overlay.customization.previewText') }}
+                      </div>
+                    </v-card-text>
+                  </v-card>
+
+                  <v-card color="grey-darken-3" variant="flat">
+                    <v-table density="comfortable" class="overlay-customization-dialog__font-table">
+                      <thead>
+                      <tr>
+                        <th>{{ $t('file.name') }}</th>
+                        <th>{{ $t('overlay.customization.weight') }}</th>
+                        <th>{{ $t('overlay.customization.style') }}</th>
+                        <th>{{ $t('overlay.customization.axes') }}</th>
+                        <th class="text-right">{{ $t('yolobox.settings.actions') }}</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr v-for="font in selectedFontFamily.fonts" :key="font.path">
+                        <td>
+                          <div>{{ font.name }}</div>
+                          <div class="text-caption text-grey-lighten-1">{{ font.path }}</div>
+                        </td>
+                        <td>
+                          {{ font.variable
+                            ? formatWeightRange(font.weightMin ?? font.weight, font.weightMax ?? font.weight)
+                            : font.weight }}
+                        </td>
+                        <td>{{ font.style }}</td>
+                        <td>
+                          <div v-if="font.axes?.length" class="d-flex flex-wrap ga-1">
+                            <v-chip
+                              v-for="axis in font.axes"
+                              :key="axis.tag"
+                              size="x-small"
+                              variant="outlined"
+                            >
+                              {{ axis.tag }} {{ axis.min }}–{{ axis.max }}
+                            </v-chip>
+                          </div>
+                          <span v-else class="text-grey-lighten-1">—</span>
+                        </td>
+                        <td class="text-right">
+                          <v-btn
+                            icon="mdi-delete"
+                            variant="text"
+                            color="error"
+                            size="small"
+                            :loading="deletingFont === font.path"
+                            @click="deleteFont(font)"
+                          />
+                        </td>
+                      </tr>
+                      </tbody>
+                    </v-table>
+                  </v-card>
+
+                </div>
+              </section>
             </div>
           </v-window-item>
         </v-window>
@@ -414,6 +367,19 @@
 </template>
 
 <script lang="ts">
+// Must match the weight classes generated by the backend (getGeneratedFontCss).
+const fontWeightClasses = [
+  {weight: 100, className: 'font-thin'},
+  {weight: 200, className: 'font-extra-light'},
+  {weight: 300, className: 'font-light'},
+  {weight: 400, className: 'font-normal'},
+  {weight: 500, className: 'font-medium'},
+  {weight: 600, className: 'font-semi-bold'},
+  {weight: 700, className: 'font-bold'},
+  {weight: 800, className: 'font-extra-bold'},
+  {weight: 900, className: 'font-black'},
+]
+
 import {mapState} from 'pinia'
 import CreateCustomStyleDialog from '@/components/dialogs/CreateCustomStyleDialog.vue'
 import {getWebsocketClient} from '@/plugins/websocketInstance'
@@ -475,9 +441,11 @@ export default {
       deletingFont: '',
       errorMessage: '',
       successMessage: '',
+      successVisible: false,
       fontUploadFiles: [] as File[],
+      selectedFontView: '',
+      fontClassWeight: 0,
       fonts: [] as FontEntry[],
-      generatedFontCss: '',
       styleFiles: [] as CustomStyleEntry[],
       selectedStyle: null as CustomStyleEntry | null,
       createStyleDialog: false,
@@ -492,18 +460,6 @@ export default {
     },
 
     fontFamilies() {
-      const weightVariants = [
-        {weight: 100, className: 'font-thin'},
-        {weight: 200, className: 'font-extra-light'},
-        {weight: 300, className: 'font-light'},
-        {weight: 400, className: 'font-normal'},
-        {weight: 500, className: 'font-medium'},
-        {weight: 600, className: 'font-semi-bold'},
-        {weight: 700, className: 'font-bold'},
-        {weight: 800, className: 'font-extra-bold'},
-        {weight: 900, className: 'font-black'},
-      ]
-
       const grouped = new Map<string, FontEntry[]>()
 
       for (const font of this.fonts) {
@@ -525,12 +481,51 @@ export default {
           weightMin,
           weightMax,
           generatedVariants: variable
-            ? weightVariants.filter(variant =>
+            ? fontWeightClasses.filter(variant =>
                 variant.weight >= weightMin && variant.weight <= weightMax
               )
             : [],
         }
       })
+    },
+
+    selectedFontFamily(): any {
+      return (this.fontFamilies as any[]).find(family => family.family === this.selectedFontView) ?? null
+    },
+
+    selectedFontWeightOptions(): { title: string, value: number }[] {
+      const family = this.selectedFontFamily as any
+      if (!family) return []
+
+      const available = family.variable
+        ? family.generatedVariants
+        : fontWeightClasses.filter(variant => family.fonts.some((font: FontEntry) => font.weight === variant.weight))
+
+      return [
+        {title: this.$t('overlay.customization.defaultWeight') as string, value: 0},
+        ...available.map((variant: any) => ({title: `${variant.weight} – ${variant.className}`, value: variant.weight})),
+      ]
+    },
+
+    generatedFontClasses(): string {
+      const family = this.selectedFontFamily as any
+      if (!family) return ''
+
+      const weightClass = fontWeightClasses.find(variant => variant.weight === this.fontClassWeight)?.className
+      return [family.className, weightClass].filter(Boolean).join(' ')
+    },
+
+    selectedFontPreviewWeights(): number[] {
+      const family = this.selectedFontFamily as any
+      if (!family) return []
+
+      if (family.variable) {
+        return family.generatedVariants.length
+          ? family.generatedVariants.map((variant: any) => variant.weight)
+          : [family.weightMin]
+      }
+
+      return Array.from(new Set<number>(family.fonts.map((font: FontEntry) => font.weight))).sort((a, b) => a - b)
     },
 
     editorOptions(): any {
@@ -550,6 +545,26 @@ export default {
   },
 
   methods: {
+    formatWeightRange(min: number, max: number) {
+      return min === max ? String(min) : `${min}–${max}`
+    },
+
+    openFontUpload() {
+      (this.$refs.fontUploadInput as HTMLInputElement | undefined)?.click()
+    },
+
+    async handleFontUploadSelection(event: Event) {
+      const input = event.target as HTMLInputElement
+      this.fontUploadFiles = Array.from(input.files ?? [])
+      input.value = ''
+      await this.uploadFonts()
+    },
+
+    showSuccess(message: string) {
+      this.successMessage = message
+      this.successVisible = true
+    },
+
     async handleModelValueUpdate(value: boolean) {
       this.$emit('update:modelValue', value)
 
@@ -615,7 +630,6 @@ export default {
         const data = await this.requestWebsocket('overlay_custom_style_list')
         this.styleFiles = Array.isArray(data?.files) ? data.files : []
         this.fonts = Array.isArray(data?.fonts) ? data.fonts : this.fonts
-        this.generatedFontCss = String(data?.generated_font_css ?? this.generatedFontCss)
 
         if (!this.styleFiles.length) {
           this.selectedStyle = null
@@ -645,7 +659,6 @@ export default {
         this.content = String(data?.content ?? '')
         this.styleFiles = Array.isArray(data?.files) ? data.files : this.styleFiles
         this.fonts = Array.isArray(data?.fonts) ? data.fonts : this.fonts
-        this.generatedFontCss = String(data?.generated_font_css ?? this.generatedFontCss)
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'loading custom style failed'
       } finally {
@@ -659,7 +672,6 @@ export default {
 
       this.saving = true
       this.errorMessage = ''
-      this.successMessage = ''
 
       try {
         const data = await this.requestWebsocket('overlay_custom_style_save', {
@@ -678,7 +690,7 @@ export default {
           await this.selectStyle(created)
         }
 
-        this.successMessage = this.$t('overlay.customization.styleCreated') as string
+        this.showSuccess(this.$t('overlay.customization.styleCreated') as string)
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'creating custom style failed'
       } finally {
@@ -691,7 +703,6 @@ export default {
 
       this.saving = true
       this.errorMessage = ''
-      this.successMessage = ''
 
       try {
         const data = await this.requestWebsocket('overlay_custom_style_save', {
@@ -701,8 +712,7 @@ export default {
 
         this.styleFiles = Array.isArray(data?.files) ? data.files : this.styleFiles
         this.selectedStyle = data?.file ?? this.selectedStyle
-        this.generatedFontCss = String(data?.generated_font_css ?? this.generatedFontCss)
-        this.successMessage = this.$t('overlay.customization.saved') as string
+        this.showSuccess(this.$t('overlay.customization.saved') as string)
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'saving custom style failed'
       } finally {
@@ -716,7 +726,6 @@ export default {
       )) return
 
       this.errorMessage = ''
-      this.successMessage = ''
 
       try {
         const data = await this.requestWebsocket('overlay_custom_style_delete', {path: style.path})
@@ -731,7 +740,7 @@ export default {
           }
         }
 
-        this.successMessage = this.$t('overlay.customization.styleDeleted') as string
+        this.showSuccess(this.$t('overlay.customization.styleDeleted') as string)
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'deleting custom style failed'
       }
@@ -768,7 +777,6 @@ export default {
       try {
         const data = await this.requestWebsocket('overlay_fonts_list')
         this.fonts = Array.isArray(data?.files) ? data.files : []
-        this.generatedFontCss = String(data?.generated_css ?? '')
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'loading fonts failed'
       } finally {
@@ -781,7 +789,6 @@ export default {
 
       this.uploading = true
       this.errorMessage = ''
-      this.successMessage = ''
 
       try {
         const formData = new FormData()
@@ -801,9 +808,8 @@ export default {
         }
 
         this.fonts = Array.isArray(data?.files) ? data.files : this.fonts
-        this.generatedFontCss = String(data?.generated_css ?? this.generatedFontCss)
         this.fontUploadFiles = []
-        this.successMessage = this.$t('overlay.customization.fontsUploaded') as string
+        this.showSuccess(this.$t('overlay.customization.fontsUploaded') as string)
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'font upload failed'
       } finally {
@@ -814,14 +820,12 @@ export default {
     async deleteFont(font: FontEntry) {
       this.deletingFont = font.path
       this.errorMessage = ''
-      this.successMessage = ''
 
       try {
         const data = await this.requestWebsocket('overlay_fonts_delete', {path: font.path})
 
         this.fonts = Array.isArray(data?.files) ? data.files : []
-        this.generatedFontCss = String(data?.generated_css ?? '')
-        this.successMessage = this.$t('overlay.customization.fontDeleted') as string
+        this.showSuccess(this.$t('overlay.customization.fontDeleted') as string)
       } catch (error: any) {
         this.errorMessage = error?.message ?? 'deleting font failed'
       } finally {
@@ -829,24 +833,8 @@ export default {
       }
     },
 
-    async downloadFontCss() {
-      this.errorMessage = ''
-
-      try {
-        this.downloadContent(await this.requestWebsocket('overlay_fonts_download'))
-      } catch (error: any) {
-        this.errorMessage = error?.message ?? 'font stylesheet download failed'
-      }
-    },
-
-    async copyText(value: string) {
-      if (!value) return
-
-      try {
-        await navigator.clipboard.writeText(value)
-      } catch (error) {
-        console.error('copy failed', error)
-      }
+    selectFieldText(event: FocusEvent) {
+      (event.target as HTMLInputElement | null)?.select()
     },
   },
 
@@ -856,6 +844,13 @@ export default {
       async handler(value: boolean) {
         if (value) await this.loadAll()
       },
+    },
+    selectedFontView() {
+      this.fontClassWeight = 0
+    },
+
+    fontFamilies(families: any[]) {
+      if (!families.some(family => family.family === this.selectedFontView)) this.selectedFontView = families[0]?.family ?? ''
     },
   },
 }
@@ -904,10 +899,18 @@ export default {
 
 .overlay-customization-dialog__styles-main {
   min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.overlay-customization-dialog__window :deep(.v-window__container) {
   height: 100%;
 }
 
 .overlay-customization-dialog__style-toolbar {
+  flex-shrink: 0;
   height: 56px;
   display: flex;
   align-items: center;
@@ -916,60 +919,42 @@ export default {
 }
 
 .overlay-customization-dialog__editor {
-  height: calc(100% - 56px);
+  flex: 1;
+  min-height: 0;
   background: #1e1e1e;
 }
 
-.overlay-customization-dialog__fonts {
-  height: 100%;
+.overlay-customization-dialog__font-detail {
+  flex: 1;
+  min-height: 0;
   overflow: auto;
+}
+
+.overlay-customization-dialog__font-variant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
 }
 
 .overlay-customization-dialog__font-table {
   background: transparent;
 }
 
-.overlay-customization-dialog__font-list {
-  width: 100%;
-}
-
-.overlay-customization-dialog__font-list-header,
-.overlay-customization-dialog__font-family-row {
-  display: grid;
-  grid-template-columns: minmax(220px, 1.5fr) minmax(180px, 1fr) minmax(120px, .6fr);
-  align-items: center;
+.overlay-customization-dialog__font-preview {
+  display: flex;
+  align-items: baseline;
   gap: 16px;
+  font-size: 18px;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.overlay-customization-dialog__font-list-header {
-  padding: 8px 24px;
-  font-size: 12px;
-  font-weight: 600;
-  border-bottom: 1px solid rgba(255, 255, 255, .12);
-}
-
-.overlay-customization-dialog__font-family {
-  border-bottom: 1px solid rgba(255, 255, 255, .12);
-}
-
-.overlay-customization-dialog__font-family-row {
-  width: 100%;
-}
-
-.overlay-customization-dialog__font-family-row--single {
-  min-height: 52px;
-  padding: 8px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, .12);
-}
-
-.overlay-customization-dialog__generated-css {
-  margin: 0;
-  padding: 16px;
-  max-height: 320px;
-  overflow: auto;
-  white-space: pre-wrap;
-  background: #1e1e1e;
+.overlay-customization-dialog__font-preview-weight {
+  width: 32px;
+  flex-shrink: 0;
   font-family: monospace;
-  font-size: 12px;
+  font-weight: 400;
 }
 </style>
