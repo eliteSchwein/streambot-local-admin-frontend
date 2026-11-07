@@ -985,6 +985,7 @@
       "overlay": {
         "title": "Overlay",
         "cssSet": "CSS-Stil setzen",
+        "cssAppend": "CSS-Stil anhängen",
         "cssReset": "CSS-Stil zurücksetzen",
         "showVariable": "Variable anzeigen"
       },
@@ -1242,11 +1243,10 @@
       },
       "css": {
         "title": "CSS-Stil",
-        "method": "Modus",
         "methods": {
-          "set": "Ersetzen",
-          "append": "Anhängen",
-          "reset": "Zurücksetzen"
+          "set": "CSS-Stil setzen",
+          "append": "CSS-Stil anhängen",
+          "reset": "CSS-Stil zurücksetzen"
         },
         "selector": "CSS-Selektor",
         "resetHint": "Leer lassen, um alle per Makro gesetzten Stile zurückzusetzen",

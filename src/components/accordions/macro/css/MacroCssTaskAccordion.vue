@@ -3,8 +3,8 @@
     class="macro-task-accordion macro-task-accordion--css"
     :item="item"
     :index="index"
-    icon="mdi-language-css3"
-    :title="$t('macro.core.css.title')"
+    :icon="methodIcon"
+    :title="$t(`macro.core.css.methods.${task.method}`)"
     :detail="cssTitleDetail"
     export-prefix="macro_css"
     @remove="$emit('remove')"
@@ -12,18 +12,6 @@
     @move-down="$emit('move-down')"
   >
     <v-row density="comfortable">
-      <v-col cols="12">
-        <v-select
-          v-model="task.method"
-          :items="methodOptions"
-          :label="$t('macro.core.css.method')"
-          prepend-inner-icon="mdi-swap-horizontal"
-          hide-details="auto"
-          variant="outlined"
-          density="comfortable"
-        />
-      </v-col>
-
       <v-col cols="12">
         <v-text-field
           v-model="task.data.selector"
@@ -62,7 +50,11 @@
 <script lang="ts">
 import MacroTaskAccordionTemplate from '../MacroTaskAccordionTemplate.vue'
 
-const cssMethods = ['set', 'append', 'reset']
+const cssMethodIcons: Record<string, string> = {
+  set: 'mdi-language-css3',
+  append: 'mdi-playlist-plus',
+  reset: 'mdi-restore',
+}
 
 export default {
   name: 'MacroCssTaskAccordion',
@@ -84,25 +76,19 @@ export default {
       return (this.item as any).task
     },
 
-    methodOptions(): { title: string, value: string }[] {
-      return cssMethods.map((value) => ({
-        title: this.$t(`macro.core.css.methods.${value}`),
-        value,
-      }))
+    methodIcon(): string {
+      return cssMethodIcons[this.task.method] ?? cssMethodIcons.set
     },
 
     cssTitleDetail(): string {
-      const method = this.$t(`macro.core.css.methods.${this.task.method}`)
-      const selector = String(this.task.data?.selector ?? '').trim()
-
-      return selector ? `${method}: ${selector}` : method
+      return String(this.task.data?.selector ?? '').trim()
     },
   },
 
   created() {
     this.task.channel = 'css'
 
-    if (!cssMethods.includes(this.task.method)) this.task.method = 'set'
+    if (!(this.task.method in cssMethodIcons)) this.task.method = 'set'
 
     if (!this.task.data || typeof this.task.data !== 'object') {
       this.task.data = {}
@@ -111,7 +97,7 @@ export default {
     delete this.task.data.target
 
     if (this.task.data.selector === undefined) this.task.data.selector = ''
-    if (this.task.data.css === undefined) this.task.data.css = ''
+    if (this.task.method !== 'reset' && this.task.data.css === undefined) this.task.data.css = ''
   },
 }
 </script>

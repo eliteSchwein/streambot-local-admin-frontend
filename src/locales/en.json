@@ -985,6 +985,7 @@
       "overlay": {
         "title": "Overlay",
         "cssSet": "Set CSS style",
+        "cssAppend": "Append CSS style",
         "cssReset": "Reset CSS style",
         "showVariable": "Show variable"
       },
@@ -1242,11 +1243,10 @@
       },
       "css": {
         "title": "CSS style",
-        "method": "Mode",
         "methods": {
-          "set": "Replace",
-          "append": "Append",
-          "reset": "Reset"
+          "set": "Set CSS style",
+          "append": "Append CSS style",
+          "reset": "Reset CSS style"
         },
         "selector": "CSS selector",
         "resetHint": "Leave empty to reset all styles set by macros",

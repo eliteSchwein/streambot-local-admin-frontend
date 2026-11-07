@@ -16,9 +16,18 @@ export const cssMacroTaskPresets: MacroTaskPresetRegistration[] = [
     path: [
       { titleKey: "macro.presets.overlay.title", icon: "mdi-monitor-dashboard" },
     ],
+    titleKey: "macro.presets.overlay.cssAppend",
+    icon: "mdi-playlist-plus",
+    order: 17,
+    create: () => ({ type: 'task', task: { channel: 'css', method: 'append', data: { selector: '', css: '' } } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.overlay.title", icon: "mdi-monitor-dashboard" },
+    ],
     titleKey: "macro.presets.overlay.cssReset",
     icon: "mdi-restore",
-    order: 17,
+    order: 18,
     create: () => ({ type: 'task', task: { channel: 'css', method: 'reset', data: { selector: '' } } }),
   },
 ]
