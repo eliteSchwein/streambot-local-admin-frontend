@@ -1227,6 +1227,7 @@
         "autoMacro": "Auto-Makro",
         "interval": "Temporäres Intervall",
         "duration": "Dauer",
+        "valueHint": "Zahl oder Template-Variable",
         "unit": "Einheit",
         "limitDuration": "Nach einer Dauer automatisch zurücksetzen",
         "durationHint": "Nach Ablauf der Dauer wird automatisch wieder das konfigurierte normale Intervall verwendet.",

@@ -1227,6 +1227,7 @@
         "autoMacro": "Auto macro",
         "interval": "Temporary interval",
         "duration": "Duration",
+        "valueHint": "Number or template variable",
         "unit": "Unit",
         "limitDuration": "Restore automatically after a duration",
         "durationHint": "After the duration expires, the configured normal interval is restored automatically.",

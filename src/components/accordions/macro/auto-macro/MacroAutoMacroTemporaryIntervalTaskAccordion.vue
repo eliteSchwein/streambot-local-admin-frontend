@@ -18,13 +18,13 @@
 
       <v-col cols="12" sm="7">
         <v-text-field
-          v-model.number="intervalAmount"
-          type="number"
-          :min="intervalUnit === 'milliseconds' ? 50 : 0.05"
-          :step="intervalUnit === 'milliseconds' ? 1 : 0.05"
+          v-model="intervalAmount"
+          inputmode="decimal"
           density="comfortable"
           variant="outlined"
-          hide-details
+          persistent-hint
+          :hint="$t('macro.core.autoMacroTemporaryInterval.valueHint')"
+          :placeholder="templatePlaceholder"
           :label="$t('macro.core.autoMacroTemporaryInterval.interval')"
         />
       </v-col>
@@ -55,13 +55,13 @@
       <template v-if="limitedDuration">
         <v-col cols="12" sm="7">
           <v-text-field
-            v-model.number="durationAmount"
-            type="number"
-            :min="durationUnit === 'milliseconds' ? 1 : 0.001"
-            :step="durationUnit === 'milliseconds' ? 1 : 0.1"
+            v-model="durationAmount"
+            inputmode="decimal"
             density="comfortable"
             variant="outlined"
-            hide-details
+            persistent-hint
+            :hint="$t('macro.core.autoMacroTemporaryInterval.valueHint')"
+            :placeholder="templatePlaceholder"
             :label="$t('macro.core.autoMacroTemporaryInterval.duration')"
           />
         </v-col>
@@ -107,12 +107,83 @@ const unitFactor = (unit: TimeUnit) => {
   return 1
 }
 
+const normalizeUnit = (unit: any, fallback: TimeUnit): TimeUnit => {
+  const value = String(unit ?? '').trim().toLowerCase()
+  if (value === 'ms' || value === 'milliseconds') return 'milliseconds'
+  if (value === 's' || value === 'seconds') return 'seconds'
+  if (value === 'min' || value === 'minutes') return 'minutes'
+  if (value === 'h' || value === 'hours') return 'hours'
+  return fallback
+}
+
 const bestUnit = (milliseconds: number): { amount: number, unit: TimeUnit } => {
   const value = Number.isFinite(milliseconds) && milliseconds > 0 ? milliseconds : 1_000
   if (value >= 3_600_000 && value % 3_600_000 === 0) return { amount: value / 3_600_000, unit: 'hours' }
   if (value >= 60_000 && value % 60_000 === 0) return { amount: value / 60_000, unit: 'minutes' }
   if (value >= 1_000 && value % 1_000 === 0) return { amount: value / 1_000, unit: 'seconds' }
   return { amount: value, unit: 'milliseconds' }
+}
+
+const isSet = (value: any) => value !== undefined && value !== null && value !== ''
+
+// Template values like "${effect_interval}" or "${effect_interval}000" are
+// resolved by the backend at runtime and must be kept verbatim.
+const isTemplate = (value: any) => typeof value === 'string' && value.includes('${')
+
+const toNumber = (value: any) => {
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    return trimmed === '' ? NaN : Number(trimmed)
+  }
+  return Number(value)
+}
+
+/**
+ * Reads `<key>_ms` or `<key>` + `<key>_unit` (seconds by default) into an
+ * editor amount/unit pair. Template strings are preserved as-is.
+ */
+const readTimeValue = (data: any, key: string, fallbackMs: number | undefined): { amount: string | number, unit: TimeUnit } | undefined => {
+  const msValue = data[`${key}_ms`]
+  if (isSet(msValue)) {
+    if (isTemplate(msValue)) return { amount: String(msValue), unit: 'milliseconds' }
+    const ms = toNumber(msValue)
+    if (Number.isFinite(ms) && ms > 0) return bestUnit(ms)
+  }
+
+  const rawValue = data[key]
+  if (isSet(rawValue)) {
+    const unit = normalizeUnit(data[`${key}_unit`], 'seconds')
+    if (isTemplate(rawValue)) return { amount: String(rawValue), unit }
+    const amount = toNumber(rawValue)
+    if (Number.isFinite(amount) && amount > 0) return bestUnit(amount * unitFactor(unit))
+  }
+
+  return fallbackMs === undefined ? undefined : bestUnit(fallbackMs)
+}
+
+/**
+ * Writes an editor amount/unit pair back to the task data. Plain numbers are
+ * stored as `<key>_ms`; template strings are stored as `<key>_ms` (ms unit) or
+ * `<key>` + `<key>_unit` so the backend applies the unit after interpolation.
+ */
+const writeTimeValue = (data: any, key: string, amount: any, unit: TimeUnit, minimumMs: number) => {
+  delete data[key]
+  delete data[`${key}_unit`]
+  delete data[`${key}_ms`]
+
+  if (isTemplate(amount)) {
+    const value = String(amount).trim()
+    if (unit === 'milliseconds') {
+      data[`${key}_ms`] = value
+    } else {
+      data[key] = value
+      data[`${key}_unit`] = unit
+    }
+    return
+  }
+
+  const numeric = toNumber(amount)
+  data[`${key}_ms`] = Math.max(minimumMs, Math.round((Number.isFinite(numeric) ? numeric : 0) * unitFactor(unit)))
 }
 
 export default {
@@ -132,12 +203,13 @@ export default {
 
   data() {
     return {
-      intervalAmount: 1,
+      intervalAmount: 1 as string | number,
       intervalUnit: 'seconds' as TimeUnit,
-      durationAmount: 1,
+      durationAmount: 1 as string | number,
       durationUnit: 'minutes' as TimeUnit,
       limitedDuration: false,
       initialized: false,
+      templatePlaceholder: '${variable}',
     }
   },
 
@@ -183,23 +255,13 @@ export default {
     if (data.name === undefined) data.name = data.autoMacro ?? ''
     delete data.autoMacro
 
-    const rawIntervalMs = data.interval_ms !== undefined
-      ? Number(data.interval_ms)
-      : data.interval !== undefined
-        ? Number(data.interval) * 1_000
-        : 1_000
-    const interval = bestUnit(Math.max(50, Number.isFinite(rawIntervalMs) ? rawIntervalMs : 1_000))
+    const interval = readTimeValue(data, 'interval', 1_000)!
     this.intervalAmount = interval.amount
     this.intervalUnit = interval.unit
 
-    const rawDurationMs = data.duration_ms !== undefined
-      ? Number(data.duration_ms)
-      : data.duration !== undefined
-        ? Number(data.duration) * 1_000
-        : undefined
-    this.limitedDuration = Number.isFinite(rawDurationMs) && Number(rawDurationMs) > 0
-    if (this.limitedDuration) {
-      const duration = bestUnit(Number(rawDurationMs))
+    const duration = readTimeValue(data, 'duration', undefined)
+    this.limitedDuration = duration !== undefined
+    if (duration) {
       this.durationAmount = duration.amount
       this.durationUnit = duration.unit
     }
@@ -218,17 +280,15 @@ export default {
 
     syncData() {
       if (!this.initialized) return
-      const intervalMs = Math.max(50, Math.round(Number(this.intervalAmount || 0) * unitFactor(this.intervalUnit)))
-      this.data.interval_ms = intervalMs
-      delete this.data.interval
+      writeTimeValue(this.data, 'interval', this.intervalAmount, this.intervalUnit, 50)
 
       if (this.limitedDuration) {
-        const durationMs = Math.max(1, Math.round(Number(this.durationAmount || 0) * unitFactor(this.durationUnit)))
-        this.data.duration_ms = durationMs
+        writeTimeValue(this.data, 'duration', this.durationAmount, this.durationUnit, 1)
       } else {
+        delete this.data.duration
+        delete this.data.duration_unit
         delete this.data.duration_ms
       }
-      delete this.data.duration
     },
   },
 }
