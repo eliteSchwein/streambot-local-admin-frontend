@@ -166,7 +166,11 @@
       "negativeVolumeHint": "Use a negative value to lower the volume",
       "loadPresetTitle": "Load audio preset",
       "preset": "Audio preset",
-      "presetPlaceholder": "Select preset"
+      "presetPlaceholder": "Select preset",
+      "setLinkVolumeTitle": "Set link volume",
+      "output": "Output",
+      "outputPlaceholder": "Select an output",
+      "linkVolumeHint": "Turns on per link control for the interface if needed"
     },
     "function": {
       "defaultTitle": "Function",
@@ -778,7 +782,8 @@
         "volumeControl": {
           "title": "Volume control",
           "setVolume": "Set volume",
-          "adjustVolume": "Adjust volume"
+          "adjustVolume": "Adjust volume",
+          "setLinkVolume": "Set link volume"
         },
         "musicControl": {
           "title": "Music control",
@@ -1872,7 +1877,14 @@
       "saveFailed": "Failed to save virtual audio cable settings.",
       "dialogDescription": "Create, rename, enable or remove virtual audio cables. Route audio channels to them directly in the normal audio matrix.",
       "manage": "Virtual cables"
-    }
+    },
+    "perLink": {
+      "toggle": "Per link",
+      "active": "Per link control",
+      "hint": "Volume is set per link in the output columns"
+    },
+    "notConnected": "not connected",
+    "removeLink": "Remove link"
   },
   "currentGame": {
     "title": "Currently Active Game",
@@ -1928,7 +1940,9 @@
       "noPresets": "No audio presets available.",
       "applyPreset": "Apply preset",
       "presetVolumes": "{count} volume tracks",
-      "presetMappings": "{count} mappings"
+      "presetMappings": "{count} mappings",
+      "notConnected": "not connected",
+      "removeLink": "Remove link"
     },
     "system": {
       "cpuLoad": "CPU load",

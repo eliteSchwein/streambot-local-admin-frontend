@@ -82,6 +82,7 @@ declare module 'vue' {
     MacroAssetSelect: typeof import('./components/accordions/macro/media/MacroAssetSelect.vue')['default']
     MacroAudioAdjustVolumeTaskAccordion: typeof import('./components/accordions/macro/audio/MacroAudioAdjustVolumeTaskAccordion.vue')['default']
     MacroAudioLoadPresetTaskAccordion: typeof import('./components/accordions/macro/audio/MacroAudioLoadPresetTaskAccordion.vue')['default']
+    MacroAudioSetLinkVolumeTaskAccordion: typeof import('./components/accordions/macro/audio/MacroAudioSetLinkVolumeTaskAccordion.vue')['default']
     MacroAudioSetVolumeTaskAccordion: typeof import('./components/accordions/macro/audio/MacroAudioSetVolumeTaskAccordion.vue')['default']
     MacroAutoMacroResetIntervalTaskAccordion: typeof import('./components/accordions/macro/auto-macro/MacroAutoMacroResetIntervalTaskAccordion.vue')['default']
     MacroAutoMacroStartTaskAccordion: typeof import('./components/accordions/macro/auto-macro/MacroAutoMacroStartTaskAccordion.vue')['default']

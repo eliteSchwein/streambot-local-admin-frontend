@@ -995,6 +995,7 @@ export default {
       if (item?.task?.channel === 'audio') {
         const audioComponentsByMethod: Record<string, string> = {
           set_volume: 'MacroAudioSetVolumeTaskAccordion',
+          set_link_volume: 'MacroAudioSetLinkVolumeTaskAccordion',
           adjust_volume: 'MacroAudioAdjustVolumeTaskAccordion',
           relative_volume: 'MacroAudioAdjustVolumeTaskAccordion',
           load_preset: 'MacroAudioLoadPresetTaskAccordion',

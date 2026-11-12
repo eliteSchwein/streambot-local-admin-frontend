@@ -85,7 +85,49 @@
                 <td class="audio-name-column">
                   <div class="font-weight-medium">{{ key }}</div>
                   <div class="text-caption text-medium-emphasis">
-                    {{ formatPercent(getVolumeValue(String(key), device)) }}
+                    {{
+                      isPerLinkControl(device)
+                        ? $t('audio.perLink.active')
+                        : formatPercent(getVolumeValue(String(key), device))
+                    }}
+                  </div>
+                  <v-switch
+                    v-if="isPipewireSink(device)"
+                    :model-value="isPerLinkControl(device)"
+                    :label="$t('audio.perLink.toggle')"
+                    color="primary"
+                    density="compact"
+                    hide-details
+                    class="audio-per-link-switch"
+                    @update:model-value="setPerLinkControl(String(key), Boolean($event))"
+                  />
+
+                  <!-- Links to outputs that are not connected (no column above). -->
+                  <div
+                    v-if="offlineLinkedOutputs(device).length > 0"
+                    class="audio-offline-links"
+                  >
+                    <div class="audio-offline-links__title">
+                      {{ $t('audio.notConnected') }}
+                    </div>
+                    <div
+                      v-for="outputName in offlineLinkedOutputs(device)"
+                      :key="outputName"
+                      class="audio-offline-link"
+                      :title="outputName"
+                    >
+                      <v-icon icon="mdi-link-variant-off" size="14" class="flex-shrink-0" />
+                      <span class="audio-offline-link__text">{{ prettySinkName(outputName) }}</span>
+                      <v-btn
+                        icon="mdi-close"
+                        size="x-small"
+                        variant="text"
+                        density="compact"
+                        class="flex-shrink-0"
+                        :title="$t('audio.removeLink')"
+                        @click="removeLink(String(key), outputName)"
+                      />
+                    </div>
                   </div>
                 </td>
 
@@ -109,6 +151,14 @@
                       @click="setVolume(String(key), 0)"
                     />
 
+                    <span
+                      v-if="isPerLinkControl(device)"
+                      class="text-caption text-medium-emphasis audio-per-link-hint"
+                    >
+                      {{ $t('audio.perLink.hint') }}
+                    </span>
+
+                    <template v-else>
                     <v-btn
                       density="compact"
                       elevation="0"
@@ -139,6 +189,7 @@
                       :disabled="device.muted"
                       @click="stepVolume(String(key), device, 1)"
                     />
+                    </template>
                   </div>
                 </td>
 
@@ -167,6 +218,62 @@
                     @update:modelValue="toggleSinkLink(String(key), output, Boolean($event))"
                   />
                   <span v-else class="text-disabled">—</span>
+
+                  <!-- Per-link volume of this channel -> output link. -->
+                  <v-menu
+                    v-if="isPerLinkControl(device) && hasLinkVolume(device, output)"
+                    :close-on-content-click="false"
+                    location="bottom"
+                  >
+                    <template #activator="{ props: menuProps }">
+                      <v-chip
+                        v-bind="menuProps"
+                        size="x-small"
+                        variant="tonal"
+                        :color="device.muted ? 'red' : 'primary'"
+                        prepend-icon="mdi-tune-vertical"
+                        class="audio-link-volume-chip"
+                      >
+                        {{ formatPercent(getLinkVolumeValue(String(key), device, output)) }}
+                      </v-chip>
+                    </template>
+
+                    <v-card min-width="280" class="pa-2">
+                      <div class="text-caption text-medium-emphasis px-1">
+                        {{ key }} → {{ outputLabel(output) }}
+                      </div>
+                      <div class="audio-control-row">
+                        <v-btn
+                          density="compact"
+                          elevation="0"
+                          variant="text"
+                          icon="mdi-minus"
+                          @click="stepLinkVolume(String(key), device, output, -1)"
+                        />
+                        <v-slider
+                          class="audio-slider"
+                          hide-details
+                          :max="Number(device.max_range ?? 1)"
+                          :min="Number(device.min_range ?? 0)"
+                          :step="Number(device.steps_range ?? 0.01)"
+                          :model-value="getLinkVolumeValue(String(key), device, output)"
+                          density="compact"
+                          @update:modelValue="queueLinkVolume(String(key), output, Number($event))"
+                          @end="flushLinkVolume(String(key), output)"
+                        />
+                        <v-btn
+                          density="compact"
+                          elevation="0"
+                          variant="text"
+                          icon="mdi-plus"
+                          @click="stepLinkVolume(String(key), device, output, 1)"
+                        />
+                        <span class="text-caption audio-link-volume-percent">
+                          {{ formatPercent(getLinkVolumeValue(String(key), device, output)) }}
+                        </span>
+                      </div>
+                    </v-card>
+                  </v-menu>
                 </td>
               </tr>
 
@@ -334,6 +441,7 @@ import { mapState } from 'pinia'
 import { useAppStore } from '@/stores/app'
 import AudioPresetSaveDialog from '@/components/dialogs/AudioPresetSaveDialog.vue'
 import AudioPresetDeleteConfirmDialog from '@/components/dialogs/AudioPresetDeleteConfirmDialog.vue'
+import { prettySinkName } from '@/helper/AudioOutputHelper'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
 import VirtualAudioCableSettingsDialog from '@/components/dialogs/VirtualAudioCableSettingsDialog.vue'
 import YoloboxAudio from "@/components/yolobox/YoloboxAudio.vue";
@@ -351,6 +459,8 @@ export default {
   data() {
     return {
       volumeDebounceTimers: {} as Record<string, ReturnType<typeof setTimeout>>,
+      linkVolumeDrafts: {} as Record<string, number>,
+      linkVolumeTimers: {} as Record<string, ReturnType<typeof setTimeout>>,
       volumeDrafts: {} as Record<string, number>,
       outputVolumeDebounceTimers: {} as Record<string, ReturnType<typeof setTimeout>>,
       outputVolumeDrafts: {} as Record<string, number>,
@@ -626,6 +736,84 @@ export default {
     setVolume(audioInterface: string, volume: number) {
       this.clearSelectedPreset()
       this.sendWebsocket('set_volume', { interface: audioInterface, volume })
+    },
+
+    prettySinkName,
+
+    // Linked outputs that are currently not available (e.g. unplugged).
+    offlineLinkedOutputs(device: any): string[] {
+      if (!this.isPipewireSink(device)) return []
+      const linked: string[] = Array.isArray(device?.linked_outputs) ? device.linked_outputs.map(String) : []
+      const available = new Set(this.audioOutputList.map((output: AudioOutput) => this.outputIdentifier(output)))
+      return linked.filter(name => !available.has(name))
+    },
+
+    removeLink(audioInterface: string, outputName: string) {
+      this.clearSelectedPreset()
+      this.sendWebsocket('link_sink', { interface: audioInterface, output: outputName, linked: false })
+    },
+
+    isPerLinkControl(device: any): boolean {
+      return device?.per_link_control === true && this.isPipewireSink(device)
+    },
+
+    setPerLinkControl(audioInterface: string, enabled: boolean) {
+      this.clearSelectedPreset()
+      this.sendWebsocket('set_per_link_control', { interface: audioInterface, enabled })
+    },
+
+    hasLinkVolume(device: any, output: AudioOutput): boolean {
+      const outputName = this.outputIdentifier(output)
+      const linkedOutputs = Array.isArray(device?.linked_outputs) ? device.linked_outputs.map(String) : []
+      return Boolean(outputName) && linkedOutputs.includes(outputName)
+    },
+
+    linkVolumeKey(audioInterface: string, output: AudioOutput): string {
+      return `${audioInterface}\u0000${this.outputIdentifier(output)}`
+    },
+
+    getLinkVolumeValue(audioInterface: string, device: any, output: AudioOutput): number {
+      const draft = this.linkVolumeDrafts[this.linkVolumeKey(audioInterface, output)]
+      if (draft !== undefined) return draft
+
+      const volume = Number(device?.link_volumes?.[this.outputIdentifier(output)])
+      return Number.isFinite(volume) ? volume : Number(device?.current_volume ?? device?.default_volume ?? 0)
+    },
+
+    stepLinkVolume(audioInterface: string, device: any, output: AudioOutput, direction: number) {
+      const current = this.getLinkVolumeValue(audioInterface, device, output)
+      const next = this.clampVolume(current + (this.getVolumeStep(device) * direction), device)
+
+      this.linkVolumeDrafts[this.linkVolumeKey(audioInterface, output)] = next
+      this.flushLinkVolume(audioInterface, output)
+    },
+
+    queueLinkVolume(audioInterface: string, output: AudioOutput, volume: number) {
+      this.clearSelectedPreset()
+      const key = this.linkVolumeKey(audioInterface, output)
+      this.linkVolumeDrafts[key] = volume
+
+      if (this.linkVolumeTimers[key]) clearTimeout(this.linkVolumeTimers[key])
+      this.linkVolumeTimers[key] = setTimeout(() => this.flushLinkVolume(audioInterface, output), 200)
+    },
+
+    flushLinkVolume(audioInterface: string, output: AudioOutput) {
+      const key = this.linkVolumeKey(audioInterface, output)
+      const volume = this.linkVolumeDrafts[key]
+      if (volume === undefined) return
+
+      if (this.linkVolumeTimers[key]) {
+        clearTimeout(this.linkVolumeTimers[key])
+        delete this.linkVolumeTimers[key]
+      }
+
+      delete this.linkVolumeDrafts[key]
+      this.clearSelectedPreset()
+      this.sendWebsocket('set_link_volume', {
+        interface: audioInterface,
+        output: this.outputIdentifier(output),
+        volume,
+      })
     },
 
     unmute(audioInterface: string, audioData: any) {
@@ -987,6 +1175,68 @@ export default {
 </script>
 
 <style scoped>
+.audio-per-link-switch {
+  margin-top: 2px;
+  margin-left: 8px;
+}
+
+.audio-per-link-switch :deep(.v-label) {
+  font-size: .75rem;
+}
+
+.audio-per-link-hint {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Disconnected links: quiet list, long names truncate, remove button stays visible. */
+.audio-offline-links {
+  margin-top: 6px;
+  max-width: 220px;
+  padding-left: 8px;
+  border-left: 2px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.audio-offline-links__title {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  opacity: .55;
+}
+
+.audio-offline-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 22px;
+  opacity: .7;
+  transition: opacity .15s ease;
+}
+
+.audio-offline-link:hover {
+  opacity: 1;
+}
+
+.audio-offline-link__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .75rem;
+}
+
+.audio-link-volume-chip {
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.audio-link-volume-percent {
+  min-width: 40px;
+  text-align: right;
+}
+
 .preset-toolbar {
   min-width: min(100%, 520px);
 }

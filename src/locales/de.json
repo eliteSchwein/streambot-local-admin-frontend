@@ -166,7 +166,11 @@
       "negativeVolumeHint": "Negativer Wert verringert die Lautstärke",
       "loadPresetTitle": "Audio-Vorlage laden",
       "preset": "Audio-Vorlage",
-      "presetPlaceholder": "Vorlage auswählen"
+      "presetPlaceholder": "Vorlage auswählen",
+      "setLinkVolumeTitle": "Verbindungslautstärke setzen",
+      "output": "Ausgang",
+      "outputPlaceholder": "Ausgang auswählen",
+      "linkVolumeHint": "Aktiviert bei Bedarf die Pro-Verbindung-Steuerung für das Interface"
     },
     "function": {
       "defaultTitle": "Funktion",
@@ -778,7 +782,8 @@
         "volumeControl": {
           "title": "Lautstärkeregelung",
           "setVolume": "Lautstärke setzen",
-          "adjustVolume": "Lautstärke anpassen"
+          "adjustVolume": "Lautstärke anpassen",
+          "setLinkVolume": "Verbindungslautstärke setzen"
         },
         "musicControl": {
           "title": "Musiksteuerung",
@@ -1872,7 +1877,14 @@
       "saveFailed": "Virtuelle Audiokabel konnten nicht gespeichert werden.",
       "dialogDescription": "Erstelle, benenne, aktiviere oder entferne virtuelle Audiokabel. Die Audiokanäle werden direkt in der normalen Audiomatrix darauf geroutet.",
       "manage": "Virtuelle Kabel"
-    }
+    },
+    "perLink": {
+      "toggle": "Pro Verbindung",
+      "active": "Pro-Verbindung-Steuerung",
+      "hint": "Lautstärke wird pro Verbindung in den Ausgangsspalten eingestellt"
+    },
+    "notConnected": "nicht verbunden",
+    "removeLink": "Verbindung entfernen"
   },
   "currentGame": {
     "title": "Aktuell aktives Spiel",
@@ -1928,7 +1940,9 @@
       "noPresets": "Keine Audio-Presets verfügbar.",
       "applyPreset": "Preset anwenden",
       "presetVolumes": "{count} Lautstärken",
-      "presetMappings": "{count} Zuordnungen"
+      "presetMappings": "{count} Zuordnungen",
+      "notConnected": "nicht verbunden",
+      "removeLink": "Verbindung entfernen"
     },
     "system": {
       "cpuLoad": "CPU-Auslastung",

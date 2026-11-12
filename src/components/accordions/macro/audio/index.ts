@@ -1,6 +1,7 @@
 export { default as MacroAudioAdjustVolumeTaskAccordion } from './MacroAudioAdjustVolumeTaskAccordion.vue'
 export { default as MacroAudioLoadPresetTaskAccordion } from './MacroAudioLoadPresetTaskAccordion.vue'
 export { default as MacroAudioSetVolumeTaskAccordion } from './MacroAudioSetVolumeTaskAccordion.vue'
+export { default as MacroAudioSetLinkVolumeTaskAccordion } from './MacroAudioSetLinkVolumeTaskAccordion.vue'
 
 import type { MacroTaskPresetRegistration } from '../preset-registry-types'
 
@@ -31,6 +32,20 @@ export const audioMacroTaskPresets: MacroTaskPresetRegistration[] = [
                     channel: 'audio',
                     method: 'adjust_volume',
                     data: { interface: '', volume: 10 },
+                  } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.audio.title", icon: "mdi-volume-high" },
+      { titleKey: "macro.presets.audio.volumeControl.title", icon: "mdi-volume-high" },
+    ],
+    titleKey: "macro.presets.audio.volumeControl.setLinkVolume",
+    icon: "mdi-tune-vertical",
+    order: 53.5,
+    create: () => ({ type: 'task', task: {
+                    channel: 'audio',
+                    method: 'set_link_volume',
+                    data: { interface: '', output: '', volume: 50 },
                   } }),
   },
   {
