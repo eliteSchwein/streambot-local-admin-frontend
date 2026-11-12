@@ -2036,7 +2036,20 @@
       "updating": "Wird aktualisiert...",
       "backendBlocked": "Das Backend-Update ist blockiert, bis diese Updates abgeschlossen sind: {managers}",
       "blockedByBackend": "Blockiert, solange das Backend-Update läuft",
-      "updateAll": "Alle aktualisieren"
+      "updateAll": "Alle aktualisieren",
+      "packageProgress": "{package} ({index}/{total})",
+      "packageStep": "Paket {index}/{total}",
+      "stages": {
+        "preparing": "Vorbereiten",
+        "downloading": "Herunterladen",
+        "extracting": "Entpacken",
+        "installing": "Installieren",
+        "configuring": "Konfigurieren",
+        "pulling": "Änderungen abrufen",
+        "dependencies": "Abhängigkeiten installieren",
+        "verifying": "Überprüfen",
+        "restarting": "Neustarten"
+      }
     },
     "storageLegend": {
       "category": "Kategorie",

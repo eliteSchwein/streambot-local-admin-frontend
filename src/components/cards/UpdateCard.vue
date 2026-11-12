@@ -92,6 +92,65 @@
             </v-list-item-subtitle>
 
             <div
+              v-if="manager.updating"
+              class="update-card__progress mt-2"
+            >
+              <div class="d-flex align-center justify-space-between ga-2 text-caption">
+                <span class="text-truncate">
+                  {{ progressTitle(manager) }}
+                </span>
+                <span
+                  v-if="manager.progress?.percent !== undefined"
+                  class="text-grey-lighten-1 flex-shrink-0"
+                >
+                  {{ formatPercent(manager.progress.percent) }}
+                </span>
+              </div>
+
+              <v-progress-linear
+                :model-value="manager.progress?.percent ?? 0"
+                :indeterminate="manager.progress?.percent === undefined"
+                color="primary"
+                bg-color="grey-darken-1"
+                height="6"
+                rounded
+                class="mt-1"
+              />
+
+              <template v-if="manager.progress?.package">
+                <div class="d-flex align-center justify-space-between ga-2 text-caption text-grey-lighten-1 mt-2">
+                  <span class="text-truncate">
+                    {{ packageTitle(manager.progress) }}
+                  </span>
+                  <span
+                    v-if="manager.progress.package_percent !== undefined"
+                    class="flex-shrink-0"
+                  >
+                    {{ formatPercent(manager.progress.package_percent) }}
+                  </span>
+                </div>
+
+                <v-progress-linear
+                  :model-value="manager.progress.package_percent ?? 0"
+                  :indeterminate="manager.progress.package_percent === undefined"
+                  color="secondary"
+                  bg-color="grey-darken-1"
+                  height="3"
+                  rounded
+                  class="mt-1"
+                />
+              </template>
+
+              <div
+                v-if="manager.progress?.message"
+                class="update-card__progress-message text-caption text-grey mt-1"
+                :title="manager.progress.message"
+              >
+                {{ manager.progress.message }}
+              </div>
+            </div>
+
+            <div
               v-if="manager.error"
               class="text-caption text-error mt-1"
             >
@@ -147,6 +206,16 @@ type AptUpdate = {
   latest_version?: string
 }
 
+type UpdateProgress = {
+  stage: string
+  percent?: number
+  package?: string
+  package_index?: number
+  package_total?: number
+  package_percent?: number
+  message?: string
+}
+
 type UpdateManager = {
   name: string
   type: 'git' | 'apt' | 'ollama' | 'piper'
@@ -158,6 +227,7 @@ type UpdateManager = {
   update_available: boolean
   checking: boolean
   updating: boolean
+  progress?: UpdateProgress
   error?: string
 }
 
@@ -282,6 +352,37 @@ export default {
       void getWebsocketClient()?.send('update_all')
     },
 
+    progressTitle(manager: UpdateManager): string {
+      const progress = manager.progress
+      if (!progress) return this.$t('system.updates.updating') as string
+
+      const key = `system.updates.stages.${progress.stage}`
+      const stage = this.$te(key) ? this.$t(key) as string : progress.stage
+
+      if (!progress.package && progress.package_index && progress.package_total) {
+        return `${stage} · ${this.$t('system.updates.packageStep', {
+          index: progress.package_index,
+          total: progress.package_total,
+        })}`
+      }
+
+      return stage
+    },
+
+    packageTitle(progress: UpdateProgress): string {
+      if (!progress.package_index || !progress.package_total) return progress.package ?? ''
+
+      return this.$t('system.updates.packageProgress', {
+        package: progress.package,
+        index: progress.package_index,
+        total: progress.package_total,
+      }) as string
+    },
+
+    formatPercent(percent: number): string {
+      return `${Math.round(Number(percent) || 0)}%`
+    },
+
     gitVersion(manager: UpdateManager): string {
       const current = manager.current_version || manager.commit || '—'
       const latest = manager.latest_version || manager.latest_commit || current
@@ -317,6 +418,16 @@ export default {
 .update-card__update-btn {
   width: 112px;
   min-width: 112px;
+}
+
+.update-card__progress {
+  max-width: 100%;
+}
+
+.update-card__progress-message {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .update-card__packages {

@@ -22,7 +22,12 @@ const isDashboardMode = computed(() => props.mode === 'dashboard')
 const autoMacroName = computed(() => String(props.autoMacro?.name ?? ''))
 
 const progressValue = computed(() => {
-  const interval = Number(props.autoMacro?.interval_ms ?? Number(props.autoMacro?.interval ?? 0) * 1000)
+  // While a temporary interval is active the backend counts down from it,
+  // so it has to be used as the reference instead of the configured interval.
+  const temporaryInterval = Number(props.autoMacro?.temporary_interval_ms)
+  const interval = Number.isFinite(temporaryInterval) && temporaryInterval > 0
+    ? temporaryInterval
+    : Number(props.autoMacro?.interval_ms ?? Number(props.autoMacro?.interval ?? 0) * 1000)
   const currentInterval = Number(props.autoMacro?.current_interval_ms ?? Number(props.autoMacro?.current_interval ?? 0) * 1000)
 
   if (!interval || interval <= 0) return 0
@@ -78,18 +83,15 @@ function toggleAutoMacro(value: boolean | null) {
     rounded
     class="auto-macro-dashboard mb-2"
   >
+    <div
+      v-if="autoMacro?.enabled === true"
+      class="auto-macro-dashboard__progress"
+      :style="{ width: `${progressValue}%` }"
+    />
+
     <v-toolbar-title class="d-flex align-center min-width-0" style="font-size: 1rem">
       <span class="text-truncate">{{ autoMacroName }}</span>
     </v-toolbar-title>
-
-    <v-progress-linear
-      :active="autoMacro?.enabled === true"
-      :model-value="progressValue"
-      location="bottom"
-      absolute
-      rounded
-      color="grey-darken-1"
-    />
 
     <template #append>
       <v-switch
@@ -173,6 +175,19 @@ function toggleAutoMacro(value: boolean | null) {
 <style scoped lang="scss">
 .auto-macro-dashboard {
   min-height: 48px;
+  // Own stacking context so the z-index:-1 progress fill sits above the
+  // toolbar background but below its content.
+  isolation: isolate;
+}
+
+.auto-macro-dashboard__progress {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  pointer-events: none;
+  background: rgba(var(--v-theme-on-surface), 0.15);
+  // Backend pushes updates every ~250ms; smooth the steps in between.
+  transition: width 250ms linear;
 }
 
 .auto-macro-row {

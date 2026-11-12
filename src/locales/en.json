@@ -2036,7 +2036,20 @@
       "updating": "Updating...",
       "backendBlocked": "Backend update is blocked until these updates finish: {managers}",
       "blockedByBackend": "Blocked while the backend update is running",
-      "updateAll": "Update all"
+      "updateAll": "Update all",
+      "packageProgress": "{package} ({index}/{total})",
+      "packageStep": "Package {index}/{total}",
+      "stages": {
+        "preparing": "Preparing",
+        "downloading": "Downloading",
+        "extracting": "Extracting",
+        "installing": "Installing",
+        "configuring": "Configuring",
+        "pulling": "Pulling changes",
+        "dependencies": "Installing dependencies",
+        "verifying": "Verifying",
+        "restarting": "Restarting"
+      }
     },
     "storageLegend": {
       "category": "Category",
