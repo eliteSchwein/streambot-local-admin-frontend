@@ -25,8 +25,12 @@ export default class WebsocketClient {
   }
 
   public async disconnect() {
-    if(this.websocket) {
-      this.websocket.close()
+    const socket = this.websocket
+    if(socket) {
+      // Detach first so the old socket's close/error events are ignored.
+      this.websocket = undefined
+      this.rejectPendingRequests('websocket disconnected')
+      socket.close()
       await sleep(100)
     }
   }

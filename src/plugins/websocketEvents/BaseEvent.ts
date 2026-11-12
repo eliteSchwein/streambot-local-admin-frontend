@@ -16,8 +16,17 @@ export default class BaseEvent {
   }
 
   register() {
+    const socket = this.webSocketClient?.getWebsocket()
+    if (!socket) return
+
     for(const eventType of this.eventTypes) {
-      this.webSocketClient?.getWebsocket()?.addEventListener(eventType, (websocket: Websocket, event: any) => void this.handle(websocket, event))
+      socket.addEventListener(eventType, (websocket: Websocket, event: any) => {
+        // Ignore late events (e.g. close after a reconnect) from sockets that
+        // have already been replaced, otherwise they flip the state of the
+        // current connection back to disconnected.
+        if (this.webSocketClient.getWebsocket() !== socket) return
+        void this.handle(websocket, event)
+      })
     }
   }
 
