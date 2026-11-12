@@ -19,6 +19,7 @@
       <ObsAudioMixer
         :connection="selectedConnection"
         :audio-data="selectedAudioData"
+        :scenes="selectedSceneData"
       />
     </v-col>
 
@@ -26,6 +27,7 @@
       <ObsSceneBrowser
         :connection="selectedConnection"
         :scenes="selectedSceneData"
+        :audio-data="selectedAudioData"
       />
     </v-col>
   </v-row>

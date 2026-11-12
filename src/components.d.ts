@@ -254,6 +254,7 @@ declare module 'vue' {
     NavbarThrottleWarning: typeof import('./components/navbar/NavbarThrottleWarning.vue')['default']
     NavbarUpdateStatus: typeof import('./components/navbar/NavbarUpdateStatus.vue')['default']
     Navigation: typeof import('./components/Navigation.vue')['default']
+    ObsAudioControl: typeof import('./components/obs/ObsAudioControl.vue')['default']
     ObsAudioMixer: typeof import('./components/obs/ObsAudioMixer.vue')['default']
     ObsCategoryPickerDialog: typeof import('./components/dialogs/ObsCategoryPickerDialog.vue')['default']
     ObsSceneBrowser: typeof import('./components/obs/ObsSceneBrowser.vue')['default']

@@ -55,21 +55,44 @@
             :key="getSceneKey(obsScene, selectedCanvas)"
             :value="getSceneKey(obsScene, selectedCanvas)"
             :color="isActiveScene(obsScene) ? 'primary' : undefined"
-            :class="{ 'obs-active-scene': isActiveScene(obsScene) }"
+            :class="{
+              'obs-active-scene': isActiveScene(obsScene),
+              'obs-switching-scene': isSwitchingScene(obsScene),
+            }"
           >
             <v-expansion-panel-title>
+              <v-progress-linear
+                :active="isSwitchingScene(obsScene)"
+                indeterminate
+                absolute
+                location="bottom"
+                color="primary"
+                height="2"
+              />
               <div class="d-flex align-center justify-space-between w-100 pr-3 ga-3">
                 <span class="text-truncate">{{ obsScene.name }}</span>
 
                 <div class="d-flex align-center ga-2">
-                  <v-chip
-                    v-if="isActiveScene(obsScene)"
-                    size="x-small"
-                    color="primary"
-                    variant="flat"
-                  >
-                    {{ $t('obs.settings.activeScene') }}
-                  </v-chip>
+                  <v-fade-transition mode="out-in">
+                    <v-chip
+                      v-if="isSwitchingScene(obsScene)"
+                      key="switching"
+                      size="x-small"
+                      color="primary"
+                      :variant="isActiveScene(obsScene) ? 'flat' : 'tonal'"
+                    >
+                      {{ $t('obs.settings.switching') }}
+                    </v-chip>
+                    <v-chip
+                      v-else-if="isActiveScene(obsScene)"
+                      key="live"
+                      size="x-small"
+                      color="primary"
+                      variant="flat"
+                    >
+                      {{ $t('obs.settings.activeScene') }}
+                    </v-chip>
+                  </v-fade-transition>
 
                   <v-chip size="x-small" variant="tonal">
                     {{ getItems(obsScene).length }}
@@ -115,6 +138,18 @@
                         <span class="text-truncate">{{ obsItem.name }}</span>
                       </div>
 
+                      <v-btn
+                        v-if="getAudioDevice(obsItem)"
+                        size="x-small"
+                        density="comfortable"
+                        variant="text"
+                        :color="getAudioDevice(obsItem).muted ? 'red' : undefined"
+                        :icon="getAudioDevice(obsItem).muted ? 'mdi-volume-variant-off' : 'mdi-volume-high'"
+                        :title="$t('obs.settings.toggleMute')"
+                        class="ml-auto mr-n2"
+                        @click.stop="toggleSourceMute(obsItem)"
+                      />
+
                       <v-chip
                         size="x-small"
                         :color="isSourceEnabled(obsItem) ? 'primary' : undefined"
@@ -142,6 +177,13 @@
                       </v-btn>
                     </div>
 
+                    <ObsAudioControl
+                      v-if="getAudioDevice(obsItem)"
+                      :device="getAudioDevice(obsItem)"
+                      :connection="connection"
+                      class="px-3 pb-3"
+                    />
+
                     <v-expansion-panels
                       v-if="getFlattenedChildItems(obsItem).length > 0"
                       v-model="expandedChildSources"
@@ -166,6 +208,18 @@
                                 {{ childEntry.item.name }}
                               </span>
                             </div>
+
+                            <v-btn
+                              v-if="getAudioDevice(childEntry.item)"
+                              size="x-small"
+                              density="comfortable"
+                              variant="text"
+                              :color="getAudioDevice(childEntry.item).muted ? 'red' : undefined"
+                              :icon="getAudioDevice(childEntry.item).muted ? 'mdi-volume-variant-off' : 'mdi-volume-high'"
+                              :title="$t('obs.settings.toggleMute')"
+                              class="ml-auto mr-n2"
+                              @click.stop="toggleSourceMute(childEntry.item)"
+                            />
 
                             <v-chip
                               size="x-small"
@@ -193,6 +247,13 @@
                               {{ isSourceEnabled(childEntry.item) ? $t('obs.settings.disable') : $t('obs.settings.enable') }}
                             </v-btn>
                           </div>
+
+                          <ObsAudioControl
+                            v-if="getAudioDevice(childEntry.item)"
+                            :device="getAudioDevice(childEntry.item)"
+                            :connection="connection"
+                            class="px-3 pb-3"
+                          />
 
                           <v-expansion-panels
                             v-if="getFilters(childEntry.item).length > 0"
@@ -314,8 +375,13 @@
 </template>
 <script lang="ts">
 import { getWebsocketClient } from '@/plugins/websocketInstance'
+import ObsAudioControl from '@/components/obs/ObsAudioControl.vue'
+import { findAudioDevice, getObsSourceIcon } from '@/helper/ObsAudioHelper'
 
 export default {
+  components: {
+    ObsAudioControl,
+  },
 
   props: {
     connection: {
@@ -325,6 +391,10 @@ export default {
     scenes: {
       type: Array,
       default: () => [],
+    },
+    audioData: {
+      type: Object,
+      default: () => ({}),
     },
     currentScene: {
       type: Object,
@@ -347,8 +417,15 @@ export default {
       expandedChildSources: [] as string[],
       expandedFilters: [] as string[],
       defaultExpandedSceneKey: null as string | null,
+      // Scene that was clicked and is waiting for OBS to confirm the switch.
+      switchingSceneKey: '' as string,
+      switchingTimer: undefined as ReturnType<typeof setTimeout> | undefined,
       selectedCanvasKey: '' as string,
     }
+  },
+
+  beforeUnmount() {
+    if(this.switchingTimer) clearTimeout(this.switchingTimer)
   },
 
   computed: {
@@ -455,6 +532,22 @@ export default {
       return String(this.getCanvasUuid(canvas) || this.getCanvasName(canvas) || canvas?.index || '')
     },
 
+    getAudioDevice(source: any): any | undefined {
+      return findAudioDevice(this.audioData, source)
+    },
+
+    toggleSourceMute(source: any) {
+      const device = this.getAudioDevice(source)
+      if(!device) return
+
+      getWebsocketClient()?.send('obs_trigger_command', {
+        connection: this.connection,
+        obs_id: this.connection,
+        method: 'ToggleInputMute',
+        data: { inputUuid: device.inputUuid },
+      })
+    },
+
     getItems(scene: any): any[] {
       return Array.isArray(scene?.items) ? scene.items : []
     },
@@ -509,31 +602,7 @@ export default {
     },
 
     getSourceIcon(source: any): string {
-      if(source?.isGroup) return 'mdi-folder-outline'
-
-      const kind = String(
-        source?.inputKind
-        ?? source?.sourceType
-        ?? source?.kind
-        ?? '',
-      ).toLowerCase()
-
-      if(kind.includes('browser')) return 'mdi-web'
-      if(kind.includes('image')) return 'mdi-image-outline'
-      if(kind.includes('media')) return 'mdi-movie-open-outline'
-      if(kind.includes('ffmpeg')) return 'mdi-movie-open-outline'
-      if(kind.includes('vlc')) return 'mdi-playlist-play'
-      if(kind.includes('text')) return 'mdi-format-text'
-      if(kind.includes('audio')) return 'mdi-volume-high'
-      if(kind.includes('wasapi')) return 'mdi-volume-high'
-      if(kind.includes('pulse')) return 'mdi-volume-high'
-      if(kind.includes('alsa')) return 'mdi-volume-high'
-      if(kind.includes('capture')) return 'mdi-video-outline'
-      if(kind.includes('camera')) return 'mdi-camera-outline'
-      if(kind.includes('scene')) return 'mdi-view-dashboard-outline'
-      if(kind.includes('color')) return 'mdi-palette-outline'
-
-      return 'mdi-source-branch'
+      return getObsSourceIcon(source)
     },
 
     getFilterName(filter: any): string {
@@ -598,10 +667,18 @@ export default {
 
       if(this.defaultExpandedSceneKey === activeSceneKey) return
 
+      // Collapse the previous live scene and open the new one; scenes the
+      // user opened manually stay open.
+      const previousSceneKey = this.defaultExpandedSceneKey
       this.defaultExpandedSceneKey = activeSceneKey
-      this.expandedScenes = activeSceneKey ? [activeSceneKey] : []
-      this.expandedSources = []
-      this.expandedFilters = []
+
+      if(activeSceneKey && activeSceneKey === this.switchingSceneKey) {
+        this.clearSwitching()
+      }
+
+      const next = this.expandedScenes.filter(key => key !== previousSceneKey)
+      if(activeSceneKey && !next.includes(activeSceneKey)) next.push(activeSceneKey)
+      this.expandedScenes = next
     },
 
     sendObsCommand(method: string, data: Record<string, any>) {
@@ -613,7 +690,29 @@ export default {
       })
     },
 
+    // Backend flag (shared by all panels, incl. switches from OBS/cloud) or
+    // the local click until the backend confirms.
+    isSwitchingScene(scene: any): boolean {
+      if(scene?.switching === true) return true
+
+      return Boolean(this.switchingSceneKey)
+        && !this.isActiveScene(scene)
+        && this.getSceneKey(scene, this.selectedCanvas) === this.switchingSceneKey
+    },
+
+    clearSwitching() {
+      this.switchingSceneKey = ''
+      if(this.switchingTimer) clearTimeout(this.switchingTimer)
+      this.switchingTimer = undefined
+    },
+
     switchToScene(scene: any, canvas: any) {
+      // Show the switch immediately; cleared once OBS reports the new live
+      // scene (or after a timeout if the switch failed).
+      this.clearSwitching()
+      this.switchingSceneKey = this.getSceneKey(scene, canvas)
+      this.switchingTimer = setTimeout(() => this.clearSwitching(), 10_000)
+
       const data: Record<string, any> = {}
       const sceneUuid = String(scene?.uuid ?? scene?.sceneUuid ?? '')
       const sceneName = String(scene?.name ?? scene?.sceneName ?? '')
@@ -690,6 +789,47 @@ export default {
 
 .obs-active-scene :deep(.v-expansion-panel-title) {
   color: rgb(var(--v-theme-on-primary));
+}
+
+/* Short glow when a scene becomes live. */
+@keyframes obs-scene-activated {
+  0% { box-shadow: 0 0 0 0 rgba(var(--v-theme-primary), .7); }
+  100% { box-shadow: 0 0 0 10px rgba(var(--v-theme-primary), 0); }
+}
+
+/* Glow once the transition is done (switching ends on the live scene). */
+.obs-active-scene:not(.obs-switching-scene) {
+  animation: obs-scene-activated .8s ease-out;
+}
+
+/* Pulse while OBS performs the switch. */
+@keyframes obs-scene-switching {
+  0%, 100% { background-color: rgba(var(--obs-switch-pulse), .06); }
+  50% { background-color: rgba(var(--obs-switch-pulse), .26); }
+}
+
+/* Pulse only the scene's own title (not nested source panels); on the
+   (primary filled) live scene use a light tint. */
+.obs-switching-scene {
+  --obs-switch-pulse: var(--v-theme-primary);
+}
+
+.obs-switching-scene.obs-active-scene {
+  --obs-switch-pulse: var(--v-theme-on-primary);
+}
+
+.obs-switching-scene > :deep(.v-expansion-panel-title) {
+  animation: obs-scene-switching 1s ease-in-out infinite;
+}
+
+/* Animate live-scene and status changes instead of jumping. */
+.obs-browser-content :deep(.v-expansion-panel),
+.obs-browser-content :deep(.v-expansion-panel-title) {
+  transition: background-color .25s ease, color .25s ease;
+}
+
+.obs-browser-content :deep(.v-chip) {
+  transition: background-color .2s ease, color .2s ease;
 }
 
 .obs-browser-content {

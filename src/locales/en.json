@@ -1743,16 +1743,16 @@
       "addToCategory": "Add to category",
       "addToCategoryHint": "Choose the category that should receive the OBS source “{source}” and its currently known filters/transforms.",
       "category": "Category",
-      "searchCategory": "Search category…"
+      "searchCategory": "Search category…",
+      "toggleMute": "Mute / unmute",
+      "audio": "Audio",
+      "switching": "Switching…",
+      "noSources": "No sources"
     },
     "audioMixer": {
-      "title": "OBS Audio Mixer",
+      "title": "OBS Global Audio",
       "balance": "Balance",
-      "search": "Search Audio Track",
-      "volumeControl": "Volume",
-      "name": "Name",
-      "empty": "No Audio Tracks detected",
-      "showAll": "Show all"
+      "empty": "No global audio devices"
     },
     "instance": "OBS Instance"
   },
@@ -1900,7 +1900,7 @@
         "rotating_scenes": "Rotating scenes",
         "yolobox": "YoloBox",
         "obs_scenes": "OBS scenes",
-        "obs_audio": "OBS audio mixer",
+        "obs_audio": "OBS global audio",
         "audio_outputs": "Audio outputs",
         "bot_audio_channels": "Bot audio channels",
         "commands": "Commands",
