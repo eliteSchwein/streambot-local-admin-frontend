@@ -260,6 +260,7 @@ declare module 'vue' {
     ObsCategoryPickerDialog: typeof import('./components/dialogs/ObsCategoryPickerDialog.vue')['default']
     ObsSceneBrowser: typeof import('./components/obs/ObsSceneBrowser.vue')['default']
     OBSSettings: typeof import('./components/obs/OBSSettings.vue')['default']
+    OllamaProgress: typeof import('./components/OllamaProgress.vue')['default']
     OverlayCustomizationDialog: typeof import('./components/dialogs/OverlayCustomizationDialog.vue')['default']
     OverlayEditorDialog: typeof import('./components/dialogs/OverlayEditorDialog.vue')['default']
     PowerDialog: typeof import('./components/dialogs/PowerDialog.vue')['default']

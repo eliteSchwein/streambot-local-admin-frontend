@@ -2731,6 +2731,22 @@
           "effective": "Aktive Kontextgröße",
           "ollamaDefault": "Ollama-Standard",
           "recommendedSuffix": "empfohlen"
+        },
+        "progress": {
+          "install": "Ollama wird installiert",
+          "vulkanBuild": "GPU-Backend (Vulkan) wird gebaut",
+          "stages": {
+            "preparing": "Vorbereiten",
+            "downloading": "Herunterladen",
+            "extracting": "Entpacken",
+            "installing": "Installieren",
+            "removing": "Alte Modelle entfernen",
+            "verifying": "Überprüfen",
+            "loading": "Modell laden",
+            "dependencies": "Abhängigkeiten installieren",
+            "configuring": "Konfigurieren",
+            "building": "Kompilieren"
+          }
         }
       },
       "steam": {

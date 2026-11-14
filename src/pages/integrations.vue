@@ -847,25 +847,29 @@
               </v-btn-toggle>
 
               <template v-if="!ollamaExternalEnabled">
-                <v-alert
+                <OllamaProgress
                   v-if="ollamaStatus.installing"
-                  type="info"
-                  variant="tonal"
-                  density="compact"
+                  :progress="ollamaStatus.progress"
+                  :label="$t('integrations.ui.ollama.progress.install')"
                   class="mb-4"
-                >
-                  {{ $t('integrations.ui.ollama.installing') }}
-                </v-alert>
+                />
 
-                <v-alert
-                  v-if="ollamaStatus.changing_model"
-                  type="info"
-                  variant="tonal"
-                  density="compact"
+                <template v-if="ollamaStatus.changing_model">
+                  <div class="text-body-2 text-medium-emphasis mb-2">
+                    {{ $t('integrations.ui.ollama.changingModel') }}
+                  </div>
+                  <OllamaProgress
+                    :progress="ollamaStatus.progress"
+                    class="mb-4"
+                  />
+                </template>
+
+                <OllamaProgress
+                  v-if="ollamaStatus.vulkan_build"
+                  :progress="ollamaStatus.vulkan_build"
+                  :label="$t('integrations.ui.ollama.progress.vulkanBuild')"
                   class="mb-4"
-                >
-                  {{ $t('integrations.ui.ollama.changingModel') }}
-                </v-alert>
+                />
 
                 <div class="text-body-2 text-medium-emphasis mb-4">
                   {{ $t('integrations.ui.ollama.internalDescription') }}
@@ -1219,6 +1223,7 @@
 <script lang="ts">
 import { useAppStore } from '@/stores/app'
 import { getWebsocketClient } from '@/plugins/websocketInstance'
+import type { OllamaProgress as OllamaProgressState } from '@/components/OllamaProgress.vue'
 
 type TwitchAuthType = 'control' | 'message'
 
@@ -1367,6 +1372,8 @@ export default {
       running: boolean
       installing: boolean
       changing_model: boolean
+      progress: OllamaProgressState | null
+      vulkan_build: OllamaProgressState | null
       model: string
       models: string[]
       recommended_model: string
@@ -1392,6 +1399,8 @@ export default {
         running: Boolean(ollama.running),
         installing: Boolean(ollama.installing),
         changing_model: Boolean(ollama.changing_model),
+        progress: ollama.progress ?? null,
+        vulkan_build: ollama.vulkan_build ?? null,
         model: String(ollama.model ?? ''),
         models: Array.isArray(ollama.models) ? ollama.models.map(String) : [],
         recommended_model: String(ollama.recommended_model ?? ''),
