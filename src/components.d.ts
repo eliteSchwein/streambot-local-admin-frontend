@@ -280,6 +280,7 @@ declare module 'vue' {
     UploadCard: typeof import('./components/cards/UploadCard.vue')['default']
     VirtualAudioCableSettings: typeof import('./components/audio/VirtualAudioCableSettings.vue')['default']
     VirtualAudioCableSettingsDialog: typeof import('./components/dialogs/VirtualAudioCableSettingsDialog.vue')['default']
+    WebcamStreamCard: typeof import('./components/cards/WebcamStreamCard.vue')['default']
     WledIntegrationDialog: typeof import('./components/dialogs/WledIntegrationDialog.vue')['default']
     YamlImportExportButtons: typeof import('./components/YamlImportExportButtons.vue')['default']
     YoloboxAudio: typeof import('./components/yolobox/YoloboxAudio.vue')['default']

@@ -35,6 +35,7 @@ import NotifyCommandsUpdateMessage from "@/plugins/websocketEvents/websocketMess
 import NotifyUpdateManagerMessage from "@/plugins/websocketEvents/websocketMessage/NotifyUpdateManagerMessage.ts";
 import NotifyServiceReloadMessage from "@/plugins/websocketEvents/websocketMessage/NotifyServiceReloadMessage.ts";
 import NotifyOllamaUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyOllamaUpdateMessage.ts";
+import NotifyWebcamUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyWebcamUpdateMessage.ts";
 import NotifyRotatingSceneUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyRotatingSceneUpdateMessage.ts";
 import NotifyEventsUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyEventsUpdateMessage.ts";
 import NotifyAudioPresetsUpdateMessage from "@/plugins/websocketEvents/websocketMessage/NotifyAudioPresetsUpdateMessage.ts";
@@ -84,6 +85,7 @@ const MESSAGE_TYPES = [
   NotifyUpdateManagerMessage,
   NotifyServiceReloadMessage,
   NotifyOllamaUpdateMessage,
+  NotifyWebcamUpdateMessage,
   NotifyRotatingSceneUpdateMessage,
   NotifyEventsUpdateMessage,
   NotifyAudioPresetsUpdateMessage,
@@ -142,6 +144,7 @@ const STATEFUL_METHODS = new Set<string>([
   'notify_reload_update',
   'notify_update_manager',
   'notify_ollama_update',
+  'notify_webcam_update',
   'notify_events_update',
   'notify_dynamic_data_update',
   'notify_speedtest_update',

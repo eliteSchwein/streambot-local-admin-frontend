@@ -2185,7 +2185,8 @@
       "allData": "All system information",
       "swapUsage": "Swap usage",
       "noSwap": "No swap"
-    }
+    },
+    "webcamUsed": "Used by the webcam privacy blur"
   },
   "common": {
     "cancel": "Cancel",
@@ -3245,5 +3246,94 @@
       "days": "Days",
       "weeks": "Weeks"
     }
+  },
+  "webcam": {
+    "title": "Webcam stream",
+    "loading": "Loading webcam status...",
+    "description": "Streams USB webcams (each optionally with a microphone) to the cloud. Every camera gets its own private viewer link: anyone with the link can watch while that camera streams, and the link stays the same every time it starts again. Cameras are recognized by their USB identity, so plugging them in later or into another port works.",
+    "viewerUrl": "Viewer link (anyone with this link can watch)",
+    "device": "Camera",
+    "noDevices": "No USB webcam found",
+    "microphone": "Microphone",
+    "noAudio": "No audio",
+    "resolution": "Resolution",
+    "fps": "Frame rate",
+    "bitrate": "Bitrate",
+    "encoder": "Video encoder",
+    "auto": "Automatic",
+    "detected": "detected",
+    "detectionFps": "Detection {fps}/s",
+    "states": {
+      "disabled": "Off",
+      "waiting_for_cloud": "Waiting for cloud",
+      "requesting": "Requesting stream",
+      "starting": "Starting",
+      "streaming": "Live",
+      "error": "Error",
+      "waiting_for_device": "Camera not connected"
+    },
+    "detectors": {
+      "face": "Faces",
+      "plate": "Plates"
+    },
+    "backends": {
+      "coral": "Coral Edge TPU",
+      "rknn": "Rockchip NPU",
+      "cpu": "CPU",
+      "gpu": "GPU"
+    },
+    "privacy": {
+      "title": "Privacy blur",
+      "description": "Pixelates faces and license plates before the video leaves this device.",
+      "faces": "Blur faces",
+      "plates": "Blur license plates",
+      "notInstalled": "The privacy blur is not installed yet. The stream stays off until it is installed, so nothing is sent unblurred.",
+      "install": "Install privacy blur",
+      "installing": "Installing privacy blur: {step}",
+      "limits": "Very small or distant faces (below about 20 pixels) and partly hidden plates may not be detected. Until the detectors are ready the whole picture is pixelated.",
+      "updateAvailable": "A better license plate model is available (detects plates at about twice the distance).",
+      "update": "Update privacy blur",
+      "installed": "Privacy blur installed",
+      "remove": "Remove",
+      "removeConfirm": "Remove the privacy blur (models, Python environment, GPU/Coral runtimes)? Cameras with blur enabled stop streaming until it is installed again.",
+      "faceAccelerator": "Face detection hardware",
+      "plateAccelerator": "License plate detection hardware",
+      "faceAcceleratorHint": "Each Coral serves one camera; GPU and Rockchip NPU are shared.",
+      "plateAcceleratorHint": "GPU or CPU (no Coral/NPU model for plates). Automatic uses the GPU when available."
+    },
+    "addCamera": "Add camera",
+    "cloudConnected": "Cloud connected",
+    "cloudDisconnected": "Cloud not connected (streams start once it connects)",
+    "detectedCameras": "{count} camera(s) detected",
+    "noCamerasConfigured": "No camera added yet. Use \"Add camera\" to stream a connected webcam.",
+    "deviceMissing": "Not connected",
+    "name": "Name",
+    "removeCamera": "Remove camera",
+    "removeConfirm": "Remove \"{name}\"? Its viewer link is deleted for good.",
+    "notDetected": "not detected",
+    "usedBy": "used by {name}",
+    "stable": {
+      "by-id": "Identified by serial number",
+      "by-path": "Identified by USB port (no unique serial number)",
+      "node": "No stable identity"
+    },
+    "rtspUrl": "RTSP link (read only, e.g. OBS media source or VLC)",
+    "codec": "Video codec",
+    "codecs": {
+      "h264": "H.264 (most compatible)",
+      "h265": "H.265 / HEVC",
+      "av1": "AV1 (hardware only)"
+    },
+    "codecHints": {
+      "h264": "Plays in every browser, OBS and VLC.",
+      "h265": "About 40% less bandwidth. Browser playback: Safari, and Chrome/Edge only with hardware HEVC decoding; not Firefox. OBS/VLC via RTSP work.",
+      "av1": "Smallest bandwidth. Browser playback: Chrome, Edge, Firefox; Safari only on devices with AV1 hardware. Sent to the cloud over RTSP (TCP)."
+    },
+    "acceleratorFallback": "The selected detection hardware could not be used, faces are detected on the CPU: {reason}",
+    "coralNoAccess": "A Coral is connected ({device}) but this user may not open it. Run this once on the device, then replug the Coral:",
+    "coralCount": "{count} Coral(s)",
+    "anyCoral": "Any free Coral",
+    "coralNumber": "Coral #{number} ({type})",
+    "gpuNeedsInstall": "reinstall the privacy blur"
   }
 }

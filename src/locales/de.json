@@ -2185,7 +2185,8 @@
       "allData": "Alle Systeminformationen",
       "swapUsage": "Swap-Auslastung",
       "noSwap": "Kein Swap"
-    }
+    },
+    "webcamUsed": "Belegt durch die Webcam-Privatsphäre-Unschärfe"
   },
   "common": {
     "cancel": "Abbrechen",
@@ -3245,5 +3246,94 @@
       "days": "Tage",
       "weeks": "Wochen"
     }
+  },
+  "webcam": {
+    "title": "Webcam-Stream",
+    "loading": "Webcam-Status wird geladen...",
+    "description": "Streamt USB-Webcams (jeweils optional mit Mikrofon) in die Cloud. Jede Kamera bekommt einen eigenen privaten Zuschauer-Link: Jeder mit dem Link kann zusehen, solange diese Kamera streamt, und der Link bleibt bei jedem Neustart gleich. Kameras werden an ihrer USB-Kennung erkannt, späteres Anstecken oder ein anderer Anschluss funktioniert also.",
+    "viewerUrl": "Zuschauer-Link (jeder mit diesem Link kann zusehen)",
+    "device": "Kamera",
+    "noDevices": "Keine USB-Webcam gefunden",
+    "microphone": "Mikrofon",
+    "noAudio": "Kein Ton",
+    "resolution": "Auflösung",
+    "fps": "Bildrate",
+    "bitrate": "Bitrate",
+    "encoder": "Video-Encoder",
+    "auto": "Automatisch",
+    "detected": "erkannt",
+    "detectionFps": "Erkennung {fps}/s",
+    "states": {
+      "disabled": "Aus",
+      "waiting_for_cloud": "Warte auf Cloud",
+      "requesting": "Stream wird angefordert",
+      "starting": "Startet",
+      "streaming": "Live",
+      "error": "Fehler",
+      "waiting_for_device": "Kamera nicht angeschlossen"
+    },
+    "detectors": {
+      "face": "Gesichter",
+      "plate": "Kennzeichen"
+    },
+    "backends": {
+      "coral": "Coral Edge TPU",
+      "rknn": "Rockchip NPU",
+      "cpu": "CPU",
+      "gpu": "GPU"
+    },
+    "privacy": {
+      "title": "Privatsphäre-Unschärfe",
+      "description": "Verpixelt Gesichter und Kennzeichen, bevor das Video dieses Gerät verlässt.",
+      "faces": "Gesichter verpixeln",
+      "plates": "Kennzeichen verpixeln",
+      "notInstalled": "Die Privatsphäre-Unschärfe ist noch nicht installiert. Der Stream bleibt aus, bis sie installiert ist, damit nichts unverpixelt gesendet wird.",
+      "install": "Privatsphäre-Unschärfe installieren",
+      "installing": "Privatsphäre-Unschärfe wird installiert: {step}",
+      "limits": "Sehr kleine oder weit entfernte Gesichter (unter etwa 20 Pixeln) und teilweise verdeckte Kennzeichen werden eventuell nicht erkannt. Bis die Erkennung bereit ist, wird das ganze Bild verpixelt.",
+      "updateAvailable": "Ein besseres Kennzeichen-Modell ist verfügbar (erkennt Kennzeichen auf etwa doppelte Entfernung).",
+      "update": "Privatsphäre-Unschärfe aktualisieren",
+      "installed": "Privatsphäre-Unschärfe installiert",
+      "remove": "Entfernen",
+      "removeConfirm": "Privatsphäre-Unschärfe entfernen (Modelle, Python-Umgebung, GPU-/Coral-Laufzeiten)? Kameras mit aktivierter Unschärfe streamen nicht mehr, bis sie wieder installiert ist.",
+      "faceAccelerator": "Hardware für Gesichtserkennung",
+      "plateAccelerator": "Hardware für Kennzeichenerkennung",
+      "faceAcceleratorHint": "Jeder Coral bedient eine Kamera; GPU und Rockchip-NPU werden geteilt.",
+      "plateAcceleratorHint": "GPU oder CPU (kein Coral-/NPU-Modell für Kennzeichen). Automatisch nutzt die GPU, wenn vorhanden."
+    },
+    "addCamera": "Kamera hinzufügen",
+    "cloudConnected": "Cloud verbunden",
+    "cloudDisconnected": "Cloud nicht verbunden (Streams starten, sobald sie verbunden ist)",
+    "detectedCameras": "{count} Kamera(s) erkannt",
+    "noCamerasConfigured": "Noch keine Kamera hinzugefügt. Mit \"Kamera hinzufügen\" eine angeschlossene Webcam streamen.",
+    "deviceMissing": "Nicht angeschlossen",
+    "name": "Name",
+    "removeCamera": "Kamera entfernen",
+    "removeConfirm": "\"{name}\" entfernen? Der Zuschauer-Link wird endgültig gelöscht.",
+    "notDetected": "nicht erkannt",
+    "usedBy": "verwendet von {name}",
+    "stable": {
+      "by-id": "Erkannt an der Seriennummer",
+      "by-path": "Erkannt am USB-Anschluss (keine eindeutige Seriennummer)",
+      "node": "Keine feste Kennung"
+    },
+    "rtspUrl": "RTSP-Link (nur lesen, z. B. OBS-Medienquelle oder VLC)",
+    "codec": "Video-Codec",
+    "codecs": {
+      "h264": "H.264 (am kompatibelsten)",
+      "h265": "H.265 / HEVC",
+      "av1": "AV1 (nur Hardware)"
+    },
+    "codecHints": {
+      "h264": "Läuft in jedem Browser, OBS und VLC.",
+      "h265": "Etwa 40 % weniger Bandbreite. Browser: Safari, Chrome/Edge nur mit HEVC-Hardwaredekodierung, nicht Firefox. OBS/VLC über RTSP funktionieren.",
+      "av1": "Geringste Bandbreite. Browser: Chrome, Edge, Firefox; Safari nur mit AV1-Hardware. Wird per RTSP (TCP) an die Cloud gesendet."
+    },
+    "acceleratorFallback": "Die gewählte Erkennungs-Hardware konnte nicht genutzt werden, Gesichter werden auf der CPU erkannt: {reason}",
+    "coralNoAccess": "Ein Coral ist angeschlossen ({device}), aber dieser Benutzer darf ihn nicht öffnen. Einmal auf dem Gerät ausführen, dann den Coral neu einstecken:",
+    "coralCount": "{count} Coral",
+    "anyCoral": "Beliebiger freier Coral",
+    "coralNumber": "Coral #{number} ({type})",
+    "gpuNeedsInstall": "Privatsphäre-Unschärfe neu installieren"
   }
 }

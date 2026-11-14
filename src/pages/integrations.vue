@@ -8,8 +8,8 @@
     </v-card-title>
 
     <v-card-text class="px-3 pb-3">
-      <v-row density="comfortable" align="stretch">
-        <v-col cols="12" lg="6">
+      <div class="integrations-masonry">
+        <div class="integrations-masonry__item">
           <v-card class="integration-card" color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center ga-2">
               <v-icon icon="mdi-twitch" />
@@ -82,9 +82,9 @@
               </v-row>
             </v-card-text>
           </v-card>
-        </v-col>
+        </div>
 
-        <v-col cols="12" lg="6">
+        <div class="integrations-masonry__item">
           <v-card class="integration-card" color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
@@ -267,9 +267,13 @@
               </template>
             </v-card-text>
           </v-card>
-        </v-col>
+        </div>
 
-        <v-col cols="12" lg="6">
+        <div class="integrations-masonry__item">
+          <WebcamStreamCard />
+        </div>
+
+        <div class="integrations-masonry__item">
           <v-card class="integration-card" color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
@@ -329,9 +333,9 @@
               </div>
             </v-card-text>
           </v-card>
-        </v-col>
+        </div>
 
-        <v-col cols="12" lg="6">
+        <div class="integrations-masonry__item">
           <v-card class="integration-card" color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
@@ -429,9 +433,9 @@
               </v-list>
             </v-card-text>
           </v-card>
-        </v-col>
+        </div>
 
-        <v-col cols="12" lg="6">
+        <div class="integrations-masonry__item">
           <v-card class="integration-card" color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
@@ -481,9 +485,9 @@
               </v-card>
             </v-card-text>
           </v-card>
-        </v-col>
+        </div>
 
-        <v-col cols="12" lg="6">
+        <div class="integrations-masonry__item">
           <v-card class="integration-card" color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
@@ -607,9 +611,9 @@
               </v-list>
             </v-card-text>
           </v-card>
-        </v-col>
+        </div>
 
-        <v-col cols="12" lg="6">
+        <div class="integrations-masonry__item">
           <v-card class="integration-card" color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
@@ -741,13 +745,13 @@
               </v-list>
             </v-card-text>
           </v-card>
-        </v-col>
+        </div>
 
 
 
 
 
-        <v-col cols="12" lg="6">
+        <div class="integrations-masonry__item">
           <v-card class="integration-card" color="grey-darken-4" elevation="0">
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
@@ -1255,8 +1259,8 @@
               </template>
             </v-card-text>
           </v-card>
-        </v-col>
-      </v-row>
+        </div>
+      </div>
     </v-card-text>
   </v-card>
 </template>
@@ -1691,8 +1695,11 @@ export default {
       try {
         const response = await websocketClient.request(method, params)
 
-        if (response?.error) {
-          this.showError(response.error?.message ?? response.error ?? String(this.$t('integrations.ui.errors.requestFailed')))
+        // Transport errors are top-level, API handler errors come back as
+        // params.error in the result_* reply.
+        const error = response?.error ?? response?.params?.error
+        if (error) {
+          this.showError(error?.message ?? error ?? String(this.$t('integrations.ui.errors.requestFailed')))
           return false
         }
 
@@ -2252,8 +2259,24 @@ export default {
 
 
 <style scoped>
-.integration-card {
-  height: 100%;
+/* Two columns from Vuetify's lg breakpoint; each card keeps its own height. */
+.integrations-masonry {
+  column-count: 1;
+  column-gap: 16px;
+}
+
+@media (min-width: 1280px) {
+  .integrations-masonry {
+    column-count: 2;
+  }
+}
+
+.integrations-masonry__item {
+  break-inside: avoid;
+  /* inline-block keeps margins inside the column (Firefox/Safari). */
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 16px;
 }
 
 .integration-card :deep(.v-card-title) {

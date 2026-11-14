@@ -70,6 +70,8 @@ export const useAppStore = defineStore('app', {
     },
     storage: {},
     integrations: {},
+    // Webcam cloud stream state (notify_webcam_update), null until loaded.
+    webcam: null as any,
     settings: {},
     categoryLibrary: {
       enabled: false,
@@ -663,6 +665,9 @@ export const useAppStore = defineStore('app', {
     setStorage(storage: any) {
       this.storage = storage
       this.$patch(state => state.storage = storage)
+    },
+    setWebcam(webcam: any) {
+      this.webcam = webcam
     },
     setIntegrations(integrations: any) {
       this.integrations = integrations
