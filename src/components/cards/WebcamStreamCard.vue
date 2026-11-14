@@ -390,11 +390,24 @@
                 :disabled="busy"
                 @update:model-value="update(camera, { blur_plates: Boolean($event) })"
               />
+              <v-switch
+                :model-value="camera.show_detections"
+                :label="$t('webcam.privacy.showDetections')"
+                color="primary"
+                density="compact"
+                hide-details
+                inset
+                :disabled="busy"
+                @update:model-value="update(camera, { show_detections: Boolean($event) })"
+              />
             </div>
 
-            <template v-if="camera.blur_faces || camera.blur_plates">
+            <div v-if="camera.show_detections" class="text-caption text-medium-emphasis mt-1 mb-2">
+              {{ $t('webcam.privacy.showDetectionsHint') }}
+            </div>
+            <template v-if="camera.blur_faces || camera.blur_plates || camera.show_detections">
               <v-row dense class="mt-2">
-                <v-col v-if="camera.blur_faces" cols="12" md="6">
+                <v-col v-if="camera.blur_faces || camera.show_detections" cols="12" md="6">
                   <v-select
                     :model-value="camera.face_accelerator"
                     :items="acceleratorItems(camera)"
@@ -407,7 +420,7 @@
                     @update:model-value="update(camera, { face_accelerator: $event })"
                   />
                 </v-col>
-                <v-col v-if="camera.blur_plates" cols="12" md="6">
+                <v-col v-if="camera.blur_plates || camera.show_detections" cols="12" md="6">
                   <v-select
                     :model-value="camera.plate_accelerator"
                     :items="plateAcceleratorItems"
@@ -522,7 +535,7 @@ export default {
     },
 
     anyBlur(): boolean {
-      return (this.webcam?.cameras ?? []).some((camera: any) => camera.blur_faces || camera.blur_plates)
+      return (this.webcam?.cameras ?? []).some((camera: any) => camera.blur_faces || camera.blur_plates || camera.show_detections)
     },
 
     audioItems(): Array<{ title: string; value: string }> {

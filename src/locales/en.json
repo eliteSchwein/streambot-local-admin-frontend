@@ -3287,6 +3287,8 @@
       "description": "Pixelates faces and license plates before the video leaves this device.",
       "faces": "Blur faces",
       "plates": "Blur license plates",
+      "showDetections": "Show AI detections",
+      "showDetectionsHint": "Draw face and plate detection boxes in the outgoing video. Debugging only: the overlay is visible to viewers; it does not blur anything by itself.",
       "notInstalled": "The privacy blur is not installed yet. The stream stays off until it is installed, so nothing is sent unblurred.",
       "install": "Install privacy blur",
       "installing": "Installing privacy blur: {step}",

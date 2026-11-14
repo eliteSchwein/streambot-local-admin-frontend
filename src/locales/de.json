@@ -3287,6 +3287,8 @@
       "description": "Verpixelt Gesichter und Kennzeichen, bevor das Video dieses Gerät verlässt.",
       "faces": "Gesichter verpixeln",
       "plates": "Kennzeichen verpixeln",
+      "showDetections": "KI-Erkennungen anzeigen",
+      "showDetectionsHint": "Zeigt erkannte Gesichter und Kennzeichen als Rahmen im Videostream. Nur zur Diagnose: Die Rahmen sind für Zuschauer sichtbar und verpixeln selbst nichts.",
       "notInstalled": "Die Privatsphäre-Unschärfe ist noch nicht installiert. Der Stream bleibt aus, bis sie installiert ist, damit nichts unverpixelt gesendet wird.",
       "install": "Privatsphäre-Unschärfe installieren",
       "installing": "Privatsphäre-Unschärfe wird installiert: {step}",
