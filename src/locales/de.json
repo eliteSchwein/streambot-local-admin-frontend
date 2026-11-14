@@ -2734,7 +2734,6 @@
         },
         "progress": {
           "install": "Ollama wird installiert",
-          "vulkanBuild": "GPU-Backend (Vulkan) wird gebaut",
           "stages": {
             "preparing": "Vorbereiten",
             "downloading": "Herunterladen",
@@ -2746,6 +2745,23 @@
             "dependencies": "Abhängigkeiten installieren",
             "configuring": "Konfigurieren",
             "building": "Kompilieren"
+          },
+          "vulkanInstall": "Vulkan-Erweiterung wird installiert"
+        },
+        "vulkan": {
+          "title": "GPU-Beschleunigung (Vulkan)",
+          "install": "Vulkan-Erweiterung installieren (experimentell, eingeschränkte Hardwareunterstützung)",
+          "devices": "Ollama kann nutzen: {devices}",
+          "noDevices": "Erweiterung installiert, aber keine Vulkan-GPU erkannt. Ollama läuft auf der CPU.",
+          "installableHint": "Eine GPU mit Vulkan-Unterstützung wurde gefunden (Treiber: {drivers}). Die Erweiterung installiert die Treiber und kompiliert auf ARM-Geräten wie dem Raspberry Pi das GPU-Backend (kann über 30 Minuten dauern). Es ist nicht zwingend schneller als die CPU.",
+          "unsupportedDrivers": "Der GPU-Treiber ({drivers}) unterstützt kein Vulkan. Ollama läuft auf der CPU.",
+          "unsupportedHint": "Keine GPU gefunden. Ollama läuft auf der CPU.",
+          "status": {
+            "active": "Aktiv",
+            "noDevice": "Kein Gerät",
+            "installable": "Verfügbar",
+            "unsupported": "Nicht unterstützt",
+            "installing": "Wird installiert"
           }
         }
       },

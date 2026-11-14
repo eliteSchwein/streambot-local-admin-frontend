@@ -864,12 +864,6 @@
                   />
                 </template>
 
-                <OllamaProgress
-                  v-if="ollamaStatus.vulkan_build"
-                  :progress="ollamaStatus.vulkan_build"
-                  :label="$t('integrations.ui.ollama.progress.vulkanBuild')"
-                  class="mb-4"
-                />
 
                 <div class="text-body-2 text-medium-emphasis mb-4">
                   {{ $t('integrations.ui.ollama.internalDescription') }}
@@ -972,6 +966,53 @@
                     {{ $t('integrations.ui.ollama.restart') }}
                   </v-btn>
                 </div>
+
+                <template v-if="ollamaStatus.vulkan">
+                  <v-divider class="my-4" />
+
+                  <div class="d-flex align-center justify-space-between ga-3 flex-wrap">
+                    <div class="ollama-vulkan__info">
+                      <div class="text-body-2 d-flex align-center ga-2">
+                        {{ $t('integrations.ui.ollama.vulkan.title') }}
+                        <v-chip
+                          size="x-small"
+                          variant="tonal"
+                          :color="ollamaVulkanChip.color"
+                        >
+                          {{ ollamaVulkanChip.text }}
+                        </v-chip>
+                      </div>
+                      <div class="text-medium-emphasis text-caption">
+                        {{ ollamaVulkanDescription }}
+                      </div>
+                    </div>
+
+                    <v-btn
+                      v-if="ollamaStatus.vulkan.status === 'installable' && !ollamaStatus.vulkan_install"
+                      color="secondary"
+                      variant="tonal"
+                      prepend-icon="mdi-expansion-card"
+                      :loading="loading.ollamaVulkan"
+                      :disabled="
+                        reloadInProgress
+                        || !ollamaStatus.enabled
+                        || !ollamaStatus.installed
+                        || ollamaStatus.installing
+                        || ollamaStatus.changing_model
+                      "
+                      @click="installOllamaVulkan"
+                    >
+                      {{ $t('integrations.ui.ollama.vulkan.install') }}
+                    </v-btn>
+                  </div>
+
+                  <OllamaProgress
+                    v-if="ollamaStatus.vulkan_install"
+                    :progress="ollamaStatus.vulkan_install"
+                    :label="$t('integrations.ui.ollama.progress.vulkanInstall')"
+                    class="mt-3"
+                  />
+                </template>
               </template>
 
               <template v-else>
@@ -1288,6 +1329,7 @@ export default {
         ollamaToggle: false,
         ollamaModel: false,
         ollamaRestart: false,
+        ollamaVulkan: false,
         ollamaExternal: false,
         ollamaContextSize: false,
         neopixelSave: false,
@@ -1366,6 +1408,44 @@ export default {
       }
     },
 
+    ollamaVulkanChip(): { color: string; text: string } {
+      const vulkan = this.ollamaStatus.vulkan
+
+      if (this.ollamaStatus.vulkan_install) {
+        return { color: 'info', text: String(this.$t('integrations.ui.ollama.vulkan.status.installing')) }
+      }
+      if (vulkan?.status === 'installed') {
+        return vulkan.devices.length > 0
+          ? { color: 'success', text: String(this.$t('integrations.ui.ollama.vulkan.status.active')) }
+          : { color: 'warning', text: String(this.$t('integrations.ui.ollama.vulkan.status.noDevice')) }
+      }
+      if (vulkan?.status === 'installable') {
+        return { color: 'grey', text: String(this.$t('integrations.ui.ollama.vulkan.status.installable')) }
+      }
+
+      return { color: 'grey', text: String(this.$t('integrations.ui.ollama.vulkan.status.unsupported')) }
+    },
+
+    ollamaVulkanDescription(): string {
+      const vulkan = this.ollamaStatus.vulkan
+      if (!vulkan) return ''
+
+      const drivers = vulkan.gpu_drivers.join(', ') || '—'
+
+      if (vulkan.status === 'installed') {
+        return vulkan.devices.length > 0
+          ? String(this.$t('integrations.ui.ollama.vulkan.devices', { devices: vulkan.devices.join(', ') }))
+          : String(this.$t('integrations.ui.ollama.vulkan.noDevices'))
+      }
+      if (vulkan.status === 'installable') {
+        return String(this.$t('integrations.ui.ollama.vulkan.installableHint', { drivers }))
+      }
+
+      return vulkan.gpu_drivers.length > 0
+        ? String(this.$t('integrations.ui.ollama.vulkan.unsupportedDrivers', { drivers }))
+        : String(this.$t('integrations.ui.ollama.vulkan.unsupportedHint'))
+    },
+
     ollamaStatus(): {
       enabled: boolean
       installed: boolean
@@ -1373,7 +1453,14 @@ export default {
       installing: boolean
       changing_model: boolean
       progress: OllamaProgressState | null
-      vulkan_build: OllamaProgressState | null
+      vulkan_install: OllamaProgressState | null
+      vulkan: {
+        status: 'unsupported' | 'installable' | 'installed'
+        gpu_drivers: string[]
+        runtime: boolean
+        backend: boolean
+        devices: string[]
+      } | null
       model: string
       models: string[]
       recommended_model: string
@@ -1400,7 +1487,8 @@ export default {
         installing: Boolean(ollama.installing),
         changing_model: Boolean(ollama.changing_model),
         progress: ollama.progress ?? null,
-        vulkan_build: ollama.vulkan_build ?? null,
+        vulkan_install: ollama.vulkan_install ?? null,
+        vulkan: ollama.vulkan ?? null,
         model: String(ollama.model ?? ''),
         models: Array.isArray(ollama.models) ? ollama.models.map(String) : [],
         recommended_model: String(ollama.recommended_model ?? ''),
@@ -2072,6 +2160,16 @@ export default {
       }
     },
 
+    async installOllamaVulkan() {
+      this.loading.ollamaVulkan = true
+
+      try {
+        await this.sendWebsocket('ollama_vulkan_install')
+      } finally {
+        this.loading.ollamaVulkan = false
+      }
+    },
+
     async restartOllama() {
       this.loading.ollamaRestart = true
 
@@ -2181,5 +2279,11 @@ export default {
 
 .integration-card :deep(.v-list) {
   padding-top: 0;
+}
+
+/* Long hint text next to the install button. */
+.ollama-vulkan__info {
+  flex: 1 1 280px;
+  min-width: 0;
 }
 </style>
