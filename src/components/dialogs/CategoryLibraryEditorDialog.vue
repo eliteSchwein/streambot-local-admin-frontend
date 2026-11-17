@@ -462,13 +462,13 @@
                           variant="outlined"
                           density="compact"
                         >
-                          <template #chip="{ props, item }">
+                          <template #chip="{ props, internalItem }">
                             <v-chip
                               v-bind="props"
                               color="primary"
                               variant="tonal"
                             >
-                              {{ item.title }}
+                              {{ internalItem.title }}
                             </v-chip>
                           </template>
 
@@ -476,7 +476,7 @@
                             <v-list-item v-bind="props">
                               <template #append>
                                 <v-chip
-                                  v-if="item.raw.defaultEnabled"
+                                  v-if="item.defaultEnabled"
                                   size="x-small"
                                   variant="tonal"
                                 >
@@ -506,13 +506,13 @@
                           variant="outlined"
                           density="compact"
                         >
-                          <template #chip="{ props, item }">
+                          <template #chip="{ props, internalItem }">
                             <v-chip
                               v-bind="props"
                               color="error"
                               variant="tonal"
                             >
-                              {{ item.title }}
+                              {{ internalItem.title }}
                             </v-chip>
                           </template>
                         </v-autocomplete>
@@ -575,9 +575,9 @@
                             <v-divider class="my-1" />
                           </template>
 
-                          <template #chip="{ props, item }">
+                          <template #chip="{ props, internalItem }">
                             <v-chip v-bind="props" color="success" variant="tonal">
-                              {{ item.title }}
+                              {{ internalItem.title }}
                             </v-chip>
                           </template>
                         </v-autocomplete>
@@ -609,9 +609,9 @@
                             <v-divider class="my-1" />
                           </template>
 
-                          <template #chip="{ props, item }">
+                          <template #chip="{ props, internalItem }">
                             <v-chip v-bind="props" color="secondary" variant="tonal">
-                              {{ item.title }}
+                              {{ internalItem.title }}
                             </v-chip>
                           </template>
                         </v-autocomplete>
@@ -1087,11 +1087,12 @@ export default {
               .map((point: any) => String(typeof point === 'string' ? point : point?.name ?? point?.label ?? '').trim())
               .filter(Boolean)
           : [],
+        // Backend stores these as macros_on_active / macros_on_inactive.
         active_macros: this.normalizeMacroList(
-          value?.active_macros ?? value?.activate_macros ?? value?.on_active_macros,
+          value?.macros_on_active ?? value?.active_macros ?? value?.activate_macros ?? value?.on_active_macros,
         ),
         inactive_macros: this.normalizeMacroList(
-          value?.inactive_macros ?? value?.deactivate_macros ?? value?.on_inactive_macros,
+          value?.macros_on_inactive ?? value?.inactive_macros ?? value?.deactivate_macros ?? value?.on_inactive_macros,
         ),
         custom_media: Array.isArray(value?.custom_media)
           ? value.custom_media
@@ -1458,8 +1459,10 @@ export default {
       this.syncObsFiltersFromJson()
       if (!this.canSave) return
 
+      const { active_macros: activeMacros, inactive_macros: inactiveMacros, ...formData } = this.form as any
+
       const category = {
-        ...this.form,
+        ...formData,
         category_id: String(this.form.category_id),
         name: String(this.form.name).trim(),
         steam_app_id: Number(this.form.steam_app_id) > 0 ? Number(this.form.steam_app_id) : undefined,
@@ -1473,11 +1476,11 @@ export default {
         blocked_channel_points: Array.from(new Set(
           (this.form.blocked_channel_points ?? []).map((name: string) => String(name).trim()).filter(Boolean),
         )),
-        active_macros: Array.from(new Set(
-          (this.form.active_macros ?? []).map((name: string) => String(name).trim()).filter(Boolean),
+        macros_on_active: Array.from(new Set(
+          (activeMacros ?? []).map((name: string) => String(name).trim()).filter(Boolean),
         )),
-        inactive_macros: Array.from(new Set(
-          (this.form.inactive_macros ?? []).map((name: string) => String(name).trim()).filter(Boolean),
+        macros_on_inactive: Array.from(new Set(
+          (inactiveMacros ?? []).map((name: string) => String(name).trim()).filter(Boolean),
         )),
         custom_media: this.form.custom_media
           .map((media: any) => ({

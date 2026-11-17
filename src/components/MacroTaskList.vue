@@ -967,6 +967,7 @@ export default {
         }
         if (item?.task?.method === 'ToggleInputMute') return 'MacroObsToggleInputMuteTaskAccordion'
         if (item?.task?.method === 'SetInputVolume') return 'MacroObsSetInputVolumeTaskAccordion'
+        if (item?.task?.method === 'set_media_path') return 'MacroObsSetMediaPathTaskAccordion'
 
         if (item?.task?.method === 'transition_source_filter') return 'MacroObsTransitionSourceFilterTaskAccordion'
 

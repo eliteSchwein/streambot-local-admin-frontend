@@ -405,6 +405,12 @@
       "setInputVolume": {
         "title": "Set input volume"
       },
+      "setMediaPath": {
+        "title": "Set media path",
+        "path": "File path or URL",
+        "pathHint": "Supports template variables. Works with media, image, VLC and slideshow sources.",
+        "restart": "Restart media after change"
+      },
       "setProfile": {
         "title": "Set OBS profile"
       },
@@ -926,7 +932,8 @@
           "setProfile": "Set profile",
           "setSceneCollection": "Set scene collection",
           "sourceScreenshot": "Source screenshot",
-          "outputScreenshot": "Output screenshot"
+          "outputScreenshot": "Output screenshot",
+          "setMediaPath": "Set media path"
         }
       },
       "lights": {

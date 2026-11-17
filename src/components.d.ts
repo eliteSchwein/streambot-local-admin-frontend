@@ -162,6 +162,7 @@ declare module 'vue' {
     MacroObsScreenshotTaskAccordion: typeof import('./components/accordions/macro/obs/MacroObsScreenshotTaskAccordion.vue')['default']
     MacroObsSetInputMuteTaskAccordion: typeof import('./components/accordions/macro/obs/MacroObsSetInputMuteTaskAccordion.vue')['default']
     MacroObsSetInputVolumeTaskAccordion: typeof import('./components/accordions/macro/obs/MacroObsSetInputVolumeTaskAccordion.vue')['default']
+    MacroObsSetMediaPathTaskAccordion: typeof import('./components/accordions/macro/obs/MacroObsSetMediaPathTaskAccordion.vue')['default']
     MacroObsSetProfileTaskAccordion: typeof import('./components/accordions/macro/obs/MacroObsSetProfileTaskAccordion.vue')['default']
     MacroObsSetSceneCollectionTaskAccordion: typeof import('./components/accordions/macro/obs/MacroObsSetSceneCollectionTaskAccordion.vue')['default']
     MacroObsShowSceneItemTaskAccordion: typeof import('./components/accordions/macro/obs/MacroObsShowSceneItemTaskAccordion.vue')['default']

@@ -10,6 +10,7 @@ export { default as MacroObsSaveReplayBufferTaskAccordion } from './MacroObsSave
 export { default as MacroObsScreenshotTaskAccordion } from './MacroObsScreenshotTaskAccordion.vue'
 export { default as MacroObsSetInputMuteTaskAccordion } from './MacroObsSetInputMuteTaskAccordion.vue'
 export { default as MacroObsSetInputVolumeTaskAccordion } from './MacroObsSetInputVolumeTaskAccordion.vue'
+export { default as MacroObsSetMediaPathTaskAccordion } from './MacroObsSetMediaPathTaskAccordion.vue'
 export { default as MacroObsSetProfileTaskAccordion } from './MacroObsSetProfileTaskAccordion.vue'
 export { default as MacroObsSetSceneCollectionTaskAccordion } from './MacroObsSetSceneCollectionTaskAccordion.vue'
 export { default as MacroObsShowSceneItemTaskAccordion } from './MacroObsShowSceneItemTaskAccordion.vue'
@@ -322,5 +323,15 @@ export const obsMacroTaskPresets: MacroTaskPresetRegistration[] = [
     icon: "mdi-folder-cog",
     order: 129,
     create: () => ({ type: 'task', task: { channel: 'obs', method: 'SetCurrentSceneCollection', data: { sceneCollectionName: '' } } }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.obs.title", icon: "mdi-broadcast" },
+      { titleKey: "macro.presets.obs.tools.title", icon: "mdi-tools" },
+    ],
+    titleKey: "macro.presets.obs.tools.setMediaPath",
+    icon: "mdi-file-video",
+    order: 129.5,
+    create: () => ({ type: 'task', task: { channel: 'obs', method: 'set_media_path', data: { inputName: '', path: '', restart: true } } }),
   },
 ]

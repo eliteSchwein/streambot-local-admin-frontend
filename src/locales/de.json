@@ -405,6 +405,12 @@
       "setInputVolume": {
         "title": "Eingangslautstärke setzen"
       },
+      "setMediaPath": {
+        "title": "Medienpfad setzen",
+        "path": "Dateipfad oder URL",
+        "pathHint": "Unterstützt Template-Variablen. Funktioniert mit Medien-, Bild-, VLC- und Diashow-Quellen.",
+        "restart": "Medium nach Änderung neu starten"
+      },
       "setProfile": {
         "title": "OBS-Profil setzen"
       },
@@ -926,7 +932,8 @@
           "setProfile": "Profil setzen",
           "setSceneCollection": "Szenensammlung setzen",
           "sourceScreenshot": "Quellen-Screenshot",
-          "outputScreenshot": "Output-Screenshot"
+          "outputScreenshot": "Output-Screenshot",
+          "setMediaPath": "Medienpfad setzen"
         }
       },
       "lights": {
