@@ -590,6 +590,8 @@
         "stopClipsEarly": "Clips frühzeitig beenden",
         "showInformationOverlay": "Informations-Overlay anzeigen",
         "showTimer": "Timer anzeigen",
+        "sameCategory": "Nur Clips aus der aktuellen Kategorie",
+        "sameCategoryHint": "Spielt nur Clips ab, die in der aktuell gestreamten Kategorie aufgenommen wurden.",
         "resultHint": "Speichert den zuerst abgespielten Clip inklusive Twitch-Clip-Metadaten, Kanal, Wiedergabemodus und Auswahlmodus.",
         "modes": {
           "random": "Zufällig",

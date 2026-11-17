@@ -590,6 +590,8 @@
         "stopClipsEarly": "Stop clips early",
         "showInformationOverlay": "Show information overlay",
         "showTimer": "Show timer",
+        "sameCategory": "Only clips from the current category",
+        "sameCategoryHint": "Plays only clips recorded in the category that is currently streamed.",
         "resultHint": "Stores the first played clip, including its Twitch clip metadata, channel, playback mode and selection mode.",
         "modes": {
           "random": "Random",

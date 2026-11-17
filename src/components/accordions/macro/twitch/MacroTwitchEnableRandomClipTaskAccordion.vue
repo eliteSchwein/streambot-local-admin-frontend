@@ -104,6 +104,16 @@
       </v-col>
 
       <v-col cols="12" md="6">
+        <v-switch
+          v-model="task.data.same_category"
+          color="primary"
+          :label="$t('macro.twitch.randomClip.sameCategory')"
+          :hint="$t('macro.twitch.randomClip.sameCategoryHint')"
+          persistent-hint
+        />
+      </v-col>
+
+      <v-col cols="12" md="6">
         <v-slider
           v-model="task.data.volume"
           min="0"
