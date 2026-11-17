@@ -117,6 +117,7 @@ const stableDataKeys = new Set([
   'sceneItemLocked',
   'inputMuted',
   'filterEnabled',
+  'random',
 ])
 
 function taskFromPreset(registration: MacroTaskPresetRegistration): any {

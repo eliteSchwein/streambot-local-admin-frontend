@@ -1177,7 +1177,13 @@
         "breakInfo": "Beendet den nächsten aktiven Switch sofort. Am Ende jedes nicht-leeren Case-Blocks wird automatisch ein Break ausgeführt.",
         "caseTasks": "Case-Aufgaben",
         "addCaseInput": "Case-Eingabe hinzufügen",
-        "removeCaseInput": "Case-Eingabe entfernen"
+        "removeCaseInput": "Case-Eingabe entfernen",
+        "randomTitle": "Zufalls-Switch",
+        "randomInfo": "Wählt bei jeder Ausführung zufällig einen Case aus. Default wird nur ausgeführt, wenn kein Case gewählt werden kann (keine Cases oder alle Gewichte 0).",
+        "weight": "Gewichtung",
+        "weightHint": "Relative Wahrscheinlichkeit dieses Cases (Standard 1, 0 = nie). Unterstützt Template-Variablen.",
+        "caseLabel": "Case {number}",
+        "casesCount": "{count} Cases"
       },
       "ollamaChat": {
         "title": "AI Chatbot",

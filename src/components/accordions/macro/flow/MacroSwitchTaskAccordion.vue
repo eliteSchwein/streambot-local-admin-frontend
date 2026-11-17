@@ -3,15 +3,26 @@
     class="macro-switch-task-accordion"
     :item="item"
     :index="index"
-    icon="mdi-call-split"
-    :title="$t('macro.core.switch.title')"
-    :detail="switchData.input || ''"
+    :icon="isRandom ? 'mdi-dice-multiple' : 'mdi-call-split'"
+    :title="isRandom ? $t('macro.core.switch.randomTitle') : $t('macro.core.switch.title')"
+    :detail="isRandom ? $t('macro.core.switch.casesCount', { count: item.cases.length }) : (switchData.input || '')"
     export-prefix="macro_switch"
     @remove="$emit('remove')"
     @move-up="$emit('move-up')"
     @move-down="$emit('move-down')"
   >
+    <v-alert
+      v-if="isRandom"
+      type="info"
+      variant="tonal"
+      density="compact"
+      class="mb-4"
+    >
+      {{ $t('macro.core.switch.randomInfo') }}
+    </v-alert>
+
     <v-text-field
+      v-else
       v-model="switchData.input"
       :label="$t('macro.core.switch.input')"
       :hint="$t('macro.core.switch.inputHint')"
@@ -27,7 +38,25 @@
       :class="caseIndex > 0 ? 'mt-4' : ''"
     >
       <div class="d-flex align-center ga-2 mb-2">
-        <div class="flex-grow-1">
+        <div v-if="isRandom" class="flex-grow-1 d-flex align-center ga-4">
+          <div class="text-subtitle-2 text-no-wrap">
+            {{ $t('macro.core.switch.caseLabel', { number: caseIndex + 1 }) }}
+          </div>
+
+          <v-text-field
+            :model-value="caseItem.task?.data?.weight ?? ''"
+            :label="$t('macro.core.switch.weight')"
+            :hint="$t('macro.core.switch.weightHint')"
+            placeholder="1"
+            density="comfortable"
+            variant="outlined"
+            hide-details="auto"
+            style="max-width: 320px"
+            @update:model-value="setCaseWeight(caseItem, $event)"
+          />
+        </div>
+
+        <div v-else class="flex-grow-1">
           <v-row density="compact">
             <v-col
               v-for="(caseInput, inputIndex) in caseItem.inputs"
@@ -178,7 +207,7 @@ export default {
     task.channel = 'switch'
     task.method = 'switch'
     task.data ??= {}
-    task.data.input ??= ''
+    if (task.data.random !== true) task.data.input ??= ''
 
     if (!Array.isArray((this.item as any).cases)) {
       ;(this.item as any).cases = []
@@ -196,6 +225,10 @@ export default {
       const task = (this.item as any).task
       task.data ??= {}
       return task.data
+    },
+
+    isRandom(): boolean {
+      return this.switchData.random === true
     },
   },
 
@@ -228,6 +261,20 @@ export default {
       if (!Array.isArray(caseItem.inputs)) caseItem.inputs = ['']
       caseItem.inputs[index] = String(value ?? '')
       this.syncCaseTask(caseItem)
+    },
+
+    setCaseWeight(caseItem: any, value: unknown) {
+      caseItem.task ??= { channel: 'switch', method: 'case', data: {} }
+      caseItem.task.data ??= {}
+
+      const weight = String(value ?? '').trim()
+      if (!weight) {
+        delete caseItem.task.data.weight
+        return
+      }
+
+      const numeric = Number(weight)
+      caseItem.task.data.weight = Number.isFinite(numeric) ? numeric : weight
     },
 
     syncCaseTask(caseItem: any) {

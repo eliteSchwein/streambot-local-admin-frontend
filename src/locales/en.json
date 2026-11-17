@@ -1177,7 +1177,13 @@
         "breakInfo": "Stops the nearest active switch immediately. A break is added automatically at the end of every non-empty case body.",
         "caseTasks": "Case tasks",
         "addCaseInput": "Add case input",
-        "removeCaseInput": "Remove case input"
+        "removeCaseInput": "Remove case input",
+        "randomTitle": "Random switch",
+        "randomInfo": "Picks one case at random every time the switch runs. Default runs only when no case can be picked (no cases or all weights 0).",
+        "weight": "Weight",
+        "weightHint": "Relative chance of this case (default 1, 0 = never). Supports template variables.",
+        "caseLabel": "Case {number}",
+        "casesCount": "{count} cases"
       },
       "ollamaChat": {
         "title": "AI Chatbot",

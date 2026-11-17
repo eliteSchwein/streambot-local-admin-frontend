@@ -39,6 +39,15 @@ export const flowMacroTaskPresets: MacroTaskPresetRegistration[] = [
     path: [
       { titleKey: "macro.presets.conditions.title", icon: "mdi-source-branch" },
     ],
+    titleKey: "macro.core.switch.randomTitle",
+    icon: "mdi-dice-multiple",
+    order: 3,
+    create: () => ({ type: 'switch', task: { channel: 'switch', method: 'switch', data: { random: true } }, cases: [] }),
+  },
+  {
+    path: [
+      { titleKey: "macro.presets.conditions.title", icon: "mdi-source-branch" },
+    ],
     titleKey: "macro.core.switch.breakTitle",
     icon: "mdi-stop-circle-outline",
     order: 4,
